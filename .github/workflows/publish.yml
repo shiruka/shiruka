@@ -51,16 +51,11 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Generate settings.xml for Maven Builds
-        uses: whelk-io/maven-settings-xml-action@v12
-        with:
-          servers: '[{ "id": "oss.sonatype.org", "username": "${{ secrets.SONATYPE_USERNAME }}", "password": "${{ secrets.SONATYPE_PASSWORD }}"}]'
-
       - name: Publish with Maven
         run: |
           [[ "${{ steps.bump-semver.outputs.new_version }}" =~ ^[0-9]+(\.[0-9]+)*$ ]] || exit -1
           mvn versions:set -DnewVersion="${{ steps.bump-semver.outputs.new_version }}" -ntp -B
-          mvn deploy -ntp -B
+          mvn install -ntp -B
 
       - uses: ncipollo/release-action@v1
         with:

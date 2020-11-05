@@ -31,7 +31,7 @@ jobs:
         id: version
         with:
           owner: shiruka
-          repo: common
+          repo: shiruka
 
       - name: Bump and return the new version.
         uses: actions-ecosystem/action-bump-semver@v1

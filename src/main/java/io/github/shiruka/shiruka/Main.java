@@ -62,7 +62,7 @@ public final class Main {
    * execs the Java program.
    */
   private void exec() throws Exception {
-    Loggers.init("Shiruka");
+    Loggers.init("Shiru ka");
     final var server = new ShirukaServer();
     Shiruka.setServer(server);
   }

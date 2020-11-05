@@ -25,43 +25,36 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.Shiruka;
-import org.jetbrains.annotations.NotNull;
+import java.nio.file.Paths;
+import net.minecrell.terminalconsole.SimpleTerminalConsole;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 
 /**
- * a Java main class to start the Shiru ka's server.
+ * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
-public final class Main {
+public final class ShirukaConsole extends SimpleTerminalConsole {
 
-  /**
-   * the program arguments.
-   */
-  @NotNull
-  private final String[] args;
-
-  /**
-   * ctor.
-   *
-   * @param args the program arguments.
-   */
-  public Main(@NotNull final String[] args) {
-    this.args = args.clone();
+  @Override
+  protected boolean isRunning() {
+    return false;
   }
 
-  /**
-   * runs the Java program.
-   *
-   * @param args the args to run.
-   */
-  public static void main(final String[] args) {
-    new Main(args).exec();
+  @Override
+  protected void runCommand(final String s) {
   }
 
-  /**
-   * execs the Java program.
-   */
-  private void exec() {
-    final var server = new ShirukaServer();
-    Shiruka.setServer(server);
+  @Override
+  protected void shutdown() {
+  }
+
+  @Override
+  protected LineReader buildReader(final LineReaderBuilder builder) {
+    return super.buildReader(builder
+      .appName("Shiru ka")
+      .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
+      .completer((lineReader, parsedLine, list) -> {
+        // tab completer.
+      }));
   }
 }

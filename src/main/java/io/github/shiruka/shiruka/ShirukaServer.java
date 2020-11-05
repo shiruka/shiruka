@@ -25,43 +25,11 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.Shiruka;
-import org.jetbrains.annotations.NotNull;
+import io.github.shiruka.api.Server;
 
 /**
- * a Java main class to start the Shiru ka's server.
+ * an implementation for {@link Server}.
  */
-public final class Main {
+public final class ShirukaServer implements Server {
 
-  /**
-   * the program arguments.
-   */
-  @NotNull
-  private final String[] args;
-
-  /**
-   * ctor.
-   *
-   * @param args the program arguments.
-   */
-  public Main(@NotNull final String[] args) {
-    this.args = args.clone();
-  }
-
-  /**
-   * runs the Java program.
-   *
-   * @param args the args to run.
-   */
-  public static void main(final String[] args) {
-    new Main(args).exec();
-  }
-
-  /**
-   * execs the Java program.
-   */
-  private void exec() {
-    final var server = new ShirukaServer();
-    Shiruka.setServer(server);
-  }
 }

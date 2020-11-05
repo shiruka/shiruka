@@ -62,10 +62,9 @@ jobs:
           mvn versions:set -DnewVersion="${{ steps.bump-semver.outputs.new_version }}" -ntp -B
           mvn deploy -ntp -B
 
-      - name: Create a Release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ steps.bump-semver.outputs.new_version }}
-          release_name: ${{ steps.bump-semver.outputs.new_version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.bump-semver.outputs.new_version }}
+          tag: ${{ steps.bump-semver.outputs.new_version }}
+          artifacts: "target/shiruka.jar"

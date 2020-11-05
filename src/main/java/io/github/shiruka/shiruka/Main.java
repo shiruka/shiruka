@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.log.Loggers;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -53,14 +54,15 @@ public final class Main {
    *
    * @param args the args to run.
    */
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws Exception {
     new Main(args).exec();
   }
 
   /**
    * execs the Java program.
    */
-  private void exec() {
+  private void exec() throws Exception {
+    Loggers.init("Shiruka");
     final var server = new ShirukaServer();
     Shiruka.setServer(server);
   }

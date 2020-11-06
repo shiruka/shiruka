@@ -30,7 +30,7 @@
   <parent>
     <groupId>io.github.portlek</groupId>
     <artifactId>ppom</artifactId>
-    <version>1.9.5</version>
+    <version>1.9.6</version>
   </parent>
   <groupId>io.github.shiruka</groupId>
   <artifactId>shiruka</artifactId>

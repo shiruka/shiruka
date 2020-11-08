@@ -25,53 +25,31 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.log.Loggers;
+import io.github.shiruka.conf.Provider;
+import io.github.shiruka.conf.config.YamlProvider;
+import io.github.shiruka.fragment.FragmentManager;
+import io.github.shiruka.log.Logger;
 import java.io.File;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a Java main class to start the Shiru ka's server.
+ * an implementation for {@link FragmentManager}.
  */
-public final class Main {
+public final class ShirukaFragmentManager extends FragmentManager {
 
-  /**
-   * the program arguments.
-   */
+  public ShirukaFragmentManager(@NotNull final File fragmentsDir, @NotNull final Logger logger) {
+    super(fragmentsDir, logger);
+  }
+
   @NotNull
-  private final String[] args;
-
-  /**
-   * ctor.
-   *
-   * @param args the program arguments.
-   */
-  public Main(@NotNull final String[] args) {
-    this.args = args.clone();
+  @Override
+  public String getFragmentConfigFileName() {
+    return "fragment.yml";
   }
 
-  /**
-   * runs the Java program.
-   *
-   * @param args the args to run.
-   */
-  public static void main(final String[] args) throws Exception {
-    new Main(args).exec();
-  }
-
-  /**
-   * execs the Java program.
-   */
-  private void exec() throws Exception {
-    Loggers.init("Shiru ka");
-    final var optional = Loggers.getLogger();
-    if (optional.isEmpty()) {
-      return;
-    }
-    final var logger = optional.get();
-    final var fragmentsDir = new File("fragments");
-    final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);
-    final var server = new ShirukaServer();
-    Shiruka.initServer(server, fragmentManager);
+  @NotNull
+  @Override
+  protected Provider<?> getConfigProvider() {
+    return new YamlProvider();
   }
 }

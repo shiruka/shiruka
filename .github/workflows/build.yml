@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 
@@ -19,4 +18,9 @@ jobs:
           java-version: 11
 
       - name: Build with Maven
-        run: mvn install -Dgpg.skip=true -ntp -B
+        run: |
+          mvn clean install -Dgpg.skip=true -ntp -B
+          mvn test -Pcoverage jacoco:report -ntp -B
+
+      - name: Codecov
+        uses: codecov/codecov-action@v1.0.14

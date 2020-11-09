@@ -25,14 +25,11 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.Server;
 import io.github.shiruka.conf.Provider;
 import io.github.shiruka.conf.config.YamlProvider;
-import io.github.shiruka.fragment.Fragment;
 import io.github.shiruka.fragment.FragmentManager;
 import io.github.shiruka.log.Logger;
 import java.io.File;
-import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,25 +37,21 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ShirukaFragmentManager extends FragmentManager {
 
-  @NotNull
-  private final Server server;
-
-  public ShirukaFragmentManager(@NotNull final Server server, @NotNull final File fragmentsDir,
-                                @NotNull final Logger logger) {
+  /**
+   * ctor.
+   *
+   * @param fragmentsDir the fragment directory.
+   * @param logger the logger.
+   */
+  ShirukaFragmentManager(@NotNull final File fragmentsDir,
+                         @NotNull final Logger logger) {
     super(fragmentsDir, logger);
-    this.server = server;
   }
 
   @NotNull
   @Override
   public String getFragmentConfigFileName() {
     return "fragment.yml";
-  }
-
-  @NotNull
-  @Override
-  protected Map<String, Fragment> sortAndFilter(@NotNull final Map<String, Fragment> original) {
-    return super.sortAndFilter(original);
   }
 
   @NotNull

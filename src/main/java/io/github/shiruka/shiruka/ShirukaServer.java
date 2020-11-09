@@ -44,7 +44,7 @@ public final class ShirukaServer implements Server {
   }
 
   @Override
-  public void runCommand(@NotNull final String s) {
+  public void runCommand(@NotNull final String command) {
   }
 
   @Override

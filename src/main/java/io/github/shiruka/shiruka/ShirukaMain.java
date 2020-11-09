@@ -31,6 +31,7 @@ import io.github.shiruka.fragment.FragmentDownloader;
 import io.github.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.File;
+import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.TerminalBuilder;
@@ -95,9 +96,24 @@ public final class ShirukaMain {
     final var logger = Loggers.init("Shiru ka", ShirukaMain.COMMANDER.debug);
     final var fragmentsDir = new File("fragments");
     final var server = new ShirukaServer();
-    final var downloader = new FragmentDownloader(logger, ShirukaMain.FRAGMENTS_DATABASE);
-    downloader.getFragments();
-    final var fragmentManager = new ShirukaFragmentManager(server, fragmentsDir, logger);
+    final var fragmentDownloader = new FragmentDownloader(logger, ShirukaMain.FRAGMENTS_DATABASE);
+    fragmentDownloader.getFragments(fragmentInfos ->
+      fragmentInfos.stream()
+        .filter(info -> {
+          if (server.checkFragmentInfo(info)) {
+
+            return true;
+          }
+          return false;
+        })
+        .forEach(fragmentInfo -> {
+          try {
+            fragmentInfo.download(fragmentsDir);
+          } catch (final IOException e) {
+            e.printStackTrace();
+          }
+        }));
+    final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);
     Shiruka.initServer(server, fragmentManager);
     fragmentManager.loadFragments();
     final var reader = LineReaderBuilder.builder()

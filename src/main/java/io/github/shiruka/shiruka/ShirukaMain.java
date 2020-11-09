@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka;
 
 import com.beust.jcommander.JCommander;
 import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.fragment.FragmentDownloader;
 import io.github.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.File;
@@ -38,6 +39,11 @@ import org.jline.terminal.TerminalBuilder;
  * a Java main class to start the Shiru ka's server.
  */
 public final class ShirukaMain {
+
+  /**
+   * the database of fragments.
+   */
+  private static final String FRAGMENTS_DATABASE = "https://raw.githubusercontent.com/shiruka/fragments/master/fragments.json";
 
   /**
    * Shiru ka's program arguments.
@@ -89,6 +95,8 @@ public final class ShirukaMain {
     final var logger = Loggers.init("Shiru ka", ShirukaMain.COMMANDER.debug);
     final var fragmentsDir = new File("fragments");
     final var server = new ShirukaServer();
+    final var downloader = new FragmentDownloader(logger, ShirukaMain.FRAGMENTS_DATABASE);
+    downloader.getFragments();
     final var fragmentManager = new ShirukaFragmentManager(server, fragmentsDir, logger);
     Shiruka.initServer(server, fragmentManager);
     fragmentManager.loadFragments();

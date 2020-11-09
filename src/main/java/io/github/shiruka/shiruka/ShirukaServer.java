@@ -42,4 +42,13 @@ public final class ShirukaServer implements Server {
   public static String getVersion() {
     return "1.0.0";
   }
+
+  @Override
+  public void runCommand(@NotNull final String s) {
+  }
+
+  @Override
+  public boolean isInShutdownState() {
+    return false;
+  }
 }

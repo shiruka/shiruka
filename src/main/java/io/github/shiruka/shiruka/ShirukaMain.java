@@ -105,7 +105,7 @@ public final class ShirukaMain {
         continue;
       }
       server.runCommand(line);
-      if (server.isShutdownState()) {
+      if (server.isInShutdownState()) {
         return;
       }
     }

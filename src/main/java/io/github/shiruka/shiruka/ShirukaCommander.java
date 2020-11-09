@@ -32,9 +32,16 @@ import com.beust.jcommander.Parameter;
  */
 final class ShirukaCommander {
 
+  /**
+   * if the program argument has this argument, the server won't start and
+   * shows the usage of the all commands for Shiru ka.
+   */
   @Parameter(names = "-help", description = "Shows the usage of commands", arity = 0, help = true)
   boolean help = false;
 
+  /**
+   * runs the Shiru ka on debug mode to print more log messages.
+   */
   @Parameter(names = "-debug", description = "Activates the debug mode", arity = 0)
   boolean debug = false;
 }

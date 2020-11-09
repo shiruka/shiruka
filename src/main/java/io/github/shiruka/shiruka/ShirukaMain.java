@@ -104,11 +104,10 @@ public final class ShirukaMain {
       if (line.isEmpty()) {
         continue;
       }
-//      TODO add runcommand and is shotdownstate methods.
-//      server.runCommand(line);
-//      if (server.isShutdownState()) {
-//        return;
-//      }
+      server.runCommand(line);
+      if (server.isShutdownState()) {
+        return;
+      }
     }
   }
 }

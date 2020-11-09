@@ -22,24 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka;
-
-import io.github.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an implementation for {@link Server}.
+ * the package that contains misc classes.
  */
-public final class ShirukaServer implements Server {
-
-  /**
-   * obtains the Shiru ka server's version
-   *
-   * @return the Shiru ka's version.
-   */
-  @NotNull
-  public static String getVersion() {
-    return "1.0.0";
-  }
-}
+package io.github.shiruka.shiruka.misc;

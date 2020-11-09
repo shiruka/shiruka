@@ -25,15 +25,24 @@
 
 package io.github.shiruka.shiruka;
 
+import com.beust.jcommander.JCommander;
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.log.Loggers;
+import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.File;
 import org.jetbrains.annotations.NotNull;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.TerminalBuilder;
 
 /**
  * a Java main class to start the Shiru ka's server.
  */
 public final class ShirukaMain {
+
+  /**
+   * Shiru ka's program arguments.
+   */
+  private static final ShirukaCommander COMMANDER = new ShirukaCommander();
 
   /**
    * the program arguments.
@@ -46,7 +55,7 @@ public final class ShirukaMain {
    *
    * @param args the program arguments.
    */
-  public ShirukaMain(@NotNull final String[] args) {
+  private ShirukaMain(@NotNull final String[] args) {
     this.args = args.clone();
   }
 
@@ -55,23 +64,51 @@ public final class ShirukaMain {
    *
    * @param args the args to run.
    */
-  public static void main(final String[] args) throws Exception {
-    new ShirukaMain(args).exec();
+  public static void main(final String[] args) {
+    try {
+      new ShirukaMain(args).exec();
+    } catch (final Exception e) {
+      JiraExceptionCatcher.serverException(e);
+      System.exit(1);
+    }
   }
 
   /**
    * execs the Java program.
    */
   private void exec() throws Exception {
-    Loggers.init("Shiru ka");
-    final var optional = Loggers.getLogger();
-    if (optional.isEmpty()) {
+    final var commander = JCommander.newBuilder()
+      .programName("Shiru ka")
+      .args(this.args)
+      .addObject(ShirukaMain.COMMANDER)
+      .build();
+    if (ShirukaMain.COMMANDER.help) {
+      commander.usage();
       return;
     }
-    final var logger = optional.get();
+    final var logger = Loggers.init("Shiru ka", ShirukaMain.COMMANDER.debug);
     final var fragmentsDir = new File("fragments");
-    final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);
     final var server = new ShirukaServer();
+    final var fragmentManager = new ShirukaFragmentManager(server, fragmentsDir, logger);
     Shiruka.initServer(server, fragmentManager);
+    fragmentManager.loadFragments();
+    final var reader = LineReaderBuilder.builder()
+      .appName("Shiru ka")
+      .terminal(TerminalBuilder.builder()
+        .dumb(true)
+        .jansi(true)
+        .build())
+      .build();
+    while (true) {
+      final var line = reader.readLine("$ ");
+      if (line.isEmpty()) {
+        continue;
+      }
+//      TODO add runcommand and is shotdownstate methods.
+//      server.runCommand(line);
+//      if (server.isShutdownState()) {
+//        return;
+//      }
+    }
   }
 }

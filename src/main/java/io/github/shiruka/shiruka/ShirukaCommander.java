@@ -25,45 +25,16 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.Server;
-import io.github.shiruka.conf.Provider;
-import io.github.shiruka.conf.config.YamlProvider;
-import io.github.shiruka.fragment.Fragment;
-import io.github.shiruka.fragment.FragmentManager;
-import io.github.shiruka.log.Logger;
-import java.io.File;
-import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import com.beust.jcommander.Parameter;
 
 /**
- * an implementation for {@link FragmentManager}.
+ * an implementation for JCommander system.
  */
-public final class ShirukaFragmentManager extends FragmentManager {
+final class ShirukaCommander {
 
-  @NotNull
-  private final Server server;
+  @Parameter(names = "-help", description = "Shows the usage of commands", arity = 0, help = true)
+  boolean help = false;
 
-  public ShirukaFragmentManager(@NotNull final Server server, @NotNull final File fragmentsDir,
-                                @NotNull final Logger logger) {
-    super(fragmentsDir, logger);
-    this.server = server;
-  }
-
-  @NotNull
-  @Override
-  public String getFragmentConfigFileName() {
-    return "fragment.yml";
-  }
-
-  @NotNull
-  @Override
-  protected Map<String, Fragment> sortAndFilter(@NotNull final Map<String, Fragment> original) {
-    return super.sortAndFilter(original);
-  }
-
-  @NotNull
-  @Override
-  protected Provider<?> getConfigProvider() {
-    return new YamlProvider();
-  }
+  @Parameter(names = "-debug", description = "Activates the debug mode", arity = 0)
+  boolean debug = false;
 }

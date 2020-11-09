@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a Java main class to start the Shiru ka's server.
  */
-public final class Main {
+public final class ShirukaMain {
 
   /**
    * the program arguments.
@@ -46,7 +46,7 @@ public final class Main {
    *
    * @param args the program arguments.
    */
-  public Main(@NotNull final String[] args) {
+  public ShirukaMain(@NotNull final String[] args) {
     this.args = args.clone();
   }
 
@@ -56,7 +56,7 @@ public final class Main {
    * @param args the args to run.
    */
   public static void main(final String[] args) throws Exception {
-    new Main(args).exec();
+    new ShirukaMain(args).exec();
   }
 
   /**

@@ -110,10 +110,8 @@ public final class ShirukaMain {
                 return true;
               }
               final var description = descriptions.get(info.getName());
-              if (description != null) {
-                if (description.getVersion().equals(info.getVersion())) {
-                  return false;
-                }
+              if (description != null && description.getVersion().equals(info.getVersion())) {
+                return false;
               }
               Files.delete(fragmentPath);
               return true;

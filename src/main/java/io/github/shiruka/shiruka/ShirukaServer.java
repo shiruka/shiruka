@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.fragment.FragmentInfo;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -49,6 +50,11 @@ public final class ShirukaServer implements Server {
 
   @Override
   public boolean isInShutdownState() {
+    return false;
+  }
+
+  @Override
+  public boolean checkFragmentInfo(@NotNull final FragmentInfo info) {
     return false;
   }
 }

@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.misc;
 
 import io.github.shiruka.shiruka.ShirukaServer;
-import java.io.PrintStream;
 import org.jetbrains.annotations.NotNull;
 
 /**

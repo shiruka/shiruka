@@ -52,18 +52,18 @@ public final class ShirukaMain {
   private static final ShirukaCommander COMMANDER = new ShirukaCommander();
 
   /**
-   * the program arguments.
+   * the program argument commander.
    */
   @NotNull
-  private final String[] args;
+  private final JCommander commander;
 
   /**
    * ctor.
    *
-   * @param args the program arguments.
+   * @param commander the commander.
    */
-  private ShirukaMain(@NotNull final String[] args) {
-    this.args = args.clone();
+  public ShirukaMain(@NotNull final JCommander commander) {
+    this.commander = commander;
   }
 
   /**
@@ -72,8 +72,17 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
+    final var commander = JCommander.newBuilder()
+      .programName("Shiru ka")
+      .args(args)
+      .addObject(ShirukaMain.COMMANDER)
+      .build();
+    if (ShirukaMain.COMMANDER.help) {
+      commander.usage();
+      return;
+    }
     try {
-      new ShirukaMain(args).exec();
+      new ShirukaMain(commander).exec();
     } catch (final Exception e) {
       JiraExceptionCatcher.serverException(e);
       System.exit(1);
@@ -84,15 +93,6 @@ public final class ShirukaMain {
    * execs the Java program.
    */
   private void exec() throws Exception {
-    final var commander = JCommander.newBuilder()
-      .programName("Shiru ka")
-      .args(this.args)
-      .addObject(ShirukaMain.COMMANDER)
-      .build();
-    if (ShirukaMain.COMMANDER.help) {
-      commander.usage();
-      return;
-    }
     final var logger = Loggers.init("Shiru ka", ShirukaMain.COMMANDER.debug);
     final var fragmentsDir = new File("fragments");
     final var server = new ShirukaServer();

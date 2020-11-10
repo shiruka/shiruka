@@ -138,5 +138,6 @@ public final class ShirukaMain {
         }));
     Shiruka.initServer(server, fragmentManager);
     fragmentManager.loadFragments();
+    new ShirukaConsole().start();
   }
 }

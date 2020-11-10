@@ -41,7 +41,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
   }
 
   @Override
-  protected void runCommand(final String s) {
+  protected void runCommand(final String command) {
   }
 
   @Override

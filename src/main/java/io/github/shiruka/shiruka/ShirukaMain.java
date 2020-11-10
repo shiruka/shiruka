@@ -62,7 +62,7 @@ public final class ShirukaMain {
    *
    * @param commander the commander.
    */
-  public ShirukaMain(@NotNull final JCommander commander) {
+  private ShirukaMain(@NotNull final JCommander commander) {
     this.commander = commander;
   }
 

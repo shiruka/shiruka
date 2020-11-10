@@ -26,10 +26,25 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.fragment.FragmentInfo;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * an implementation for {@link Server}.
  */
 public final class ShirukaServer implements Server {
 
+  @Override
+  public void runCommand(@NotNull final String s) {
+  }
+
+  @Override
+  public boolean isInShutdownState() {
+    return false;
+  }
+
+  @Override
+  public boolean checkFragmentInfo(@NotNull final FragmentInfo fragmentInfo) {
+    return false;
+  }
 }

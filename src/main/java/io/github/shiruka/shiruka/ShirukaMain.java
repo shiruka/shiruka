@@ -106,17 +106,24 @@ public final class ShirukaMain {
         .filter(info -> {
           try {
             final var fragmentPath = fragmentsDir.toPath().resolve(info.getName() + ".jar");
+            // Check if the fragment should download and load.
             if (server.checkFragmentInfo(info)) {
+              // If the file does not exist download.
               if (!Files.exists(fragmentPath)) {
                 return true;
               }
               final var description = descriptions.get(info.getName());
+              // If the fragment.yml in the .jar file exist and
+              // the version equals the upcoming fragment's version do not download.
               if (description != null && description.getVersion().equals(info.getVersion())) {
                 return false;
               }
+              // If the fragment.yml does not exist or the upcoming fragment's version
+              // not equal the current fragment's version delete file and download the latest.
               Files.delete(fragmentPath);
               return true;
             } else {
+              // If the fragment should not download and load delete the file.
               Files.delete(fragmentPath);
             }
           } catch (final IOException e) {

@@ -34,8 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import org.jetbrains.annotations.NotNull;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.terminal.TerminalBuilder;
 
 /**
  * a Java main class to start the Shiru ka's server.
@@ -140,22 +138,5 @@ public final class ShirukaMain {
         }));
     Shiruka.initServer(server, fragmentManager);
     fragmentManager.loadFragments();
-    final var reader = LineReaderBuilder.builder()
-      .appName("Shiru ka")
-      .terminal(TerminalBuilder.builder()
-        .dumb(true)
-        .jansi(true)
-        .build())
-      .build();
-    while (true) {
-      final var line = reader.readLine("$ ");
-      if (line.isEmpty()) {
-        continue;
-      }
-      server.runCommand(line);
-      if (server.isInShutdownState()) {
-        return;
-      }
-    }
   }
 }

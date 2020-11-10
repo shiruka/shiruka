@@ -45,7 +45,8 @@ public final class ShirukaMain {
   /**
    * the database of fragments.
    */
-  private static final String FRAGMENTS_DATABASE = "https://raw.githubusercontent.com/shiruka/fragments/master/fragments.json";
+  private static final String FRAGMENTS_DATABASE =
+    "https://raw.githubusercontent.com/shiruka/fragments/master/fragments.json";
 
   /**
    * Shiru ka's program arguments.

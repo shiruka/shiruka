@@ -42,7 +42,7 @@ public final class JiraExceptionCatcher {
   }
 
   /**
-   * catches the given exception and reformats it..
+   * catches the given exception and reformats it.
    *
    * @param e the exception to catch.
    */

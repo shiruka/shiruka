@@ -96,6 +96,10 @@ public final class ShirukaMain {
     final var logger = Loggers.init("Shiru ka", ShirukaMain.COMMANDER.debug);
     logger.log("Shiru ka is starting...");
     final var fragmentsDir = new File("fragments");
+    if (!fragmentsDir.exists()) {
+      logger.log("Fragment directory not found, It's is creating...");
+      fragmentsDir.mkdirs();
+    }
     final var server = new ShirukaServer();
     final var fragmentDownloader = new FragmentDownloader(logger, ShirukaMain.FRAGMENTS_DATABASE);
     final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);

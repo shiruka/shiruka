@@ -25,8 +25,10 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.api.Server;
 import java.nio.file.Paths;
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
+import org.jetbrains.annotations.NotNull;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 
@@ -35,13 +37,29 @@ import org.jline.reader.LineReaderBuilder;
  */
 public final class ShirukaConsole extends SimpleTerminalConsole {
 
-  @Override
-  protected boolean isRunning() {
-    return false;
+  /**
+   * the server instace.
+   */
+  @NotNull
+  private final Server server;
+
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   */
+  public ShirukaConsole(@NotNull final Server server) {
+    this.server = server;
   }
 
   @Override
-  protected void runCommand(final String s) {
+  protected boolean isRunning() {
+    return !this.server.isInShutdownState();
+  }
+
+  @Override
+  protected void runCommand(final String command) {
+    this.server.runCommand(command);
   }
 
   @Override

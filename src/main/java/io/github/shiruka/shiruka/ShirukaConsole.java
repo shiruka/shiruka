@@ -38,7 +38,7 @@ import org.jline.reader.LineReaderBuilder;
 public final class ShirukaConsole extends SimpleTerminalConsole {
 
   /**
-   * the server instace.
+   * the server instance.
    */
   @NotNull
   private final Server server;

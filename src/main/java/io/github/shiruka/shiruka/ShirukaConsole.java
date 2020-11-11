@@ -64,6 +64,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
 
   @Override
   protected void shutdown() {
+    System.out.println("shutdown");
   }
 
   @Override
@@ -73,6 +74,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
       .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
       .completer((lineReader, parsedLine, list) -> {
         // tab completer.
+        System.out.println("test");
       }));
   }
 }

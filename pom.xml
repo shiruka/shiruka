@@ -88,20 +88,29 @@
       <version>1.6.0</version>
     </dependency>
     <dependency>
-      <groupId>net.minecrell</groupId>
-      <artifactId>terminalconsoleappender</artifactId>
-      <version>1.2.0</version>
-    </dependency>
-    <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
       <version>1.78</version>
     </dependency>
     <dependency>
+      <groupId>net.minecrell</groupId>
+      <artifactId>terminalconsoleappender</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jline</groupId>
+      <artifactId>jline</artifactId>
+      <version>3.17.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jline</groupId>
+      <artifactId>jline-terminal</artifactId>
+      <version>3.17.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.jline</groupId>
       <artifactId>jline-terminal-jansi</artifactId>
       <version>3.17.1</version>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>

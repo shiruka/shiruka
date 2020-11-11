@@ -55,6 +55,6 @@ public final class ShirukaServer implements Server {
 
   @Override
   public boolean checkFragmentInfo(@NotNull final FragmentInfo info) {
-    return false;
+    return true;
   }
 }

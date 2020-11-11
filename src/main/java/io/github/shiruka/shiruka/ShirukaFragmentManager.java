@@ -38,25 +38,34 @@ import org.jetbrains.annotations.NotNull;
 public final class ShirukaFragmentManager extends FragmentManager {
 
   /**
+   * the fragment's file name.
+   */
+  private static final String FRAGMENTS_FILE_NAME = "fragment.yml";
+
+  /**
+   * the fragment's file provider which is YAML.
+   */
+  private static final YamlProvider PROVIDER = new YamlProvider();
+
+  /**
    * ctor.
    *
    * @param fragmentsDir the fragment directory.
    * @param logger the logger.
    */
-  ShirukaFragmentManager(@NotNull final File fragmentsDir,
-                         @NotNull final Logger logger) {
+  ShirukaFragmentManager(@NotNull final File fragmentsDir, @NotNull final Logger logger) {
     super(fragmentsDir, logger);
   }
 
   @NotNull
   @Override
   public String getFragmentConfigFileName() {
-    return "fragment.yml";
+    return ShirukaFragmentManager.FRAGMENTS_FILE_NAME;
   }
 
   @NotNull
   @Override
   protected Provider<?> getConfigProvider() {
-    return new YamlProvider();
+    return ShirukaFragmentManager.PROVIDER;
   }
 }

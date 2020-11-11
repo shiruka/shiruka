@@ -26,7 +26,8 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
-import io.github.shiruka.fragment.FragmentInfo;
+import io.github.shiruka.fragment.FragmentDescription;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,12 +37,15 @@ public final class ShirukaServer implements Server {
 
   /**
    * obtains the Shiru ka server's version
-   *
-   * @return the Shiru ka's version.
    */
   @NotNull
-  public static String getVersion() {
-    return "1.0.0";
+  public static final String VERSION = "1.0.0";
+
+  @Override
+  @NotNull
+  public Map<String, FragmentDescription> filterFragments(
+    @NotNull final Map<String, FragmentDescription> descriptions) {
+    return descriptions;
   }
 
   @Override
@@ -51,10 +55,5 @@ public final class ShirukaServer implements Server {
   @Override
   public boolean isInShutdownState() {
     return false;
-  }
-
-  @Override
-  public boolean checkFragmentInfo(@NotNull final FragmentInfo info) {
-    return true;
   }
 }

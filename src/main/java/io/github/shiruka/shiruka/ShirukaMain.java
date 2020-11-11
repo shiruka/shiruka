@@ -26,12 +26,10 @@
 package io.github.shiruka.shiruka;
 
 import com.beust.jcommander.JCommander;
-import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.fragment.FragmentDownloader;
 import io.github.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,27 +70,23 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
-    try {
-      new ShirukaMain(args).exec();
-    } catch (final Exception e) {
-      JiraExceptionCatcher.serverException(e);
-      System.exit(1);
-    }
-  }
-
-  /**
-   * execs the Java program.
-   */
-  private void exec() throws Exception {
     final var commander = JCommander.newBuilder()
       .programName("Shiru ka")
-      .args(this.args)
+      .args(args)
       .addObject(ShirukaMain.COMMANDER)
       .build();
     if (ShirukaMain.COMMANDER.help) {
       commander.usage();
       return;
     }
+    JiraExceptionCatcher.run(() ->
+      new ShirukaMain(args).exec());
+  }
+
+  /**
+   * execs the Java program.
+   */
+  private void exec() throws Exception {
     final var logger = Loggers.init("Shiru ka", ShirukaMain.COMMANDER.debug);
     logger.log("Shiru ka is starting...");
     final var fragmentsDir = new File("fragments");
@@ -101,49 +95,34 @@ public final class ShirukaMain {
       fragmentsDir.mkdirs();
     }
     final var server = new ShirukaServer();
+    logger.log("Server configuration file is preparing...");
+    // TODO initiate server configuration file.
+    logger.log("Fragments are preparing...");
     final var fragmentDownloader = new FragmentDownloader(logger, ShirukaMain.FRAGMENTS_DATABASE);
     final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);
-    final var descriptions = fragmentManager.getDescriptions();
-    fragmentDownloader.getFragments(fragmentInfos ->
-      fragmentInfos.stream()
-        .filter(info -> {
-          try {
-            final var fragmentPath = fragmentsDir.toPath().resolve(info.getName() + ".jar");
-            // Check if the fragment should download and load.
-            if (server.checkFragmentInfo(info)) {
-              // If the file does not exist download.
-              if (!Files.exists(fragmentPath)) {
-                return true;
-              }
+    final var descriptions = server.filterFragments(fragmentManager.getDescriptions());
+    fragmentDownloader.getFragments().thenAccept(fragmentInfos -> {
+      if (fragmentInfos != null) {
+        for (final var info : fragmentInfos) {
+          final var fragmentPath = fragmentsDir.toPath().resolve(info.getName() + ".jar");
+          if (descriptions.containsKey(info.getName())) {
+            if (Files.exists(fragmentPath)) {
               final var description = descriptions.get(info.getName());
-              // If the fragment.yml in the .jar file exist and
-              // the version equals the upcoming fragment's version do not download.
-              if (description != null && description.getVersion().equals(info.getVersion())) {
-                return false;
+              if (description.getVersion().equals(info.getVersion())) {
+                continue;
               }
-              // If the fragment.yml does not exist or the upcoming fragment's version
-              // not equal the current fragment's version delete file and download the latest.
-              Files.delete(fragmentPath);
-              return true;
-            } else if (Files.exists(fragmentPath)) {
-              // If the fragment file exist
-              // If the fragment should not download and load delete the file.
-              Files.delete(fragmentPath);
+              JiraExceptionCatcher.run(() ->
+                Files.delete(fragmentPath));
             }
-          } catch (final IOException e) {
-            JiraExceptionCatcher.serverException(e);
+            JiraExceptionCatcher.run(() ->
+              info.download(fragmentsDir));
+          } else if (Files.exists(fragmentPath)) {
+            JiraExceptionCatcher.run(() ->
+              Files.delete(fragmentPath));
           }
-          return false;
-        })
-        .forEach(fragmentInfo -> {
-          try {
-            fragmentInfo.download(fragmentsDir);
-          } catch (final IOException e) {
-            JiraExceptionCatcher.serverException(e);
-          }
-        }));
-    Shiruka.initServer(server, fragmentManager);
-    fragmentManager.loadFragments();
+        }
+      }
+    });
     final var console = new ShirukaConsole(server);
     console.start();
   }

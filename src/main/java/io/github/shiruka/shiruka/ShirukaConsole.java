@@ -74,7 +74,6 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
       .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
       .completer((lineReader, parsedLine, list) -> {
         // tab completer.
-        System.out.println("test");
       }));
   }
 }

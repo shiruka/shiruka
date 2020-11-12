@@ -26,8 +26,8 @@
 package io.github.shiruka.shiruka;
 
 import com.beust.jcommander.JCommander;
-import io.github.shiruka.fragment.FragmentDownloader;
-import io.github.shiruka.log.Loggers;
+import io.github.shiruka.common.chat.Loggers;
+import io.github.shiruka.common.fragment.FragmentDownloader;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.File;
 import java.nio.file.Files;
@@ -86,18 +86,18 @@ public final class ShirukaMain {
   /**
    * execs the Java program.
    */
-  private void exec() throws Exception {
-    final var logger = Loggers.init("Shiru ka", ShirukaMain.COMMANDER.debug);
-    logger.log("Shiru ka is starting...");
+  private void exec() {
+    final var logger = Loggers.init("Shiru ka");
+    logger.info("Shiru ka is starting...");
     final var fragmentsDir = new File("fragments");
     if (!fragmentsDir.exists()) {
-      logger.log("Fragment directory not found, It's is creating...");
+      logger.info("Fragment directory not found, It's is creating...");
       fragmentsDir.mkdirs();
     }
     final var server = new ShirukaServer();
-    logger.log("Server configuration file is preparing...");
+    logger.info("Server configuration file is preparing...");
     // TODO initiate server configuration file.
-    logger.log("Fragments are preparing...");
+    logger.info("Fragments are preparing...");
     final var fragmentDownloader = new FragmentDownloader(logger, ShirukaMain.FRAGMENTS_DATABASE);
     final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);
     final var descriptions = server.filterFragments(fragmentManager.getDescriptions());

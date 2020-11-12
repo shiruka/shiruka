@@ -25,11 +25,11 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.conf.Provider;
-import io.github.shiruka.conf.config.YamlProvider;
-import io.github.shiruka.fragment.FragmentManager;
-import io.github.shiruka.log.Logger;
+import io.github.shiruka.common.conf.Provider;
+import io.github.shiruka.common.conf.provider.YamlProvider;
+import io.github.shiruka.common.fragment.FragmentManager;
 import java.io.File;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**

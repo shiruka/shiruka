@@ -29,14 +29,24 @@ import com.beust.jcommander.JCommander;
 import io.github.shiruka.common.Loggers;
 import io.github.shiruka.common.fragment.FragmentDownloader;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Locale;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a Java main class to start the Shiru ka's server.
  */
 public final class ShirukaMain {
+
+  /**
+   * the global logger.
+   */
+  private static final Logger LOGGER = LogManager.getLogger("Shiru ka");
 
   /**
    * the database of fragments.
@@ -70,6 +80,10 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
+    Locale.setDefault(Locale.ENGLISH);
+    InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
+    System.setProperty("log4j.skipJansi", "false");
+    Loggers.init(ShirukaMain.LOGGER);
     final var commander = JCommander.newBuilder()
       .programName("Shiru ka")
       .args(args)
@@ -87,19 +101,18 @@ public final class ShirukaMain {
    * execs the Java program.
    */
   private void exec() {
-    final var logger = Loggers.init("Shiru ka");
-    logger.info("Shiru ka is starting...");
+    ShirukaMain.LOGGER.info("Shiru ka is starting...");
     final var fragmentsDir = new File("fragments");
     if (!fragmentsDir.exists()) {
-      logger.info("Fragment directory not found, It's is creating...");
+      ShirukaMain.LOGGER.info("Fragment directory not found, It's is creating...");
       fragmentsDir.mkdirs();
     }
     final var server = new ShirukaServer();
-    logger.info("Server configuration file is preparing...");
+    ShirukaMain.LOGGER.info("Server configuration file is preparing...");
     // TODO initiate server configuration file.
-    logger.info("Fragments are preparing...");
-    final var fragmentDownloader = new FragmentDownloader(logger, ShirukaMain.FRAGMENTS_DATABASE);
-    final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);
+    ShirukaMain.LOGGER.info("Fragments are preparing...");
+    final var fragmentDownloader = new FragmentDownloader(ShirukaMain.LOGGER, ShirukaMain.FRAGMENTS_DATABASE);
+    final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, ShirukaMain.LOGGER);
     final var descriptions = server.filterFragments(fragmentManager.getDescriptions());
     fragmentDownloader.getFragments().thenAccept(fragmentInfos -> {
       if (fragmentInfos != null) {
@@ -125,5 +138,6 @@ public final class ShirukaMain {
     });
     final var console = new ShirukaConsole(server);
     console.start();
+    LogManager.shutdown();
   }
 }

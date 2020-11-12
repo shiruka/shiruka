@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import com.beust.jcommander.JCommander;
-import io.github.shiruka.common.chat.Loggers;
+import io.github.shiruka.common.Loggers;
 import io.github.shiruka.common.fragment.FragmentDownloader;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.File;

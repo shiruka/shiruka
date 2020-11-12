@@ -113,29 +113,10 @@ public final class ShirukaMain {
     ShirukaMain.LOGGER.info("Fragments are preparing...");
     final var fragmentDownloader = new FragmentDownloader(ShirukaMain.LOGGER, ShirukaMain.FRAGMENTS_DATABASE);
     final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, ShirukaMain.LOGGER);
-    final var descriptions = server.filterFragments(fragmentManager.getDescriptions());
-    fragmentDownloader.getFragments().thenAccept(fragmentInfos -> {
-      if (fragmentInfos != null) {
-        for (final var info : fragmentInfos) {
-          final var fragmentPath = fragmentsDir.toPath().resolve(info.getName() + ".jar");
-          if (descriptions.containsKey(info.getName())) {
-            if (Files.exists(fragmentPath)) {
-              final var description = descriptions.get(info.getName());
-              if (description.getVersion().equals(info.getVersion())) {
-                continue;
-              }
-              JiraExceptionCatcher.run(() ->
-                Files.delete(fragmentPath));
-            }
-            JiraExceptionCatcher.run(() ->
-              info.download(fragmentsDir));
-          } else if (Files.exists(fragmentPath)) {
-            JiraExceptionCatcher.run(() ->
-              Files.delete(fragmentPath));
-          }
-        }
-      }
-    });
+    /*
+    dosyada ki fragmentleri listele.
+    
+     */
     final var console = new ShirukaConsole(server);
     console.start();
     LogManager.shutdown();

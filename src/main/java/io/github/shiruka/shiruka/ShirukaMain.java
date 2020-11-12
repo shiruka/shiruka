@@ -32,7 +32,6 @@ import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import java.io.File;
-import java.nio.file.Files;
 import java.util.Locale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -113,10 +112,7 @@ public final class ShirukaMain {
     ShirukaMain.LOGGER.info("Fragments are preparing...");
     final var fragmentDownloader = new FragmentDownloader(ShirukaMain.LOGGER, ShirukaMain.FRAGMENTS_DATABASE);
     final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, ShirukaMain.LOGGER);
-    /*
-    dosyada ki fragmentleri listele.
-    
-     */
+    // TODO fragmentleri kur.
     final var console = new ShirukaConsole(server);
     console.start();
     LogManager.shutdown();

@@ -39,6 +39,43 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   Thread.UncaughtExceptionHandler {
 
   /**
+   * a thread factory that does handling for exceptions,
+   * piping exception output to the loggers.
+   */
+  public static final ThreadFactory UNCAUGHT_FACTORY = new io.github.shiruka.common.concurrent.PoolSpec("Shiru ka - Net", 0,
+    false);
+
+  /**
+   * the thread for worlds.
+   */
+  public static final PoolSpec WORLDS = new PoolSpec("Shiru ka - Worlds", 4, true);
+
+  /**
+   * the thread for worlds.
+   */
+  public static final PoolSpec CHUNKS = new PoolSpec("Shiru ka - Chunks", 4, true);
+
+  /**
+   * the thread for entities.
+   */
+  public static final PoolSpec ENTITIES = new PoolSpec("Shiru ka - Entities", 3, false);
+
+  /**
+   * the thread for players.
+   */
+  public static final PoolSpec PLAYERS = new PoolSpec("Shiru ka - Players", 3, false);
+
+  /**
+   * the thread for schedulers.
+   */
+  public static final PoolSpec SCHEDULER = new PoolSpec("Shiru ka - Scheduler", 3, false);
+
+  /**
+   * the thread for plugins.
+   */
+  public static final PoolSpec PLUGINS = new PoolSpec("Shiru ka - Plugins", 1, false);
+
+  /**
    * the name of the pool used to identify its threads.
    */
   private final String name;

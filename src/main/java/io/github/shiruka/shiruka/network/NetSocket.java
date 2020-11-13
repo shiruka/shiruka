@@ -49,13 +49,6 @@ import org.jetbrains.annotations.Nullable;
 public abstract class NetSocket implements Socket {
 
   /**
-   * a thread factory that does handling for exceptions,
-   * piping exception output to the loggers.
-   */
-  public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec("Shiru ka - Net", 0,
-    false);
-
-  /**
    * the datagram event loop group.
    */
   private static final EventLoopGroup GROUP;

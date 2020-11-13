@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains misc classes.
+ * the package to cover all interfaces, enums and, uncategorized classes.
  */
-package io.github.shiruka.shiruka.misc;
+package io.github.shiruka.shiruka.network;

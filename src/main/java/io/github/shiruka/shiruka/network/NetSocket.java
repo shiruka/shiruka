@@ -25,7 +25,7 @@
 package io.github.shiruka.shiruka.network;
 
 import io.github.shiruka.common.Optionals;
-import io.github.shiruka.common.concurrent.PoolSpec;
+import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
@@ -41,7 +41,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.InetSocketAddress;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,13 +64,13 @@ public abstract class NetSocket implements Socket {
   static {
     final var disableNative = System.getProperties().contains("disableNativeEventLoop");
     if (!disableNative && Epoll.isAvailable()) {
-      GROUP = new EpollEventLoopGroup(NetSocket.UNCAUGHT_FACTORY);
+      GROUP = new EpollEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY);
       CHANNEL = EpollDatagramChannel.class;
     } else if (!disableNative && KQueue.isAvailable()) {
-      GROUP = new KQueueEventLoopGroup(NetSocket.UNCAUGHT_FACTORY);
+      GROUP = new KQueueEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY);
       CHANNEL = KQueueDatagramChannel.class;
     } else {
-      GROUP = new NioEventLoopGroup(NetSocket.UNCAUGHT_FACTORY);
+      GROUP = new NioEventLoopGroup(PoolSpec.UNCAUGHT_FACTORY);
       CHANNEL = NioDatagramChannel.class;
     }
   }
@@ -173,7 +176,7 @@ public abstract class NetSocket implements Socket {
           this.running.compareAndSet(true, false);
         } else {
           this.closed.set(false);
-          this.tickFuture = NetSocket.GROUP.scheduleAtFixedRate(this::onTick, 0, 10,
+          this.tickFuture = this.bootstrap.group().scheduleAtFixedRate(this::onTick, 0, 10,
             TimeUnit.MILLISECONDS);
         }
       }));

@@ -31,6 +31,7 @@ import io.github.shiruka.common.Loggers;
 import io.github.shiruka.common.fragment.FragmentDownloader;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import java.io.File;
@@ -103,19 +104,11 @@ public final class ShirukaMain {
    */
   private void exec() {
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
-    final var fragmentsDir = new File("fragments");
-    if (!fragmentsDir.exists()) {
-      ShirukaMain.LOGGER.info("Fragment directory not found, It's is creating...");
-      fragmentsDir.mkdirs();
-    }
+    NetServerSocket.
     final var server = new ShirukaServer();
     ShirukaMain.LOGGER.info("Server configuration file is preparing...");
     // TODO initiate server configuration file.
-    ShirukaMain.LOGGER.info("Fragments are preparing...");
-    final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, ShirukaMain.LOGGER);
-    final var fragmentDownloader = new FragmentDownloader(ShirukaMain.LOGGER, ShirukaMain.FRAGMENTS_DATABASE);
-    Shiruka.initServer(server, fragmentManager);
-    // TODO fragmentleri kur.
+    Shiruka.initServer(server);
     final var console = new ShirukaConsole(server);
     console.start();
     LogManager.shutdown();

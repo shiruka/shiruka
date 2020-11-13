@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka;
 import com.beust.jcommander.JCommander;
 import io.github.shiruka.common.Loggers;
 import io.github.shiruka.common.fragment.FragmentDownloader;
+import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;

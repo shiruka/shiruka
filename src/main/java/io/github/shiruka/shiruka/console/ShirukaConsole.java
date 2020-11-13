@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
 import java.nio.file.Paths;

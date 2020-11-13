@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
 import java.util.List;
@@ -36,7 +36,7 @@ import org.jline.reader.ParsedLine;
 /**
  * an implementation for {@link Completer} to auto complete console commands.
  */
-public final class ConsoleCommandCompleter implements Completer {
+final class ConsoleCommandCompleter implements Completer {
 
   /**
    * the server instance.
@@ -49,13 +49,12 @@ public final class ConsoleCommandCompleter implements Completer {
    *
    * @param server the server.
    */
-  public ConsoleCommandCompleter(@NotNull final Server server) {
+  ConsoleCommandCompleter(@NotNull final Server server) {
     this.server = server;
   }
 
   @Override
   public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> list) {
     final String buffer = line.line();
-
   }
 }

@@ -104,7 +104,7 @@ public final class ShirukaMain {
    */
   private void exec() {
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
-    NetServerSocket.
+    NetServerSocket.init();
     final var server = new ShirukaServer();
     ShirukaMain.LOGGER.info("Server configuration file is preparing...");
     // TODO initiate server configuration file.

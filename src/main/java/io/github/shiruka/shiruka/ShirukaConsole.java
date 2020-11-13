@@ -82,7 +82,6 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
 
   @Override
   protected void shutdown() {
-    System.out.println("shutdown.");
   }
 
   @Override

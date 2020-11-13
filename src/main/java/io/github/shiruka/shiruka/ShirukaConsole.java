@@ -29,6 +29,7 @@ import io.github.shiruka.api.Server;
 import java.nio.file.Paths;
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
 import org.jetbrains.annotations.NotNull;
+import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 
@@ -44,12 +45,29 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
   private final Server server;
 
   /**
+   * the console command completer;
+   */
+  @NotNull
+  private final Completer completer;
+
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   * @param completer the completer.
+   */
+  public ShirukaConsole(@NotNull final Server server, @NotNull final Completer completer) {
+    this.server = server;
+    this.completer = completer;
+  }
+
+  /**
    * ctor.
    *
    * @param server the server.
    */
   public ShirukaConsole(@NotNull final Server server) {
-    this.server = server;
+    this(server, new ConsoleCommandCompleter(server));
   }
 
   @Override
@@ -72,8 +90,6 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
     return super.buildReader(builder
       .appName("Shiru ka")
       .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
-      .completer((lineReader, parsedLine, list) -> {
-        System.out.println("tab completed.");
-      }));
+      .completer(this.completer));
   }
 }

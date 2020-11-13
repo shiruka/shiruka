@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import com.beust.jcommander.JCommander;
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.common.Loggers;
 import io.github.shiruka.common.fragment.FragmentDownloader;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
@@ -111,8 +112,9 @@ public final class ShirukaMain {
     ShirukaMain.LOGGER.info("Server configuration file is preparing...");
     // TODO initiate server configuration file.
     ShirukaMain.LOGGER.info("Fragments are preparing...");
-    final var fragmentDownloader = new FragmentDownloader(ShirukaMain.LOGGER, ShirukaMain.FRAGMENTS_DATABASE);
     final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, ShirukaMain.LOGGER);
+    final var fragmentDownloader = new FragmentDownloader(ShirukaMain.LOGGER, ShirukaMain.FRAGMENTS_DATABASE);
+    Shiruka.initServer(server, fragmentManager);
     // TODO fragmentleri kur.
     final var console = new ShirukaConsole(server);
     console.start();

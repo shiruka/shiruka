@@ -25,16 +25,9 @@
 
 package io.github.shiruka.shiruka;
 
-import com.beust.jcommander.JCommander;
-import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.shiruka.console.ShirukaConsole;
-import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.misc.Loggers;
-import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
-import io.github.shiruka.shiruka.network.server.NetServerSocket;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-import io.netty.util.internal.logging.Log4J2LoggerFactory;
-import java.util.Locale;
+import java.io.IOException;
+import java.util.logging.Level;
+import joptsimple.OptionSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +36,11 @@ import org.jetbrains.annotations.NotNull;
  * a Java main class to start the Shiru ka's server.
  */
 public final class ShirukaMain {
+
+  /**
+   * a simple java util logger.
+   */
+  static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
 
   /**
    * the global logger.
@@ -55,24 +53,11 @@ public final class ShirukaMain {
   private static final String FRAGMENTS_DATABASE =
     "https://raw.githubusercontent.com/shiruka/fragments/master/fragments.json";
 
-  /**
-   * Shiru ka's program arguments.
-   */
-  private static final ShirukaCommander COMMANDER = new ShirukaCommander();
-
-  /**
-   * the program arguments.
-   */
   @NotNull
-  private final String[] args;
+  private final OptionSet options;
 
-  /**
-   * ctor.
-   *
-   * @param args the program arguments.
-   */
-  private ShirukaMain(@NotNull final String[] args) {
-    this.args = args.clone();
+  private ShirukaMain(@NotNull final OptionSet options) {
+    this.options = options;
   }
 
   /**
@@ -81,35 +66,43 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
-    Locale.setDefault(Locale.ENGLISH);
-    InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
-    System.setProperty("log4j.skipJansi", "false");
-    Loggers.init(ShirukaMain.LOGGER);
-    final var commander = JCommander.newBuilder()
-      .programName("Shiru ka")
-      .args(args)
-      .addObject(ShirukaMain.COMMANDER)
-      .build();
-    if (ShirukaMain.COMMANDER.help) {
-      commander.usage();
+    if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
+      System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
+    }
+    final var options = ShirukaConsoleParser.parseOptions(args);
+    if (options == null || options.has("?")) {
+      try {
+        ShirukaConsoleParser.getPARSER().printHelpOn(System.out);
+      } catch (final IOException ex) {
+        ShirukaMain.SIMPLE_LOGGER.log(Level.SEVERE, null, ex);
+      }
       return;
     }
-    JiraExceptionCatcher.run(() ->
-      new ShirukaMain(args).exec());
+    if (options.has("v")) {
+      System.out.println();
+      return;
+    }
+    new ShirukaMain(options)
+      .exec();
+//    InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
+//    System.setProperty("log4j.skipJansi", "false");
+//    Loggers.init(ShirukaMain.LOGGER);
+//    JiraExceptionCatcher.run(() ->
+//      new ShirukaMain(args).exec());
   }
 
   /**
    * initiates the Shiru ka server.
    */
   private void exec() {
-    ShirukaMain.LOGGER.info("Shiru ka is starting...");
-    final var server = new ShirukaServer();
-    NetServerSocket.init(new ShirukaSocketListener(server));
-    ShirukaMain.LOGGER.info("Server configuration file is preparing...");
-    // TODO initiate server configuration file.
-    Shiruka.initServer(server);
-    final var console = new ShirukaConsole(server);
-    console.start();
-    LogManager.shutdown();
+//    ShirukaMain.LOGGER.info("Shiru ka is starting...");
+//    final var server = new ShirukaServer();
+//    NetServerSocket.init(new ShirukaSocketListener(server));
+//    ShirukaMain.LOGGER.info("Server configuration file is preparing...");
+//    // TODO initiate server configuration file.
+//    Shiruka.initServer(server);
+//    final var console = new ShirukaConsole(server);
+//    console.start();
+//    LogManager.shutdown();
   }
 }

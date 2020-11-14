@@ -68,7 +68,7 @@ public final class Loggers {
    */
   @NotNull
   public static Logger init(@NotNull final String name) {
-    return init(LogManager.getLogger(name));
+    return Loggers.init(LogManager.getLogger(name));
   }
 
   /**

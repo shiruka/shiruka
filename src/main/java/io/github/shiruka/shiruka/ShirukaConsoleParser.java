@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +43,11 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaConsoleParser {
 
   /**
+   * a simple java util logger.
+   */
+  static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
+
+  /**
    * the option parser.
    */
   private static final OptionParser PARSER = new OptionParser();
@@ -52,9 +58,15 @@ public final class ShirukaConsoleParser {
   private ShirukaConsoleParser() {
   }
 
-  @NotNull
-  public static OptionParser getPARSER() {
-    return ShirukaConsoleParser.PARSER;
+  /**
+   * prints the help message.
+   */
+  public static void printHelpOn() {
+    try {
+      ShirukaConsoleParser.PARSER.printHelpOn(System.out);
+    } catch (final IOException ex) {
+      ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, null, ex);
+    }
   }
 
   /**
@@ -168,7 +180,7 @@ public final class ShirukaConsoleParser {
     try {
       return ShirukaConsoleParser.PARSER.parse(args);
     } catch (final OptionException e) {
-      ShirukaMain.SIMPLE_LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
+      ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
     }
     return null;
   }

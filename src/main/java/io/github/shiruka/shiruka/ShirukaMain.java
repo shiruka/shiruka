@@ -25,8 +25,6 @@
 
 package io.github.shiruka.shiruka;
 
-import java.io.IOException;
-import java.util.logging.Level;
 import joptsimple.OptionSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,11 +34,6 @@ import org.jetbrains.annotations.NotNull;
  * a Java main class to start the Shiru ka's server.
  */
 public final class ShirukaMain {
-
-  /**
-   * a simple java util logger.
-   */
-  static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
 
   /**
    * the global logger.
@@ -71,15 +64,7 @@ public final class ShirukaMain {
     }
     final var options = ShirukaConsoleParser.parseOptions(args);
     if (options == null || options.has("?")) {
-      try {
-        ShirukaConsoleParser.getPARSER().printHelpOn(System.out);
-      } catch (final IOException ex) {
-        ShirukaMain.SIMPLE_LOGGER.log(Level.SEVERE, null, ex);
-      }
-      return;
-    }
-    if (options.has("v")) {
-      System.out.println();
+      ShirukaConsoleParser.printHelpOn();
       return;
     }
     new ShirukaMain(options)

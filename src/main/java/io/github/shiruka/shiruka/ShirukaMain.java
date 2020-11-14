@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.shiruka.misc.Loggers;
 import java.io.File;
 import joptsimple.OptionSet;
 import org.apache.logging.log4j.LogManager;
@@ -80,27 +81,16 @@ public final class ShirukaMain {
       System.out.println("Please rename the affected folders and try again.");
       return;
     }
+    System.setProperty("library.jansi.version", "Shiruka");
     new ShirukaMain(options)
       .exec();
-//    InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
-//    System.setProperty("log4j.skipJansi", "false");
-//    Loggers.init(ShirukaMain.LOGGER);
-//    JiraExceptionCatcher.run(() ->
-//      new ShirukaMain(args).exec());
   }
 
   /**
    * initiates the Shiru ka server.
    */
   private void exec() {
-//    ShirukaMain.LOGGER.info("Shiru ka is starting...");
-//    final var server = new ShirukaServer();
-//    NetServerSocket.init(new ShirukaSocketListener(server));
-//    ShirukaMain.LOGGER.info("Server configuration file is preparing...");
-//    // TODO initiate server configuration file.
-//    Shiruka.initServer(server);
-//    final var console = new ShirukaConsole(server);
-//    console.start();
-//    LogManager.shutdown();
+    Loggers.init(ShirukaMain.LOGGER);
+    ShirukaMain.LOGGER.info("Shiru ka is starting...");
   }
 }

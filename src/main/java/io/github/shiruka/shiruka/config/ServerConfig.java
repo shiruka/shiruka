@@ -94,7 +94,16 @@ public final class ServerConfig extends PathableConfig {
    *
    * @param file the file.
    */
-  public ServerConfig(@NotNull final File file) {
+  private ServerConfig(@NotNull final File file) {
     super(new YamlConfig(file));
+  }
+
+  /**
+   * initiates the server config to the given file.
+   *
+   * @param file the file to create.
+   */
+  public static void init(@NotNull final File file) {
+    new ServerConfig(file);
   }
 }

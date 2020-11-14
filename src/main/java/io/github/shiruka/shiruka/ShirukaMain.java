@@ -103,6 +103,6 @@ public final class ShirukaMain {
     } else {
       serverConfig = new File("shiruka.yml");
     }
-    new ServerConfig(serverConfig);
+    ServerConfig.init(serverConfig);
   }
 }

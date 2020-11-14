@@ -29,6 +29,7 @@ import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.Loggers;
 import java.io.File;
+import java.util.Objects;
 import joptsimple.OptionSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -97,7 +98,8 @@ public final class ShirukaMain {
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
     final File serverConfig;
     if (this.options.has("c")) {
-      serverConfig = this.options.valueOf(ShirukaConsoleParser.getConfig());
+      serverConfig = Objects.requireNonNull(this.options.valueOf(ShirukaConsoleParser.getConfig()),
+        "The parsed option set has not server config path value!");
     } else {
       serverConfig = new File("shiruka.yml");
     }

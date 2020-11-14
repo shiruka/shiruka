@@ -25,8 +25,8 @@
 
 package io.github.shiruka.shiruka.network.util;
 
-import io.github.shiruka.common.Loggers;
-import io.github.shiruka.common.Optionals;
+import io.github.shiruka.api.misc.Optionals;
+import io.github.shiruka.shiruka.misc.Loggers;
 import io.github.shiruka.shiruka.network.Socket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

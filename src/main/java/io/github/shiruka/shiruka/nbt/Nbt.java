@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt;
 
-import io.github.shiruka.common.Optionals;
+import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.nbt.stream.LittleEndianDataInputStream;
 import io.github.shiruka.shiruka.nbt.stream.LittleEndianDataOutputStream;
 import io.github.shiruka.shiruka.nbt.stream.NetworkDataInputStream;

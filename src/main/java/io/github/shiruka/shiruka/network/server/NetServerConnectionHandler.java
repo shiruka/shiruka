@@ -25,8 +25,8 @@
 
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.common.Loggers;
-import io.github.shiruka.common.Optionals;
+import io.github.shiruka.api.misc.Optionals;
+import io.github.shiruka.shiruka.misc.Loggers;
 import io.github.shiruka.shiruka.network.PacketReliability;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;

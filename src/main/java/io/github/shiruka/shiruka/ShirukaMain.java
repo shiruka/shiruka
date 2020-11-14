@@ -70,11 +70,11 @@ public final class ShirukaMain {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
     final var parsed = ShirukaConsoleParser.parse(args);
-    if (parsed == null || parsed.has("?")) {
+    if (parsed == null || parsed.has(ShirukaConsoleParser.getHelp())) {
       ShirukaConsoleParser.printHelpOn();
       return;
     }
-    if (parsed.has("v")) {
+    if (parsed.has(ShirukaConsoleParser.getVersion())) {
       ShirukaConsoleParser.printVersion();
       return;
     }
@@ -97,7 +97,7 @@ public final class ShirukaMain {
     Loggers.init(ShirukaMain.LOGGER);
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
     final File serverConfig;
-    if (this.options.has("c")) {
+    if (this.options.has(ShirukaConsoleParser.getConfig())) {
       serverConfig = Objects.requireNonNull(this.options.valueOf(ShirukaConsoleParser.getConfig()),
         "The parsed option set has not server config path value!");
     } else {

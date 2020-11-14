@@ -32,6 +32,7 @@ import java.util.logging.Level;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,12 +44,49 @@ final class ShirukaConsoleParser {
   /**
    * a simple java util logger.
    */
-  static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
+  private static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
 
   /**
    * the option parser.
    */
   private static final OptionParser PARSER = new OptionParser();
+
+  /**
+   * the help option spec.
+   */
+  @NotNull
+  private static final OptionSpec<Void> HELP = ShirukaConsoleParser.PARSER
+    .acceptsAll(Arrays.asList("?", "help"), "Show the help")
+    .forHelp();
+
+  /**
+   * the server config file option spec.
+   */
+  @NotNull
+  private static final OptionSpec<File> CONFIG = ShirukaConsoleParser.PARSER
+    .acceptsAll(Arrays.asList("c", "config"), "Server configuration file to use")
+    .withRequiredArg()
+    .ofType(File.class)
+    .defaultsTo(new File("server.yml"))
+    .describedAs("Server configuration file");
+
+  /**
+   * the plugins directory option spec.
+   */
+  @NotNull
+  private static final OptionSpec<File> PLUGINS = ShirukaConsoleParser.PARSER
+    .acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
+    .withRequiredArg()
+    .ofType(File.class)
+    .defaultsTo(new File("plugins"))
+    .describedAs("Plugin directory");
+
+  /**
+   * the version option spec.
+   */
+  @NotNull
+  private static final OptionSpec<Void> VERSION = ShirukaConsoleParser.PARSER
+    .acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");
 
   /**
    * ctor.
@@ -57,27 +95,67 @@ final class ShirukaConsoleParser {
   }
 
   /**
-   * parses the options from the given arguments.
+   * obtains the help option spec.
+   *
+   * @return the help option spec.
+   */
+  @NotNull
+  public static OptionSpec<Void> getHelp() {
+    return ShirukaConsoleParser.HELP;
+  }
+
+  /**
+   * obtains the server file option spec.
+   *
+   * @return the server file option spec.
+   */
+  @NotNull
+  public static OptionSpec<File> getConfig() {
+    return ShirukaConsoleParser.CONFIG;
+  }
+
+  /**
+   * obtains the plugins directory option spec.
+   *
+   * @return the plugins directory option spec.
+   */
+  @NotNull
+  public static OptionSpec<File> getPlugins() {
+    return ShirukaConsoleParser.PLUGINS;
+  }
+
+  /**
+   * obtains the version option spec.
+   *
+   * @return the version option spec.
+   */
+  @NotNull
+  public static OptionSpec<Void> getVersion() {
+    return ShirukaConsoleParser.VERSION;
+  }
+
+  /**
+   * parses the given arguments into a {@link OptionSet} instance.
    *
    * @param args the args to parse.
    *
-   * @return the parsed options.
+   * @return a parsed option set instance.
    */
   @Nullable
-  static OptionSet parseOptions(@NotNull final String[] args) {
-    ShirukaConsoleParser.PARSER.acceptsAll(Arrays.asList("?", "help"), "Show the help");
-    ShirukaConsoleParser.PARSER.acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
-      .withRequiredArg()
-      .ofType(File.class)
-      .defaultsTo(new File("plugins"))
-      .describedAs("Plugin directory");
-    ShirukaConsoleParser.PARSER.acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");
+  static OptionSet parse(@NotNull final String[] args) {
     try {
       return ShirukaConsoleParser.PARSER.parse(args);
     } catch (final OptionException e) {
       ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
     }
     return null;
+  }
+
+  /**
+   * prints the server's version.
+   */
+  static void printVersion() {
+    System.out.println(ShirukaServer.VERSION);
   }
 
   /**
@@ -89,12 +167,5 @@ final class ShirukaConsoleParser {
     } catch (final IOException ex) {
       ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, null, ex);
     }
-  }
-
-  /**
-   * prints the server's version.
-   */
-  static void printVersion() {
-    System.out.println(ShirukaServer.VERSION);
   }
 }

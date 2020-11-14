@@ -25,6 +25,8 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.shiruka.config.ServerConfig;
+import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.Loggers;
 import java.io.File;
 import joptsimple.OptionSet;
@@ -66,12 +68,12 @@ public final class ShirukaMain {
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
-    final var options = ShirukaConsoleParser.parseOptions(args);
-    if (options == null || options.has("?")) {
+    final var parsed = ShirukaConsoleParser.parse(args);
+    if (parsed == null || parsed.has("?")) {
       ShirukaConsoleParser.printHelpOn();
       return;
     }
-    if (options.has("v")) {
+    if (parsed.has("v")) {
       ShirukaConsoleParser.printVersion();
       return;
     }
@@ -82,8 +84,9 @@ public final class ShirukaMain {
       return;
     }
     System.setProperty("library.jansi.version", "Shiruka");
-    new ShirukaMain(options)
-      .exec();
+    JiraExceptionCatcher.run(() ->
+      new ShirukaMain(parsed)
+        .exec());
   }
 
   /**
@@ -92,5 +95,11 @@ public final class ShirukaMain {
   private void exec() {
     Loggers.init(ShirukaMain.LOGGER);
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
+    final File serverConfig;
+    if (this.options.has("c")) {
+      serverConfig = this.options.valueOf()
+    } else {
+    }
+    new ServerConfig();
   }
 }

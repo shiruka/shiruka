@@ -99,7 +99,7 @@ public final class ShirukaMain {
   }
 
   /**
-   * execs the Java program.
+   * initiates the Shiru ka server.
    */
   private void exec() {
     ShirukaMain.LOGGER.info("Shiru ka is starting...");

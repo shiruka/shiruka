@@ -24,7 +24,7 @@
  */
 package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.common.Optionals;
+import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;

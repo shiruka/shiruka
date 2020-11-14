@@ -27,14 +27,13 @@ package io.github.shiruka.shiruka;
 
 import com.beust.jcommander.JCommander;
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.common.Loggers;
-import io.github.shiruka.common.fragment.FragmentDownloader;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
-import java.io.File;
 import java.util.Locale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,8 +103,8 @@ public final class ShirukaMain {
    */
   private void exec() {
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
-    NetServerSocket.init();
     final var server = new ShirukaServer();
+    NetServerSocket.init(new ShirukaSocketListener(server));
     ShirukaMain.LOGGER.info("Server configuration file is preparing...");
     // TODO initiate server configuration file.
     Shiruka.initServer(server);

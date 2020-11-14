@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.misc;
 
-import io.github.shiruka.common.ThrowableRunnable;
+import io.github.shiruka.api.misc.ThrowableRunnable;
 import io.github.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 

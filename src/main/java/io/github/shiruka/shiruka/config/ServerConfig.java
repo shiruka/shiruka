@@ -104,6 +104,7 @@ public final class ServerConfig extends PathableConfig {
    * @param file the file to create.
    */
   public static void init(@NotNull final File file) {
-    new ServerConfig(file);
+    new ServerConfig(file)
+      .save();
   }
 }

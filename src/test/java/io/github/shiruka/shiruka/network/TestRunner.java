@@ -24,8 +24,8 @@
  */
 package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.common.Misc;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
+import io.github.shiruka.shiruka.network.util.Misc;
 import java.io.File;
 import java.util.Arrays;
 

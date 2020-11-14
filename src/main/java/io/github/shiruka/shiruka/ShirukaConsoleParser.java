@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a console command parser using jopt-simple.
  */
-public final class ShirukaConsoleParser {
+final class ShirukaConsoleParser {
 
   /**
    * a simple java util logger.
@@ -59,17 +59,6 @@ public final class ShirukaConsoleParser {
   }
 
   /**
-   * prints the help message.
-   */
-  public static void printHelpOn() {
-    try {
-      ShirukaConsoleParser.PARSER.printHelpOn(System.out);
-    } catch (final IOException ex) {
-      ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, null, ex);
-    }
-  }
-
-  /**
    * parses the options from the given arguments.
    *
    * @param args the args to parse.
@@ -77,7 +66,7 @@ public final class ShirukaConsoleParser {
    * @return the parsed options.
    */
   @Nullable
-  public static OptionSet parseOptions(@NotNull final String[] args) {
+  static OptionSet parseOptions(@NotNull final String[] args) {
     ShirukaConsoleParser.PARSER.acceptsAll(Arrays.asList("?", "help"), "Show the help");
     ShirukaConsoleParser.PARSER.acceptsAll(Arrays.asList("c", "config"), "Properties file to use")
       .withRequiredArg()
@@ -183,5 +172,23 @@ public final class ShirukaConsoleParser {
       ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
     }
     return null;
+  }
+
+  /**
+   * prints the help message.
+   */
+  static void printHelpOn() {
+    try {
+      ShirukaConsoleParser.PARSER.printHelpOn(System.out);
+    } catch (final IOException ex) {
+      ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, null, ex);
+    }
+  }
+
+  /**
+   * prints the server's version.
+   */
+  static void printVersion() {
+    System.out.println(ShirukaServer.VERSION);
   }
 }

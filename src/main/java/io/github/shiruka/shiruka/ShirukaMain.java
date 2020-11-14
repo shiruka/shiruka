@@ -69,6 +69,10 @@ public final class ShirukaMain {
       ShirukaConsoleParser.printHelpOn();
       return;
     }
+    if (options.has("v")) {
+      ShirukaConsoleParser.printVersion();
+      return;
+    }
     new ShirukaMain(options)
       .exec();
 //    InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);

@@ -27,9 +27,7 @@ package io.github.shiruka.shiruka;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.logging.Level;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -73,6 +71,7 @@ final class ShirukaConsoleParser {
       .ofType(File.class)
       .defaultsTo(new File("plugins"))
       .describedAs("Plugin directory");
+    ShirukaConsoleParser.PARSER.acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");
     try {
       return ShirukaConsoleParser.PARSER.parse(args);
     } catch (final OptionException e) {

@@ -103,6 +103,7 @@ public final class ShirukaMain {
     } else {
       serverConfig = new File("shiruka.yml");
     }
+    ShirukaMain.LOGGER.info("Checking for server files: " + serverConfig.getName());
     ServerConfig.init(serverConfig);
   }
 }

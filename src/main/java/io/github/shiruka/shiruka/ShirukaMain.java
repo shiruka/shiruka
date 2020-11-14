@@ -41,14 +41,16 @@ public final class ShirukaMain {
   private static final Logger LOGGER = LogManager.getLogger("Shiru ka");
 
   /**
-   * the database of fragments.
+   * the parsed options.
    */
-  private static final String FRAGMENTS_DATABASE =
-    "https://raw.githubusercontent.com/shiruka/fragments/master/fragments.json";
-
   @NotNull
   private final OptionSet options;
 
+  /**
+   * ctor.
+   *
+   * @param options the options.
+   */
   private ShirukaMain(@NotNull final OptionSet options) {
     this.options = options;
   }

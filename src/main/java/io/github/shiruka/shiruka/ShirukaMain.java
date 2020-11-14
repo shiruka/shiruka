@@ -97,9 +97,10 @@ public final class ShirukaMain {
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
     final File serverConfig;
     if (this.options.has("c")) {
-      serverConfig = this.options.valueOf()
+      serverConfig = this.options.valueOf(ShirukaConsoleParser.getConfig());
     } else {
+      serverConfig = new File("shiruka.yml");
     }
-    new ServerConfig();
+    new ServerConfig(serverConfig);
   }
 }

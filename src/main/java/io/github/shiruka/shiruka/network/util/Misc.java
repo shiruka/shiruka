@@ -31,6 +31,8 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Queue;
 import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +41,16 @@ import org.jetbrains.annotations.NotNull;
  * a class that contains misc. methods and fields.
  */
 public final class Misc {
+
+  /**
+   * the working directory as a string
+   */
+  public static final String HOME = System.getProperty("user.dir");
+
+  /**
+   * the Path directory to the working dir
+   */
+  public static final Path HOME_PATH = Paths.get(Misc.HOME);
 
   public static final InetSocketAddress LOOPBACK_V4 = new InetSocketAddress(Inet4Address.getLoopbackAddress(), 19132);
 

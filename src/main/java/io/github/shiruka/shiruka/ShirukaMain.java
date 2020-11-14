@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import java.io.File;
 import joptsimple.OptionSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,6 +72,12 @@ public final class ShirukaMain {
     }
     if (options.has("v")) {
       ShirukaConsoleParser.printVersion();
+      return;
+    }
+    final var here = new File(".").getAbsolutePath();
+    if (here.contains("!") || here.contains("+")) {
+      System.err.println("Cannot run server in a directory with ! or + in the pathname.");
+      System.out.println("Please rename the affected folders and try again.");
       return;
     }
     new ShirukaMain(options)

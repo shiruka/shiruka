@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.config;
 
 import static io.github.shiruka.api.conf.Paths.*;
 import io.github.shiruka.api.conf.CommentablePath;
+import io.github.shiruka.api.conf.ConfigPath;
 import io.github.shiruka.api.conf.config.PathableConfig;
 import io.github.shiruka.api.conf.config.YamlConfig;
 import java.io.File;
@@ -42,19 +43,19 @@ public final class ServerConfig extends PathableConfig {
   /**
    * server's ip address.
    */
-  public static final CommentablePath<String> ADDRESS =
+  public static final ConfigPath<String> ADDRESS =
     commented(stringPath("address", "0.0.0.0"));
 
   /**
    * server's port.
    */
-  public static final CommentablePath<Integer> PORT =
+  public static final ConfigPath<Integer> PORT =
     commented(integerPath("port", 19132));
 
   /**
    * "true" to use linux natives when available.
    */
-  public static final CommentablePath<Boolean> USE_NATIVE =
+  public static final ConfigPath<Boolean> USE_NATIVE =
     commented(booleanPath("use-native", true));
 
   /**
@@ -62,31 +63,31 @@ public final class ServerConfig extends PathableConfig {
    * <p>
    * use -1 to disable.
    */
-  public static final CommentablePath<Integer> COMPRESSION_THRESHOLD =
+  public static final ConfigPath<Integer> COMPRESSION_THRESHOLD =
     commented(integerPath("compression-threshold", 256));
 
   /**
    * whether to use Mojang auth to check players.
    */
-  public static final CommentablePath<Boolean> ONLINE_MODE =
+  public static final ConfigPath<Boolean> ONLINE_MODE =
     commented(booleanPath("online-mode", true));
 
   /**
    * the max players that can be online at once.
    */
-  public static final CommentablePath<Integer> MAX_PLAYERS =
+  public static final ConfigPath<Integer> MAX_PLAYERS =
     commented(integerPath("max-players", 20));
 
   /**
    * the MOTD message shown in the server list.
    */
-  public static final CommentablePath<String> MOTD =
+  public static final ConfigPath<String> MOTD =
     commented(stringPath("motd", "Shiru ka server"));
 
   /**
    * whether to check for netty memory leaks during runtime
    */
-  public static final CommentablePath<Boolean> NETTY_LEAK_DETECTOR =
+  public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR =
     commented(booleanPath("netty-leak-detector", false));
 
   /**

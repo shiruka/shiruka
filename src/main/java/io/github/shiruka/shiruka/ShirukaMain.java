@@ -81,7 +81,7 @@ public final class ShirukaMain {
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
       System.err.println("Cannot run server in a directory with ! or + in the pathname.");
-      System.out.println("Please rename the affected folders and try again.");
+      System.err.println("Please rename the affected folders and try again.");
       return;
     }
     System.setProperty("library.jansi.version", "Shiruka");

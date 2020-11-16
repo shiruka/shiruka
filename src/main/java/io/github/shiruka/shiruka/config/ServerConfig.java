@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.config;
 
 import static io.github.shiruka.api.conf.Paths.*;
-import io.github.shiruka.api.conf.CommentablePath;
 import io.github.shiruka.api.conf.ConfigPath;
 import io.github.shiruka.api.conf.config.PathableConfig;
 import io.github.shiruka.api.conf.config.YamlConfig;

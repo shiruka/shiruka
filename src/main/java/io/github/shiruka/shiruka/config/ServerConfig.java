@@ -43,19 +43,22 @@ public final class ServerConfig extends PathableConfig {
    * server's ip address.
    */
   public static final ConfigPath<String> ADDRESS =
-    commented(stringPath("address", "0.0.0.0"));
+    commented(stringPath("address", "0.0.0.0"),
+      "server's ip address.");
 
   /**
    * server's port.
    */
   public static final ConfigPath<Integer> PORT =
-    commented(integerPath("port", 19132));
+    commented(integerPath("port", 19132),
+      "server's port.");
 
   /**
    * "true" to use linux natives when available.
    */
   public static final ConfigPath<Boolean> USE_NATIVE =
-    commented(booleanPath("use-native", true));
+    commented(booleanPath("use-native", true),
+      "\"true\" to use linux natives when available.");
 
   /**
    * the amount of bytes before compressing packets.
@@ -63,31 +66,36 @@ public final class ServerConfig extends PathableConfig {
    * use -1 to disable.
    */
   public static final ConfigPath<Integer> COMPRESSION_THRESHOLD =
-    commented(integerPath("compression-threshold", 256));
+    commented(integerPath("compression-threshold", 256),
+      "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
 
   /**
    * whether to use Mojang auth to check players.
    */
   public static final ConfigPath<Boolean> ONLINE_MODE =
-    commented(booleanPath("online-mode", true));
+    commented(booleanPath("online-mode", true),
+      "whether to use Mojang auth to check players.");
 
   /**
    * the max players that can be online at once.
    */
   public static final ConfigPath<Integer> MAX_PLAYERS =
-    commented(integerPath("max-players", 20));
+    commented(integerPath("max-players", 20),
+      "the max players that can be online at once.");
 
   /**
    * the MOTD message shown in the server list.
    */
   public static final ConfigPath<String> MOTD =
-    commented(stringPath("motd", "Shiru ka server"));
+    commented(stringPath("motd", "Shiru ka server"),
+      "the MOTD message shown in the server list.");
 
   /**
    * whether to check for netty memory leaks during runtime
    */
   public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR =
-    commented(booleanPath("netty-leak-detector", false));
+    commented(booleanPath("netty-leak-detector", false),
+      "whether to check for netty memory leaks during runtime");
 
   /**
    * ctor.

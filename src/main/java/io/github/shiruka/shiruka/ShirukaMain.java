@@ -29,6 +29,8 @@ import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.Loggers;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Objects;
 import joptsimple.OptionSet;
 import org.apache.logging.log4j.LogManager;
@@ -92,8 +94,10 @@ public final class ShirukaMain {
 
   /**
    * initiates the Shiru ka server.
+   *
+   * @throws IOException if something went wrong when creating files/directories.
    */
-  private void exec() {
+  private void exec() throws IOException {
     Loggers.init(ShirukaMain.LOGGER);
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
     final File serverConfig;
@@ -105,5 +109,19 @@ public final class ShirukaMain {
     }
     ShirukaMain.LOGGER.info("Checking for server files: {}", serverConfig.getName());
     ServerConfig.init(serverConfig);
+    ShirukaMain.LOGGER.info("Checking for server files: plugins folder");
+    final File pluginsDirectory;
+    if (this.options.has(ShirukaConsoleParser.getPlugins())) {
+      pluginsDirectory = Objects.requireNonNull(this.options.valueOf(ShirukaConsoleParser.getPlugins()),
+        "The parsed options et has not plugins directory value!");
+    } else {
+      pluginsDirectory = new File("plugins");
+    }
+    final var pluginsDirectoryPath = pluginsDirectory.toPath();
+    if (!Files.exists(pluginsDirectoryPath)) {
+      ShirukaMain.LOGGER.warn("File {} not present", pluginsDirectory.getName());
+      ShirukaMain.LOGGER.info("Creating one for you... ");
+      Files.createDirectory(pluginsDirectoryPath);
+    }
   }
 }

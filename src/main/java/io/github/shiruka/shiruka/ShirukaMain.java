@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.Loggers;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Objects;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -93,35 +95,97 @@ public final class ShirukaMain {
   }
 
   /**
+   * creates directory and do some logs.
+   *
+   * @param dir the directory to create.
+   *
+   * @throws IOException if something went wrong when creating the directory.
+   */
+  private static void createDirectory(@NotNull final File dir) throws IOException {
+    if (!Files.exists(dir.toPath())) {
+      ShirukaMain.LOGGER.warn("Directory {} not present", dir.getName());
+      ShirukaMain.LOGGER.info("Creating one for you... ");
+      Files.createDirectory(dir.toPath());
+    }
+  }
+
+  /**
+   * creates files and do some logs.
+   *
+   * @param file the file to create.
+   *
+   * @throws IOException if something went wrong when creating the file.
+   */
+  private static void createFile(@NotNull final File file) throws IOException {
+    if (!Files.exists(file.toPath())) {
+      ShirukaMain.LOGGER.warn("File {} not present", file.getName());
+      ShirukaMain.LOGGER.info("Creating one for you... ");
+      Files.createFile(file.toPath());
+    }
+  }
+
+  /**
    * initiates the Shiru ka server.
    *
-   * @throws IOException if something went wrong when creating files/directories.
+   * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
     Loggers.init(ShirukaMain.LOGGER);
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
-    final File serverConfig;
-    if (this.options.has(ShirukaConsoleParser.getConfig())) {
-      serverConfig = Objects.requireNonNull(this.options.valueOf(ShirukaConsoleParser.getConfig()),
-        "The parsed option set has not server config path value!");
-    } else {
-      serverConfig = new File("shiruka.yml");
-    }
-    ShirukaMain.LOGGER.info("Checking for server files: {}", serverConfig.getName());
+    final var serverConfig = this.createsServerFile(ShirukaConsoleParser.getConfig(),
+      "The parsed option set has not server config path value!", "shiruka.yml");
     ServerConfig.init(serverConfig);
-    ShirukaMain.LOGGER.info("Checking for server files: plugins folder");
-    final File pluginsDirectory;
-    if (this.options.has(ShirukaConsoleParser.getPlugins())) {
-      pluginsDirectory = Objects.requireNonNull(this.options.valueOf(ShirukaConsoleParser.getPlugins()),
-        "The parsed options et has not plugins directory value!");
+    final var pluginsDirectory = this.createsServerFile(ShirukaConsoleParser.getPlugins(),
+      "The parsed options et has not plugins directory value!", "plugins", true);
+    final var opsFile = this.createsServerFile(ShirukaConsoleParser.getOps(),
+      "The parsed options et has not ops file value!", "ops.json");
+    OpsConfig.init(opsFile);
+  }
+
+  /**
+   * creates and returns the server file.
+   *
+   * @param spec the spec to create.
+   * @param error the error to print.
+   * @param defaultName the default name of the file.
+   *
+   * @return a server file instance.
+   *
+   * @throws IOException if something went wrong when the creating the file.
+   */
+  @NotNull
+  private File createsServerFile(@NotNull final OptionSpec<File> spec, @NotNull final String error,
+                                 @NotNull final String defaultName) throws IOException {
+    return this.createsServerFile(spec, error, defaultName, false);
+  }
+
+  /**
+   * creates and returns the server file/d.
+   *
+   * @param spec the spec to create.
+   * @param error the error to print.
+   * @param defaultName the default name of the file.
+   * @param directory the directory to create.
+   *
+   * @return a server file instance.
+   *
+   * @throws IOException if something went wrong when the creating the file.
+   */
+  @NotNull
+  private File createsServerFile(@NotNull final OptionSpec<File> spec, @NotNull final String error,
+                                 @NotNull final String defaultName, final boolean directory) throws IOException {
+    final File file;
+    if (this.options.has(spec)) {
+      file = Objects.requireNonNull(this.options.valueOf(spec), error);
     } else {
-      pluginsDirectory = new File("plugins");
+      file = new File(defaultName);
     }
-    final var pluginsDirectoryPath = pluginsDirectory.toPath();
-    if (!Files.exists(pluginsDirectoryPath)) {
-      ShirukaMain.LOGGER.warn("File {} not present", pluginsDirectory.getName());
-      ShirukaMain.LOGGER.info("Creating one for you... ");
-      Files.createDirectory(pluginsDirectoryPath);
+    ShirukaMain.LOGGER.info("Checking for server files: {}", file.getName());
+    if (directory) {
+      ShirukaMain.createDirectory(file);
+    } else {
+      ShirukaMain.createFile(file);
     }
+    return file;
   }
 }

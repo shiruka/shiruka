@@ -82,6 +82,17 @@ final class ShirukaConsoleParser {
     .describedAs("Plugin directory");
 
   /**
+   * the ops file option spec.
+   */
+  @NotNull
+  private static final OptionSpec<File> OPS = ShirukaConsoleParser.PARSER
+    .acceptsAll(Arrays.asList("O", "ops"), "Ops file to use")
+    .withRequiredArg()
+    .ofType(File.class)
+    .defaultsTo(new File("ops.json"))
+    .describedAs("Ops file");
+
+  /**
    * the version option spec.
    */
   @NotNull
@@ -122,6 +133,16 @@ final class ShirukaConsoleParser {
   @NotNull
   public static OptionSpec<File> getPlugins() {
     return ShirukaConsoleParser.PLUGINS;
+  }
+
+  /**
+   * obtains the ops file option spec.
+   *
+   * @return the ops file option spec.
+   */
+  @NotNull
+  public static OptionSpec<File> getOps() {
+    return ShirukaConsoleParser.OPS;
   }
 
   /**

@@ -132,14 +132,12 @@ public final class ShirukaMain {
   private void exec() throws IOException {
     Loggers.init(ShirukaMain.LOGGER);
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
-    final var serverConfig = this.createsServerFile(ShirukaConsoleParser.getConfig(),
-      "The parsed option set has not server config path value!", "shiruka.yml");
-    ServerConfig.init(serverConfig);
-    final var pluginsDirectory = this.createsServerFile(ShirukaConsoleParser.getPlugins(),
+    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.getConfig(),
+      "The parsed option set has not server config path value!", "shiruka.yml"));
+    this.createsServerFile(ShirukaConsoleParser.getPlugins(),
       "The parsed options et has not plugins directory value!", "plugins", true);
-    final var opsFile = this.createsServerFile(ShirukaConsoleParser.getOps(),
-      "The parsed options et has not ops file value!", "ops.json");
-    OpsConfig.init(opsFile);
+    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.getOps(),
+      "The parsed options et has not ops file value!", "ops.json"));
   }
 
   /**

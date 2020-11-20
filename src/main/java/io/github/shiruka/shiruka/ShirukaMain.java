@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
@@ -145,6 +146,7 @@ public final class ShirukaMain {
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS,
       "The parsed options et has not ops file value!", "ops.json"));
     final var server = new ShirukaServer();
+    Shiruka.initServer(server);
     final var console = new ShirukaConsole(server);
     console.start();
   }

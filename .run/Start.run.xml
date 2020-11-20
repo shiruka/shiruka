@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Start" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="io.github.shiruka.shiruka.ShirukaMain" />
+    <module name="shiruka" />
+    <option name="PROGRAM_PARAMETERS" value="-D" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/target" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="io.github.shiruka.shiruka.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

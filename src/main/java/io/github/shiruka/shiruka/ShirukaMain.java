@@ -110,8 +110,7 @@ public final class ShirukaMain {
    */
   private static void createDirectory(@NotNull final File dir) throws IOException {
     if (!Files.exists(dir.toPath())) {
-      ShirukaMain.LOGGER.debug("Directory {} not present", dir.getName());
-      ShirukaMain.LOGGER.debug("Creating one for you... ");
+      ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", dir.getName());
       Files.createDirectory(dir.toPath());
     }
   }
@@ -125,8 +124,7 @@ public final class ShirukaMain {
    */
   private static void createFile(@NotNull final File file) throws IOException {
     if (!Files.exists(file.toPath())) {
-      ShirukaMain.LOGGER.debug("File {} not present", file.getName());
-      ShirukaMain.LOGGER.debug("Creating one for you... ");
+      ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", file.getName());
       Files.createFile(file.toPath());
     }
   }
@@ -189,10 +187,11 @@ public final class ShirukaMain {
     } else {
       file = new File(defaultName);
     }
-    ShirukaMain.LOGGER.debug("Checking for server files: {}", file.getName());
     if (directory) {
+      ShirukaMain.LOGGER.debug("Checking for {} directory...", file.getName());
       ShirukaMain.createDirectory(file);
     } else {
+      ShirukaMain.LOGGER.debug("Checking for {} file...", file.getName());
       ShirukaMain.createFile(file);
     }
     return file;

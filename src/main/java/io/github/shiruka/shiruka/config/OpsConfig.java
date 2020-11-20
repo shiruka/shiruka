@@ -27,7 +27,6 @@ package io.github.shiruka.shiruka.config;
 
 import io.github.shiruka.api.conf.ConfigPath;
 import io.github.shiruka.api.conf.Paths;
-import io.github.shiruka.api.conf.config.JsonConfig;
 import io.github.shiruka.api.conf.config.PathableConfig;
 import java.io.File;
 import java.util.List;
@@ -50,7 +49,7 @@ public final class OpsConfig extends PathableConfig {
    * @param file the file.
    */
   private OpsConfig(@NotNull final File file) {
-    super(new JsonConfig(file));
+    super(new HJsonConfig(file));
   }
 
   /**

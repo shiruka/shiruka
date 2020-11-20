@@ -42,117 +42,88 @@ import org.jetbrains.annotations.Nullable;
 final class ShirukaConsoleParser {
 
   /**
-   * a simple java util logger.
-   */
-  private static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
-
-  /**
-   * the option parser.
-   */
-  private static final OptionParser PARSER = new OptionParser();
-
-  /**
    * the help option spec.
    */
   @NotNull
-  private static final OptionSpec<Void> HELP = ShirukaConsoleParser.PARSER
-    .acceptsAll(Arrays.asList("?", "help"), "Show the help")
-    .forHelp();
+  public static final OptionSpec<Void> HELP;
 
   /**
    * the server config file option spec.
    */
   @NotNull
-  private static final OptionSpec<File> CONFIG = ShirukaConsoleParser.PARSER
-    .acceptsAll(Arrays.asList("c", "config"), "Server configuration file to use")
-    .withRequiredArg()
-    .ofType(File.class)
-    .defaultsTo(new File("server.yml"))
-    .describedAs("Server configuration file");
+  public static final OptionSpec<File> CONFIG;
 
   /**
    * the plugins directory option spec.
    */
   @NotNull
-  private static final OptionSpec<File> PLUGINS = ShirukaConsoleParser.PARSER
-    .acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
-    .withRequiredArg()
-    .ofType(File.class)
-    .defaultsTo(new File("plugins"))
-    .describedAs("Plugin directory");
+  public static final OptionSpec<File> PLUGINS;
 
   /**
    * the ops file option spec.
    */
   @NotNull
-  private static final OptionSpec<File> OPS = ShirukaConsoleParser.PARSER
-    .acceptsAll(Arrays.asList("O", "ops"), "Ops file to use")
-    .withRequiredArg()
-    .ofType(File.class)
-    .defaultsTo(new File("ops.json"))
-    .describedAs("Ops file");
+  public static final OptionSpec<File> OPS;
 
   /**
    * the version option spec.
    */
   @NotNull
-  private static final OptionSpec<Void> VERSION = ShirukaConsoleParser.PARSER
-    .acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");
+  public static final OptionSpec<Void> VERSION;
+
+  /**
+   * the debug mode option spec.
+   */
+  @NotNull
+  public static final OptionSpec<Boolean> DEBUG;
+
+  /**
+   * the option parser.
+   */
+  private static final OptionParser PARSER;
+
+  /**
+   * a simple java util logger.
+   */
+  private static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
+
+  static {
+    PARSER = new OptionParser();
+    HELP = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("?", "help"), "Show the help")
+      .forHelp();
+    CONFIG = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("c", "config"), "Server configuration file to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("server.yml"))
+      .describedAs("Server configuration file");
+    PLUGINS = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("plugins"))
+      .describedAs("Plugin directory");
+    OPS = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("O", "ops"), "Ops file to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("ops.json"))
+      .describedAs("Ops file");
+    VERSION = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");
+    DEBUG = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("D", "debug"), "Debug mode to use")
+      .withOptionalArg()
+      .ofType(Boolean.class)
+      .defaultsTo(false)
+      .describedAs("Debug mode");
+  }
 
   /**
    * ctor.
    */
   private ShirukaConsoleParser() {
-  }
-
-  /**
-   * obtains the help option spec.
-   *
-   * @return the help option spec.
-   */
-  @NotNull
-  public static OptionSpec<Void> getHelp() {
-    return ShirukaConsoleParser.HELP;
-  }
-
-  /**
-   * obtains the server file option spec.
-   *
-   * @return the server file option spec.
-   */
-  @NotNull
-  public static OptionSpec<File> getConfig() {
-    return ShirukaConsoleParser.CONFIG;
-  }
-
-  /**
-   * obtains the plugins directory option spec.
-   *
-   * @return the plugins directory option spec.
-   */
-  @NotNull
-  public static OptionSpec<File> getPlugins() {
-    return ShirukaConsoleParser.PLUGINS;
-  }
-
-  /**
-   * obtains the ops file option spec.
-   *
-   * @return the ops file option spec.
-   */
-  @NotNull
-  public static OptionSpec<File> getOps() {
-    return ShirukaConsoleParser.OPS;
-  }
-
-  /**
-   * obtains the version option spec.
-   *
-   * @return the version option spec.
-   */
-  @NotNull
-  public static OptionSpec<Void> getVersion() {
-    return ShirukaConsoleParser.VERSION;
   }
 
   /**

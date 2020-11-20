@@ -74,13 +74,16 @@ public final class ShirukaMain {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
     final var parsed = ShirukaConsoleParser.parse(args);
-    if (parsed == null || parsed.has(ShirukaConsoleParser.getHelp())) {
+    if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
       ShirukaConsoleParser.printHelpOn();
       return;
     }
-    if (parsed.has(ShirukaConsoleParser.getVersion())) {
+    if (parsed.has(ShirukaConsoleParser.VERSION)) {
       ShirukaConsoleParser.printVersion();
       return;
+    }
+    if (parsed.has(ShirukaConsoleParser.DEBUG)) {
+      System.setProperty("log4j.debug", "true");
     }
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
@@ -118,8 +121,8 @@ public final class ShirukaMain {
    */
   private static void createFile(@NotNull final File file) throws IOException {
     if (!Files.exists(file.toPath())) {
-      ShirukaMain.LOGGER.warn("File {} not present", file.getName());
-      ShirukaMain.LOGGER.info("Creating one for you... ");
+      ShirukaMain.LOGGER.debug("File {} not present", file.getName());
+      ShirukaMain.LOGGER.debug("Creating one for you... ");
       Files.createFile(file.toPath());
     }
   }
@@ -132,11 +135,11 @@ public final class ShirukaMain {
   private void exec() throws IOException {
     Loggers.init(ShirukaMain.LOGGER);
     ShirukaMain.LOGGER.info("Shiru ka is starting...");
-    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.getConfig(),
+    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG,
       "The parsed option set has not server config path value!", "shiruka.yml"));
-    this.createsServerFile(ShirukaConsoleParser.getPlugins(),
+    this.createsServerFile(ShirukaConsoleParser.PLUGINS,
       "The parsed options et has not plugins directory value!", "plugins", true);
-    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.getOps(),
+    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS,
       "The parsed options et has not ops file value!", "ops.json"));
   }
 
@@ -178,7 +181,7 @@ public final class ShirukaMain {
     } else {
       file = new File(defaultName);
     }
-    ShirukaMain.LOGGER.info("Checking for server files: {}", file.getName());
+    ShirukaMain.LOGGER.debug("Checking for server files: {}", file.getName());
     if (directory) {
       ShirukaMain.createDirectory(file);
     } else {

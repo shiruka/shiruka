@@ -116,7 +116,7 @@ final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("D", "debug"), "Debug mode to use")
       .withOptionalArg()
       .ofType(Boolean.class)
-      .defaultsTo(false)
+      .defaultsTo(true)
       .describedAs("Debug mode");
   }
 

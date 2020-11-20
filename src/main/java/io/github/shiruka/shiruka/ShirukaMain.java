@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka;
 
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
+import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.Loggers;
 import java.io.File;
@@ -35,8 +36,9 @@ import java.nio.file.Files;
 import java.util.Objects;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -47,7 +49,7 @@ public final class ShirukaMain {
   /**
    * the global logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Shiru ka");
+  private static final Logger LOGGER = (Logger) LogManager.getLogger("Shiru ka");
 
   /**
    * the parsed options.
@@ -82,13 +84,14 @@ public final class ShirukaMain {
       ShirukaConsoleParser.printVersion();
       return;
     }
-    if (parsed.has(ShirukaConsoleParser.DEBUG)) {
-      System.setProperty("log4j.debug", "true");
+    if (!parsed.has(ShirukaConsoleParser.DEBUG) ||
+      !parsed.valueOf(ShirukaConsoleParser.DEBUG)) {
+      ShirukaMain.LOGGER.setLevel(Level.INFO);
     }
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
-      System.err.println("Cannot run server in a directory with ! or + in the pathname.");
-      System.err.println("Please rename the affected folders and try again.");
+      ShirukaMain.LOGGER.warn("Cannot run server in a directory with ! or + in the pathname.");
+      ShirukaMain.LOGGER.warn("Please rename the affected folders and try again.");
       return;
     }
     System.setProperty("library.jansi.version", "Shiruka");
@@ -106,8 +109,8 @@ public final class ShirukaMain {
    */
   private static void createDirectory(@NotNull final File dir) throws IOException {
     if (!Files.exists(dir.toPath())) {
-      ShirukaMain.LOGGER.warn("Directory {} not present", dir.getName());
-      ShirukaMain.LOGGER.info("Creating one for you... ");
+      ShirukaMain.LOGGER.debug("Directory {} not present", dir.getName());
+      ShirukaMain.LOGGER.debug("Creating one for you... ");
       Files.createDirectory(dir.toPath());
     }
   }
@@ -141,6 +144,9 @@ public final class ShirukaMain {
       "The parsed options et has not plugins directory value!", "plugins", true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS,
       "The parsed options et has not ops file value!", "ops.json"));
+    final var server = new ShirukaServer();
+    final var console = new ShirukaConsole(server);
+    console.start();
   }
 
   /**

@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.config;
 
 import io.github.shiruka.api.conf.ConfigPath;
 import io.github.shiruka.api.conf.Paths;
+import io.github.shiruka.api.conf.config.HJsonConfig;
 import io.github.shiruka.api.conf.config.PathableConfig;
 import java.io.File;
 import java.util.List;

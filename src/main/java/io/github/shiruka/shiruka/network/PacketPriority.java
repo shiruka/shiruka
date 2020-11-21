@@ -23,28 +23,26 @@
  *
  */
 
-package io.github.shiruka.shiruka;
-
-import io.github.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
+package io.github.shiruka.shiruka.network;
 
 /**
- * an implementation for {@link Server}.
+ * packet send priority
  */
-public final class ShirukaServer implements Server {
-
+public enum PacketPriority {
   /**
-   * obtains the Shiru ka server's version
+   * sends immediately.
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
-
-  @Override
-  public void runCommand(@NotNull final String command) {
-  }
-
-  @Override
-  public boolean isInShutdownState() {
-    return false;
-  }
+  IMMEDIATE,
+  /**
+   * sends as soon as possible.
+   */
+  HIGH,
+  /**
+   * the sending speed is moderate
+   */
+  MEDIUM,
+  /**
+   * sends after everything.
+   */
+  LOW
 }

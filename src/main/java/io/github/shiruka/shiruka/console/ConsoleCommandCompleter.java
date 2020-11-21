@@ -23,28 +23,38 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
+import org.jline.reader.Candidate;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.ParsedLine;
 
 /**
- * an implementation for {@link Server}.
+ * an implementation for {@link Completer} to auto complete console commands.
  */
-public final class ShirukaServer implements Server {
+final class ConsoleCommandCompleter implements Completer {
 
   /**
-   * obtains the Shiru ka server's version
+   * the server instance.
    */
   @NotNull
-  public static final String VERSION = "1.0.0";
+  private final Server server;
 
-  @Override
-  public void runCommand(@NotNull final String command) {
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   */
+  ConsoleCommandCompleter(@NotNull final Server server) {
+    this.server = server;
   }
 
   @Override
-  public boolean isInShutdownState() {
-    return false;
+  public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> list) {
+    final String buffer = line.line();
   }
 }

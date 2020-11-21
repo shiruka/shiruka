@@ -22,29 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka;
-
-import io.github.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an implementation for {@link Server}.
+ * the package that contains concurrent classes.
  */
-public final class ShirukaServer implements Server {
-
-  /**
-   * obtains the Shiru ka server's version
-   */
-  @NotNull
-  public static final String VERSION = "1.0.0";
-
-  @Override
-  public void runCommand(@NotNull final String command) {
-  }
-
-  @Override
-  public boolean isInShutdownState() {
-    return false;
-  }
-}
+package io.github.shiruka.shiruka.concurrent;

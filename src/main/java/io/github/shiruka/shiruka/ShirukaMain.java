@@ -26,8 +26,20 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.log.Loggers;
+import io.github.shiruka.shiruka.config.OpsConfig;
+import io.github.shiruka.shiruka.config.ServerConfig;
+import io.github.shiruka.shiruka.console.ShirukaConsole;
+import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.github.shiruka.shiruka.misc.Loggers;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Objects;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,18 +48,23 @@ import org.jetbrains.annotations.NotNull;
 public final class ShirukaMain {
 
   /**
-   * the program arguments.
+   * the global logger.
+   */
+  private static final Logger LOGGER = (Logger) LogManager.getLogger("Shiru ka");
+
+  /**
+   * the parsed options.
    */
   @NotNull
-  private final String[] args;
+  private final OptionSet options;
 
   /**
    * ctor.
    *
-   * @param args the program arguments.
+   * @param options the options.
    */
-  public ShirukaMain(@NotNull final String[] args) {
-    this.args = args.clone();
+  private ShirukaMain(@NotNull final OptionSet options) {
+    this.options = options;
   }
 
   /**
@@ -55,23 +72,101 @@ public final class ShirukaMain {
    *
    * @param args the args to run.
    */
-  public static void main(final String[] args) throws Exception {
-    new ShirukaMain(args).exec();
+  public static void main(final String[] args) {
+    if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
+      System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
+    }
+    final var parsed = ShirukaConsoleParser.parse(args);
+    if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
+      ShirukaConsoleParser.printHelpOn();
+      return;
+    }
+    if (parsed.has(ShirukaConsoleParser.VERSION)) {
+      ShirukaConsoleParser.printVersion();
+      return;
+    }
+    if (!parsed.has(ShirukaConsoleParser.DEBUG) ||
+      !parsed.valueOf(ShirukaConsoleParser.DEBUG)) {
+      ShirukaMain.LOGGER.setLevel(Level.INFO);
+    }
+    final var here = new File(".").getAbsolutePath();
+    if (here.contains("!") || here.contains("+")) {
+      ShirukaMain.LOGGER.warn("Cannot run server in a directory with ! or + in the pathname.");
+      ShirukaMain.LOGGER.warn("Please rename the affected folders and try again.");
+      return;
+    }
+    System.setProperty("library.jansi.version", "Shiruka");
+    JiraExceptionCatcher.run(() ->
+      new ShirukaMain(parsed)
+        .exec());
   }
 
   /**
-   * execs the Java program.
+   * initiates the Shiru ka server.
+   *
+   * @throws IOException if something went wrong when creating files.
    */
-  private void exec() throws Exception {
-    Loggers.init("Shiru ka");
-    final var optional = Loggers.getLogger();
-    if (optional.isEmpty()) {
-      return;
-    }
-    final var logger = optional.get();
-    final var fragmentsDir = new File("fragments");
-    final var fragmentManager = new ShirukaFragmentManager(fragmentsDir, logger);
+  private void exec() throws IOException {
+    Loggers.init(ShirukaMain.LOGGER);
+    ShirukaMain.LOGGER.info("Shiru ka is starting.");
+    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG, "shiruka.yml"));
+    this.createsServerFile(ShirukaConsoleParser.PLUGINS, "plugins", true);
+    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS, "ops.json"));
     final var server = new ShirukaServer();
-    Shiruka.initServer(server, fragmentManager);
+    Shiruka.initServer(server);
+    final var console = new ShirukaConsole(server);
+    console.start();
+  }
+
+  /**
+   * creates and returns the server file.
+   *
+   * @param spec the spec to create.
+   * @param defaultName the default name of the file.
+   *
+   * @return a server file instance.
+   *
+   * @throws IOException if something went wrong when the creating the file.
+   */
+  @NotNull
+  private File createsServerFile(@NotNull final OptionSpec<File> spec, @NotNull final String defaultName)
+    throws IOException {
+    return this.createsServerFile(spec, defaultName, false);
+  }
+
+  /**
+   * creates and returns the server file/d.
+   *
+   * @param spec the spec to create.
+   * @param defaultName the default name of the file.
+   * @param directory the directory to create.
+   *
+   * @return a server file instance.
+   *
+   * @throws IOException if something went wrong when the creating the file.
+   */
+  @NotNull
+  private File createsServerFile(@NotNull final OptionSpec<File> spec, @NotNull final String defaultName,
+                                 final boolean directory) throws IOException {
+    final File file;
+    if (this.options.has(spec)) {
+      file = Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!");
+    } else {
+      file = new File(defaultName);
+    }
+    if (directory) {
+      ShirukaMain.LOGGER.debug("Checking for {} directory.", file.getName());
+      if (!Files.exists(file.toPath())) {
+        ShirukaMain.LOGGER.debug("Directory {} not present, creating one for you.", file.getName());
+        Files.createDirectory(file.toPath());
+      }
+    } else {
+      ShirukaMain.LOGGER.debug("Checking for {} file.", file.getName());
+      if (!Files.exists(file.toPath())) {
+        ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", file.getName());
+        Files.createFile(file.toPath());
+      }
+    }
+    return file;
   }
 }

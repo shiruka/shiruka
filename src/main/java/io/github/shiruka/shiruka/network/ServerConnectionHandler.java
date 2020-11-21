@@ -23,28 +23,15 @@
  *
  */
 
-package io.github.shiruka.shiruka;
-
-import io.github.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
+package io.github.shiruka.shiruka.network;
 
 /**
- * an implementation for {@link Server}.
+ * a class that handles packets.
  */
-public final class ShirukaServer implements Server {
+public interface ServerConnectionHandler extends ConnectionHandler {
 
   /**
-   * obtains the Shiru ka server's version
+   * sends connection reply 1 packet to the connection's address.
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
-
-  @Override
-  public void runCommand(@NotNull final String command) {
-  }
-
-  @Override
-  public boolean isInShutdownState() {
-    return false;
-  }
+  void sendConnectionReply1();
 }

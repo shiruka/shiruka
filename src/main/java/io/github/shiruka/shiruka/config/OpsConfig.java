@@ -23,28 +23,43 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.config;
 
-import io.github.shiruka.api.Server;
+import io.github.shiruka.api.conf.ConfigPath;
+import io.github.shiruka.api.conf.Paths;
+import io.github.shiruka.api.conf.config.HJsonConfig;
+import io.github.shiruka.api.conf.config.PathableConfig;
+import java.io.File;
+import java.util.List;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link Server}.
+ * list of server operators
  */
-public final class ShirukaServer implements Server {
+public final class OpsConfig extends PathableConfig {
 
   /**
-   * obtains the Shiru ka server's version
+   * op list of the server.
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
+  public static final ConfigPath<List<UUID>> OPS = Paths.listUniqueIdPath("ops", List.of());
 
-  @Override
-  public void runCommand(@NotNull final String command) {
+  /**
+   * ctor.
+   *
+   * @param file the file.
+   */
+  private OpsConfig(@NotNull final File file) {
+    super(new HJsonConfig(file));
   }
 
-  @Override
-  public boolean isInShutdownState() {
-    return false;
+  /**
+   * initiates the server config to the given file.
+   *
+   * @param file the file to create.
+   */
+  public static void init(@NotNull final File file) {
+    new OpsConfig(file)
+      .save();
   }
 }

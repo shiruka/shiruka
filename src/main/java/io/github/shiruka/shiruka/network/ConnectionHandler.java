@@ -23,28 +23,37 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.api.Server;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link Server}.
+ * connection's handler interface.
  */
-public final class ShirukaServer implements Server {
+public interface ConnectionHandler {
 
   /**
-   * obtains the Shiru ka server's version
+   * runs when the connection close.
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
+  void onClose();
 
-  @Override
-  public void runCommand(@NotNull final String command) {
-  }
+  /**
+   * sends disconnection packet to the connection.
+   */
+  void sendDisconnectionNotification();
 
-  @Override
-  public boolean isInShutdownState() {
-    return false;
-  }
+  /**
+   * sends connected ping packet to the connection.
+   *
+   * @param pingTime the pingTime to send as ping.
+   */
+  void sendConnectedPing(long pingTime);
+
+  /**
+   * runs when a raw packet received.
+   *
+   * @param packet the packet to receive.
+   */
+  void onRawDatagram(@NotNull ByteBuf packet);
 }

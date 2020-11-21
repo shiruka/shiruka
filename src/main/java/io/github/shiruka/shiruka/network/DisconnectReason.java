@@ -23,28 +23,47 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
-
-/**
- * an implementation for {@link Server}.
- */
-public final class ShirukaServer implements Server {
-
+public enum DisconnectReason {
   /**
-   * obtains the Shiru ka server's version
+   *
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
-
-  @Override
-  public void runCommand(@NotNull final String command) {
-  }
-
-  @Override
-  public boolean isInShutdownState() {
-    return false;
-  }
+  CLOSED_BY_REMOTE_PEER,
+  /**
+   *
+   */
+  SHUTTING_DOWN,
+  /**
+   * if the connection disconnected.
+   */
+  DISCONNECTED,
+  /**
+   *
+   */
+  TIMED_OUT,
+  /**
+   *
+   */
+  CONNECTION_REQUEST_FAILED,
+  /**
+   *
+   */
+  ALREADY_CONNECTED,
+  /**
+   *
+   */
+  NO_FREE_INCOMING_CONNECTIONS,
+  /**
+   *
+   */
+  INCOMPATIBLE_PROTOCOL_VERSION,
+  /**
+   *
+   */
+  IP_RECENTLY_CONNECTED,
+  /**
+   *
+   */
+  BAD_PACKET
 }

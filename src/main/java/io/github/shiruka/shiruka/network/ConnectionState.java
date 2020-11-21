@@ -23,28 +23,30 @@
  *
  */
 
-package io.github.shiruka.shiruka;
-
-import io.github.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
+package io.github.shiruka.shiruka.network;
 
 /**
- * an implementation for {@link Server}.
+ * states for all connections.
  */
-public final class ShirukaServer implements Server {
-
+public enum ConnectionState {
   /**
-   * obtains the Shiru ka server's version
+   * connection's unconnected state.
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
-
-  @Override
-  public void runCommand(@NotNull final String command) {
-  }
-
-  @Override
-  public boolean isInShutdownState() {
-    return false;
-  }
+  UNCONNECTED,
+  /**
+   * connection's initializing state.
+   */
+  INITIALIZING,
+  /**
+   * connection's initialized state.
+   */
+  INITIALIZED,
+  /**
+   * connection's connecting state.
+   */
+  CONNECTING,
+  /**
+   * connection's connected state.
+   */
+  CONNECTED
 }

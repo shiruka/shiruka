@@ -23,28 +23,36 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.NetConnection;
+import io.github.shiruka.shiruka.network.ServerConnectionHandler;
+import io.github.shiruka.shiruka.network.ServerSocket;
+import io.netty.channel.ChannelHandlerContext;
+import java.net.InetSocketAddress;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link Server}.
+ * a class that provides you to manage the connection.
  */
-public final class ShirukaServer implements Server {
+final class NetServerConnection extends NetConnection<ServerSocket, ServerConnectionHandler> {
 
   /**
-   * obtains the Shiru ka server's version
+   * ctor.
+   *
+   * @param socket the socket.
+   * @param handler the handler.
+   * @param address the address.
+   * @param ctx the context.
+   * @param mtu the mtu size.
+   * @param protocolVersion the protocol version.
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
-
-  @Override
-  public void runCommand(@NotNull final String command) {
-  }
-
-  @Override
-  public boolean isInShutdownState() {
-    return false;
+  NetServerConnection(@NotNull final ServerSocket socket,
+                      @NotNull final Function<Connection<ServerSocket, ServerConnectionHandler>, ServerConnectionHandler> handler,
+                      @NotNull final InetSocketAddress address, @NotNull final ChannelHandlerContext ctx, final int mtu,
+                      final short protocolVersion) {
+    super(socket, handler, address, ctx, mtu, protocolVersion);
   }
 }

@@ -23,28 +23,39 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.nbt.stream;
 
-import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.nbt.VarInts;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * an implementation for {@link Server}.
- */
-public final class ShirukaServer implements Server {
+public final class NetworkDataOutputStream extends LittleEndianDataOutputStream {
 
-  /**
-   * obtains the Shiru ka server's version
-   */
-  @NotNull
-  public static final String VERSION = "1.0.0";
+  public NetworkDataOutputStream(@NotNull final OutputStream stream) {
+    super(stream);
+  }
 
-  @Override
-  public void runCommand(@NotNull final String command) {
+  public NetworkDataOutputStream(@NotNull final DataOutputStream stream) {
+    super(stream);
   }
 
   @Override
-  public boolean isInShutdownState() {
-    return false;
+  public void writeInt(final int v) throws IOException {
+    VarInts.writeInt(this.stream, v);
+  }
+
+  @Override
+  public void writeLong(final long v) throws IOException {
+    VarInts.writeLong(this.stream, v);
+  }
+
+  @Override
+  public void writeUTF(@NotNull final String s) throws IOException {
+    final var bytes = s.getBytes(StandardCharsets.UTF_8);
+    VarInts.writeUnsignedInt(this.stream, bytes.length);
+    this.write(bytes);
   }
 }

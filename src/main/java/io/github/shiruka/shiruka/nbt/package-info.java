@@ -22,39 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka;
-
-import java.nio.file.Paths;
-import net.minecrell.terminalconsole.SimpleTerminalConsole;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-
 /**
- * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
+ * the main package that contains main classes.
  */
-public final class ShirukaConsole extends SimpleTerminalConsole {
-
-  @Override
-  protected boolean isRunning() {
-    return false;
-  }
-
-  @Override
-  protected void runCommand(final String s) {
-  }
-
-  @Override
-  protected void shutdown() {
-  }
-
-  @Override
-  protected LineReader buildReader(final LineReaderBuilder builder) {
-    return super.buildReader(builder
-      .appName("Shiru ka")
-      .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
-      .completer((lineReader, parsedLine, list) -> {
-        // tab completer.
-      }));
-  }
-}
+package io.github.shiruka.shiruka.nbt;

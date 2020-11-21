@@ -22,29 +22,42 @@
  * SOFTWARE.
  *
  */
+package io.github.shiruka.shiruka.network;
 
-package io.github.shiruka.shiruka;
-
-import io.github.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
+import io.github.shiruka.shiruka.network.server.NetServerSocket;
+import io.github.shiruka.shiruka.network.util.Misc;
+import java.io.File;
+import java.util.Arrays;
 
 /**
- * an implementation for {@link Server}.
+ * a class that tests the project in a simple way.
  */
-public final class ShirukaServer implements Server {
+public final class TestRunner {
 
   /**
-   * obtains the Shiru ka server's version
+   * main method of the Java to start the program.
+   *
+   * @param args the program arguments.
+   *
+   * @throws Exception if somethings going wrong about the logger file.
    */
-  @NotNull
-  public static final String VERSION = "1.0.0";
-
-  @Override
-  public void runCommand(@NotNull final String command) {
+  public static void main(final String[] args) throws Exception {
+    new TestRunner().exec();
   }
 
-  @Override
-  public boolean isInShutdownState() {
-    return false;
+  /**
+   * execs the program.
+   *
+   * @throws Exception if somethings going wrong about the logger file.
+   */
+  private void exec() throws Exception {
+    final var logs = Misc.HOME_PATH.resolve("logs").toFile().listFiles();
+    if (logs != null) {
+      Arrays.stream(logs).forEach(File::delete);
+    }
+    NetServerSocket.init(TestSocketListener.INSTANCE);
+    while (true) {
+      Thread.sleep(10L);
+    }
   }
 }

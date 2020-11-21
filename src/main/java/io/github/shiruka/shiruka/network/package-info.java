@@ -22,34 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka;
-
-import io.github.shiruka.conf.Provider;
-import io.github.shiruka.conf.config.YamlProvider;
-import io.github.shiruka.fragment.FragmentManager;
-import io.github.shiruka.log.Logger;
-import java.io.File;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an implementation for {@link FragmentManager}.
+ * the package to cover all interfaces, enums and, uncategorized classes.
  */
-public final class ShirukaFragmentManager extends FragmentManager {
-
-  public ShirukaFragmentManager(@NotNull final File fragmentsDir, @NotNull final Logger logger) {
-    super(fragmentsDir, logger);
-  }
-
-  @NotNull
-  @Override
-  public String getFragmentConfigFileName() {
-    return "fragment.yml";
-  }
-
-  @NotNull
-  @Override
-  protected Provider<?> getConfigProvider() {
-    return new YamlProvider();
-  }
-}
+package io.github.shiruka.shiruka.network;

@@ -1,0 +1,166 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2020 Shiru ka
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+package io.github.shiruka.shiruka.concurrent;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * managed set of threads that can be constrained
+ * in CPU resources and performs work stealing when
+ * necessary.
+ */
+public final class ServerThreadPool implements Executor {
+
+  /**
+   * mapping of spec objects to delegate thread pools.
+   */
+  private static final Map<PoolSpec, ServerThreadPool> pools = new ConcurrentHashMap<>();
+
+  /**
+   * delegate executor service that is determined via
+   * spec in the {@link #forSpec(PoolSpec)} method.
+   */
+  private final ExecutorService delegate;
+
+  /**
+   * ctor.
+   *
+   * @param delegate the delegate.
+   */
+  private ServerThreadPool(@NotNull final ExecutorService delegate) {
+    this.delegate = delegate;
+  }
+
+  /**
+   * creates a new thread pool for the given spec.
+   *
+   * @param spec the specification for the new thread
+   *   pool.
+   *
+   * @return the thread pool that is based on the spec.
+   */
+  @NotNull
+  public static ServerThreadPool forSpec(final PoolSpec spec) {
+    return ServerThreadPool.pools.computeIfAbsent(spec, k -> {
+      final var config = spec.getMaxThreads();
+      if (spec.isDoStealing()) {
+        return new ServerThreadPool(new ForkJoinPool(config, spec, null, true));
+      }
+      return new ServerThreadPool(new ThreadPoolExecutor(1, config,
+        60L, TimeUnit.SECONDS,
+        new LinkedBlockingQueue<>(),
+        spec));
+    });
+  }
+
+  /**
+   * attempts to shutdown every thread pool that has been
+   * registered through a spec in the server.
+   */
+  public static void shutdownAll() {
+    ServerThreadPool.pools.values()
+      .forEach(ServerThreadPool::shutdown);
+  }
+
+  /**
+   * attempts to shutdown the thread pool immediately.
+   */
+  public void shutdown() {
+    this.delegate.shutdown();
+  }
+
+  /**
+   * submits the given {@link Callable}.
+   *
+   * @param task the task to submit.
+   * @param <T> type of the submitted task.
+   *
+   * @return submitted future.
+   */
+  @NotNull
+  public <T> Future<T> submit(@NotNull final Callable<T> task) {
+    return this.delegate.submit(task);
+  }
+
+  /**
+   * submits the given {@link Runnable}.
+   *
+   * @param task the task to submit.
+   * @param <T> type of the submitted task.
+   * @param result the result to submit.
+   *
+   * @return submitted future.
+   */
+  @NotNull
+  public <T> Future<T> submit(@NotNull final Runnable task, @NotNull final T result) {
+    return this.delegate.submit(task, result);
+  }
+
+  /**
+   * submits the given {@link Runnable}.
+   *
+   * @param task the task to submit.
+   *
+   * @return submitted future.
+   */
+  @NotNull
+  public Future<?> submit(@NotNull final Runnable task) {
+    return this.delegate.submit(task);
+  }
+
+  /**
+   * submits the given {@link Callable}.
+   *
+   * @param tasks the tasks to submit.
+   * @param <T> type of the submitted task.
+   *
+   * @return submitted future.
+   *
+   * @throws InterruptedException if interrupted while waiting, in
+   *   which case unfinished tasks are cancelled
+   */
+  @NotNull
+  public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks)
+    throws InterruptedException {
+    return this.delegate.invokeAll(tasks);
+  }
+
+  /**
+   * executes the given runnable command in the thread
+   * pool.
+   *
+   * @param command the command which to schedule for
+   *   running.
+   */
+  @Override
+  public void execute(@NotNull final Runnable command) {
+    this.delegate.execute(command);
+  }
+}

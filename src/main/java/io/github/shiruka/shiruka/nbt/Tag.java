@@ -27,7 +27,7 @@ package io.github.shiruka.shiruka.nbt;
 
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
-import io.github.shiruka.shiruka.nbt.primitive.NumberTagBasic;
+import io.github.shiruka.shiruka.nbt.primitive.NumberTagEnvelope;
 import io.github.shiruka.shiruka.nbt.primitive.StringTag;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +123,7 @@ public interface Tag {
    */
   @NotNull
   static NumberTag createNumber(@NotNull final Number original) {
-    return new NumberTagBasic(original);
+    return new NumberTagEnvelope(original);
   }
 
   /**

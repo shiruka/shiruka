@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * an implementation for {@link NumberTag}.
  */
-public final class NumberTagBasic implements NumberTag {
+public abstract class NumberTagEnvelope implements NumberTag {
 
   /**
    * the number.
@@ -44,31 +44,31 @@ public final class NumberTagBasic implements NumberTag {
    *
    * @param original the original.
    */
-  public NumberTagBasic(@NotNull final Number original) {
+  protected NumberTagEnvelope(@NotNull final Number original) {
     this.number = original;
   }
 
   @NotNull
   @Override
-  public Integer intValue() {
+  public final Integer intValue() {
     return this.number.intValue();
   }
 
   @NotNull
   @Override
-  public Long longValue() {
+  public final Long longValue() {
     return this.number.longValue();
   }
 
   @NotNull
   @Override
-  public Float floatValue() {
+  public final Float floatValue() {
     return this.number.floatValue();
   }
 
   @NotNull
   @Override
-  public Double doubleValue() {
+  public final Double doubleValue() {
     return this.number.doubleValue();
   }
 }

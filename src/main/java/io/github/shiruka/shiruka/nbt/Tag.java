@@ -28,6 +28,9 @@ package io.github.shiruka.shiruka.nbt;
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
 import io.github.shiruka.shiruka.nbt.primitive.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
@@ -86,6 +89,21 @@ public interface Tag {
    * an empty {@link PrimitiveTag} instance.
    */
   PrimitiveTag<String> STRING = Tag.createString("");
+
+  /**
+   * reads the given input and converts it into the {@link StringTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link StringTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static StringTag readString(@NotNull final DataInput input) throws IOException {
+    final var value = input.readUTF();
+    return Tag.createString(value);
+  }
 
   /**
    * creates an instance of {@link CompoundTag}.
@@ -287,15 +305,6 @@ public interface Tag {
   }
 
   /**
-   * checks if {@code this} is a {@link StringTag}.
-   *
-   * @return {@code true} if {@code this} is a {@link StringTag}.
-   */
-  default boolean isString() {
-    return false;
-  }
-
-  /**
    * checks if {@code this} is a {@link ByteTag}.
    *
    * @return {@code true} if {@code this} is a {@link ByteTag}.
@@ -346,6 +355,15 @@ public interface Tag {
    * @return {@code true} if {@code this} is a {@link ShortTag}.
    */
   default boolean isShort() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link StringTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link StringTag}.
+   */
+  default boolean isString() {
     return false;
   }
 
@@ -480,4 +498,13 @@ public interface Tag {
   default StringTag asString() {
     throw new IllegalStateException(this.getClass() + " cannot cast as a StringTag!");
   }
+
+  /**
+   * writes the tag to the given output.
+   *
+   * @param output the output to write.
+   *
+   * @throws IOException if an exception was encountered while writing.
+   */
+  void write(@NotNull DataOutput output) throws IOException;
 }

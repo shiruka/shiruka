@@ -54,4 +54,9 @@ public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
     }
     return null;
   }
+
+  @Override
+  default void setString(@NotNull final String key, @NotNull final String tag) {
+    this.put(key, Tag.createString(tag));
+  }
 }

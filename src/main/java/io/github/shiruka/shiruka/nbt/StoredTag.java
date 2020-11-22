@@ -44,4 +44,12 @@ public interface StoredTag<K> {
    */
   @Nullable
   String getString(@NotNull K key);
+
+  /**
+   * sets the string to the tag store.
+   *
+   * @param key the key to set.
+   * @param tag the tag to set.
+   */
+  void setString(@NotNull K key, @NotNull String tag);
 }

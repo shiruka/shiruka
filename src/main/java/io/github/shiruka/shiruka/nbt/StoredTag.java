@@ -43,7 +43,14 @@ public interface StoredTag<K> {
    * @return a string instance from the tag store.
    */
   @Nullable
-  String getString(@NotNull K key);
+  default String getString(@NotNull final K key) {
+    final var tag = this.get(key);
+    if (tag == null || !tag.isString()) {
+      return null;
+    }
+    return tag.asString()
+      .value();
+  }
 
   /**
    * sets the string to the tag store.
@@ -51,5 +58,57 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param tag the tag to set.
    */
-  void setString(@NotNull K key, @NotNull String tag);
+  default void setString(@NotNull final K key, @NotNull final String tag) {
+    this.set(key, Tag.createString(tag));
+  }
+
+  /**
+   * gets the tag at the given key.
+   *
+   * @param key the key to get.
+   *
+   * @return the tag.
+   */
+  @Nullable
+  Tag get(@NotNull K key);
+
+  /**
+   * sets the given tag into the given key.
+   *
+   * @param key the key to set.
+   * @param tag the tag to set.
+   */
+  void set(@NotNull K key, @NotNull Tag tag);
+
+  /**
+   * removes the tag at the given key.
+   *
+   * @param key the key to remove.
+   */
+  void remove(@NotNull K key);
+
+  /**
+   * checks if the stored tag has the given key.
+   *
+   * @param key the key to check.
+   *
+   * @return {@code true} if the stored tag has the given key.
+   */
+  boolean containsKey(@NotNull K key);
+
+  /**
+   * checks if the stored tag has the given tag.
+   *
+   * @param tag the tag to check.
+   *
+   * @return {@code true} if the stored tag has the given tag.
+   */
+  boolean contains(@NotNull Tag tag);
+
+  /**
+   * gets the size.
+   *
+   * @return the size.
+   */
+  int size();
 }

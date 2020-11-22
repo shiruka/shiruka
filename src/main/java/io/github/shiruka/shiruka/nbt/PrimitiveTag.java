@@ -25,8 +25,6 @@
 
 package io.github.shiruka.shiruka.nbt;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -45,31 +43,6 @@ public interface PrimitiveTag<T> extends Tag {
   @Override
   default PrimitiveTag<?> asPrimitive() {
     return this;
-  }
-
-  @Override
-  default void write(@NotNull final DataOutput output) throws IOException {
-    if (this.isString()) {
-      output.writeUTF(this.asString().value());
-      return;
-    }
-    if (!this.isNumber()) {
-      return;
-    }
-    final var number = this.asNumber();
-    if (this.isByte()) {
-      output.writeByte(number.byteValue());
-    } else if (this.isDouble()) {
-      output.writeDouble(number.doubleValue());
-    } else if (this.isFloat()) {
-      output.writeFloat(number.floatValue());
-    } else if (this.isInt()) {
-      output.writeInt(number.intValue());
-    } else if (this.isLong()) {
-      output.writeLong(number.longValue());
-    } else if (this.isShort()) {
-      output.writeShort(number.shortValue());
-    }
   }
 
   /**

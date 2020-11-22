@@ -29,14 +29,21 @@ import io.github.shiruka.shiruka.nbt.CompoundTag;
 import io.github.shiruka.shiruka.nbt.Tag;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.cactoos.map.MapEnvelope;
-import org.cactoos.map.MapOf;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link CompoundTag} and {@link MapEnvelope}.
  */
-public final class CompoundTagBasic extends MapEnvelope<String, Tag> implements CompoundTag {
+public final class CompoundTagBasic implements CompoundTag {
+
+  /**
+   * the original.
+   */
+  @NotNull
+  private final Map<String, Tag> original;
 
   /**
    * ctor.
@@ -44,17 +51,7 @@ public final class CompoundTagBasic extends MapEnvelope<String, Tag> implements 
    * @param original the original map.
    */
   public CompoundTagBasic(@NotNull final Map<String, Tag> original) {
-    super(original);
-  }
-
-  /**
-   * ctor.
-   *
-   * @param original the original map.
-   */
-  @SafeVarargs
-  public CompoundTagBasic(@NotNull final Map.Entry<String, Tag>... original) {
-    super(new HashMap<>(new MapOf<>(original)));
+    this.original = new HashMap<>(original);
   }
 
   /**
@@ -62,5 +59,42 @@ public final class CompoundTagBasic extends MapEnvelope<String, Tag> implements 
    */
   public CompoundTagBasic() {
     this(new HashMap<>());
+  }
+
+  @NotNull
+  @Override
+  public Set<Map.Entry<String, Tag>> entrySet() {
+    return this.original.entrySet();
+  }
+
+  @Nullable
+  @Override
+  public Tag get(@NotNull final String key) {
+    return this.original.get(key);
+  }
+
+  @Override
+  public void set(@NotNull final String key, @NotNull final Tag tag) {
+    this.original.put(key, tag);
+  }
+
+  @Override
+  public void remove(@NotNull final String key) {
+    this.original.remove(key);
+  }
+
+  @Override
+  public boolean containsKey(@NotNull final String key) {
+    return this.original.containsKey(key);
+  }
+
+  @Override
+  public boolean contains(@NotNull final Tag tag) {
+    return this.original.containsValue(tag);
+  }
+
+  @Override
+  public int size() {
+    return this.original.size();
   }
 }

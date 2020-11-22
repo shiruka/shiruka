@@ -23,67 +23,59 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.array;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.stream.Stream;
+import io.github.shiruka.shiruka.nbt.ArrayTag;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine list tags which contain list of {@link Tag}.
+ * an implementation for {@link ArrayTag}.
+ *
+ * @param <T> type of array.
  */
-public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
+public abstract class ArrayTagEnvelope<T> implements ArrayTag<T> {
 
-  @Override
-  default boolean isList() {
-    return true;
-  }
-
+  /**
+   * the original.
+   */
   @NotNull
-  @Override
-  default ListTag asList() {
-    return this;
+  private final T @NotNull [] original;
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  ArrayTagEnvelope(@NotNull final T @NotNull [] original) {
+    this.original = original.clone();
   }
 
-  @Override
-  default byte id() {
-    return 9;
-  }
-
-  @Override
-  default void write(@NotNull final DataOutput output) throws IOException {
-    output.writeByte(this.listType());
-    output.writeInt(this.size());
-    for (final var tag : this) {
-      tag.write(output);
+  /**
+   * checks indexes of the array tag.
+   *
+   * @param index the index to check.
+   * @param length the length to check.
+   */
+  private static void checkIndex(final int index, final int length) {
+    if (index < 0 || index >= length) {
+      throw new IndexOutOfBoundsException("Index out of bounds: " + index);
     }
   }
 
   @Override
-  default boolean containsKey(@NotNull final Integer key) {
-    return this.size() > key;
+  public final T @NotNull [] value() {
+    return this.original.clone();
   }
 
-  /**
-   * adds the given tag.
-   *
-   * @param tag the tag to add.
-   */
-  void add(@NotNull Tag tag);
-
-  /**
-   * creates a stream of the tags contained within this list.
-   *
-   * @return a new stream.
-   */
   @NotNull
-  Stream<Tag> stream();
+  @Override
+  public final T get(final int index) {
+    ArrayTagEnvelope.checkIndex(index, this.original.length);
+    return this.original[index];
+  }
 
-  /**
-   * obtains list's inside id of the tags.
-   *
-   * @return list's inside id of the tags
-   */
-  byte listType();
+  @Override
+  public final int size() {
+    return this.original.length;
+  }
 }

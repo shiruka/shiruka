@@ -28,13 +28,13 @@ package io.github.shiruka.shiruka.nbt;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * an interface to determine compound tags which contain map of {@link Tag}.
  */
-public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
+public interface CompoundTag extends Tag, StoredTag<String> {
 
   @Override
   default boolean isCompound() {
@@ -45,6 +45,11 @@ public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
   @Override
   default CompoundTag asCompound() {
     return this;
+  }
+
+  @Override
+  default byte id() {
+    return 10;
   }
 
   @Override
@@ -60,18 +65,11 @@ public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
     output.writeByte(Tag.END.id());
   }
 
-  @Override
-  @Nullable
-  default String getString(@NotNull final String key) {
-    if (this.containsKey(key)) {
-      return this.get(key).asString()
-        .value();
-    }
-    return null;
-  }
-
-  @Override
-  default void setString(@NotNull final String key, @NotNull final String tag) {
-    this.put(key, Tag.createString(tag));
-  }
+  /**
+   * obtains the original map's entries.
+   *
+   * @return the original map's entries.
+   */
+  @NotNull
+  Set<Map.Entry<String, Tag>> entrySet();
 }

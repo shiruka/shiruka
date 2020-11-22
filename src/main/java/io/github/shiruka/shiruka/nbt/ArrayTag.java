@@ -27,63 +27,43 @@ package io.github.shiruka.shiruka.nbt;
 
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine list tags which contain list of {@link Tag}.
+ * an interface to determine array tags.
+ *
+ * @param <T> type of arrays.
  */
-public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
-
-  @Override
-  default boolean isList() {
-    return true;
-  }
-
-  @NotNull
-  @Override
-  default ListTag asList() {
-    return this;
-  }
-
-  @Override
-  default byte id() {
-    return 9;
-  }
+public interface ArrayTag<T> extends Tag {
 
   @Override
   default void write(@NotNull final DataOutput output) throws IOException {
-    output.writeByte(this.listType());
-    output.writeInt(this.size());
-    for (final var tag : this) {
-      tag.write(output);
-    }
-  }
-
-  @Override
-  default boolean containsKey(@NotNull final Integer key) {
-    return this.size() > key;
   }
 
   /**
-   * adds the given tag.
+   * gets the value.
    *
-   * @param tag the tag to add.
-   */
-  void add(@NotNull Tag tag);
-
-  /**
-   * creates a stream of the tags contained within this list.
-   *
-   * @return a new stream.
+   * @return the value.
    */
   @NotNull
-  Stream<Tag> stream();
+  T @NotNull [] value();
 
   /**
-   * obtains list's inside id of the tags.
+   * gets the value at {@code index} in this tag.
    *
-   * @return list's inside id of the tags
+   * @param index the index in the array.
+   *
+   * @return the byte at the index in the array.
+   *
+   * @throws IndexOutOfBoundsException if index is &lt; 0 or &ge; {@link #size()}.
    */
-  byte listType();
+  @NotNull
+  T get(final int index);
+
+  /**
+   * gets the size of the array.
+   *
+   * @return array size.
+   */
+  int size();
 }

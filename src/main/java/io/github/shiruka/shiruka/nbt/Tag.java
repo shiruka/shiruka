@@ -25,12 +25,14 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import io.github.shiruka.shiruka.nbt.array.ByteArrayTag;
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
 import io.github.shiruka.shiruka.nbt.primitive.*;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
@@ -65,9 +67,14 @@ public interface Tag {
   ListTag LIST = Tag.createList();
 
   /**
+   * an empty {@link ByteArrayTag} instance.
+   */
+  ByteArrayTag BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
+
+  /**
    * an empty {@link NumberTag} instance.
    */
-  NumberTag NUMBER = Tag.createNumber(0);
+  NumberTag NUMBER = Tag.createNumber((byte) 0);
 
   /**
    * an empty {@link ByteTag} instance.
@@ -144,23 +151,13 @@ public interface Tag {
   /**
    * creates an instance of {@link ListTag}.
    *
-   * @return an instance of {@link ListTag}.
-   */
-  @NotNull
-  static ListTag createList() {
-    return new ListTagBasic();
-  }
-
-  /**
-   * creates an instance of {@link ListTag}.
-   *
    * @param original the original list.
    *
    * @return an instance of {@link ListTag}.
    */
   @NotNull
   static ListTag createList(@NotNull final Tag... original) {
-    return new ListTagBasic(original);
+    return Tag.createList(Arrays.asList(original));
   }
 
   /**
@@ -172,7 +169,22 @@ public interface Tag {
    */
   @NotNull
   static ListTag createList(@NotNull final List<Tag> original) {
-    return new ListTagBasic(original);
+    if (original.isEmpty()) {
+      throw new IllegalStateException("List is empty!");
+    }
+    return new ListTagBasic(original, original.get(0).id());
+  }
+
+  /**
+   * creates an instance of {@link ByteArrayTag}.
+   *
+   * @param original the original list.
+   *
+   * @return an instance of {@link ByteArrayTag}.
+   */
+  @NotNull
+  static ByteArrayTag createByteArray(@NotNull final Byte @NotNull [] original) {
+    return new ByteArrayTag(original);
   }
 
   /**
@@ -301,6 +313,15 @@ public interface Tag {
   }
 
   /**
+   * checks if {@code this} is a {@link ByteArrayTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link ByteArrayTag}.
+   */
+  default boolean isByteArray() {
+    return false;
+  }
+
+  /**
    * checks if {@code this} is a {@link PrimitiveTag}.
    *
    * @return {@code true} if {@code this} is a {@link PrimitiveTag}.
@@ -403,6 +424,18 @@ public interface Tag {
   @NotNull
   default ListTag asList() {
     throw new IllegalStateException(this.getClass() + " cannot cast as a ListTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link ByteArrayTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link ByteArrayTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link ByteArrayTag}.
+   */
+  @NotNull
+  default ByteArrayTag asByteArray() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a ByteArrayTag!");
   }
 
   /**

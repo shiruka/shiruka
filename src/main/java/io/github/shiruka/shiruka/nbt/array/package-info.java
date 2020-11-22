@@ -22,45 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.nbt.primitive;
-
-import java.io.DataOutput;
-import java.io.IOException;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an implementation for {@link NumberTagEnvelope}.
+ * the package that contains implementation for {@link io.github.shiruka.shiruka.nbt.ArrayTag}.
  */
-public final class LongTag extends NumberTagEnvelope {
-
-  /**
-   * ctor.
-   *
-   * @param original the original.
-   */
-  public LongTag(final long original) {
-    super(original);
-  }
-
-  @Override
-  public boolean isLong() {
-    return true;
-  }
-
-  @NotNull
-  @Override
-  public LongTag asLong() {
-    return this;
-  }
-
-  @Override
-  public byte id() {
-    return 4;
-  }
-
-  @Override
-  public void write(@NotNull final DataOutput output) throws IOException {
-    output.writeLong(this.longValue());
-  }
-}
+package io.github.shiruka.shiruka.nbt.array;

@@ -23,67 +23,23 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.array;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * an interface to determine list tags which contain list of {@link Tag}.
- */
-public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
-
-  @Override
-  default boolean isList() {
-    return true;
-  }
-
-  @NotNull
-  @Override
-  default ListTag asList() {
-    return this;
-  }
-
-  @Override
-  default byte id() {
-    return 9;
-  }
-
-  @Override
-  default void write(@NotNull final DataOutput output) throws IOException {
-    output.writeByte(this.listType());
-    output.writeInt(this.size());
-    for (final var tag : this) {
-      tag.write(output);
-    }
-  }
-
-  @Override
-  default boolean containsKey(@NotNull final Integer key) {
-    return this.size() > key;
-  }
+public final class ByteArrayTag extends ArrayTagEnvelope<Byte> {
 
   /**
-   * adds the given tag.
+   * ctor.
    *
-   * @param tag the tag to add.
+   * @param original the original.
    */
-  void add(@NotNull Tag tag);
+  public ByteArrayTag(@NotNull final Byte @NotNull [] original) {
+    super(original);
+  }
 
-  /**
-   * creates a stream of the tags contained within this list.
-   *
-   * @return a new stream.
-   */
-  @NotNull
-  Stream<Tag> stream();
-
-  /**
-   * obtains list's inside id of the tags.
-   *
-   * @return list's inside id of the tags
-   */
-  byte listType();
+  @Override
+  public byte id() {
+    return 7;
+  }
 }

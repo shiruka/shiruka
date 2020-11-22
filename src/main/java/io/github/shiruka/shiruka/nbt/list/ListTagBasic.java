@@ -27,39 +27,169 @@ package io.github.shiruka.shiruka.nbt.list;
 
 import io.github.shiruka.shiruka.nbt.ListTag;
 import io.github.shiruka.shiruka.nbt.Tag;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.cactoos.list.ListEnvelope;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * an implementation for {@link ListTag} and {@link ListEnvelope}.
  */
-public final class ListTagBasic extends ListEnvelope<Tag> implements ListTag {
+public final class ListTagBasic implements ListTag {
+
+  /**
+   * the hashcode.
+   */
+  private final int hashCode;
+
+  /**
+   * the original.
+   */
+  @NotNull
+  private List<Tag> original;
+
+  /**
+   * the list id.
+   */
+  private byte listType;
 
   /**
    * ctor.
    *
    * @param original the original.
+   * @param listType the list type.
    */
-  public ListTagBasic(@NotNull final List<Tag> original) {
-    super(original);
+  public ListTagBasic(@NotNull final List<Tag> original, final byte listType) {
+    this.original = Collections.unmodifiableList(original);
+    this.listType = listType;
+    this.hashCode = original.hashCode();
   }
 
   /**
-   * ctor.
+   * throws an exception if the given tag's id equals to the end id.
    *
-   * @param original the original.
+   * @param tag the tag to check.
+   *
+   * @throws IllegalArgumentException if the given tag's id equals to the end id.
    */
-  public ListTagBasic(@NotNull final Tag... original) {
-    this(Arrays.asList(original));
+  private static void noAddEnd(@NotNull final Tag tag) {
+    if (tag.id() == Tag.END.id()) {
+      throw new IllegalArgumentException(String.format("Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id()));
+    }
   }
 
   /**
-   * ctor.
+   * throws an exception if the given tag's id not equals to the given id.
+   *
+   * @param tag the tag to check.
+   *
+   * @throws IllegalArgumentException if the given tag's id not equals to the given id.
    */
-  public ListTagBasic() {
-    this(new ArrayList<>());
+  private static void mustBeSameType(@NotNull final Tag tag, final byte id) {
+    if (tag.id() != id) {
+      throw new IllegalArgumentException(String.format("Trying to add tag of type %s to list of %s", tag.id(), id));
+    }
+  }
+
+  @Override
+  public void add(@NotNull final Tag tag) {
+    this.edit(tags -> {
+      ListTagBasic.noAddEnd(tag);
+      if (this.listType() != Tag.END.id()) {
+        ListTagBasic.mustBeSameType(tag, this.listType);
+      }
+      tags.add(tag);
+    }, tag.id());
+  }
+
+  @NotNull
+  @Override
+  public Stream<Tag> stream() {
+    return this.original.stream();
+  }
+
+  @Override
+  public byte listType() {
+    return this.listType;
+  }
+
+  @Override
+  public Tag get(@NotNull final Integer key) {
+    return this.original.get(key);
+  }
+
+  @Override
+  public void set(@NotNull final Integer index, @NotNull final Tag tag) {
+    this.edit(tags -> tags.set(index, tag), tag.id());
+  }
+
+  @Override
+  public void remove(@NotNull final Integer index) {
+    this.edit(tags -> tags.remove(index.intValue()), (byte) -1);
+  }
+
+  @Override
+  public boolean contains(@NotNull final Tag tag) {
+    return this.original.contains(tag);
+  }
+
+  @Override
+  public int size() {
+    return this.original.size();
+  }
+
+  @Override
+  public Iterator<Tag> iterator() {
+    final var iterator = this.original.iterator();
+    return new Iterator<>() {
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public Tag next() {
+        return iterator.next();
+      }
+
+      @Override
+      public void forEachRemaining(final Consumer<? super Tag> action) {
+        iterator.forEachRemaining(action);
+      }
+    };
+  }
+
+  @Override
+  public void forEach(@NotNull final Consumer<? super Tag> action) {
+    this.original.forEach(action);
+  }
+
+  @NotNull
+  @Override
+  public Spliterator<Tag> spliterator() {
+    return Spliterators.spliterator(this.original, Spliterator.ORDERED | Spliterator.IMMUTABLE);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.hashCode;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return this == obj ||
+      obj instanceof ListTagBasic && this.original.equals(((ListTagBasic) obj).original);
+  }
+
+  private void edit(@NotNull final Consumer<List<Tag>> consumer, final byte type) {
+    final var tags = new ArrayList<>(this.original);
+    consumer.accept(tags);
+    if (type != -1 && this.listType == Tag.END.id()) {
+      this.original = tags;
+      this.listType = type;
+    } else {
+      this.original = tags;
+    }
   }
 }

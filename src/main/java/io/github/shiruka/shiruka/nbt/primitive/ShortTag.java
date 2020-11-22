@@ -25,6 +25,8 @@
 
 package io.github.shiruka.shiruka.nbt.primitive;
 
+import java.io.DataOutput;
+import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -50,5 +52,15 @@ public final class ShortTag extends NumberTagEnvelope {
   @Override
   public ShortTag asShort() {
     return this;
+  }
+
+  @Override
+  public byte id() {
+    return 2;
+  }
+
+  @Override
+  public void write(@NotNull final DataOutput output) throws IOException {
+    output.writeShort(this.shortValue());
   }
 }

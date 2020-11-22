@@ -30,6 +30,7 @@ import io.github.shiruka.shiruka.nbt.Tag;
 import java.util.HashMap;
 import java.util.Map;
 import org.cactoos.map.MapEnvelope;
+import org.cactoos.map.MapOf;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -44,6 +45,16 @@ public final class CompoundTagBasic extends MapEnvelope<String, Tag> implements 
    */
   public CompoundTagBasic(@NotNull final Map<String, Tag> original) {
     super(original);
+  }
+
+  /**
+   * ctor.
+   *
+   * @param original the original map.
+   */
+  @SafeVarargs
+  public CompoundTagBasic(@NotNull final Map.Entry<String, Tag>... original) {
+    super(new HashMap<>(new MapOf<>(original)));
   }
 
   /**

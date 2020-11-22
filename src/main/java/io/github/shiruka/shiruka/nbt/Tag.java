@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.nbt;
 
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
+import io.github.shiruka.shiruka.nbt.number.NumberTagBasic;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +46,11 @@ public interface Tag {
    * an empty {@link ListTag} instance.
    */
   ListTag EMPTY_LIST = Tag.createList();
+
+  /**
+   * an empty {@link NumberTag} instance.
+   */
+  NumberTag EMPTY_NUMBER = Tag.createNumber(0);
 
   /**
    * creates an instance of {@link CompoundTag}.
@@ -103,6 +109,18 @@ public interface Tag {
   }
 
   /**
+   * creates an instance of {@link NumberTag}.
+   *
+   * @param original the original number.
+   *
+   * @return an instance of {@link NumberTag}.
+   */
+  @NotNull
+  static NumberTag createNumber(@NotNull final Number original) {
+    return new NumberTagBasic(original);
+  }
+
+  /**
    * checks if {@code this} is a {@link CompoundTag}.
    *
    * @return {@code true} if {@code this} is a {@link CompoundTag}.
@@ -117,6 +135,15 @@ public interface Tag {
    * @return {@code true} if {@code this} is a {@link ListTag}.
    */
   default boolean isList() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link NumberTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link NumberTag}.
+   */
+  default boolean isNumber() {
     return false;
   }
 
@@ -146,5 +173,19 @@ public interface Tag {
       return (ListTag) this;
     }
     throw new IllegalStateException(this.getClass() + " cannot cast as a ListTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link NumberTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link NumberTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link NumberTag}.
+   */
+  default NumberTag asNumber() {
+    if (this.isNumber()) {
+      return (NumberTag) this;
+    }
+    throw new IllegalStateException(this.getClass() + " cannot cast as a NumberTag!");
   }
 }

@@ -40,22 +40,52 @@ public interface Tag {
   /**
    * an empty {@link CompoundTag} instance.
    */
-  CompoundTag EMPTY_COMPOUND = Tag.createCompound();
+  CompoundTag COMPOUND = Tag.createCompound();
 
   /**
    * an empty {@link ListTag} instance.
    */
-  ListTag EMPTY_LIST = Tag.createList();
+  ListTag LIST = Tag.createList();
 
   /**
    * an empty {@link NumberTag} instance.
    */
-  NumberTag EMPTY_NUMBER = Tag.createNumber(0);
+  NumberTag NUMBER = Tag.createNumber(0);
+
+  /**
+   * an empty {@link ByteTag} instance.
+   */
+  ByteTag BYTE = Tag.createByte((byte) 0);
+
+  /**
+   * an empty {@link DoubleTag} instance.
+   */
+  DoubleTag DOUBLE = Tag.createDouble(0.0d);
+
+  /**
+   * an empty {@link FloatTag} instance.
+   */
+  FloatTag FLOAT = Tag.createFloat(0.0f);
+
+  /**
+   * an empty {@link IntTag} instance.
+   */
+  IntTag INT = Tag.createInt(0);
+
+  /**
+   * an empty {@link LongTag} instance.
+   */
+  LongTag LONG = Tag.createLong(0L);
+
+  /**
+   * an empty {@link ShortTag} instance.
+   */
+  ShortTag SHORT = Tag.createShort((short) 0);
 
   /**
    * an empty {@link PrimitiveTag} instance.
    */
-  PrimitiveTag<String> EMPTY_STRING = Tag.createString("");
+  PrimitiveTag<String> STRING = Tag.createString("");
 
   /**
    * creates an instance of {@link CompoundTag}.

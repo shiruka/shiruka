@@ -109,9 +109,9 @@ public final class ShirukaMain {
   private void exec() throws IOException {
     Loggers.init(ShirukaMain.LOGGER);
     ShirukaMain.LOGGER.info("Shiru ka is starting.");
-    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG, "shiruka.yml"));
-    this.createsServerFile(ShirukaConsoleParser.PLUGINS, "plugins", true);
-    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS, "ops.json"));
+    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
+    this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
+    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     final var server = new ShirukaServer();
     Shiruka.initServer(server);
     final var console = new ShirukaConsole(server);
@@ -122,23 +122,21 @@ public final class ShirukaMain {
    * creates and returns the server file.
    *
    * @param spec the spec to create.
-   * @param defaultName the default name of the file.
    *
    * @return a server file instance.
    *
    * @throws IOException if something went wrong when the creating the file.
    */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec, @NotNull final String defaultName)
+  private File createsServerFile(@NotNull final OptionSpec<File> spec)
     throws IOException {
-    return this.createsServerFile(spec, defaultName, false);
+    return this.createsServerFile(spec, false);
   }
 
   /**
    * creates and returns the server file/d.
    *
    * @param spec the spec to create.
-   * @param defaultName the default name of the file.
    * @param directory the directory to create.
    *
    * @return a server file instance.
@@ -146,14 +144,8 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when the creating the file.
    */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec, @NotNull final String defaultName,
-                                 final boolean directory) throws IOException {
-    final File file;
-    if (this.options.has(spec)) {
-      file = Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!");
-    } else {
-      file = new File(defaultName);
-    }
+  private File createsServerFile(@NotNull final OptionSpec<File> spec, final boolean directory) throws IOException {
+    final var file = Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!");
     if (directory) {
       ShirukaMain.LOGGER.debug("Checking for {} directory.", file.getName());
       if (!Files.exists(file.toPath())) {

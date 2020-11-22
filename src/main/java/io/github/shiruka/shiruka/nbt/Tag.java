@@ -66,7 +66,18 @@ public interface Tag {
    *
    * @return {@code true} if {@code this} is a {@link CompoundTag}.
    */
-  boolean isCompound();
+  default boolean isCompound() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link ListTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link ListTag}.
+   */
+  default boolean isList() {
+    return false;
+  }
 
   /**
    * an instance of {@code this} as a {@link CompoundTag}.
@@ -80,5 +91,19 @@ public interface Tag {
       return (CompoundTag) this;
     }
     throw new IllegalStateException(this.getClass() + " cannot cast as a CompoundTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link ListTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link ListTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link ListTag}.
+   */
+  default ListTag asList() {
+    if (this.isList()) {
+      return (ListTag) this;
+    }
+    throw new IllegalStateException(this.getClass() + " cannot cast as a ListTag!");
   }
 }

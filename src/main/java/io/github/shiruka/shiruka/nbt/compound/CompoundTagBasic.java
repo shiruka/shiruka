@@ -23,31 +23,22 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.compound;
+
+import io.github.shiruka.shiruka.nbt.CompoundTag;
+import io.github.shiruka.shiruka.nbt.Tag;
+import java.util.HashMap;
+import org.cactoos.map.MapEnvelope;
 
 /**
- * an interface to determine named binary tag.
+ * an implementation for {@link CompoundTag} and {@link MapEnvelope}.
  */
-public interface Tag {
+public final class CompoundTagBasic extends MapEnvelope<String, Tag> implements CompoundTag {
 
   /**
-   * checks if {@code this} is a {@link CompoundTag}.
-   *
-   * @return {@code true} if {@code this} is a {@link CompoundTag}.
+   * ctor.
    */
-  boolean isCompound();
-
-  /**
-   * an instance of {@code this} as a {@link CompoundTag}.
-   *
-   * @return an autoboxed instance of {@code this} as {@link CompoundTag}.
-   *
-   * @throws IllegalStateException if {@code this} is not a {@link CompoundTag}.
-   */
-  default CompoundTag asCompound() {
-    if (this.isCompound()) {
-      return (CompoundTag) this;
-    }
-    throw new IllegalStateException(this.getClass() + " cannot cast as a CompoundTag!");
+  public CompoundTagBasic() {
+    super(new HashMap<>());
   }
 }

@@ -25,10 +25,12 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import java.util.Map;
+
 /**
  * an interface to determine compound tags which contain map of {@link Tag}.
  */
-public interface CompoundTag extends Tag {
+public interface CompoundTag extends Tag, Map<String, Tag> {
 
   @Override
   default boolean isCompound() {

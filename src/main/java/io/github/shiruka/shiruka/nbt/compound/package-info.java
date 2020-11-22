@@ -22,32 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.nbt;
-
 /**
- * an interface to determine named binary tag.
+ * the package that contains {@link io.github.shiruka.shiruka.nbt.CompoundTag} implementations.
  */
-public interface Tag {
-
-  /**
-   * checks if {@code this} is a {@link CompoundTag}.
-   *
-   * @return {@code true} if {@code this} is a {@link CompoundTag}.
-   */
-  boolean isCompound();
-
-  /**
-   * an instance of {@code this} as a {@link CompoundTag}.
-   *
-   * @return an autoboxed instance of {@code this} as {@link CompoundTag}.
-   *
-   * @throws IllegalStateException if {@code this} is not a {@link CompoundTag}.
-   */
-  default CompoundTag asCompound() {
-    if (this.isCompound()) {
-      return (CompoundTag) this;
-    }
-    throw new IllegalStateException(this.getClass() + " cannot cast as a CompoundTag!");
-  }
-}
+package io.github.shiruka.shiruka.nbt.compound;

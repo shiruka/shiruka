@@ -30,25 +30,25 @@ import org.jetbrains.annotations.NotNull;
 /**
  * an implementation for {@link NumberTagEnvelope}.
  */
-public final class ByteTag extends NumberTagEnvelope {
+public final class LongTag extends NumberTagEnvelope {
 
   /**
    * ctor.
    *
    * @param original the original.
    */
-  public ByteTag(final byte original) {
+  public LongTag(final long original) {
     super(original);
   }
 
   @Override
-  public boolean isByte() {
+  public boolean isLong() {
     return true;
   }
 
   @NotNull
   @Override
-  public ByteTag asByte() {
+  public LongTag asLong() {
     return this;
   }
 }

@@ -27,8 +27,7 @@ package io.github.shiruka.shiruka.nbt;
 
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
-import io.github.shiruka.shiruka.nbt.primitive.NumberTagEnvelope;
-import io.github.shiruka.shiruka.nbt.primitive.StringTag;
+import io.github.shiruka.shiruka.nbt.primitive.*;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
@@ -123,13 +122,96 @@ public interface Tag {
    */
   @NotNull
   static NumberTag createNumber(@NotNull final Number original) {
-    return new NumberTagEnvelope(original);
+    if (original instanceof Byte) {
+      return new ByteTag(original.byteValue());
+    } else if (original instanceof Short) {
+      return new ShortTag(original.shortValue());
+    } else if (original instanceof Integer) {
+      return new IntTag(original.intValue());
+    } else if (original instanceof Long) {
+      return new LongTag(original.longValue());
+    } else if (original instanceof Float) {
+      return new FloatTag(original.floatValue());
+    }
+    return new DoubleTag(original.doubleValue());
+  }
+
+  /**
+   * creates an instance of {@link ByteTag}.
+   *
+   * @param original the original byte.
+   *
+   * @return an instance of {@link ByteTag}.
+   */
+  @NotNull
+  static ByteTag createByte(final byte original) {
+    return new ByteTag(original);
+  }
+
+  /**
+   * creates an instance of {@link DoubleTag}.
+   *
+   * @param original the original double.
+   *
+   * @return an instance of {@link DoubleTag}.
+   */
+  @NotNull
+  static DoubleTag createDouble(final double original) {
+    return new DoubleTag(original);
+  }
+
+  /**
+   * creates an instance of {@link FloatTag}.
+   *
+   * @param original the original float.
+   *
+   * @return an instance of {@link FloatTag}.
+   */
+  @NotNull
+  static FloatTag createFloat(final float original) {
+    return new FloatTag(original);
+  }
+
+  /**
+   * creates an instance of {@link IntTag}.
+   *
+   * @param original the original int.
+   *
+   * @return an instance of {@link IntTag}.
+   */
+  @NotNull
+  static IntTag createInt(final int original) {
+    return new IntTag(original);
+  }
+
+  /**
+   * creates an instance of {@link LongTag}.
+   *
+   * @param original the original long.
+   *
+   * @return an instance of {@link LongTag}.
+   */
+  @NotNull
+  static LongTag createLong(final long original) {
+    return new LongTag(original);
+  }
+
+  /**
+   * creates an instance of {@link ShortTag}.
+   *
+   * @param original the original short.
+   *
+   * @return an instance of {@link ShortTag}.
+   */
+  @NotNull
+  static ShortTag createShort(final short original) {
+    return new ShortTag(original);
   }
 
   /**
    * creates an instance of {@link StringTag}.
    *
-   * @param original the original number.
+   * @param original the original string.
    *
    * @return an instance of {@link StringTag}.
    */
@@ -157,15 +239,6 @@ public interface Tag {
   }
 
   /**
-   * checks if {@code this} is a {@link NumberTag}.
-   *
-   * @return {@code true} if {@code this} is a {@link NumberTag}.
-   */
-  default boolean isNumber() {
-    return false;
-  }
-
-  /**
    * checks if {@code this} is a {@link PrimitiveTag}.
    *
    * @return {@code true} if {@code this} is a {@link PrimitiveTag}.
@@ -175,11 +248,74 @@ public interface Tag {
   }
 
   /**
+   * checks if {@code this} is a {@link NumberTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link NumberTag}.
+   */
+  default boolean isNumber() {
+    return false;
+  }
+
+  /**
    * checks if {@code this} is a {@link StringTag}.
    *
    * @return {@code true} if {@code this} is a {@link StringTag}.
    */
   default boolean isString() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link ByteTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link ByteTag}.
+   */
+  default boolean isByte() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link DoubleTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link DoubleTag}.
+   */
+  default boolean isDouble() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link FloatTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link FloatTag}.
+   */
+  default boolean isFloat() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link IntTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link IntTag}.
+   */
+  default boolean isInt() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link LongTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link LongTag}.
+   */
+  default boolean isLong() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link ShortTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link ShortTag}.
+   */
+  default boolean isShort() {
     return false;
   }
 
@@ -229,6 +365,78 @@ public interface Tag {
   @NotNull
   default PrimitiveTag<?> asPrimitive() {
     throw new IllegalStateException(this.getClass() + " cannot cast as a PrimitiveTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link ByteTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link ByteTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link ByteTag}.
+   */
+  @NotNull
+  default ByteTag asByte() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a ByteTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link DoubleTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link DoubleTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link DoubleTag}.
+   */
+  @NotNull
+  default DoubleTag asDouble() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a DoubleTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link FloatTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link FloatTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link FloatTag}.
+   */
+  @NotNull
+  default FloatTag asFloat() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a FloatTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link IntTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link IntTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link IntTag}.
+   */
+  @NotNull
+  default IntTag asInt() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a IntTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link LongTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link LongTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link LongTag}.
+   */
+  @NotNull
+  default LongTag asLong() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a LongTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link ShortTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link ShortTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link ShortTag}.
+   */
+  @NotNull
+  default ShortTag asShort() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a ShortTag!");
   }
 
   /**

@@ -44,7 +44,7 @@ public abstract class NumberTagEnvelope implements NumberTag {
    *
    * @param original the original.
    */
-  protected NumberTagEnvelope(@NotNull final Number original) {
+  NumberTagEnvelope(@NotNull final Number original) {
     this.number = original;
   }
 

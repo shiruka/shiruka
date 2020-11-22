@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains implementation for {@link io.github.shiruka.shiruka.nbt.NumberTag}.
+ * the package that contains implementation for {@link io.github.shiruka.shiruka.nbt.PrimitiveTag}.
  */
-package io.github.shiruka.shiruka.nbt.number;
+package io.github.shiruka.shiruka.nbt.primitive;

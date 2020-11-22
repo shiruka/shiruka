@@ -25,27 +25,25 @@
 
 package io.github.shiruka.shiruka.nbt;
 
-import java.util.Map;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * an interface to determine compound tags which contain map of {@link Tag}.
+ * an interface to determine primitive tags.
+ *
+ * @param <T> type of the tag's value.
  */
-public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
+public interface PrimitiveTag<T> extends Tag {
 
   @Override
-  default boolean isCompound() {
+  default boolean isPrimitive() {
     return true;
   }
 
-  @Override
-  @Nullable
-  default String getString(@NotNull final String key) {
-    if (this.containsKey(key)) {
-      return this.get(key).asString()
-        .value();
-    }
-    return null;
-  }
+  /**
+   * obtains the tag's value.
+   *
+   * @return the tag's value.
+   */
+  @NotNull
+  T value();
 }

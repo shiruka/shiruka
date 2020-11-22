@@ -30,11 +30,17 @@ import org.jetbrains.annotations.NotNull;
 /**
  * an interface to determine numbers.
  */
-public interface NumberTag extends Tag {
+public interface NumberTag extends PrimitiveTag<Double> {
 
   @Override
   default boolean isNumber() {
     return true;
+  }
+
+  @Override
+  @NotNull
+  default Double value() {
+    return this.doubleValue();
   }
 
   /**

@@ -23,29 +23,34 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.primitive;
 
-import java.util.Map;
+import io.github.shiruka.shiruka.nbt.PrimitiveTag;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * an interface to determine compound tags which contain map of {@link Tag}.
+ * an implementation for {@link PrimitiveTag}.
  */
-public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
+public final class StringTag implements PrimitiveTag<String> {
 
-  @Override
-  default boolean isCompound() {
-    return true;
+  /**
+   * the original.
+   */
+  @NotNull
+  private final String original;
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public StringTag(@NotNull final String original) {
+    this.original = original;
   }
 
+  @NotNull
   @Override
-  @Nullable
-  default String getString(@NotNull final String key) {
-    if (this.containsKey(key)) {
-      return this.get(key).asString()
-        .value();
-    }
-    return null;
+  public String value() {
+    return this.original;
   }
 }

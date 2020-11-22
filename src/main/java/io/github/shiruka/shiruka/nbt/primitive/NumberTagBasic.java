@@ -23,29 +23,52 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.primitive;
 
-import java.util.Map;
+import io.github.shiruka.shiruka.nbt.NumberTag;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * an interface to determine compound tags which contain map of {@link Tag}.
+ * an implementation for {@link NumberTag}.
  */
-public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
+public final class NumberTagBasic implements NumberTag {
 
-  @Override
-  default boolean isCompound() {
-    return true;
+  /**
+   * the number.
+   */
+  @NotNull
+  private final Number number;
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public NumberTagBasic(@NotNull final Number original) {
+    this.number = original;
   }
 
+  @NotNull
   @Override
-  @Nullable
-  default String getString(@NotNull final String key) {
-    if (this.containsKey(key)) {
-      return this.get(key).asString()
-        .value();
-    }
-    return null;
+  public Integer intValue() {
+    return this.number.intValue();
+  }
+
+  @NotNull
+  @Override
+  public Long longValue() {
+    return this.number.longValue();
+  }
+
+  @NotNull
+  @Override
+  public Float floatValue() {
+    return this.number.floatValue();
+  }
+
+  @NotNull
+  @Override
+  public Double doubleValue() {
+    return this.number.doubleValue();
   }
 }

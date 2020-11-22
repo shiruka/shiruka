@@ -23,52 +23,25 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt.number;
+package io.github.shiruka.shiruka.nbt;
 
-import io.github.shiruka.shiruka.nbt.NumberTag;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * an implementation for {@link NumberTag}.
+ * an interface to determine stored tags.
+ *
+ * @param <K> type of key.
  */
-public final class NumberTagBasic implements NumberTag {
+public interface StoredTag<K> {
 
   /**
-   * the number.
-   */
-  @NotNull
-  private final Number number;
-
-  /**
-   * ctor.
+   * gets the string from the tag store.
    *
-   * @param original the original.
+   * @param key the key to get.
+   *
+   * @return a string instance from the tag store.
    */
-  public NumberTagBasic(@NotNull final Number original) {
-    this.number = original;
-  }
-
-  @NotNull
-  @Override
-  public Integer intValue() {
-    return this.number.intValue();
-  }
-
-  @NotNull
-  @Override
-  public Long longValue() {
-    return this.number.longValue();
-  }
-
-  @NotNull
-  @Override
-  public Float floatValue() {
-    return this.number.floatValue();
-  }
-
-  @NotNull
-  @Override
-  public Double doubleValue() {
-    return this.number.doubleValue();
-  }
+  @Nullable
+  String getString(@NotNull K key);
 }

@@ -40,6 +40,6 @@ public final class LongArrayTag extends ArrayTagEnvelope<Long> {
 
   @Override
   public byte id() {
-    return 11;
+    return 12;
   }
 }

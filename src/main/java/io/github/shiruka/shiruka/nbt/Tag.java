@@ -25,10 +25,41 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * an interface to determine named binary tag.
  */
 public interface Tag {
+
+  /**
+   * an empty {@link CompoundTag} instance.
+   */
+  CompoundTag EMPTY_COMPOUND = Tag.createCompound();
+
+  /**
+   * creates an instance of {@link CompoundTag}.
+   *
+   * @return an instance of {@link CompoundTag}.
+   */
+  @NotNull
+  static CompoundTag createCompound() {
+    return new CompoundTagBasic();
+  }
+
+  /**
+   * creates an instance of {@link CompoundTag}.
+   *
+   * @param original the original map.
+   *
+   * @return an instance of {@link CompoundTag}.
+   */
+  @NotNull
+  static CompoundTag createCompound(@NotNull final Map<String, Tag> original) {
+    return new CompoundTagBasic(original);
+  }
 
   /**
    * checks if {@code this} is a {@link CompoundTag}.

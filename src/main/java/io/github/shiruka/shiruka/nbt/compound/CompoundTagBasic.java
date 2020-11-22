@@ -28,7 +28,9 @@ package io.github.shiruka.shiruka.nbt.compound;
 import io.github.shiruka.shiruka.nbt.CompoundTag;
 import io.github.shiruka.shiruka.nbt.Tag;
 import java.util.HashMap;
+import java.util.Map;
 import org.cactoos.map.MapEnvelope;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * an implementation for {@link CompoundTag} and {@link MapEnvelope}.
@@ -37,8 +39,17 @@ public final class CompoundTagBasic extends MapEnvelope<String, Tag> implements 
 
   /**
    * ctor.
+   *
+   * @param original the original map.
+   */
+  public CompoundTagBasic(@NotNull final Map<String, Tag> original) {
+    super(original);
+  }
+
+  /**
+   * ctor.
    */
   public CompoundTagBasic() {
-    super(new HashMap<>());
+    this(new HashMap<>());
   }
 }

@@ -26,6 +26,8 @@
 package io.github.shiruka.shiruka.nbt;
 
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
+import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
+import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +40,11 @@ public interface Tag {
    * an empty {@link CompoundTag} instance.
    */
   CompoundTag EMPTY_COMPOUND = Tag.createCompound();
+
+  /**
+   * an empty {@link ListTag} instance.
+   */
+  ListTag EMPTY_LIST = Tag.createList();
 
   /**
    * creates an instance of {@link CompoundTag}.
@@ -59,6 +66,28 @@ public interface Tag {
   @NotNull
   static CompoundTag createCompound(@NotNull final Map<String, Tag> original) {
     return new CompoundTagBasic(original);
+  }
+
+  /**
+   * creates an instance of {@link ListTag}.
+   *
+   * @return an instance of {@link ListTag}.
+   */
+  @NotNull
+  static ListTag createList() {
+    return new ListTagBasic();
+  }
+
+  /**
+   * creates an instance of {@link ListTag}.
+   *
+   * @param original the original list.
+   *
+   * @return an instance of {@link ListTag}.
+   */
+  @NotNull
+  static ListTag createList(@NotNull final List<Tag> original) {
+    return new ListTagBasic(original);
   }
 
   /**

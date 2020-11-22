@@ -57,7 +57,7 @@ public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
         tag.write(output);
       }
     }
-    output.writeByte(BinaryTagTypes.END.id());
+    output.writeByte(Tag.END.id());
   }
 
   @Override

@@ -23,39 +23,31 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt.stream;
+package io.github.shiruka.shiruka.nbt;
 
-import io.github.shiruka.shiruka.nbt.VarInts;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import org.jetbrains.annotations.NotNull;
+/**
+ * an interface to determine named binary tag.
+ */
+public interface Tag {
 
-public final class NetworkDataOutputStream extends LittleEndianDataOutputStream {
+  /**
+   * checks if {@code this} is a {@link CompoundTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link CompoundTag}.
+   */
+  boolean isCompound();
 
-  public NetworkDataOutputStream(@NotNull final OutputStream stream) {
-    super(stream);
-  }
-
-  public NetworkDataOutputStream(@NotNull final DataOutputStream stream) {
-    super(stream);
-  }
-
-  @Override
-  public void writeInt(final int v) throws IOException {
-    VarInts.writeInt(this.stream, v);
-  }
-
-  @Override
-  public void writeLong(final long v) throws IOException {
-    VarInts.writeLong(this.stream, v);
-  }
-
-  @Override
-  public void writeUTF(@NotNull final String s) throws IOException {
-    final var bytes = s.getBytes(StandardCharsets.UTF_8);
-    VarInts.writeUnsignedInt(this.stream, bytes.length);
-    this.write(bytes);
+  /**
+   * an instance of {@code this} as a {@link CompoundTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link CompoundTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link CompoundTag}.
+   */
+  default CompoundTag asCompound() {
+    if (this.isCompound()) {
+      return (CompoundTag) this;
+    }
+    throw new IllegalStateException(this.getClass() + " cannot cast as a CompoundTag");
   }
 }

@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import io.github.shiruka.shiruka.nbt.old.Nbt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

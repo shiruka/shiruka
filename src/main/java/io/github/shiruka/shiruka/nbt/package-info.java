@@ -23,6 +23,6 @@
  *
  */
 /**
- * the main package that contains main classes.
+ * the main package that contains nbt classes..
  */
 package io.github.shiruka.shiruka.nbt;

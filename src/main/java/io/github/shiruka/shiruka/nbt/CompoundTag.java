@@ -23,41 +23,15 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt.stream;
+package io.github.shiruka.shiruka.nbt;
 
-import io.github.shiruka.shiruka.nbt.VarInts;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import org.jetbrains.annotations.NotNull;
-
-public final class NetworkDataInputStream extends LittleEndianDataInputStream {
-
-  public NetworkDataInputStream(@NotNull final InputStream stream) {
-    super(stream);
-  }
-
-  public NetworkDataInputStream(@NotNull final DataInputStream stream) {
-    super(stream);
-  }
+/**
+ * an interface to determine compound tags which contain map of {@link Tag}.
+ */
+public interface CompoundTag extends Tag {
 
   @Override
-  public int readInt() throws IOException {
-    return VarInts.readInt(this.stream);
-  }
-
-  @Override
-  public long readLong() throws IOException {
-    return VarInts.readLong(this.stream);
-  }
-
-  @NotNull
-  @Override
-  public String readUTF() throws IOException {
-    final var length = VarInts.readUnsignedInt(this.stream);
-    final var bytes = new byte[length];
-    this.readFully(bytes);
-    return new String(bytes, StandardCharsets.UTF_8);
+  default boolean isCompound() {
+    return true;
   }
 }

@@ -33,12 +33,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ListTag extends Tag, List<Tag> {
 
-  @NotNull
   @Override
   default boolean isList() {
     return true;
   }
 
+  @NotNull
   @Override
   default ListTag asList() {
     return this;

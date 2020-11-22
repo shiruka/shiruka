@@ -41,6 +41,20 @@ import org.jetbrains.annotations.NotNull;
 public interface Tag {
 
   /**
+   * an end tag instance.
+   */
+  Tag END = new Tag() {
+    @Override
+    public byte id() {
+      return 0;
+    }
+
+    @Override
+    public void write(@NotNull final DataOutput output) {
+    }
+  };
+
+  /**
    * an empty {@link CompoundTag} instance.
    */
   CompoundTag COMPOUND = Tag.createCompound();
@@ -498,6 +512,13 @@ public interface Tag {
   default StringTag asString() {
     throw new IllegalStateException(this.getClass() + " cannot cast as a StringTag!");
   }
+
+  /**
+   * obtains id of the tag.
+   *
+   * @return id of the tag.
+   */
+  byte id();
 
   /**
    * writes the tag to the given output.

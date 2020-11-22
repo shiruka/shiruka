@@ -25,6 +25,8 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,6 +45,19 @@ public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
   @Override
   default CompoundTag asCompound() {
     return this;
+  }
+
+  @Override
+  default void write(@NotNull final DataOutput output) throws IOException {
+    for (final var entry : this.entrySet()) {
+      final var tag = entry.getValue();
+      output.writeByte(tag.id());
+      if (tag.id() != Tag.END.id()) {
+        output.writeUTF(entry.getKey());
+        tag.write(output);
+      }
+    }
+    output.writeByte(BinaryTagTypes.END.id());
   }
 
   @Override

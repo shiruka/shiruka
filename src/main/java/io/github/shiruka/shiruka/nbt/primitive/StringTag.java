@@ -48,6 +48,11 @@ public final class StringTag implements PrimitiveTag<String> {
     this.original = original;
   }
 
+  @Override
+  public boolean isString() {
+    return true;
+  }
+
   @NotNull
   @Override
   public String value() {

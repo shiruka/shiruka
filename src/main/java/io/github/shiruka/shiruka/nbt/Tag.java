@@ -175,6 +175,15 @@ public interface Tag {
   }
 
   /**
+   * checks if {@code this} is a {@link StringTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link StringTag}.
+   */
+  default boolean isString() {
+    return false;
+  }
+
+  /**
    * an instance of {@code this} as a {@link CompoundTag}.
    *
    * @return an autoboxed instance of {@code this} as {@link CompoundTag}.

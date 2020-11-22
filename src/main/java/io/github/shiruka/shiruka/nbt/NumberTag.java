@@ -37,6 +37,12 @@ public interface NumberTag extends PrimitiveTag<Double> {
     return true;
   }
 
+  @NotNull
+  @Override
+  default NumberTag asNumber() {
+    return this;
+  }
+
   @Override
   @NotNull
   default Double value() {

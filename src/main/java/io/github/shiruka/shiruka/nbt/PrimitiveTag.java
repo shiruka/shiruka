@@ -39,6 +39,12 @@ public interface PrimitiveTag<T> extends Tag {
     return true;
   }
 
+  @NotNull
+  @Override
+  default PrimitiveTag<?> asPrimitive() {
+    return this;
+  }
+
   /**
    * obtains the tag's value.
    *

@@ -26,14 +26,21 @@
 package io.github.shiruka.shiruka.nbt;
 
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * an interface to determine list tags which contain list of {@link Tag}.
  */
 public interface ListTag extends Tag, List<Tag> {
 
+  @NotNull
   @Override
   default boolean isList() {
     return true;
+  }
+
+  @Override
+  default ListTag asList() {
+    return this;
   }
 }

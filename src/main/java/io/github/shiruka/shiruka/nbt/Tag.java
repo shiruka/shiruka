@@ -190,10 +190,8 @@ public interface Tag {
    *
    * @throws IllegalStateException if {@code this} is not a {@link CompoundTag}.
    */
+  @NotNull
   default CompoundTag asCompound() {
-    if (this.isCompound()) {
-      return (CompoundTag) this;
-    }
     throw new IllegalStateException(this.getClass() + " cannot cast as a CompoundTag!");
   }
 
@@ -204,10 +202,8 @@ public interface Tag {
    *
    * @throws IllegalStateException if {@code this} is not a {@link ListTag}.
    */
+  @NotNull
   default ListTag asList() {
-    if (this.isList()) {
-      return (ListTag) this;
-    }
     throw new IllegalStateException(this.getClass() + " cannot cast as a ListTag!");
   }
 
@@ -218,10 +214,8 @@ public interface Tag {
    *
    * @throws IllegalStateException if {@code this} is not a {@link NumberTag}.
    */
+  @NotNull
   default NumberTag asNumber() {
-    if (this.isNumber()) {
-      return (NumberTag) this;
-    }
     throw new IllegalStateException(this.getClass() + " cannot cast as a NumberTag!");
   }
 
@@ -232,10 +226,8 @@ public interface Tag {
    *
    * @throws IllegalStateException if {@code this} is not a {@link PrimitiveTag}.
    */
+  @NotNull
   default PrimitiveTag<?> asPrimitive() {
-    if (this.isNumber()) {
-      return (PrimitiveTag<?>) this;
-    }
     throw new IllegalStateException(this.getClass() + " cannot cast as a PrimitiveTag!");
   }
 
@@ -246,10 +238,8 @@ public interface Tag {
    *
    * @throws IllegalStateException if {@code this} is not a {@link StringTag}.
    */
+  @NotNull
   default StringTag asString() {
-    if (this.isNumber()) {
-      return (StringTag) this;
-    }
     throw new IllegalStateException(this.getClass() + " cannot cast as a StringTag!");
   }
 }

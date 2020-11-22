@@ -55,6 +55,12 @@ public final class StringTag implements PrimitiveTag<String> {
 
   @NotNull
   @Override
+  public StringTag asString() {
+    return this;
+  }
+
+  @NotNull
+  @Override
   public String value() {
     return this.original;
   }

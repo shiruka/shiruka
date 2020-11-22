@@ -39,6 +39,12 @@ public interface CompoundTag extends Tag, StoredTag<String>, Map<String, Tag> {
     return true;
   }
 
+  @NotNull
+  @Override
+  default CompoundTag asCompound() {
+    return this;
+  }
+
   @Override
   @Nullable
   default String getString(@NotNull final String key) {

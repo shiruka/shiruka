@@ -86,6 +86,18 @@ public interface Tag {
    * @return an instance of {@link ListTag}.
    */
   @NotNull
+  static ListTag createList(@NotNull final Tag... original) {
+    return new ListTagBasic(original);
+  }
+
+  /**
+   * creates an instance of {@link ListTag}.
+   *
+   * @param original the original list.
+   *
+   * @return an instance of {@link ListTag}.
+   */
+  @NotNull
   static ListTag createList(@NotNull final List<Tag> original) {
     return new ListTagBasic(original);
   }

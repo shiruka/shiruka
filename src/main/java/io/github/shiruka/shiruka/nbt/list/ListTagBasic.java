@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka.nbt.list;
 import io.github.shiruka.shiruka.nbt.ListTag;
 import io.github.shiruka.shiruka.nbt.Tag;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.cactoos.list.ListEnvelope;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,15 @@ public final class ListTagBasic extends ListEnvelope<Tag> implements ListTag {
    */
   public ListTagBasic(@NotNull final List<Tag> original) {
     super(original);
+  }
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public ListTagBasic(@NotNull final Tag... original) {
+    this(Arrays.asList(original));
   }
 
   /**

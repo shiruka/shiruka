@@ -66,7 +66,7 @@ public interface Tag {
   /**
    * an empty {@link ListTag} instance.
    */
-  ListTag LIST = Tag.createList(Tag.COMPOUND);
+  ListTag LIST = Tag.createList();
 
   /**
    * an empty {@link ByteArrayTag} instance.
@@ -406,10 +406,7 @@ public interface Tag {
    */
   @NotNull
   static ListTag createList(@NotNull final List<Tag> original) {
-    if (original.isEmpty()) {
-      throw new IllegalStateException("List is empty!");
-    }
-    return new ListTagBasic(original, original.get(0).id());
+    return new ListTagBasic(original, original.isEmpty() ? 0 :original.get(0).id());
   }
 
   /**

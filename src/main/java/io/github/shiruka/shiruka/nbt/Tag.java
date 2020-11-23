@@ -34,11 +34,10 @@ import io.github.shiruka.shiruka.nbt.primitive.*;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * an interface to determine named binary tag.
@@ -123,6 +122,93 @@ public interface Tag {
    * an empty {@link PrimitiveTag} instance.
    */
   PrimitiveTag<String> STRING = Tag.createString("");
+
+  /**
+   * reads the given input using the id.
+   *
+   * @param id the id to read.
+   * @param input the input read.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @Nullable
+  static Tag read(final byte id, @NotNull final DataInput input) throws IOException {
+    switch (id) {
+      case 1:
+        return Tag.readByte(input);
+      case 2:
+        return Tag.readShort(input);
+      case 3:
+        return Tag.readInt(input);
+      case 4:
+        return Tag.readLong(input);
+      case 5:
+        return Tag.readFloat(input);
+      case 6:
+        return Tag.readDouble(input);
+      case 7:
+        return Tag.readByteArray(input);
+      case 8:
+        return Tag.readString(input);
+      case 9:
+        return Tag.readListTag(input);
+      case 10:
+        return Tag.readCompoundTag(input);
+      case 11:
+        return Tag.readIntArray(input);
+      case 12:
+        return Tag.readLongArray(input);
+      case 0:
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * reads the given input and converts it into the {@link CompoundTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link CompoundTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static CompoundTag readCompoundTag(@NotNull final DataInput input) throws IOException {
+    final var tags = new HashMap<String, Tag>();
+    byte id;
+    while ((id = input.readByte()) != Tag.END.id()) {
+      final var key = input.readUTF();
+      final var tag = Tag.read(id, input);
+      if (tag != null) {
+        tags.put(key, tag);
+      }
+    }
+    return Tag.createCompound();
+  }
+
+  /**
+   * reads the given input and converts it into the {@link ListTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link ListTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static ListTag readListTag(@NotNull final DataInput input) throws IOException {
+    final var id = input.readByte();
+    final var length = input.readInt();
+    final var tags = new ArrayList<Tag>(length);
+    for (int i = 0; i < length; i++) {
+      final var read = Tag.read(id, input);
+      if (read != null) {
+        tags.add(read);
+      }
+    }
+    return Tag.createList(tags);
+  }
 
   /**
    * reads the given input and converts it into the {@link ByteArrayTag}.

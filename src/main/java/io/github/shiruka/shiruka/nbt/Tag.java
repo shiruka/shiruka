@@ -406,7 +406,7 @@ public interface Tag {
    */
   @NotNull
   static ListTag createList(@NotNull final List<Tag> original) {
-    return new ListTagBasic(original, original.isEmpty() ? 0 :original.get(0).id());
+    return new ListTagBasic(original, original.isEmpty() ? 0 : original.get(0).id());
   }
 
   /**

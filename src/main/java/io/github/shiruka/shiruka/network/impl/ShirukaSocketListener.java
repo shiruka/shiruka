@@ -59,7 +59,6 @@ public final class ShirukaSocketListener implements SocketListener {
     return false;
   }
 
-  @NotNull
   @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
     return new byte[0];

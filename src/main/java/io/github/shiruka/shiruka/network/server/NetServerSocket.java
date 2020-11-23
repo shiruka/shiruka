@@ -25,7 +25,7 @@
 package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.shiruka.misc.Loggers;
-import io.github.shiruka.shiruka.network.NetSocket;
+import io.github.shiruka.shiruka.network.*;
 import io.netty.channel.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * the main server class to bind a server using Netty.
  */
-public final class NetServerSocket extends NetSocket implements io.github.shiruka.shiruka.network.ServerSocket {
+public final class NetServerSocket extends NetSocket implements ServerSocket {
 
   /**
    * blocked addresses and their unblock times.
@@ -50,7 +50,7 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
   /**
    * connection's address and connection itself.
    */
-  private final ConcurrentMap<InetSocketAddress, io.github.shiruka.shiruka.network.Connection<io.github.shiruka.shiruka.network.ServerSocket, io.github.shiruka.shiruka.network.ServerConnectionHandler>>
+  private final ConcurrentMap<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>>
     connectionByAddress = new ConcurrentHashMap<>();
 
   /**
@@ -76,7 +76,7 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
    * @param socketListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
    */
-  private NetServerSocket(@NotNull final String ip, final int port, @NotNull final io.github.shiruka.shiruka.network.SocketListener socketListener,
+  private NetServerSocket(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener,
                           final int maxConnections) {
     super(new InetSocketAddress(ip, port), socketListener);
     this.maxConnections = maxConnections;
@@ -90,11 +90,11 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
    * @param socketListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
    */
-  public static void init(@NotNull final String ip, final int port, @NotNull final io.github.shiruka.shiruka.network.SocketListener socketListener,
+  public static void init(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener,
                           final int maxConnections) {
     Loggers.useLogger(logger ->
       logger.debug("Initiating the server socket..."));
-    final NetServerSocket socket = new NetServerSocket(ip, port, socketListener, maxConnections);
+    final var socket = new NetServerSocket(ip, port, socketListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
       Loggers.useLogger(logger ->
         logger.error("An exception occurred in Network system", t)));
@@ -108,7 +108,7 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
    * @param port the port to of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    */
-  public static void init(@NotNull final String ip, final int port, @NotNull final io.github.shiruka.shiruka.network.SocketListener socketListener) {
+  public static void init(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener) {
     NetServerSocket.init(ip, port, socketListener, 1024);
   }
 
@@ -118,7 +118,7 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
    * @param ip the ip of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    */
-  public static void init(@NotNull final String ip, @NotNull final io.github.shiruka.shiruka.network.SocketListener socketListener) {
+  public static void init(@NotNull final String ip, @NotNull final SocketListener socketListener) {
     NetServerSocket.init(ip, 19132, socketListener);
   }
 
@@ -127,7 +127,7 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
    *
    * @param socketListener the listener to handle custom events when a server does anything.
    */
-  public static void init(@NotNull final io.github.shiruka.shiruka.network.SocketListener socketListener) {
+  public static void init(@NotNull final SocketListener socketListener) {
     NetServerSocket.init("127.0.0.1", socketListener);
   }
 
@@ -135,7 +135,7 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
   public void close() {
     super.close();
     this.connectionByAddress.values().forEach(connection ->
-      connection.disconnect(io.github.shiruka.shiruka.network.DisconnectReason.SHUTTING_DOWN));
+      connection.disconnect(DisconnectReason.SHUTTING_DOWN));
     this.channels.stream()
       .map(ChannelOutboundInvoker::close)
       .forEach(ChannelFuture::syncUninterruptibly);
@@ -201,13 +201,13 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
 
   @NotNull
   @Override
-  public Map<InetSocketAddress, io.github.shiruka.shiruka.network.Connection<io.github.shiruka.shiruka.network.ServerSocket, io.github.shiruka.shiruka.network.ServerConnectionHandler>> getConnectionsByAddress() {
+  public Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress() {
     return Collections.unmodifiableMap(this.connectionByAddress);
   }
 
   @Override
   public void removeConnection(@NotNull final InetSocketAddress address,
-                               @NotNull final io.github.shiruka.shiruka.network.Connection<io.github.shiruka.shiruka.network.ServerSocket, io.github.shiruka.shiruka.network.ServerConnectionHandler> connection) {
+                               @NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
     this.connectionByAddress.remove(address, connection);
   }
 
@@ -216,7 +216,7 @@ public final class NetServerSocket extends NetSocket implements io.github.shiruk
                                   final int mtu, final short protocolVersion) {
     final var connection = new NetServerConnection(this, NetServerConnectionHandler::new, recipient, ctx, mtu,
       protocolVersion);
-    connection.setState(io.github.shiruka.shiruka.network.ConnectionState.INITIALIZING);
+    connection.setState(ConnectionState.INITIALIZING);
     // check if the connection created first time.
     if (this.connectionByAddress.putIfAbsent(recipient, connection) == null) {
       connection.getConnectionHandler().sendConnectionReply1();

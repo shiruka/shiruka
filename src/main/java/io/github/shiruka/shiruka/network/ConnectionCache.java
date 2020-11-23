@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
+import io.github.shiruka.shiruka.network.misc.*;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;
@@ -55,43 +55,43 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * ACK and NACK processor.
    */
   @Nullable
-  private io.github.shiruka.shiruka.network.misc.NetSlidingWindow slidingWindow;
+  private NetSlidingWindow slidingWindow;
 
   /**
    * the reliable datagram queue.
    */
   @Nullable
-  private io.github.shiruka.shiruka.network.misc.BitQueue reliableDatagramQueue;
+  private BitQueue reliableDatagramQueue;
 
   /**
    * the split packets.
    */
   @Nullable
-  private io.github.shiruka.shiruka.network.misc.RoundRobinArray<io.github.shiruka.shiruka.network.misc.SplitPacketHelper> splitPackets;
+  private RoundRobinArray<SplitPacketHelper> splitPackets;
 
   /**
    * incoming ACK packets.
    */
   @Nullable
-  private Queue<io.github.shiruka.shiruka.network.misc.IntRange> incomingACKs;
+  private Queue<IntRange> incomingACKs;
 
   /**
    * incoming NACK packets.
    */
   @Nullable
-  private Queue<io.github.shiruka.shiruka.network.misc.IntRange> incomingNACKs;
+  private Queue<IntRange> incomingNACKs;
 
   /**
    * outgoing ACK packets.
    */
   @Nullable
-  private Queue<io.github.shiruka.shiruka.network.misc.IntRange> outgoingACKs;
+  private Queue<IntRange> outgoingACKs;
 
   /**
    * outgoing NACK packets.
    */
   @Nullable
-  private Queue<io.github.shiruka.shiruka.network.misc.IntRange> outgoingNACKs;
+  private Queue<IntRange> outgoingNACKs;
 
   /**
    * the order write index.
@@ -103,7 +103,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * the sent datagram packets.
    */
   @Nullable
-  private ConcurrentMap<Integer, io.github.shiruka.shiruka.network.misc.NetDatagramPacket> sentDatagrams;
+  private ConcurrentMap<Integer, NetDatagramPacket> sentDatagrams;
 
   /**
    * the outgoing lock.
@@ -114,14 +114,13 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
   /**
    * the outgoing packet next weights.
    */
-  @Nullable
   private long[] outgoingPacketNextWeights;
 
   /**
    * the outgoing packets.
    */
   @Nullable
-  private io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap<io.github.shiruka.shiruka.network.misc.EncapsulatedPacket> outgoingPackets;
+  private FastBinaryMinHeap<EncapsulatedPacket> outgoingPackets;
 
   /**
    * the reliability read lock.
@@ -139,12 +138,11 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * the ordering heaps.
    */
   @Nullable
-  private io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap<io.github.shiruka.shiruka.network.misc.EncapsulatedPacket>[] orderingHeaps;
+  private FastBinaryMinHeap<EncapsulatedPacket>[] orderingHeaps;
 
   /**
    * the order read index.
    */
-  @Nullable
   private int[] orderReadIndex;
 
   /**
@@ -159,10 +157,10 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
   /**
    * obtains the sliding window.
    *
-   * @return the sliding window {@link io.github.shiruka.shiruka.network.misc.NetSlidingWindow}.
+   * @return the sliding window {@link NetSlidingWindow}.
    */
   @NotNull
-  public io.github.shiruka.shiruka.network.misc.NetSlidingWindow getSlidingWindow() {
+  public NetSlidingWindow getSlidingWindow() {
     return Objects.requireNonNull(this.slidingWindow, "sliding window");
   }
 
@@ -172,7 +170,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the outgoing NACKs.
    */
   @NotNull
-  public Queue<io.github.shiruka.shiruka.network.misc.IntRange> getOutgoingNACKs() {
+  public Queue<IntRange> getOutgoingNACKs() {
     return Objects.requireNonNull(this.outgoingNACKs, "outgoing NACKs");
   }
 
@@ -181,7 +179,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    *
    * @param intRange the int range to offer.
    */
-  public void offerIncomingNACKs(@NotNull final io.github.shiruka.shiruka.network.misc.IntRange intRange) {
+  public void offerIncomingNACKs(@NotNull final IntRange intRange) {
     Objects.requireNonNull(this.incomingNACKs, "incoming NACKs").offer(intRange);
   }
 
@@ -191,7 +189,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the outgoing ACKs.
    */
   @NotNull
-  public Queue<io.github.shiruka.shiruka.network.misc.IntRange> getOutgoingACKs() {
+  public Queue<IntRange> getOutgoingACKs() {
     return Objects.requireNonNull(this.outgoingACKs, "outgoing ACKs");
   }
 
@@ -200,7 +198,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    *
    * @param intRange the int range to offer.
    */
-  public void offerIncomingACKs(@NotNull final io.github.shiruka.shiruka.network.misc.IntRange intRange) {
+  public void offerIncomingACKs(@NotNull final IntRange intRange) {
     Objects.requireNonNull(this.incomingACKs, "incoming ACKs").offer(intRange);
   }
 
@@ -217,7 +215,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the reliable datagram queue.
    */
   @NotNull
-  public io.github.shiruka.shiruka.network.misc.BitQueue getReliableDatagramQueue() {
+  public BitQueue getReliableDatagramQueue() {
     return Objects.requireNonNull(this.reliableDatagramQueue, "reliable datagram queue");
   }
 
@@ -248,7 +246,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the split packets.
    */
   @NotNull
-  public io.github.shiruka.shiruka.network.misc.RoundRobinArray<io.github.shiruka.shiruka.network.misc.SplitPacketHelper> getSplitPackets() {
+  public RoundRobinArray<SplitPacketHelper> getSplitPackets() {
     return Objects.requireNonNull(this.splitPackets, "split packets");
   }
 
@@ -257,10 +255,10 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    *
    * @param index the index to get
    *
-   * @return a binary heap {@link io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap}.
+   * @return a binary heap {@link FastBinaryMinHeap}.
    */
   @NotNull
-  public io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap<io.github.shiruka.shiruka.network.misc.EncapsulatedPacket> getOrderingHeap(final int index) {
+  public FastBinaryMinHeap<EncapsulatedPacket> getOrderingHeap(final int index) {
     return Objects.requireNonNull(this.orderingHeaps[index], "ordering heaps");
   }
 
@@ -290,7 +288,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the sent datagrams.
    */
   @NotNull
-  ConcurrentMap<Integer, io.github.shiruka.shiruka.network.misc.NetDatagramPacket> getSentDatagrams() {
+  ConcurrentMap<Integer, NetDatagramPacket> getSentDatagrams() {
     return Objects.requireNonNull(this.sentDatagrams, "sent datagrams");
   }
 
@@ -300,7 +298,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the incoming NACKs.
    */
   @NotNull
-  Queue<io.github.shiruka.shiruka.network.misc.IntRange> getIncomingNACKs() {
+  Queue<IntRange> getIncomingNACKs() {
     return Objects.requireNonNull(this.incomingNACKs, "incoming NACKs");
   }
 
@@ -310,7 +308,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the incoming ACKs.
    */
   @NotNull
-  Queue<io.github.shiruka.shiruka.network.misc.IntRange> getIncomingACKs() {
+  Queue<IntRange> getIncomingACKs() {
     return Objects.requireNonNull(this.incomingACKs, "incoming ACKs");
   }
 
@@ -330,7 +328,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @param oldIndex the old index to remove
    * @param packet the packet to remove.
    */
-  void removeSentDatagrams(final int oldIndex, @NotNull final io.github.shiruka.shiruka.network.misc.NetDatagramPacket packet) {
+  void removeSentDatagrams(final int oldIndex, @NotNull final NetDatagramPacket packet) {
     this.getSentDatagrams().remove(oldIndex, packet);
   }
 
@@ -342,7 +340,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the removed value.
    */
   @Nullable
-  io.github.shiruka.shiruka.network.misc.NetDatagramPacket removeSentDatagrams(final int oldIndex) {
+  NetDatagramPacket removeSentDatagrams(final int oldIndex) {
     return this.getSentDatagrams().remove(oldIndex);
   }
 
@@ -352,7 +350,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @param oldIndex the old index to put.
    * @param packet the packet to put.
    */
-  void putSentDatagrams(final int oldIndex, @NotNull final io.github.shiruka.shiruka.network.misc.NetDatagramPacket packet) {
+  void putSentDatagrams(final int oldIndex, @NotNull final NetDatagramPacket packet) {
     this.getSentDatagrams().put(oldIndex, packet);
   }
 
@@ -397,7 +395,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @return the outgoing packets.
    */
   @NotNull
-  io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap<io.github.shiruka.shiruka.network.misc.EncapsulatedPacket> getOutgoingPackets() {
+  FastBinaryMinHeap<EncapsulatedPacket> getOutgoingPackets() {
     return Objects.requireNonNull(this.outgoingPackets, "outgoing packets");
   }
 
@@ -407,7 +405,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @param weight the weight to insert.
    * @param packet the packet to insert.
    */
-  void insertOutgoingPackets(final long weight, @NotNull final io.github.shiruka.shiruka.network.misc.EncapsulatedPacket packet) {
+  void insertOutgoingPackets(final long weight, @NotNull final EncapsulatedPacket packet) {
     this.getOutgoingPackets().insert(weight, packet);
   }
 
@@ -417,7 +415,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @param weight the weight to insert.
    * @param packets the packets to insert.
    */
-  void insertSeriesOutgoingPackets(final long weight, @NotNull final io.github.shiruka.shiruka.network.misc.EncapsulatedPacket[] packets) {
+  void insertSeriesOutgoingPackets(final long weight, @NotNull final EncapsulatedPacket[] packets) {
     this.getOutgoingPackets().insertSeries(weight, packets);
   }
 
@@ -437,21 +435,21 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
     if (this.connection.getState() != ConnectionState.INITIALIZING) {
       throw new IllegalStateException("Connection's state must be initializing!");
     }
-    this.slidingWindow = new io.github.shiruka.shiruka.network.misc.NetSlidingWindow(this.connection.getMtu());
-    this.reliableDatagramQueue = new io.github.shiruka.shiruka.network.misc.BitQueue(512);
+    this.slidingWindow = new NetSlidingWindow(this.connection.getMtu());
+    this.reliableDatagramQueue = new BitQueue(512);
     this.reliabilityReadLock = new ReentrantLock(true);
-    this.orderReadIndex = new int[io.github.shiruka.shiruka.network.util.Constants.MAXIMUM_ORDERING_CHANNELS];
-    this.orderWriteIndex = new AtomicIntegerArray(io.github.shiruka.shiruka.network.util.Constants.MAXIMUM_ORDERING_CHANNELS);
+    this.orderReadIndex = new int[Constants.MAXIMUM_ORDERING_CHANNELS];
+    this.orderWriteIndex = new AtomicIntegerArray(Constants.MAXIMUM_ORDERING_CHANNELS);
     //noinspection unchecked
-    this.orderingHeaps = new io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap[io.github.shiruka.shiruka.network.util.Constants.MAXIMUM_ORDERING_CHANNELS];
+    this.orderingHeaps = new FastBinaryMinHeap[Constants.MAXIMUM_ORDERING_CHANNELS];
     this.orderingLock = new ReentrantLock(true);
-    this.splitPackets = new io.github.shiruka.shiruka.network.misc.RoundRobinArray<>(256);
+    this.splitPackets = new RoundRobinArray<>(256);
     this.sentDatagrams = new ConcurrentSkipListMap<>();
     for (int i = 0; i < Constants.MAXIMUM_ORDERING_CHANNELS; i++) {
-      this.orderingHeaps[i] = new io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap<>(64);
+      this.orderingHeaps[i] = new FastBinaryMinHeap<>(64);
     }
     this.outgoingLock = new ReentrantLock(true);
-    this.outgoingPackets = new io.github.shiruka.shiruka.network.misc.FastBinaryMinHeap<>(8);
+    this.outgoingPackets = new FastBinaryMinHeap<>(8);
     this.incomingACKs = PlatformDependent.newMpscQueue();
     this.incomingNACKs = PlatformDependent.newMpscQueue();
     this.outgoingACKs = PlatformDependent.newMpscQueue();
@@ -475,7 +473,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
         this.orderingHeaps = null;
         if (heaps != null) {
           for (final var orderingHeap : heaps) {
-            io.github.shiruka.shiruka.network.misc.EncapsulatedPacket packet;
+            EncapsulatedPacket packet;
             while ((packet = orderingHeap.poll()) != null) {
               packet.release();
             }

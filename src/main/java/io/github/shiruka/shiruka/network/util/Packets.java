@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.network.util;
 
 import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.Socket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -247,7 +248,8 @@ public final class Packets {
     final var protocolVersion = content.readUnsignedByte();
     final var mtu = content.readableBytes() + 1 + 16 + 1 + Misc.getIpHeader(packet.sender()) + Constants.UDP_HEADER_SIZE;
     final var recipient = packet.sender();
-    if (server.getConnectionsByAddress().containsKey(recipient)) {
+    final var connection = server.getConnectionsByAddress().get(recipient);
+    if (connection != null && connection.getState() == ConnectionState.CONNECTED) {
       Loggers.useLogger(logger ->
         logger.error("{} is already connected!", recipient));
       Loggers.useLogger(
@@ -277,6 +279,10 @@ public final class Packets {
       Loggers.useLogger(
         logger -> logger.debug("Sending connection banned packet..."));
       Packets.sendConnectedBanned(ctx, server, recipient);
+      return;
+    }
+    if (connection != null) {
+      connection.getConnectionHandler().sendConnectionReply1();
       return;
     }
     server.createNewConnection(recipient, ctx, mtu, protocolVersion);

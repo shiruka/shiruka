@@ -44,7 +44,6 @@ public interface SocketListener {
    *
    * @return example server data value for the minecraft bedrock edition.
    */
-  @NotNull
   static byte[] exampleServerData() {
     return new StringJoiner(";")
       .add("MCPE")
@@ -69,7 +68,6 @@ public interface SocketListener {
    * @return a server data's byte array.
    *   a example server data must be like MCPE;MOTD;408;1.16.40;0;10;100000000000L
    */
-  @NotNull
   static byte[] createOne(@NotNull final ServerSocket server, @NotNull final String serverDescription, final int connectionCount,
                           final int maximumConnectionCount) {
     return new StringJoiner(";")
@@ -111,7 +109,6 @@ public interface SocketListener {
    * @return a server data. the byte array must be like {@link SocketListener#exampleServerData()}.
    *   Use {@link SocketListener#createOne(ServerSocket, String, int, int)}.
    */
-  @NotNull
   byte[] onRequestServerData(@NotNull ServerSocket server, @NotNull InetSocketAddress requester);
 
   /**

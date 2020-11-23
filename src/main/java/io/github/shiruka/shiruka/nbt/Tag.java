@@ -184,7 +184,7 @@ public interface Tag {
         tags.put(key, tag);
       }
     }
-    return Tag.createCompound();
+    return Tag.createCompound(tags);
   }
 
   /**

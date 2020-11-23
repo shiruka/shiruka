@@ -52,24 +52,4 @@ public interface CompoundTag extends Tag, StoredTag<String> {
     return 10;
   }
 
-  @Override
-  default void write(@NotNull final DataOutput output) throws IOException {
-    for (final var entry : this.entrySet()) {
-      final var tag = entry.getValue();
-      output.writeByte(tag.id());
-      if (tag.id() != Tag.END.id()) {
-        output.writeUTF(entry.getKey());
-        tag.write(output);
-      }
-    }
-    output.writeByte(Tag.END.id());
-  }
-
-  /**
-   * obtains the original map's entries.
-   *
-   * @return the original map's entries.
-   */
-  @NotNull
-  Set<Map.Entry<String, Tag>> entrySet();
 }

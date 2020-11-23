@@ -66,7 +66,7 @@ public interface Tag {
   /**
    * an empty {@link ListTag} instance.
    */
-  ListTag LIST = Tag.createList();
+  ListTag LIST = Tag.createList(Tag.COMPOUND);
 
   /**
    * an empty {@link ByteArrayTag} instance.

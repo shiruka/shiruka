@@ -574,6 +574,15 @@ public interface Tag {
   }
 
   /**
+   * checks if {@code this} is a {@link ArrayTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link ArrayTag}.
+   */
+  default boolean isArray() {
+    return false;
+  }
+
+  /**
    * checks if {@code this} is a {@link ByteArrayTag}.
    *
    * @return {@code true} if {@code this} is a {@link ByteArrayTag}.
@@ -703,6 +712,18 @@ public interface Tag {
   @NotNull
   default ListTag asList() {
     throw new IllegalStateException(this.getClass() + " cannot cast as a ListTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link ArrayTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link ArrayTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link ArrayTag}.
+   */
+  @NotNull
+  default ArrayTag<?> asArray() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a ArrayTag!");
   }
 
   /**

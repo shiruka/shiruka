@@ -34,6 +34,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ArrayTag<T> extends Tag {
 
+  @Override
+  default boolean isArray() {
+    return true;
+  }
+
+  @Override
+  @NotNull
+  default ArrayTag<?> asArray() {
+    return this;
+  }
+
   /**
    * gets the value.
    *

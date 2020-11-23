@@ -22,7 +22,45 @@
  * SOFTWARE.
  *
  */
-/**
- * the main package that contains nbt classes..
- */
-package io.github.shiruka.shiruka.nbt;
+
+package io.github.shiruka.shiruka.nbt.array;
+
+import java.io.DataOutput;
+import java.io.IOException;
+import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.NotNull;
+
+public final class ByteArrayTag extends ArrayTagEnvelope<Byte> {
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public ByteArrayTag(@NotNull final Byte @NotNull [] original) {
+    super(original);
+  }
+
+  @Override
+  public boolean isByteArray() {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  public ByteArrayTag asByteArray() {
+    return this;
+  }
+
+  @Override
+  public byte id() {
+    return 7;
+  }
+
+  @Override
+  public void write(@NotNull final DataOutput output) throws IOException {
+    final var value = ArrayUtils.toPrimitive(this.value());
+    output.writeInt(value.length);
+    output.write(value);
+  }
+}

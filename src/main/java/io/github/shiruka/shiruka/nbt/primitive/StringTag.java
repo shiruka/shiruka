@@ -22,7 +22,58 @@
  * SOFTWARE.
  *
  */
+
+package io.github.shiruka.shiruka.nbt.primitive;
+
+import io.github.shiruka.shiruka.nbt.PrimitiveTag;
+import java.io.DataOutput;
+import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * the main package that contains nbt classes..
+ * an implementation for {@link PrimitiveTag}.
  */
-package io.github.shiruka.shiruka.nbt;
+public final class StringTag implements PrimitiveTag<String> {
+
+  /**
+   * the original.
+   */
+  @NotNull
+  private final String original;
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public StringTag(@NotNull final String original) {
+    this.original = original;
+  }
+
+  @Override
+  public boolean isString() {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  public StringTag asString() {
+    return this;
+  }
+
+  @Override
+  public byte id() {
+    return 8;
+  }
+
+  @Override
+  public void write(@NotNull final DataOutput output) throws IOException {
+    output.writeUTF(this.original);
+  }
+
+  @NotNull
+  @Override
+  public String value() {
+    return this.original;
+  }
+}

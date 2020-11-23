@@ -23,6 +23,6 @@
  *
  */
 /**
- * the main package that contains nbt classes..
+ * the package that contains implementation for {@link io.github.shiruka.shiruka.nbt.ListTag}.
  */
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.list;

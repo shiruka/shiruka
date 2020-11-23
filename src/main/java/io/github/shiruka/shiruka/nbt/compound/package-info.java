@@ -23,6 +23,6 @@
  *
  */
 /**
- * the main package that contains nbt classes..
+ * the package that contains {@link io.github.shiruka.shiruka.nbt.CompoundTag} implementations.
  */
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.compound;

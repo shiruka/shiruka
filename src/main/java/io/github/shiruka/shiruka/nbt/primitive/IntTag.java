@@ -22,7 +22,45 @@
  * SOFTWARE.
  *
  */
+
+package io.github.shiruka.shiruka.nbt.primitive;
+
+import java.io.DataOutput;
+import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * the main package that contains nbt classes..
+ * an implementation for {@link NumberTagEnvelope}.
  */
-package io.github.shiruka.shiruka.nbt;
+public final class IntTag extends NumberTagEnvelope {
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public IntTag(final int original) {
+    super(original);
+  }
+
+  @Override
+  public boolean isInt() {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  public IntTag asInt() {
+    return this;
+  }
+
+  @Override
+  public byte id() {
+    return 3;
+  }
+
+  @Override
+  public void write(@NotNull final DataOutput output) throws IOException {
+    output.writeInt(this.intValue());
+  }
+}

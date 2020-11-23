@@ -23,8 +23,9 @@
  *
  */
 
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.console;
 
+import io.github.shiruka.shiruka.ShirukaServer;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a console command parser using jopt-simple.
  */
-final class ShirukaConsoleParser {
+public final class ShirukaConsoleParser {
 
   /**
    * the help option spec.
@@ -96,7 +97,7 @@ final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("c", "config"), "Server configuration file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("server.yml"))
+      .defaultsTo(new File("shiruka.yml"))
       .describedAs("Server configuration file");
     PLUGINS = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
@@ -134,7 +135,7 @@ final class ShirukaConsoleParser {
    * @return a parsed option set instance.
    */
   @Nullable
-  static OptionSet parse(@NotNull final String[] args) {
+  public static OptionSet parse(@NotNull final String[] args) {
     try {
       return ShirukaConsoleParser.PARSER.parse(args);
     } catch (final OptionException e) {
@@ -146,14 +147,14 @@ final class ShirukaConsoleParser {
   /**
    * prints the server's version.
    */
-  static void printVersion() {
+  public static void printVersion() {
     System.out.println(ShirukaServer.VERSION);
   }
 
   /**
    * prints the help message.
    */
-  static void printHelpOn() {
+  public static void printHelpOn() {
     try {
       ShirukaConsoleParser.PARSER.printHelpOn(System.out);
     } catch (final IOException ex) {

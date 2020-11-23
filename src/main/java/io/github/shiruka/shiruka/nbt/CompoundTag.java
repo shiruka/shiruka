@@ -22,7 +22,29 @@
  * SOFTWARE.
  *
  */
-/**
- * the main package that contains nbt classes..
- */
+
 package io.github.shiruka.shiruka.nbt;
+
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * an interface to determine compound tags which contain map of {@link Tag}.
+ */
+public interface CompoundTag extends Tag, StoredTag<String> {
+
+  @Override
+  default boolean isCompound() {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  default CompoundTag asCompound() {
+    return this;
+  }
+
+  @Override
+  default byte id() {
+    return 10;
+  }
+}

@@ -22,7 +22,45 @@
  * SOFTWARE.
  *
  */
+
+package io.github.shiruka.shiruka.nbt.primitive;
+
+import java.io.DataOutput;
+import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * the main package that contains nbt classes..
+ * an implementation for {@link NumberTagEnvelope}.
  */
-package io.github.shiruka.shiruka.nbt;
+public final class DoubleTag extends NumberTagEnvelope {
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public DoubleTag(final double original) {
+    super(original);
+  }
+
+  @Override
+  public boolean isDouble() {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  public DoubleTag asDouble() {
+    return this;
+  }
+
+  @Override
+  public byte id() {
+    return 6;
+  }
+
+  @Override
+  public void write(@NotNull final DataOutput output) throws IOException {
+    output.writeDouble(this.doubleValue());
+  }
+}

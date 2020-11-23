@@ -22,7 +22,53 @@
  * SOFTWARE.
  *
  */
-/**
- * the main package that contains nbt classes..
- */
+
 package io.github.shiruka.shiruka.nbt;
+
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * an interface to determine array tags.
+ *
+ * @param <T> type of arrays.
+ */
+public interface ArrayTag<T> extends Tag {
+
+  @Override
+  default boolean isArray() {
+    return true;
+  }
+
+  @Override
+  @NotNull
+  default ArrayTag<?> asArray() {
+    return this;
+  }
+
+  /**
+   * gets the value.
+   *
+   * @return the value.
+   */
+  @NotNull
+  T @NotNull [] value();
+
+  /**
+   * gets the value at {@code index} in this tag.
+   *
+   * @param index the index in the array.
+   *
+   * @return the byte at the index in the array.
+   *
+   * @throws IndexOutOfBoundsException if index is &lt; 0 or &ge; {@link #size()}.
+   */
+  @NotNull
+  T get(final int index);
+
+  /**
+   * gets the size of the array.
+   *
+   * @return array size.
+   */
+  int size();
+}

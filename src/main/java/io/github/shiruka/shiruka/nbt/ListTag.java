@@ -23,39 +23,67 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt.stream;
+package io.github.shiruka.shiruka.nbt;
 
-import io.github.shiruka.shiruka.nbt.VarInts;
-import java.io.DataOutputStream;
+import java.io.DataOutput;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 
-public final class NetworkDataOutputStream extends LittleEndianDataOutputStream {
+/**
+ * an interface to determine list tags which contain list of {@link Tag}.
+ */
+public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
 
-  public NetworkDataOutputStream(@NotNull final OutputStream stream) {
-    super(stream);
+  @Override
+  default boolean isList() {
+    return true;
   }
 
-  public NetworkDataOutputStream(@NotNull final DataOutputStream stream) {
-    super(stream);
+  @NotNull
+  @Override
+  default ListTag asList() {
+    return this;
   }
 
   @Override
-  public void writeInt(final int v) throws IOException {
-    VarInts.writeInt(this.stream, v);
+  default byte id() {
+    return 9;
   }
 
   @Override
-  public void writeLong(final long v) throws IOException {
-    VarInts.writeLong(this.stream, v);
+  default void write(@NotNull final DataOutput output) throws IOException {
+    output.writeByte(this.listType());
+    output.writeInt(this.size());
+    for (final var tag : this) {
+      tag.write(output);
+    }
   }
 
   @Override
-  public void writeUTF(@NotNull final String s) throws IOException {
-    final var bytes = s.getBytes(StandardCharsets.UTF_8);
-    VarInts.writeUnsignedInt(this.stream, bytes.length);
-    this.write(bytes);
+  default boolean containsKey(@NotNull final Integer key) {
+    return this.size() > key;
   }
+
+  /**
+   * adds the given tag.
+   *
+   * @param tag the tag to add.
+   */
+  void add(@NotNull Tag tag);
+
+  /**
+   * creates a stream of the tags contained within this list.
+   *
+   * @return a new stream.
+   */
+  @NotNull
+  Stream<Tag> stream();
+
+  /**
+   * obtains list's inside id of the tags.
+   *
+   * @return list's inside id of the tags
+   */
+  byte listType();
 }

@@ -22,7 +22,53 @@
  * SOFTWARE.
  *
  */
+
+package io.github.shiruka.shiruka.nbt.primitive;
+
+import io.github.shiruka.shiruka.nbt.NumberTag;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * the main package that contains nbt classes..
+ * an implementation for {@link NumberTag}.
  */
-package io.github.shiruka.shiruka.nbt;
+public abstract class NumberTagEnvelope implements NumberTag {
+
+  /**
+   * the number.
+   */
+  @NotNull
+  private final Number number;
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  NumberTagEnvelope(@NotNull final Number original) {
+    this.number = original;
+  }
+
+  @NotNull
+  @Override
+  public final Integer intValue() {
+    return this.number.intValue();
+  }
+
+  @NotNull
+  @Override
+  public final Long longValue() {
+    return this.number.longValue();
+  }
+
+  @NotNull
+  @Override
+  public final Float floatValue() {
+    return this.number.floatValue();
+  }
+
+  @NotNull
+  @Override
+  public final Double doubleValue() {
+    return this.number.doubleValue();
+  }
+}

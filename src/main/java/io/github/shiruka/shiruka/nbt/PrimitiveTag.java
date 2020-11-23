@@ -22,7 +22,34 @@
  * SOFTWARE.
  *
  */
-/**
- * the main package that contains nbt classes..
- */
+
 package io.github.shiruka.shiruka.nbt;
+
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * an interface to determine primitive tags.
+ *
+ * @param <T> type of the tag's value.
+ */
+public interface PrimitiveTag<T> extends Tag {
+
+  @Override
+  default boolean isPrimitive() {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  default PrimitiveTag<?> asPrimitive() {
+    return this;
+  }
+
+  /**
+   * obtains the tag's value.
+   *
+   * @return the tag's value.
+   */
+  @NotNull
+  T value();
+}

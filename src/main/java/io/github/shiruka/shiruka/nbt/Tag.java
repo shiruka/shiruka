@@ -129,6 +129,8 @@ public interface Tag {
    * @param id the id to read.
    * @param input the input read.
    *
+   * @return a new tag instance depends on the given id.
+   *
    * @throws IOException if something went wrong when reading the given input.
    */
   @Nullable

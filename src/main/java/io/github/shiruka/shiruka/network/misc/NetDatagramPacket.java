@@ -52,7 +52,7 @@ public final class NetDatagramPacket extends AbstractReferenceCounted {
   /**
    * the rak net flag.
    */
-  private short flags = io.github.shiruka.shiruka.network.util.Constants.FLAG_VALID;
+  private short flags = Constants.FLAG_VALID;
 
   /**
    * the sequence index.
@@ -132,12 +132,12 @@ public final class NetDatagramPacket extends AbstractReferenceCounted {
    * @return return true if the adding packet is succeed.
    */
   public boolean tryAddPacket(@NotNull final EncapsulatedPacket packet, final int mtu) {
-    if (this.getSize() + packet.getSize() > mtu - io.github.shiruka.shiruka.network.util.Constants.DATAGRAM_HEADER_SIZE) {
+    if (this.getSize() + packet.getSize() > mtu - Constants.DATAGRAM_HEADER_SIZE) {
       return false;
     }
     this.packets.add(packet);
     if (packet.split) {
-      this.flags |= io.github.shiruka.shiruka.network.util.Constants.FLAG_CONTINUOUS_SEND;
+      this.flags |= Constants.FLAG_CONTINUOUS_SEND;
     }
     return true;
   }

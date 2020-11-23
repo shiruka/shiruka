@@ -105,10 +105,10 @@ public final class NetSlidingWindow {
    */
   public long getRtoForRetransmission() {
     if (this.estimatedRTT == -1) {
-      return io.github.shiruka.shiruka.network.util.Constants.CC_MAXIMUM_THRESHOLD;
+      return Constants.CC_MAXIMUM_THRESHOLD;
     }
-    final var threshold = (long) (2.0D * this.estimatedRTT + 4.0D * this.deviationRTT + io.github.shiruka.shiruka.network.util.Constants.CC_ADDITIONAL_VARIANCE);
-    return Math.min(threshold, io.github.shiruka.shiruka.network.util.Constants.CC_MAXIMUM_THRESHOLD);
+    final var threshold = (long) (2.0D * this.estimatedRTT + 4.0D * this.deviationRTT + Constants.CC_ADDITIONAL_VARIANCE);
+    return Math.min(threshold, Constants.CC_MAXIMUM_THRESHOLD);
   }
 
   /**
@@ -161,7 +161,7 @@ public final class NetSlidingWindow {
    */
   public boolean shouldSendACKs(final long curTime) {
     final long rto = this.getSenderRtoForAck();
-    return rto == -1 || curTime >= this.oldestUnsentAck + io.github.shiruka.shiruka.network.util.Constants.CC_SYN;
+    return rto == -1 || curTime >= this.oldestUnsentAck + Constants.CC_SYN;
   }
 
   /**

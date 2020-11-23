@@ -48,8 +48,8 @@ public interface SocketListener {
     return new StringJoiner(";")
       .add("MCPE")
       .add("Test server data")
-      .add(String.valueOf(io.github.shiruka.shiruka.network.util.Constants.MINECRAFT_PROTOCOL_VERSION))
-      .add(io.github.shiruka.shiruka.network.util.Constants.MINECRAFT_VERSION)
+      .add(String.valueOf(Constants.MINECRAFT_PROTOCOL_VERSION))
+      .add(Constants.MINECRAFT_VERSION)
       .add("0")
       .add("10")
       .add(String.valueOf(1000000000L))
@@ -76,7 +76,7 @@ public interface SocketListener {
       // server description message a.k.a. MOTD
       .add(serverDescription)
       // protocol version
-      .add(String.valueOf(io.github.shiruka.shiruka.network.util.Constants.MINECRAFT_PROTOCOL_VERSION))
+      .add(String.valueOf(Constants.MINECRAFT_PROTOCOL_VERSION))
       // client version
       .add(Constants.MINECRAFT_VERSION)
       // player's amount

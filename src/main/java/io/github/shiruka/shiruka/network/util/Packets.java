@@ -100,7 +100,7 @@ public final class Packets {
    * @return true if the packet id is {@link Packets#UNCONNECTED_PING} or {@link Packets#OPEN_CONNECTION_REQUEST_1}
    */
   public static boolean handleNoConnectionPackets(@NotNull final ChannelHandlerContext ctx,
-                                                  @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                  @NotNull final ServerSocket server,
                                                   @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     final var packetId = content.readByte();
@@ -207,7 +207,7 @@ public final class Packets {
    * @param packet the packet to handle.
    */
   private static void handleUnconnectedPing(@NotNull final ChannelHandlerContext ctx,
-                                            @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                            @NotNull final ServerSocket server,
                                             @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(24)) {
@@ -232,7 +232,7 @@ public final class Packets {
    * @param packet the packet to handle.
    */
   private static void handleOpenConnectionRequest1(@NotNull final ChannelHandlerContext ctx,
-                                                   @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                   @NotNull final ServerSocket server,
                                                    @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(16)) {
@@ -297,7 +297,7 @@ public final class Packets {
    * @param pingTime the ping time to send.
    */
   private static void sendUnconnectedPongPacket(@NotNull final ChannelHandlerContext ctx,
-                                                @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                @NotNull final ServerSocket server,
                                                 @NotNull final InetSocketAddress recipient,
                                                 final long pingTime) {
     final var serverData = server.getSocketListener().onRequestServerData(server, recipient);
@@ -322,7 +322,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendAlreadyConnected(@NotNull final ChannelHandlerContext ctx,
-                                           @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                           @NotNull final ServerSocket server,
                                            @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.ALREADY_CONNECTED);
@@ -340,7 +340,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendIncompatibleProtocolVersion(@NotNull final ChannelHandlerContext ctx,
-                                                      @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                      @NotNull final ServerSocket server,
                                                       @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 26, 26, packet -> {
       packet.writeByte(Packets.INCOMPATIBLE_PROTOCOL_VERSION);
@@ -359,7 +359,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendMaximumConnection(@NotNull final ChannelHandlerContext ctx,
-                                            @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                            @NotNull final ServerSocket server,
                                             @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.MAXIMUM_CONNECTION);
@@ -377,7 +377,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendConnectedBanned(@NotNull final ChannelHandlerContext ctx,
-                                          @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                          @NotNull final ServerSocket server,
                                           @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.CONNECTION_BANNED);

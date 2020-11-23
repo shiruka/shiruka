@@ -69,7 +69,8 @@ public final class ShirukaSocketListener implements SocketListener {
   }
 
   @Override
-  public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx, @NotNull final DatagramPacket packet) {
+  public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx,
+                                  @NotNull final DatagramPacket packet) {
   }
 
   @Override

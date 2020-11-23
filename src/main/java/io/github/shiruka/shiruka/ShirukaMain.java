@@ -116,7 +116,6 @@ public final class ShirukaMain {
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     final var server = new ShirukaServer();
     Shiruka.initServer(server);
-    Tag.END.asArray();
     final var console = new ShirukaConsole(server);
     console.start();
   }

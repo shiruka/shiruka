@@ -29,8 +29,10 @@ import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
+import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.nbt.Tag;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -114,6 +116,7 @@ public final class ShirukaMain {
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     final var server = new ShirukaServer();
     Shiruka.initServer(server);
+    Tag.END.asArray();
     final var console = new ShirukaConsole(server);
     console.start();
   }

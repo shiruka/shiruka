@@ -36,9 +36,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ArrayTag<T> extends Tag {
 
-  @Override
-  default void write(@NotNull final DataOutput output) throws IOException {
-  }
 
   /**
    * gets the value.

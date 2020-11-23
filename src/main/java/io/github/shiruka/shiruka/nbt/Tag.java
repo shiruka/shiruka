@@ -26,6 +26,8 @@
 package io.github.shiruka.shiruka.nbt;
 
 import io.github.shiruka.shiruka.nbt.array.ByteArrayTag;
+import io.github.shiruka.shiruka.nbt.array.IntArrayTag;
+import io.github.shiruka.shiruka.nbt.array.LongArrayTag;
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
 import io.github.shiruka.shiruka.nbt.primitive.*;
@@ -69,7 +71,17 @@ public interface Tag {
   /**
    * an empty {@link ByteArrayTag} instance.
    */
-  ByteArrayTag BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
+  ArrayTag<Byte> BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
+
+  /**
+   * an empty {@link IntArrayTag} instance.
+   */
+  ArrayTag<Integer> INT_ARRAY = Tag.createIntArray(new Integer[0]);
+
+  /**
+   * an empty {@link LongArrayTag} instance.
+   */
+  ArrayTag<Long> LONG_ARRAY = Tag.createLongArray(new Long[0]);
 
   /**
    * an empty {@link NumberTag} instance.
@@ -185,6 +197,30 @@ public interface Tag {
   @NotNull
   static ByteArrayTag createByteArray(@NotNull final Byte @NotNull [] original) {
     return new ByteArrayTag(original);
+  }
+
+  /**
+   * creates an instance of {@link IntArrayTag}.
+   *
+   * @param original the original list.
+   *
+   * @return an instance of {@link IntArrayTag}.
+   */
+  @NotNull
+  static IntArrayTag createIntArray(@NotNull final Integer @NotNull [] original) {
+    return new IntArrayTag(original);
+  }
+
+  /**
+   * creates an instance of {@link LongArrayTag}.
+   *
+   * @param original the original list.
+   *
+   * @return an instance of {@link LongArrayTag}.
+   */
+  @NotNull
+  static LongArrayTag createLongArray(@NotNull final Long @NotNull [] original) {
+    return new LongArrayTag(original);
   }
 
   /**
@@ -322,6 +358,24 @@ public interface Tag {
   }
 
   /**
+   * checks if {@code this} is a {@link IntArrayTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link IntArrayTag}.
+   */
+  default boolean isIntArray() {
+    return false;
+  }
+
+  /**
+   * checks if {@code this} is a {@link LongArrayTag}.
+   *
+   * @return {@code true} if {@code this} is a {@link LongArrayTag}.
+   */
+  default boolean isLongArray() {
+    return false;
+  }
+
+  /**
    * checks if {@code this} is a {@link PrimitiveTag}.
    *
    * @return {@code true} if {@code this} is a {@link PrimitiveTag}.
@@ -436,6 +490,30 @@ public interface Tag {
   @NotNull
   default ByteArrayTag asByteArray() {
     throw new IllegalStateException(this.getClass() + " cannot cast as a ByteArrayTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link IntArrayTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link IntArrayTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link IntArrayTag}.
+   */
+  @NotNull
+  default IntArrayTag asIntArray() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a IntArrayTag!");
+  }
+
+  /**
+   * an instance of {@code this} as a {@link LongArrayTag}.
+   *
+   * @return an autoboxed instance of {@code this} as {@link LongArrayTag}.
+   *
+   * @throws IllegalStateException if {@code this} is not a {@link LongArrayTag}.
+   */
+  @NotNull
+  default LongArrayTag asLongArray() {
+    throw new IllegalStateException(this.getClass() + " cannot cast as a LongArrayTag!");
   }
 
   /**

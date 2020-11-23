@@ -84,11 +84,6 @@ public interface Tag {
   ArrayTag<Long> LONG_ARRAY = Tag.createLongArray(new Long[0]);
 
   /**
-   * an empty {@link NumberTag} instance.
-   */
-  NumberTag NUMBER = Tag.createNumber((byte) 0);
-
-  /**
    * an empty {@link ByteTag} instance.
    */
   ByteTag BYTE = Tag.createByte((byte) 0);

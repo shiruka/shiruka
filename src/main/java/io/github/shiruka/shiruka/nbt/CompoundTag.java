@@ -25,10 +25,6 @@
 
 package io.github.shiruka.shiruka.nbt;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,5 +47,4 @@ public interface CompoundTag extends Tag, StoredTag<String> {
   default byte id() {
     return 10;
   }
-
 }

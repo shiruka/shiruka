@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -124,6 +125,145 @@ public interface Tag {
   PrimitiveTag<String> STRING = Tag.createString("");
 
   /**
+   * reads the given input and converts it into the {@link ByteArrayTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link ByteArrayTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static ByteArrayTag readByteArray(@NotNull final DataInput input) throws IOException {
+    final var length = input.readInt();
+    final var value = new byte[length];
+    input.readFully(value);
+    return Tag.createByteArray(ArrayUtils.toObject(value));
+  }
+
+  /**
+   * reads the given input and converts it into the {@link IntArrayTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link IntArrayTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static IntArrayTag readIntArray(@NotNull final DataInput input) throws IOException {
+    final var length = input.readInt();
+    final var value = new Integer[length];
+    for (int i = 0; i < length; i++) {
+      value[i] = input.readInt();
+    }
+    return Tag.createIntArray(value);
+  }
+
+  /**
+   * reads the given input and converts it into the {@link LongArrayTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link LongArrayTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static LongArrayTag readLongArray(@NotNull final DataInput input) throws IOException {
+    final var length = input.readInt();
+    final var value = new Long[length];
+    for (int i = 0; i < length; i++) {
+      value[i] = input.readLong();
+    }
+    return Tag.createLongArray(value);
+  }
+
+  /**
+   * reads the given input and converts it into the {@link ByteTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link ByteTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static ByteTag readByte(@NotNull final DataInput input) throws IOException {
+    return Tag.createByte(input.readByte());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link DoubleTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link DoubleTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static DoubleTag readDouble(@NotNull final DataInput input) throws IOException {
+    return Tag.createDouble(input.readDouble());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link FloatTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link FloatTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static FloatTag readFloat(@NotNull final DataInput input) throws IOException {
+    return Tag.createFloat(input.readFloat());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link IntTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link IntTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static IntTag readInt(@NotNull final DataInput input) throws IOException {
+    return Tag.createInt(input.readInt());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link LongTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link LongTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static LongTag readLong(@NotNull final DataInput input) throws IOException {
+    return Tag.createLong(input.readLong());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link ShortTag}.
+   *
+   * @param input the input to read.
+   *
+   * @return an instance of {@link ShortTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  static ShortTag readShort(@NotNull final DataInput input) throws IOException {
+    return Tag.createShort(input.readShort());
+  }
+
+  /**
    * reads the given input and converts it into the {@link StringTag}.
    *
    * @param input the input to read.
@@ -134,8 +274,7 @@ public interface Tag {
    */
   @NotNull
   static StringTag readString(@NotNull final DataInput input) throws IOException {
-    final var value = input.readUTF();
-    return Tag.createString(value);
+    return Tag.createString(input.readUTF());
   }
 
   /**

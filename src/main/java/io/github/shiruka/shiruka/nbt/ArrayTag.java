@@ -25,8 +25,6 @@
 
 package io.github.shiruka.shiruka.nbt;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
  * @param <T> type of arrays.
  */
 public interface ArrayTag<T> extends Tag {
-
 
   /**
    * gets the value.

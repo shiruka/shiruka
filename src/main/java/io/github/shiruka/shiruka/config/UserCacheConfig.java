@@ -26,30 +26,21 @@
 package io.github.shiruka.shiruka.config;
 
 import io.github.shiruka.api.conf.Config;
-import io.github.shiruka.api.conf.ConfigPath;
-import io.github.shiruka.api.conf.Paths;
 import io.github.shiruka.api.conf.config.PathableConfig;
 import java.io.File;
-import java.util.List;
-import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * list of server operators.
  */
-public final class OpsConfig extends PathableConfig {
-
-  /**
-   * op list of the server.
-   */
-  public static final ConfigPath<List<UUID>> OPS = Paths.listUniqueIdPath("ops", List.of());
+public final class UserCacheConfig extends PathableConfig {
 
   /**
    * ctor.
    *
    * @param origin the origin.
    */
-  private OpsConfig(@NotNull final Config origin) {
+  private UserCacheConfig(@NotNull final Config origin) {
     super(origin);
   }
 
@@ -60,7 +51,7 @@ public final class OpsConfig extends PathableConfig {
    */
   public static void init(@NotNull final File file) {
     Config.fromFile(file)
-      .map(OpsConfig::new)
+      .map(UserCacheConfig::new)
       .ifPresent(Config::save);
   }
 }

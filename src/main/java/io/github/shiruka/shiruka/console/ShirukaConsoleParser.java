@@ -67,6 +67,12 @@ public final class ShirukaConsoleParser {
   public static final OptionSpec<File> OPS;
 
   /**
+   * the ops file option spec.
+   */
+  @NotNull
+  public static final OptionSpec<File> USER_CACHE;
+
+  /**
    * the version option spec.
    */
   @NotNull
@@ -97,7 +103,7 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("c", "config"), "Server configuration file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("shiruka.yml"))
+      .defaultsTo(new File("shiruka"))
       .describedAs("Server configuration file");
     PLUGINS = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
@@ -109,8 +115,14 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("O", "ops"), "Ops file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("ops.json"))
+      .defaultsTo(new File("ops"))
       .describedAs("Ops file");
+    USER_CACHE = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("U", "usercache"), "User cache file to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("usercache"))
+      .describedAs("User cache file");
     VERSION = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");
     DEBUG = ShirukaConsoleParser.PARSER

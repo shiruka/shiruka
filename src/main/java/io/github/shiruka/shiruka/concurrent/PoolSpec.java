@@ -81,8 +81,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   private final String name;
 
   /**
-   * maximum number of parallelism that should be limited
-   * in the given thread pool.
+   * maximum number of parallelism that should be limited in the given thread pool.
    */
   private final int maxThreads;
 

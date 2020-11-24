@@ -100,10 +100,10 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("?", "help"), "Show the help")
       .forHelp();
     CONFIG = ShirukaConsoleParser.PARSER
-      .acceptsAll(Arrays.asList("c", "config"), "Server configuration file to use")
+      .acceptsAll(Arrays.asList("C", "config"), "Server configuration file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("shiruka"))
+      .defaultsTo(new File("shiruka.yml"))
       .describedAs("Server configuration file");
     PLUGINS = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
@@ -115,13 +115,13 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("O", "ops"), "Ops file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("ops"))
+      .defaultsTo(new File("ops.hjson"))
       .describedAs("Ops file");
     USER_CACHE = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("U", "usercache"), "User cache file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("usercache"))
+      .defaultsTo(new File("usercache.hjson"))
       .describedAs("User cache file");
     VERSION = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");

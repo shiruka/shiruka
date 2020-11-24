@@ -35,7 +35,7 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * list of server operators
+ * list of server operators.
  */
 public final class OpsConfig extends PathableConfig {
 

@@ -25,9 +25,9 @@
 /**
  * the package to cover implementations for the interfaces.
  * <ul>
- *   <li>{@link io.github.shiruka.shiruka.network.Connection}
- *   <li>{@link io.github.shiruka.shiruka.network.Socket}
- *   <li>{@link io.github.shiruka.shiruka.network.ConnectionHandler}
+ *   <li>{@link io.github.shiruka.shiruka.network.Connection}</li>
+ *   <li>{@link io.github.shiruka.shiruka.network.Socket}</li>
+ *   <li>{@link io.github.shiruka.shiruka.network.ConnectionHandler}</li>
  * </ul>
  */
 package io.github.shiruka.shiruka.network.server;

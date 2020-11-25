@@ -176,10 +176,8 @@ public interface Tag {
     byte id;
     while ((id = input.readByte()) != Tag.END.id()) {
       final var key = input.readUTF();
-      final var tag = Tag.read(id, input);
-      if (tag != null) {
-        tags.put(key, tag);
-      }
+      Optional.ofNullable(Tag.read(id, input))
+        .ifPresent(tg -> tags.put(key, tg));
     }
     return Tag.createCompound(tags);
   }

@@ -23,6 +23,7 @@
  *
  */
 /**
- * the main package that contains nbt classes..
+ * the main package that contains nbt classes.
+ * TODO Add I/O for NBTs to write to file, read from file with streams.
  */
 package io.github.shiruka.shiruka.nbt;

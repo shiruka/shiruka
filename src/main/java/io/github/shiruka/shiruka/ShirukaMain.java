@@ -117,7 +117,7 @@ public final class ShirukaMain {
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
     final var server = new ShirukaServer();
     Shiruka.initServer(server);
-    // TODO Contuniue to the development.
+    // TODO Continue to the development.
     final var console = new ShirukaConsole(server);
     console.start();
   }

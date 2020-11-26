@@ -25,8 +25,6 @@
 
 package io.github.shiruka.shiruka.nbt.array;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 public final class LongArrayTag extends ArrayTagEnvelope<Long> {
@@ -54,14 +52,5 @@ public final class LongArrayTag extends ArrayTagEnvelope<Long> {
   @Override
   public byte id() {
     return 12;
-  }
-
-  @Override
-  public void write(@NotNull final DataOutput output) throws IOException {
-    final var value = this.value();
-    output.writeInt(value.length);
-    for (final var lon : value) {
-      output.writeLong(lon);
-    }
   }
 }

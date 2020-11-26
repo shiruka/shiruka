@@ -114,6 +114,12 @@ public final class ListTagBasic implements ListTag {
     return this.listType;
   }
 
+  @NotNull
+  @Override
+  public List<Tag> getList() {
+    return Collections.unmodifiableList(this.original);
+  }
+
   @Override
   public Tag get(@NotNull final Integer key) {
     return this.original.get(key);

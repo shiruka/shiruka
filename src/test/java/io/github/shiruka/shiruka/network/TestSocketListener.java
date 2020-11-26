@@ -67,19 +67,19 @@ public final class TestSocketListener implements SocketListener {
 
   @Override
   public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx,
-                                  @NotNull final DatagramPacket datagram) {
-    final var packet = datagram.content();
+                                  @NotNull final DatagramPacket packet) {
+    final var buffer = packet.content();
     try {
-      if (!packet.isReadable(3)) {
+      if (!buffer.isReadable(3)) {
         return;
       }
       final var prefix = new byte[2];
-      packet.readBytes(prefix);
+      buffer.readBytes(prefix);
       if (!Arrays.equals(prefix, new byte[]{(byte) 0xfe, (byte) 0xfd})) {
         return;
       }
-      final var packetId = packet.readUnsignedByte();
-      final var sessionId = packet.readInt();
+      final var packetId = buffer.readUnsignedByte();
+      final var sessionId = buffer.readInt();
       System.out.println("*********************");
     } catch (final Exception e) {
       Loggers.useLogger(logger ->

@@ -25,8 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt;
 
-import java.io.DataOutput;
-import java.io.IOException;
+import java.util.List;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,15 +51,6 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
   }
 
   @Override
-  default void write(@NotNull final DataOutput output) throws IOException {
-    output.writeByte(this.listType());
-    output.writeInt(this.size());
-    for (final var tag : this) {
-      tag.write(output);
-    }
-  }
-
-  @Override
   default boolean containsKey(@NotNull final Integer key) {
     return this.size() > key;
   }
@@ -79,6 +69,14 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
    */
   @NotNull
   Stream<Tag> stream();
+
+  /**
+   * obtains list tag's list as unmodifiable..
+   *
+   * @return list tag's list.
+   */
+  @NotNull
+  List<Tag> all();
 
   /**
    * obtains list's inside id of the tags.

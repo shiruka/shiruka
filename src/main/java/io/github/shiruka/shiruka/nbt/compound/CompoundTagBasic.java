@@ -27,8 +27,7 @@ package io.github.shiruka.shiruka.nbt.compound;
 
 import io.github.shiruka.shiruka.nbt.CompoundTag;
 import io.github.shiruka.shiruka.nbt.Tag;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.cactoos.map.MapEnvelope;
@@ -62,6 +61,12 @@ public final class CompoundTagBasic implements CompoundTag {
     this(new HashMap<>());
   }
 
+  @NotNull
+  @Override
+  public Map<String, Tag> all() {
+    return Collections.unmodifiableMap(this.original);
+  }
+
   @Nullable
   @Override
   public Tag get(@NotNull final String key) {
@@ -91,19 +96,5 @@ public final class CompoundTagBasic implements CompoundTag {
   @Override
   public int size() {
     return this.original.size();
-  }
-
-  @Override
-  public void write(@NotNull final DataOutput output) throws IOException {
-    final var entries = this.original.entrySet();
-    for (final var entry : entries) {
-      final var tag = entry.getValue();
-      output.writeByte(tag.id());
-      if (tag.id() != Tag.END.id()) {
-        output.writeUTF(entry.getKey());
-        tag.write(output);
-      }
-    }
-    output.writeByte(Tag.END.id());
   }
 }

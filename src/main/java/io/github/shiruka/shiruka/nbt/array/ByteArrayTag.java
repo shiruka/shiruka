@@ -25,9 +25,6 @@
 
 package io.github.shiruka.shiruka.nbt.array;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 public final class ByteArrayTag extends ArrayTagEnvelope<Byte> {
@@ -55,12 +52,5 @@ public final class ByteArrayTag extends ArrayTagEnvelope<Byte> {
   @Override
   public byte id() {
     return 7;
-  }
-
-  @Override
-  public void write(@NotNull final DataOutput output) throws IOException {
-    final var value = ArrayUtils.toPrimitive(this.value());
-    output.writeInt(value.length);
-    output.write(value);
   }
 }

@@ -100,7 +100,7 @@ public final class SplitPacketHelper extends AbstractReferenceCounted {
   }
 
   @Override
-  public ReferenceCounted touch(final Object o) {
+  public ReferenceCounted touch(final Object hint) {
     throw new UnsupportedOperationException();
   }
 

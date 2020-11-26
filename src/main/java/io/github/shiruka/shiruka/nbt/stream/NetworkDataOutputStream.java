@@ -23,37 +23,52 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt.primitive;
+package io.github.shiruka.shiruka.nbt.stream;
 
+import io.github.shiruka.shiruka.misc.VarInts;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link NumberTagEnvelope}.
+ * an implementation for {@link LittleEndianDataOutputStream}.
  */
-public final class ByteTag extends NumberTagEnvelope {
+public final class NetworkDataOutputStream extends LittleEndianDataOutputStream {
 
   /**
    * ctor.
    *
-   * @param original the original.
+   * @param stream the stream.
    */
-  public ByteTag(final byte original) {
-    super(original);
+  public NetworkDataOutputStream(@NotNull final OutputStream stream) {
+    super(stream);
+  }
+
+  /**
+   * ctor.
+   *
+   * @param stream the stream.
+   */
+  public NetworkDataOutputStream(@NotNull final DataOutputStream stream) {
+    super(stream);
   }
 
   @Override
-  public boolean isByte() {
-    return true;
-  }
-
-  @NotNull
-  @Override
-  public ByteTag asByte() {
-    return this;
+  public void writeInt(final int v) throws IOException {
+    VarInts.writeInt(this.stream, v);
   }
 
   @Override
-  public byte id() {
-    return 1;
+  public void writeLong(final long v) throws IOException {
+    VarInts.writeLong(this.stream, v);
+  }
+
+  @Override
+  public void writeUTF(@NotNull final String s) throws IOException {
+    final var bytes = s.getBytes(StandardCharsets.UTF_8);
+    VarInts.writeUnsignedInt(this.stream, bytes.length);
+    this.write(bytes);
   }
 }

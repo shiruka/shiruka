@@ -81,8 +81,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   private final String name;
 
   /**
-   * maximum number of parallelism that should be limited
-   * in the given thread pool.
+   * maximum number of parallelism that should be limited in the given thread pool.
    */
   private final int maxThreads;
 
@@ -99,7 +98,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
    * @param doStealing whether or not the pool performs
    *   work steals
    */
-  public PoolSpec(final String name, final int maxThreads, final boolean doStealing) {
+  private PoolSpec(final String name, final int maxThreads, final boolean doStealing) {
     this.name = name;
     this.maxThreads = maxThreads;
     this.doStealing = doStealing;

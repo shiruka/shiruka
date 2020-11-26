@@ -27,6 +27,8 @@ package io.github.shiruka.shiruka.network.util;
 
 import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.network.ConnectionState;
+import io.github.shiruka.shiruka.network.ServerSocket;
 import io.github.shiruka.shiruka.network.Socket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -99,7 +101,7 @@ public final class Packets {
    * @return true if the packet id is {@link Packets#UNCONNECTED_PING} or {@link Packets#OPEN_CONNECTION_REQUEST_1}
    */
   public static boolean handleNoConnectionPackets(@NotNull final ChannelHandlerContext ctx,
-                                                  @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                  @NotNull final ServerSocket server,
                                                   @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     final var packetId = content.readByte();
@@ -206,7 +208,7 @@ public final class Packets {
    * @param packet the packet to handle.
    */
   private static void handleUnconnectedPing(@NotNull final ChannelHandlerContext ctx,
-                                            @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                            @NotNull final ServerSocket server,
                                             @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(24)) {
@@ -231,7 +233,7 @@ public final class Packets {
    * @param packet the packet to handle.
    */
   private static void handleOpenConnectionRequest1(@NotNull final ChannelHandlerContext ctx,
-                                                   @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                   @NotNull final ServerSocket server,
                                                    @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(16)) {
@@ -247,7 +249,8 @@ public final class Packets {
     final var protocolVersion = content.readUnsignedByte();
     final var mtu = content.readableBytes() + 1 + 16 + 1 + Misc.getIpHeader(packet.sender()) + Constants.UDP_HEADER_SIZE;
     final var recipient = packet.sender();
-    if (server.getConnectionsByAddress().containsKey(recipient)) {
+    final var connection = server.getConnectionsByAddress().get(recipient);
+    if (connection != null && connection.getState() == ConnectionState.CONNECTED) {
       Loggers.useLogger(logger ->
         logger.error("{} is already connected!", recipient));
       Loggers.useLogger(
@@ -279,6 +282,10 @@ public final class Packets {
       Packets.sendConnectedBanned(ctx, server, recipient);
       return;
     }
+    if (connection != null) {
+      connection.getConnectionHandler().sendConnectionReply1();
+      return;
+    }
     server.createNewConnection(recipient, ctx, mtu, protocolVersion);
   }
 
@@ -291,7 +298,7 @@ public final class Packets {
    * @param pingTime the ping time to send.
    */
   private static void sendUnconnectedPongPacket(@NotNull final ChannelHandlerContext ctx,
-                                                @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                @NotNull final ServerSocket server,
                                                 @NotNull final InetSocketAddress recipient,
                                                 final long pingTime) {
     final var serverData = server.getSocketListener().onRequestServerData(server, recipient);
@@ -316,7 +323,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendAlreadyConnected(@NotNull final ChannelHandlerContext ctx,
-                                           @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                           @NotNull final ServerSocket server,
                                            @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.ALREADY_CONNECTED);
@@ -334,7 +341,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendIncompatibleProtocolVersion(@NotNull final ChannelHandlerContext ctx,
-                                                      @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                                      @NotNull final ServerSocket server,
                                                       @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 26, 26, packet -> {
       packet.writeByte(Packets.INCOMPATIBLE_PROTOCOL_VERSION);
@@ -353,7 +360,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendMaximumConnection(@NotNull final ChannelHandlerContext ctx,
-                                            @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                            @NotNull final ServerSocket server,
                                             @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.MAXIMUM_CONNECTION);
@@ -371,7 +378,7 @@ public final class Packets {
    * @param recipient the recipient to send.
    */
   private static void sendConnectedBanned(@NotNull final ChannelHandlerContext ctx,
-                                          @NotNull final io.github.shiruka.shiruka.network.ServerSocket server,
+                                          @NotNull final ServerSocket server,
                                           @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.CONNECTION_BANNED);

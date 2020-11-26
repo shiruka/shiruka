@@ -164,7 +164,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   /**
    * the connection's timeout.
    */
-  private long connectionTimeout = io.github.shiruka.shiruka.network.util.Constants.CONNECTION_TIMEOUT_MS;
+  private long connectionTimeout = Constants.CONNECTION_TIMEOUT_MS;
 
   /**
    * connection's unique id a.k.a. guid.
@@ -272,12 +272,12 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @Override
   public final void setMtu(final int mtu) {
-    if (mtu < io.github.shiruka.shiruka.network.util.Constants.MINIMUM_MTU_SIZE) {
-      this.mtu = io.github.shiruka.shiruka.network.util.Constants.MINIMUM_MTU_SIZE;
+    if (mtu < Constants.MINIMUM_MTU_SIZE) {
+      this.mtu = Constants.MINIMUM_MTU_SIZE;
     } else {
-      this.mtu = Math.max(mtu, io.github.shiruka.shiruka.network.util.Constants.MAXIMUM_MTU_SIZE);
+      this.mtu = Math.max(mtu, Constants.MAXIMUM_MTU_SIZE);
     }
-    this.adjustedMtu = this.mtu - io.github.shiruka.shiruka.network.util.Constants.UDP_HEADER_SIZE - io.github.shiruka.shiruka.network.util.Misc.getIpHeader(this.address);
+    this.adjustedMtu = this.mtu - Constants.UDP_HEADER_SIZE - Misc.getIpHeader(this.address);
   }
 
   @Override
@@ -454,7 +454,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
     final var slidingWindow = temp.getSlidingWindow();
     final var incomingACKs = temp.getIncomingACKs();
     if (!incomingACKs.isEmpty()) {
-      io.github.shiruka.shiruka.network.misc.IntRange range;
+      IntRange range;
       while ((range = incomingACKs.poll()) != null) {
         for (int i = range.getMinimum(); i <= range.getMaximum(); i++) {
           final var datagram = temp.removeSentDatagrams(i);
@@ -483,19 +483,19 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
         }
       }
     }
-    final var mtuSize = this.adjustedMtu - io.github.shiruka.shiruka.network.util.Constants.DATAGRAM_HEADER_SIZE;
+    final var mtuSize = this.adjustedMtu - Constants.DATAGRAM_HEADER_SIZE;
     final var outgoingNACKs = temp.getOutgoingNACKs();
     while (!outgoingNACKs.isEmpty()) {
       final var buffer = this.allocateBuffer(mtuSize);
-      buffer.writeByte(io.github.shiruka.shiruka.network.util.Constants.FLAG_VALID | io.github.shiruka.shiruka.network.util.Constants.FLAG_NACK);
-      io.github.shiruka.shiruka.network.util.Misc.writeIntRanges(buffer, outgoingNACKs, mtuSize - 1);
+      buffer.writeByte(Constants.FLAG_VALID | Constants.FLAG_NACK);
+      Misc.writeIntRanges(buffer, outgoingNACKs, mtuSize - 1);
       this.sendDirect(buffer);
     }
     if (slidingWindow.shouldSendACKs(now)) {
       final var outgoingACKs = temp.getOutgoingACKs();
       while (!outgoingACKs.isEmpty()) {
         final var buffer = this.allocateBuffer(mtuSize);
-        buffer.writeByte(io.github.shiruka.shiruka.network.util.Constants.FLAG_VALID | io.github.shiruka.shiruka.network.util.Constants.FLAG_ACK);
+        buffer.writeByte(Constants.FLAG_VALID | Constants.FLAG_ACK);
         Misc.writeIntRanges(buffer, outgoingACKs, mtuSize - 1);
         this.sendDirect(buffer);
         slidingWindow.onSendACK();
@@ -519,7 +519,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
           hasResent = true;
         }
         Loggers.useLogger(logger ->
-          logger.error("Stale datagram {} from {}" + datagram.getSequenceIndex(), this.address));
+          logger.error("Stale datagram {} from {}", datagram.getSequenceIndex(), this.address));
         this.sendDatagram(datagram, now);
       }
       if (hasResent) {
@@ -531,8 +531,8 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
       final var outgoingPackets = temp.getOutgoingPackets();
       if (!outgoingPackets.isEmpty()) {
         transmissionBandwidth = slidingWindow.getTransmissionBandwidth(this.unACKedBytes.get());
-        var datagram = new io.github.shiruka.shiruka.network.misc.NetDatagramPacket(now);
-        io.github.shiruka.shiruka.network.misc.EncapsulatedPacket packet;
+        var datagram = new NetDatagramPacket(now);
+        EncapsulatedPacket packet;
         while ((packet = outgoingPackets.peek()) != null) {
           final int size = packet.getSize();
           if (transmissionBandwidth < size) {
@@ -544,7 +544,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
             continue;
           }
           this.sendDatagram(datagram, now);
-          datagram = new io.github.shiruka.shiruka.network.misc.NetDatagramPacket(now);
+          datagram = new NetDatagramPacket(now);
           if (!datagram.tryAddPacket(packet, this.adjustedMtu)) {
             throw new IllegalArgumentException("Packet too large to fit in MTU (size: " + packet.getSize() + ", MTU: " + this.adjustedMtu + ")");
           }
@@ -585,12 +585,13 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
    * @param reliability the reliability to create.
    * @param orderingChannel the ordering channel to create.
    *
-   * @return an encapsulated packet as {@link io.github.shiruka.shiruka.network.misc.EncapsulatedPacket}
+   * @return an encapsulated packet as {@link EncapsulatedPacket}
    */
   @NotNull
-  private io.github.shiruka.shiruka.network.misc.EncapsulatedPacket[] createEncapsulated(@NotNull final ByteBuf packet, @NotNull final PacketPriority priority,
-                                                                                         @NotNull PacketReliability reliability, final int orderingChannel) {
-    final var maxLength = this.adjustedMtu - io.github.shiruka.shiruka.network.util.Constants.MAXIMUM_ENCAPSULATED_HEADER_SIZE - Constants.DATAGRAM_HEADER_SIZE;
+  private EncapsulatedPacket[] createEncapsulated(@NotNull final ByteBuf packet, @NotNull final PacketPriority priority,
+                                                  @NotNull PacketReliability reliability, final int orderingChannel) {
+    final var maxLength = this.adjustedMtu -
+      Constants.MAXIMUM_ENCAPSULATED_HEADER_SIZE - Constants.DATAGRAM_HEADER_SIZE;
     final ByteBuf[] buffers;
     int splitId = 0;
     if (packet.readableBytes() > maxLength) {
@@ -627,9 +628,9 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
     if (reliability.isOrdered()) {
       orderingIndex = this.getCache().getOrderWriteIndex().getAndIncrement(orderingChannel);
     }
-    final var packets = new io.github.shiruka.shiruka.network.misc.EncapsulatedPacket[buffers.length];
+    final var packets = new EncapsulatedPacket[buffers.length];
     for (int i = 0, parts = buffers.length; i < parts; i++) {
-      final var encapsulatedPacket = new io.github.shiruka.shiruka.network.misc.EncapsulatedPacket();
+      final var encapsulatedPacket = new EncapsulatedPacket();
       encapsulatedPacket.setBuffer(buffers[i]);
       encapsulatedPacket.orderingChannel = (short) orderingChannel;
       encapsulatedPacket.orderingIndex = orderingIndex;
@@ -657,7 +658,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   private void sendImmediate(@NotNull final EncapsulatedPacket[] packets) {
     final var now = System.currentTimeMillis();
     for (final var packet : packets) {
-      final var datagram = new io.github.shiruka.shiruka.network.misc.NetDatagramPacket(now);
+      final var datagram = new NetDatagramPacket(now);
       if (!datagram.tryAddPacket(packet, this.adjustedMtu)) {
         throw new IllegalArgumentException("Packet too large to fit in MTU (size: " + packet.getSize() +
           ", MTU: " + this.adjustedMtu + ")");

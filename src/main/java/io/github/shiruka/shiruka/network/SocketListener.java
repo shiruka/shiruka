@@ -44,13 +44,12 @@ public interface SocketListener {
    *
    * @return example server data value for the minecraft bedrock edition.
    */
-  @NotNull
   static byte[] exampleServerData() {
     return new StringJoiner(";")
       .add("MCPE")
       .add("Test server data")
-      .add(String.valueOf(io.github.shiruka.shiruka.network.util.Constants.MINECRAFT_PROTOCOL_VERSION))
-      .add(io.github.shiruka.shiruka.network.util.Constants.MINECRAFT_VERSION)
+      .add(String.valueOf(Constants.MINECRAFT_PROTOCOL_VERSION))
+      .add(Constants.MINECRAFT_VERSION)
       .add("0")
       .add("10")
       .add(String.valueOf(1000000000L))
@@ -69,7 +68,6 @@ public interface SocketListener {
    * @return a server data's byte array.
    *   a example server data must be like MCPE;MOTD;408;1.16.40;0;10;100000000000L
    */
-  @NotNull
   static byte[] createOne(@NotNull final ServerSocket server, @NotNull final String serverDescription, final int connectionCount,
                           final int maximumConnectionCount) {
     return new StringJoiner(";")
@@ -78,7 +76,7 @@ public interface SocketListener {
       // server description message a.k.a. MOTD
       .add(serverDescription)
       // protocol version
-      .add(String.valueOf(io.github.shiruka.shiruka.network.util.Constants.MINECRAFT_PROTOCOL_VERSION))
+      .add(String.valueOf(Constants.MINECRAFT_PROTOCOL_VERSION))
       // client version
       .add(Constants.MINECRAFT_VERSION)
       // player's amount
@@ -111,7 +109,6 @@ public interface SocketListener {
    * @return a server data. the byte array must be like {@link SocketListener#exampleServerData()}.
    *   Use {@link SocketListener#createOne(ServerSocket, String, int, int)}.
    */
-  @NotNull
   byte[] onRequestServerData(@NotNull ServerSocket server, @NotNull InetSocketAddress requester);
 
   /**

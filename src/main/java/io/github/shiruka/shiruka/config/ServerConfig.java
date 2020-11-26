@@ -26,9 +26,9 @@
 package io.github.shiruka.shiruka.config;
 
 import static io.github.shiruka.api.conf.Paths.*;
+import io.github.shiruka.api.conf.Config;
 import io.github.shiruka.api.conf.ConfigPath;
 import io.github.shiruka.api.conf.config.PathableConfig;
-import io.github.shiruka.api.conf.config.YamlConfig;
 import java.io.File;
 import org.jetbrains.annotations.NotNull;
 
@@ -100,10 +100,10 @@ public final class ServerConfig extends PathableConfig {
   /**
    * ctor.
    *
-   * @param file the file.
+   * @param origin the origin.
    */
-  private ServerConfig(@NotNull final File file) {
-    super(new YamlConfig(file));
+  private ServerConfig(@NotNull final Config origin) {
+    super(origin);
   }
 
   /**
@@ -112,7 +112,8 @@ public final class ServerConfig extends PathableConfig {
    * @param file the file to create.
    */
   public static void init(@NotNull final File file) {
-    new ServerConfig(file)
-      .save();
+    Config.fromFile(file)
+      .map(ServerConfig::new)
+      .ifPresent(Config::save);
   }
 }

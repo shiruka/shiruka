@@ -41,7 +41,7 @@ public final class LongArrayTag extends ArrayTagEnvelope<Long> {
   }
 
   @Override
-  public boolean isLong() {
+  public boolean isLongArray() {
     return true;
   }
 

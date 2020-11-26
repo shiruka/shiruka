@@ -54,7 +54,6 @@ public final class TestSocketListener implements SocketListener {
     return true;
   }
 
-  @NotNull
   @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
     return SocketListener.createOne(server, "Test server description.", 0, 10);

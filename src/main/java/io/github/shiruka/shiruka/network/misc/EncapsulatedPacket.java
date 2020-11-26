@@ -86,13 +86,13 @@ public final class EncapsulatedPacket implements ReferenceCounted {
    * the packet's reliability.
    */
   @Nullable
-  private io.github.shiruka.shiruka.network.PacketReliability reliability;
+  private PacketReliability reliability;
 
   /**
    * the packet's sending priority.
    */
   @Nullable
-  private io.github.shiruka.shiruka.network.PacketPriority priority;
+  private PacketPriority priority;
 
   /**
    * the packet itself.
@@ -167,7 +167,7 @@ public final class EncapsulatedPacket implements ReferenceCounted {
    * @return the reliability of the packet.
    */
   @NotNull
-  public io.github.shiruka.shiruka.network.PacketReliability getReliability() {
+  public PacketReliability getReliability() {
     return Objects.requireNonNull(this.reliability, "reliability");
   }
 
@@ -176,7 +176,7 @@ public final class EncapsulatedPacket implements ReferenceCounted {
    *
    * @param reliability the reliability to set.
    */
-  public void setReliability(@NotNull final io.github.shiruka.shiruka.network.PacketReliability reliability) {
+  public void setReliability(@NotNull final PacketReliability reliability) {
     this.reliability = reliability;
   }
 

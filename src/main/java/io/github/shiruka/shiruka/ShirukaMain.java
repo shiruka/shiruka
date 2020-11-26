@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka;
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
+import io.github.shiruka.shiruka.config.UserCacheConfig;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
@@ -113,8 +114,10 @@ public final class ShirukaMain {
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
+    UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
     final var server = new ShirukaServer();
     Shiruka.initServer(server);
+    // TODO Continue to the development.
     final var console = new ShirukaConsole(server);
     console.start();
   }

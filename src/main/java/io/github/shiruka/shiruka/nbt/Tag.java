@@ -31,13 +31,18 @@ import io.github.shiruka.shiruka.nbt.array.LongArrayTag;
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
 import io.github.shiruka.shiruka.nbt.primitive.*;
-import java.io.DataInput;
+import io.github.shiruka.shiruka.nbt.stream.LittleEndianDataInputStream;
+import io.github.shiruka.shiruka.nbt.stream.NBTInputStream;
+import io.github.shiruka.shiruka.nbt.stream.NetworkDataInputStream;
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.*;
-import org.apache.commons.lang3.ArrayUtils;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * an interface to determine named binary tag.
@@ -71,17 +76,17 @@ public interface Tag {
   /**
    * an empty {@link ByteArrayTag} instance.
    */
-  ArrayTag<Byte> BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
+  ByteArrayTag BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
 
   /**
    * an empty {@link IntArrayTag} instance.
    */
-  ArrayTag<Integer> INT_ARRAY = Tag.createIntArray(new Integer[0]);
+  IntArrayTag INT_ARRAY = Tag.createIntArray(new Integer[0]);
 
   /**
    * an empty {@link LongArrayTag} instance.
    */
-  ArrayTag<Long> LONG_ARRAY = Tag.createLongArray(new Long[0]);
+  LongArrayTag LONG_ARRAY = Tag.createLongArray(new Long[0]);
 
   /**
    * an empty {@link ByteTag} instance.
@@ -114,250 +119,56 @@ public interface Tag {
   ShortTag SHORT = Tag.createShort((short) 0);
 
   /**
-   * an empty {@link PrimitiveTag} instance.
+   * an empty {@link StringTag} instance.
    */
-  PrimitiveTag<String> STRING = Tag.createString("");
+  StringTag STRING = Tag.createString("");
 
   /**
-   * reads the given input using the id.
+   * creates a nbt reader from the {@link InputStream}.
    *
-   * @param id the id to read.
-   * @param input the input read.
+   * @param stream the stream to create.
    *
-   * @return a new tag instance depends on the given id.
-   *
-   * @throws IOException if something went wrong when reading the given input.
+   * @return a new instance of {@link NBTInputStream} with {@link DataInputStream}.
    */
-  @Nullable
-  static Tag read(final byte id, @NotNull final DataInput input) throws IOException {
-    switch (id) {
-      case 1:
-        return Tag.readByte(input);
-      case 2:
-        return Tag.readShort(input);
-      case 3:
-        return Tag.readInt(input);
-      case 4:
-        return Tag.readLong(input);
-      case 5:
-        return Tag.readFloat(input);
-      case 6:
-        return Tag.readDouble(input);
-      case 7:
-        return Tag.readByteArray(input);
-      case 8:
-        return Tag.readString(input);
-      case 9:
-        return Tag.readListTag(input);
-      case 10:
-        return Tag.readCompoundTag(input);
-      case 11:
-        return Tag.readIntArray(input);
-      case 12:
-        return Tag.readLongArray(input);
-      case 0:
-      default:
-        return null;
-    }
+  @NotNull
+  static NBTInputStream createReader(@NotNull final InputStream stream) {
+    return new NBTInputStream(new DataInputStream(stream));
   }
 
   /**
-   * reads the given input and converts it into the {@link CompoundTag}.
+   * creates a nbt reader from the {@link InputStream}.
    *
-   * @param input the input to read.
+   * @param stream the stream to create.
    *
-   * @return an instance of {@link CompoundTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
+   * @return a new instance of {@link NBTInputStream} with {@link LittleEndianDataInputStream}.
    */
   @NotNull
-  static CompoundTag readCompoundTag(@NotNull final DataInput input) throws IOException {
-    final var tags = new HashMap<String, Tag>();
-    byte id;
-    while ((id = input.readByte()) != Tag.END.id()) {
-      final var key = input.readUTF();
-      final var tag = Tag.read(id, input);
-      if (tag != null) {
-        tags.put(key, tag);
-      }
-    }
-    return Tag.createCompound(tags);
+  static NBTInputStream createReaderLE(@NotNull final InputStream stream) {
+    return new NBTInputStream(new LittleEndianDataInputStream(stream));
   }
 
   /**
-   * reads the given input and converts it into the {@link ListTag}.
+   * creates a nbt reader from the {@link InputStream}.
    *
-   * @param input the input to read.
+   * @param stream the stream to create.
    *
-   * @return an instance of {@link ListTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
+   * @return a new instance of {@link NBTInputStream} with {@link GZIPInputStream}.
    */
   @NotNull
-  static ListTag readListTag(@NotNull final DataInput input) throws IOException {
-    final var id = input.readByte();
-    final var length = input.readInt();
-    final var tags = new ArrayList<Tag>(length);
-    for (int i = 0; i < length; i++) {
-      final var read = Tag.read(id, input);
-      if (read != null) {
-        tags.add(read);
-      }
-    }
-    return Tag.createList(tags);
+  static NBTInputStream createGZIPReader(@NotNull final InputStream stream) throws IOException {
+    return Tag.createReader(new GZIPInputStream(stream));
   }
 
   /**
-   * reads the given input and converts it into the {@link ByteArrayTag}.
+   * creates a nbt reader from the {@link InputStream}.
    *
-   * @param input the input to read.
+   * @param stream the stream to create.
    *
-   * @return an instance of {@link ByteArrayTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
+   * @return a new instance of {@link NBTInputStream} with {@link NetworkDataInputStream}.
    */
   @NotNull
-  static ByteArrayTag readByteArray(@NotNull final DataInput input) throws IOException {
-    final var length = input.readInt();
-    final var value = new byte[length];
-    input.readFully(value);
-    return Tag.createByteArray(ArrayUtils.toObject(value));
-  }
-
-  /**
-   * reads the given input and converts it into the {@link IntArrayTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link IntArrayTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static IntArrayTag readIntArray(@NotNull final DataInput input) throws IOException {
-    final var length = input.readInt();
-    final var value = new Integer[length];
-    for (int i = 0; i < length; i++) {
-      value[i] = input.readInt();
-    }
-    return Tag.createIntArray(value);
-  }
-
-  /**
-   * reads the given input and converts it into the {@link LongArrayTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link LongArrayTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static LongArrayTag readLongArray(@NotNull final DataInput input) throws IOException {
-    final var length = input.readInt();
-    final var value = new Long[length];
-    for (int i = 0; i < length; i++) {
-      value[i] = input.readLong();
-    }
-    return Tag.createLongArray(value);
-  }
-
-  /**
-   * reads the given input and converts it into the {@link ByteTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link ByteTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static ByteTag readByte(@NotNull final DataInput input) throws IOException {
-    return Tag.createByte(input.readByte());
-  }
-
-  /**
-   * reads the given input and converts it into the {@link DoubleTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link DoubleTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static DoubleTag readDouble(@NotNull final DataInput input) throws IOException {
-    return Tag.createDouble(input.readDouble());
-  }
-
-  /**
-   * reads the given input and converts it into the {@link FloatTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link FloatTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static FloatTag readFloat(@NotNull final DataInput input) throws IOException {
-    return Tag.createFloat(input.readFloat());
-  }
-
-  /**
-   * reads the given input and converts it into the {@link IntTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link IntTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static IntTag readInt(@NotNull final DataInput input) throws IOException {
-    return Tag.createInt(input.readInt());
-  }
-
-  /**
-   * reads the given input and converts it into the {@link LongTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link LongTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static LongTag readLong(@NotNull final DataInput input) throws IOException {
-    return Tag.createLong(input.readLong());
-  }
-
-  /**
-   * reads the given input and converts it into the {@link ShortTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link ShortTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static ShortTag readShort(@NotNull final DataInput input) throws IOException {
-    return Tag.createShort(input.readShort());
-  }
-
-  /**
-   * reads the given input and converts it into the {@link StringTag}.
-   *
-   * @param input the input to read.
-   *
-   * @return an instance of {@link StringTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  static StringTag readString(@NotNull final DataInput input) throws IOException {
-    return Tag.createString(input.readUTF());
+  static NBTInputStream createNetworkReader(@NotNull final InputStream stream) {
+    return new NBTInputStream(new NetworkDataInputStream(stream));
   }
 
   /**

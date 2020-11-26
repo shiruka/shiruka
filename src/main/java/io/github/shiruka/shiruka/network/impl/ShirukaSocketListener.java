@@ -59,7 +59,6 @@ public final class ShirukaSocketListener implements SocketListener {
     return false;
   }
 
-  @NotNull
   @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
     return new byte[0];
@@ -70,7 +69,8 @@ public final class ShirukaSocketListener implements SocketListener {
   }
 
   @Override
-  public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx, @NotNull final DatagramPacket packet) {
+  public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx,
+                                  @NotNull final DatagramPacket packet) {
   }
 
   @Override

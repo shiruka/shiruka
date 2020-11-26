@@ -27,7 +27,7 @@ package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.misc.Loggers;
-import io.github.shiruka.shiruka.network.PacketReliability;
+import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
@@ -45,20 +45,20 @@ import org.jetbrains.annotations.Nullable;
 /**
  * server connection handler implementation class.
  */
-public final class NetServerConnectionHandler implements io.github.shiruka.shiruka.network.ServerConnectionHandler {
+public final class NetServerConnectionHandler implements ServerConnectionHandler {
 
   /**
    * the server connection instance.
    */
   @NotNull
-  private final io.github.shiruka.shiruka.network.Connection<io.github.shiruka.shiruka.network.ServerSocket, io.github.shiruka.shiruka.network.ServerConnectionHandler> connection;
+  private final Connection<ServerSocket, ServerConnectionHandler> connection;
 
   /**
    * ctor.
    *
    * @param connection the server connection.
    */
-  NetServerConnectionHandler(@NotNull final io.github.shiruka.shiruka.network.Connection<io.github.shiruka.shiruka.network.ServerSocket, io.github.shiruka.shiruka.network.ServerConnectionHandler> connection) {
+  NetServerConnectionHandler(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
     this.connection = connection;
   }
 
@@ -83,7 +83,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
   public void sendDisconnectionNotification() {
     this.createPacket(1, packet -> {
       packet.writeByte(Packets.DISCONNECTION_NOTIFICATION);
-      this.connection.sendDecent(packet, io.github.shiruka.shiruka.network.PacketPriority.IMMEDIATE, io.github.shiruka.shiruka.network.PacketReliability.RELIABLE_ORDERED);
+      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE_ORDERED);
     });
   }
 
@@ -92,7 +92,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
     this.createPacket(9, packet -> {
       packet.writeByte(Packets.CONNECTED_PING);
       packet.writeLong(pingTime);
-      this.connection.sendDecent(packet, io.github.shiruka.shiruka.network.PacketPriority.IMMEDIATE, io.github.shiruka.shiruka.network.PacketReliability.RELIABLE);
+      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
       this.connection.getCurrentPingTime().set(pingTime);
     });
   }
@@ -106,7 +106,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
     final var flags = packet.readByte();
     final var isRakNetPacket = (flags & Constants.FLAG_VALID) != 0;
     if (isRakNetPacket) {
-      if (this.connection.getState().ordinal() >= io.github.shiruka.shiruka.network.ConnectionState.INITIALIZED.ordinal()) {
+      if (this.connection.getState().ordinal() >= ConnectionState.INITIALIZED.ordinal()) {
         if ((flags & Constants.FLAG_ACK) != 0) {
           this.onACKnowledge(packet, intRange -> this.connection.getCache().offerIncomingACKs(intRange));
         } else if ((flags & Constants.FLAG_NACK) != 0) {
@@ -162,7 +162,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
         Loggers.useLogger(
           logger -> logger.error("{} sent an IntRange with a start value {} greater than an end value of {}",
             this.connection.getAddress(), start, end));
-        this.connection.disconnect(io.github.shiruka.shiruka.network.DisconnectReason.BAD_PACKET);
+        this.connection.disconnect(DisconnectReason.BAD_PACKET);
         return;
       }
       consumer.accept(new IntRange(start, end));
@@ -175,7 +175,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
    * @param packet the packet to handle.
    */
   private void onDatagram(@NotNull final ByteBuf packet) {
-    if (io.github.shiruka.shiruka.network.ConnectionState.INITIALIZED.compareTo(this.connection.getState()) > 0) {
+    if (ConnectionState.INITIALIZED.compareTo(this.connection.getState()) > 0) {
       return;
     }
     final var datagram = new NetDatagramPacket(System.currentTimeMillis());
@@ -247,7 +247,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
    * @param packet the packet receive.
    */
   private void onOpenConnectionRequest2(@NotNull final ByteBuf packet) {
-    if (this.connection.getState() != io.github.shiruka.shiruka.network.ConnectionState.INITIALIZING) {
+    if (this.connection.getState() != ConnectionState.INITIALIZING) {
       return;
     }
     if (!Packets.verifyUnconnectedMagic(packet)) {
@@ -259,7 +259,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
       this.connection.setUniqueId(packet.readLong());
       this.connection.initialize();
       this.sendOpenConnectionReply2();
-      this.connection.setState(io.github.shiruka.shiruka.network.ConnectionState.INITIALIZED);
+      this.connection.setState(ConnectionState.INITIALIZED);
     });
   }
 
@@ -274,10 +274,10 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
     final var security = packet.readBoolean();
     if (this.connection.getUniqueId() != uniqueId || security) {
       this.sendConnectionRequestFailed();
-      this.connection.close(io.github.shiruka.shiruka.network.DisconnectReason.CONNECTION_REQUEST_FAILED);
+      this.connection.close(DisconnectReason.CONNECTION_REQUEST_FAILED);
       return;
     }
-    this.connection.setState(io.github.shiruka.shiruka.network.ConnectionState.CONNECTING);
+    this.connection.setState(ConnectionState.CONNECTING);
     this.sendConnectionRequestAccepted(time);
   }
 
@@ -297,7 +297,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
         .forEach(socketAddress -> Packets.writeAddress(packet, socketAddress));
       packet.writeLong(time);
       packet.writeLong(System.currentTimeMillis());
-      this.connection.sendDecent(packet, io.github.shiruka.shiruka.network.PacketPriority.IMMEDIATE, io.github.shiruka.shiruka.network.PacketReliability.RELIABLE);
+      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
     });
   }
 
@@ -317,8 +317,8 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
    * runs when a connection want to second open connection request.
    */
   private void onNewIncomingConnection() {
-    if (this.connection.getState() == io.github.shiruka.shiruka.network.ConnectionState.CONNECTING) {
-      this.connection.setState(io.github.shiruka.shiruka.network.ConnectionState.CONNECTED);
+    if (this.connection.getState() == ConnectionState.CONNECTING) {
+      this.connection.setState(ConnectionState.CONNECTED);
     }
   }
 
@@ -341,7 +341,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
    * runs when a disconnection notified.
    */
   private void onDisconnectionNotification() {
-    this.connection.close(io.github.shiruka.shiruka.network.DisconnectReason.CLOSED_BY_REMOTE_PEER);
+    this.connection.close(DisconnectReason.CLOSED_BY_REMOTE_PEER);
   }
 
   /**
@@ -378,7 +378,7 @@ public final class NetServerConnectionHandler implements io.github.shiruka.shiru
       packet.writeByte(Packets.CONNECTED_PONG);
       packet.writeLong(pingTime);
       packet.writeLong(System.currentTimeMillis());
-      this.connection.sendDecent(packet, io.github.shiruka.shiruka.network.PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
+      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
     });
   }
 

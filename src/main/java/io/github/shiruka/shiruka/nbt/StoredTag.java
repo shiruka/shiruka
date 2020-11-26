@@ -63,6 +63,33 @@ public interface StoredTag<K> {
   }
 
   /**
+   * gets the integer from the tag store.
+   *
+   * @param key the key to get.
+   *
+   * @return a integer instance from the tag store.
+   */
+  @Nullable
+  default Integer getInteger(@NotNull final K key) {
+    final var tag = this.get(key);
+    if (tag == null || !tag.isInt()) {
+      return null;
+    }
+    return tag.asInt()
+      .intValue();
+  }
+
+  /**
+   * sets the integer to the tag store.
+   *
+   * @param key the key to set.
+   * @param tag the tag to set.
+   */
+  default void setInteger(@NotNull final K key, @NotNull final Integer tag) {
+    this.set(key, Tag.createInt(tag));
+  }
+
+  /**
    * gets the tag at the given key.
    *
    * @param key the key to get.

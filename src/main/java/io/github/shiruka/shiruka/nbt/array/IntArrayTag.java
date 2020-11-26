@@ -41,7 +41,7 @@ public final class IntArrayTag extends ArrayTagEnvelope<Integer> {
   }
 
   @Override
-  public boolean isInt() {
+  public boolean isIntArray() {
     return true;
   }
 

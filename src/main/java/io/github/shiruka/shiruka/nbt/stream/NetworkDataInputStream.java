@@ -23,44 +23,55 @@
  *
  */
 
-package io.github.shiruka.shiruka.config;
+package io.github.shiruka.shiruka.nbt.stream;
 
-import io.github.shiruka.api.conf.Config;
-import io.github.shiruka.api.conf.ConfigPath;
-import io.github.shiruka.api.conf.Paths;
-import io.github.shiruka.api.conf.config.PathableConfig;
-import java.io.File;
-import java.util.List;
-import java.util.UUID;
+import io.github.shiruka.shiruka.misc.VarInts;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import javax.annotation.Nonnull;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * list of server operators.
+ * an implementation for {@link LittleEndianDataInputStream}.
  */
-public final class OpsConfig extends PathableConfig {
-
-  /**
-   * op list of the server.
-   */
-  public static final ConfigPath<List<UUID>> OPS = Paths.listUniqueIdPath("ops", List.of());
+public final class NetworkDataInputStream extends LittleEndianDataInputStream {
 
   /**
    * ctor.
    *
-   * @param origin the origin.
+   * @param stream the stream.
    */
-  private OpsConfig(@NotNull final Config origin) {
-    super(origin);
+  public NetworkDataInputStream(@NotNull final InputStream stream) {
+    super(stream);
   }
 
   /**
-   * initiates the server config to the given file.
+   * ctor.
    *
-   * @param file the file to create.
+   * @param stream the stream.
    */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(OpsConfig::new)
-      .ifPresent(Config::save);
+  public NetworkDataInputStream(@NotNull final DataInputStream stream) {
+    super(stream);
+  }
+
+  @Override
+  public int readInt() throws IOException {
+    return VarInts.readInt(this.stream);
+  }
+
+  @Override
+  public long readLong() throws IOException {
+    return VarInts.readLong(this.stream);
+  }
+
+  @Override
+  @Nonnull
+  public String readUTF() throws IOException {
+    final var length = VarInts.readUnsignedInt(this.stream);
+    final var bytes = new byte[length];
+    this.readFully(bytes);
+    return new String(bytes, StandardCharsets.UTF_8);
   }
 }

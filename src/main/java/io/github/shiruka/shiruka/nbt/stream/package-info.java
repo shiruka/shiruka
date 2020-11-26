@@ -23,6 +23,6 @@
  *
  */
 /**
- * the main package that contains nbt classes.
+ * the package that contains {@link java.io.DataInput} and {@link java.io.DataOutput} implementstions.
  */
-package io.github.shiruka.shiruka.nbt;
+package io.github.shiruka.shiruka.nbt.stream;

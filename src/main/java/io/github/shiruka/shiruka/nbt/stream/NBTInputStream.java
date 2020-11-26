@@ -151,7 +151,7 @@ public final class NBTInputStream implements Closeable {
     final var id = this.input.readByte();
     final var length = this.input.readInt();
     final var tags = new ArrayList<Tag>(length);
-    for (int i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       final var read = this.read(id);
       tags.add(read);
     }

@@ -165,6 +165,7 @@ public interface Tag {
    *
    * @return a new instance of {@link NBTOutputStream} with {@link DataOutputStream}.
    */
+  @NotNull
   static NBTOutputStream createWriter(@NotNull final OutputStream stream) {
     return new NBTOutputStream(new DataOutputStream(stream));
   }
@@ -176,6 +177,7 @@ public interface Tag {
    *
    * @return a new instance of {@link NBTOutputStream} with {@link LittleEndianDataOutputStream}.
    */
+  @NotNull
   static NBTOutputStream createWriterLE(@NotNull final OutputStream stream) {
     return new NBTOutputStream(new LittleEndianDataOutputStream(stream));
   }
@@ -187,6 +189,7 @@ public interface Tag {
    *
    * @return a new instance of {@link NBTOutputStream} with {@link GZIPOutputStream}.
    */
+  @NotNull
   static NBTOutputStream createGZIPWriter(@NotNull final OutputStream stream) throws IOException {
     return Tag.createWriter(new GZIPOutputStream(stream));
   }
@@ -198,6 +201,7 @@ public interface Tag {
    *
    * @return a new instance of {@link NBTOutputStream} with {@link NetworkDataOutputStream}.
    */
+  @NotNull
   static NBTOutputStream createNetworkWriter(@NotNull final OutputStream stream) {
     return new NBTOutputStream(new NetworkDataOutputStream(stream));
   }

@@ -140,7 +140,7 @@ public final class VarInts {
   }
 
   /**
-   * ecodes the given value into the output.
+   * encodes the given value into the output.
    *
    * @param output the output to encode.
    * @param value the value to encode.

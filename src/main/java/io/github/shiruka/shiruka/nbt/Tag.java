@@ -119,9 +119,9 @@ public interface Tag {
   ShortTag SHORT = Tag.createShort((short) 0);
 
   /**
-   * an empty {@link PrimitiveTag} instance.
+   * an empty {@link StringTag} instance.
    */
-  PrimitiveTag<String> STRING = Tag.createString("");
+  StringTag STRING = Tag.createString("");
 
   /**
    * creates a nbt reader from the {@link InputStream}.

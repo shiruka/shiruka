@@ -109,6 +109,12 @@ public final class ListTagBasic implements ListTag {
     return this.original.stream();
   }
 
+  @NotNull
+  @Override
+  public List<Tag> all() {
+    return Collections.unmodifiableList(this.original);
+  }
+
   @Override
   public byte listType() {
     return this.listType;

@@ -26,8 +26,6 @@
 package io.github.shiruka.shiruka.nbt.primitive;
 
 import io.github.shiruka.shiruka.nbt.PrimitiveTag;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -64,11 +62,6 @@ public final class StringTag implements PrimitiveTag<String> {
   @Override
   public byte id() {
     return 8;
-  }
-
-  @Override
-  public void write(@NotNull final DataOutput output) throws IOException {
-    output.writeUTF(this.original);
   }
 
   @NotNull

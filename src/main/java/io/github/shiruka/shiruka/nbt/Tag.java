@@ -31,17 +31,13 @@ import io.github.shiruka.shiruka.nbt.array.LongArrayTag;
 import io.github.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import io.github.shiruka.shiruka.nbt.list.ListTagBasic;
 import io.github.shiruka.shiruka.nbt.primitive.*;
-import io.github.shiruka.shiruka.nbt.stream.LittleEndianDataInputStream;
-import io.github.shiruka.shiruka.nbt.stream.NBTInputStream;
-import io.github.shiruka.shiruka.nbt.stream.NetworkDataInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.InputStream;
+import io.github.shiruka.shiruka.nbt.stream.*;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -52,16 +48,7 @@ public interface Tag {
   /**
    * an end tag instance.
    */
-  Tag END = new Tag() {
-    @Override
-    public byte id() {
-      return 0;
-    }
-
-    @Override
-    public void write(@NotNull final DataOutput output) {
-    }
-  };
+  Tag END = () -> (byte) 0;
 
   /**
    * an empty {@link CompoundTag} instance.
@@ -169,6 +156,54 @@ public interface Tag {
   @NotNull
   static NBTInputStream createNetworkReader(@NotNull final InputStream stream) {
     return new NBTInputStream(new NetworkDataInputStream(stream));
+  }
+
+  /**
+   * creates a nbt writer from the {@link OutputStream}.
+   *
+   * @param stream the stream to create.
+   *
+   * @return a new instance of {@link NBTOutputStream} with {@link DataOutputStream}.
+   */
+  @NotNull
+  static NBTOutputStream createWriter(@NotNull final OutputStream stream) {
+    return new NBTOutputStream(new DataOutputStream(stream));
+  }
+
+  /**
+   * creates a nbt writer from the {@link OutputStream}.
+   *
+   * @param stream the stream to create.
+   *
+   * @return a new instance of {@link NBTOutputStream} with {@link LittleEndianDataOutputStream}.
+   */
+  @NotNull
+  static NBTOutputStream createWriterLE(@NotNull final OutputStream stream) {
+    return new NBTOutputStream(new LittleEndianDataOutputStream(stream));
+  }
+
+  /**
+   * creates a nbt writer from the {@link OutputStream}.
+   *
+   * @param stream the stream to create.
+   *
+   * @return a new instance of {@link NBTOutputStream} with {@link GZIPOutputStream}.
+   */
+  @NotNull
+  static NBTOutputStream createGZIPWriter(@NotNull final OutputStream stream) throws IOException {
+    return Tag.createWriter(new GZIPOutputStream(stream));
+  }
+
+  /**
+   * creates a nbt writer from the {@link OutputStream}.
+   *
+   * @param stream the stream to create.
+   *
+   * @return a new instance of {@link NBTOutputStream} with {@link NetworkDataOutputStream}.
+   */
+  @NotNull
+  static NBTOutputStream createNetworkWriter(@NotNull final OutputStream stream) {
+    return new NBTOutputStream(new NetworkDataOutputStream(stream));
   }
 
   /**
@@ -681,13 +716,4 @@ public interface Tag {
    * @return id of the tag.
    */
   byte id();
-
-  /**
-   * writes the tag to the given output.
-   *
-   * @param output the output to write.
-   *
-   * @throws IOException if an exception was encountered while writing.
-   */
-  void write(@NotNull DataOutput output) throws IOException;
 }

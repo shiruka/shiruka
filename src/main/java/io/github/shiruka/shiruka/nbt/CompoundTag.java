@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -47,4 +48,12 @@ public interface CompoundTag extends Tag, StoredTag<String> {
   default byte id() {
     return 10;
   }
+
+  /**
+   * obtains compound tag's map as unmodifiable..
+   *
+   * @return compound tag's map.
+   */
+  @NotNull
+  Map<String, Tag> all();
 }

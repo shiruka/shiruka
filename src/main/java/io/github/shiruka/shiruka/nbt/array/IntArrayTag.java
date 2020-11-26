@@ -25,8 +25,6 @@
 
 package io.github.shiruka.shiruka.nbt.array;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 public final class IntArrayTag extends ArrayTagEnvelope<Integer> {
@@ -54,14 +52,5 @@ public final class IntArrayTag extends ArrayTagEnvelope<Integer> {
   @Override
   public byte id() {
     return 11;
-  }
-
-  @Override
-  public void write(@NotNull final DataOutput output) throws IOException {
-    final var value = this.value();
-    output.writeInt(value.length);
-    for (final var integer : value) {
-      output.writeInt(integer);
-    }
   }
 }

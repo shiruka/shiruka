@@ -76,17 +76,17 @@ public interface Tag {
   /**
    * an empty {@link ByteArrayTag} instance.
    */
-  ArrayTag<Byte> BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
+  ByteArrayTag BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
 
   /**
    * an empty {@link IntArrayTag} instance.
    */
-  ArrayTag<Integer> INT_ARRAY = Tag.createIntArray(new Integer[0]);
+  IntArrayTag INT_ARRAY = Tag.createIntArray(new Integer[0]);
 
   /**
    * an empty {@link LongArrayTag} instance.
    */
-  ArrayTag<Long> LONG_ARRAY = Tag.createLongArray(new Long[0]);
+  LongArrayTag LONG_ARRAY = Tag.createLongArray(new Long[0]);
 
   /**
    * an empty {@link ByteTag} instance.

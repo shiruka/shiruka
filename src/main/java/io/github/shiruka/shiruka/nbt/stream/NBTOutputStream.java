@@ -56,6 +56,8 @@ public final class NBTOutputStream implements Closeable {
 
   /**
    * ctor.
+   *
+   * @param output the output.
    */
   public NBTOutputStream(@NotNull final DataOutput output) {
     this.output = output;

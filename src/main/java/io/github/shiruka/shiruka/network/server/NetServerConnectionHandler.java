@@ -75,27 +75,28 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
     this.connection.touch();
     final var flags = packet.readByte();
     final var isRakNetPacket = (flags & Constants.FLAG_VALID) != 0;
-    if (isRakNetPacket) {
-      if (this.connection.getState().ordinal() >= ConnectionState.INITIALIZED.ordinal()) {
-        if ((flags & Constants.FLAG_ACK) != 0) {
-          this.onACKnowledge(packet, intRange -> this.connection.getCache().offerIncomingACKs(intRange));
-        } else if ((flags & Constants.FLAG_NACK) != 0) {
-          this.onACKnowledge(packet, intRange -> this.connection.getCache().offerIncomingNACKs(intRange));
-        } else {
-          packet.readerIndex(0);
-          this.onDatagram(packet);
-        }
+    if (!isRakNetPacket) {
+      packet.readerIndex(0);
+      final var packetId = packet.getUnsignedByte(packet.readerIndex());
+      packet.readerIndex(0);
+      if (packetId >= Packets.USER_PACKET_ENUM) {
+        this.connection.getSocket().getSocketListener().onDirect(packet);
+        return;
       }
+      this.onPacket(packet);
       return;
     }
-    packet.readerIndex(0);
-    final var packetId = packet.getUnsignedByte(packet.readerIndex());
-    packet.readerIndex(0);
-    if (packetId >= Packets.USER_PACKET_ENUM) {
-      this.connection.getSocket().getSocketListener().onDirect(packet);
+    if (this.connection.getState().ordinal() < ConnectionState.INITIALIZED.ordinal()) {
       return;
     }
-    this.onPacket(packet);
+    if ((flags & Constants.FLAG_ACK) != 0) {
+      this.onACKnowledge(packet, intRange -> this.connection.getCache().offerIncomingACKs(intRange));
+    } else if ((flags & Constants.FLAG_NACK) != 0) {
+      this.onACKnowledge(packet, intRange -> this.connection.getCache().offerIncomingNACKs(intRange));
+    } else {
+      packet.readerIndex(0);
+      this.onDatagram(packet);
+    }
   }
 
   @Override

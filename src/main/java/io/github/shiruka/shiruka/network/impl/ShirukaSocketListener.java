@@ -26,12 +26,14 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.misc.Loggers;
 import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -56,36 +58,63 @@ public final class ShirukaSocketListener implements SocketListener {
 
   @Override
   public boolean onConnect(@NotNull final InetSocketAddress address) {
-    return false;
+    return true;
   }
 
   @Override
   public void onConnectionCreation(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+    Loggers.useLogger(logger ->
+      logger.debug("onConnectionCreation"));
   }
 
   @Override
   public void onConnectionStateChanged(@NotNull final ConnectionState state) {
+    Loggers.useLogger(logger ->
+      logger.debug("onConnectionStateChanged"));
   }
 
   @Override
   public void onDirect(@NotNull final ByteBuf packet) {
+    Loggers.useLogger(logger ->
+      logger.debug("onDirect"));
   }
 
   @Override
   public void onDisconnect(@NotNull final DisconnectReason reason) {
+    Loggers.useLogger(logger ->
+      logger.debug("onDisconnect"));
   }
 
   @Override
   public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
+    Loggers.useLogger(logger ->
+      logger.debug("onEncapsulated"));
   }
 
   @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
-    return new byte[0];
+    return SocketListener.createOne(server, "Test server description.", 0, 10);
   }
 
   @Override
   public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx,
                                   @NotNull final DatagramPacket packet) {
+    final var buffer = packet.content();
+    try {
+      if (!buffer.isReadable(3)) {
+        return;
+      }
+      final var prefix = new byte[2];
+      buffer.readBytes(prefix);
+      if (!Arrays.equals(prefix, new byte[]{(byte) 0xfe, (byte) 0xfd})) {
+        return;
+      }
+      final var packetId = buffer.readUnsignedByte();
+      final var sessionId = buffer.readInt();
+      System.out.println("*********************");
+    } catch (final Exception e) {
+      Loggers.useLogger(logger ->
+        logger.error("Error whilst handling packet ", e));
+    }
   }
 }

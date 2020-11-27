@@ -138,11 +138,11 @@ public abstract class NetSocket implements Socket {
       future.whenComplete((unused, throwable) -> {
         if (throwable != null) {
           this.running.compareAndSet(true, false);
-        } else {
-          this.closed.set(false);
-          this.tickFuture = this.bootstrap.group().scheduleAtFixedRate(this::onTick, 0, 10,
-            TimeUnit.MILLISECONDS);
+          return;
         }
+        this.closed.set(false);
+        this.tickFuture = NetSocket.GROUP.scheduleAtFixedRate(this::onTick, 0, 10,
+          TimeUnit.MILLISECONDS);
       }));
   }
 

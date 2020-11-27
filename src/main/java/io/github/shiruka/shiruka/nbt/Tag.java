@@ -186,6 +186,8 @@ public interface Tag {
    * @param stream the stream to create.
    *
    * @return a new instance of {@link NBTInputStream} with {@link GZIPInputStream}.
+   *
+   * @throws IOException if an I/O error has occurred.
    */
   @NotNull
   static NBTInputStream createGZIPReader(@NotNull final InputStream stream) throws IOException {
@@ -198,6 +200,8 @@ public interface Tag {
    * @param stream the stream to create.
    *
    * @return a new instance of {@link NBTOutputStream} with {@link GZIPOutputStream}.
+   *
+   * @throws IOException if an I/O error has occurred.
    */
   @NotNull
   static NBTOutputStream createGZIPWriter(@NotNull final OutputStream stream) throws IOException {

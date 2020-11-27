@@ -43,7 +43,7 @@ public final class ServerConfig extends PathableConfig {
    * server's ip address.
    */
   public static final ConfigPath<String> ADDRESS =
-    commented(stringPath("address", "0.0.0.0"),
+    commented(stringPath("address", "127.0.0.1"),
       "server's ip address.");
 
   /**

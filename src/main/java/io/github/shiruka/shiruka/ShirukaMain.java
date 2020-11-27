@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.config.UserCacheConfig;
@@ -162,8 +163,8 @@ public final class ShirukaMain {
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
     final var server = new ShirukaServer();
-    Shiruka.initServer(server);
-    // TODO Continue to the development.
+    Shiruka.setServer(server);
+    ServerThreadPool.init();
     final var ip = ServerConfig.ADDRESS.getValue()
       .orElseThrow();
     final var port = ServerConfig.PORT.getValue()
@@ -171,6 +172,8 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue()
       .orElseThrow();
     NetServerSocket.init(ip, port, new ShirukaSocketListener(server), maxPlayer);
+    server.startServer();
+    // TODO Continue to the development here.
     final var console = new ShirukaConsole(server);
     console.start();
   }

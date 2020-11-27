@@ -111,7 +111,7 @@ public final class ShirukaSocketListener implements SocketListener {
       }
       final var packetId = buffer.readUnsignedByte();
       final var sessionId = buffer.readInt();
-      System.out.println("*********************");
+      System.out.println(packetId);
     } catch (final Exception e) {
       Loggers.useLogger(logger ->
         logger.error("Error whilst handling packet ", e));

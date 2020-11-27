@@ -40,12 +40,6 @@ import org.jetbrains.annotations.Nullable;
 public final class FastBinaryMinHeap<E> {
 
   /**
-   * the weights.
-   */
-  @NotNull
-  private long[] weights;
-
-  /**
    * the heap
    */
   @Nullable
@@ -55,6 +49,12 @@ public final class FastBinaryMinHeap<E> {
    * the size
    */
   private int size;
+
+  /**
+   * the weights.
+   */
+  @NotNull
+  private long[] weights;
 
   /**
    * ctor.
@@ -119,6 +119,24 @@ public final class FastBinaryMinHeap<E> {
         this.insert0(weight, element);
       });
     }
+  }
+
+  /**
+   * checks if binary empty.
+   *
+   * @return true if binary empty.
+   */
+  public boolean isEmpty() {
+    return this.size == 0;
+  }
+
+  /**
+   * checks if binary not empty.
+   *
+   * @return true if binary not empty.
+   */
+  public boolean isNotEmpty() {
+    return !this.isEmpty();
   }
 
   /**
@@ -189,24 +207,6 @@ public final class FastBinaryMinHeap<E> {
   }
 
   /**
-   * checks if binary empty.
-   *
-   * @return true if binary empty.
-   */
-  public boolean isEmpty() {
-    return this.size == 0;
-  }
-
-  /**
-   * checks if binary not empty.
-   *
-   * @return true if binary not empty.
-   */
-  public boolean isNotEmpty() {
-    return !this.isEmpty();
-  }
-
-  /**
    * obtains size of the binary.
    *
    * @return size of the binary.
@@ -216,22 +216,14 @@ public final class FastBinaryMinHeap<E> {
   }
 
   /**
-   * resizes the binary with the given capacity.
+   * ensures and resizes the capacity with the given size.
    *
-   * @param capacity the capacity to resize.
+   * @param size the size to ensure.
    */
-  private void resize(final int capacity) {
-    final var adjustedSize = this.size + 1;
-    final var copyLength = Math.min(this.heap.length, adjustedSize);
-    final var newHeap = new Object[capacity];
-    final var newWeights = new long[capacity];
-    System.arraycopy(this.heap, 0, newHeap, 0, copyLength);
-    System.arraycopy(this.weights, 0, newWeights, 0, copyLength);
-    if (capacity > adjustedSize) {
-      Arrays.fill(newWeights, adjustedSize, capacity, Long.MAX_VALUE);
+  private void ensureCapacity(final int size) {
+    if (size + 1 >= this.heap.length) {
+      this.resize(Misc.powerOfTwoCeiling(size + 1));
     }
-    this.heap = newHeap;
-    this.weights = newWeights;
   }
 
   /**
@@ -256,13 +248,21 @@ public final class FastBinaryMinHeap<E> {
   }
 
   /**
-   * ensures and resizes the capacity with the given size.
+   * resizes the binary with the given capacity.
    *
-   * @param size the size to ensure.
+   * @param capacity the capacity to resize.
    */
-  private void ensureCapacity(final int size) {
-    if (size + 1 >= this.heap.length) {
-      this.resize(Misc.powerOfTwoCeiling(size + 1));
+  private void resize(final int capacity) {
+    final var adjustedSize = this.size + 1;
+    final var copyLength = Math.min(this.heap.length, adjustedSize);
+    final var newHeap = new Object[capacity];
+    final var newWeights = new long[capacity];
+    System.arraycopy(this.heap, 0, newHeap, 0, copyLength);
+    System.arraycopy(this.weights, 0, newWeights, 0, copyLength);
+    if (capacity > adjustedSize) {
+      Arrays.fill(newWeights, adjustedSize, capacity, Long.MAX_VALUE);
     }
+    this.heap = newHeap;
+    this.weights = newWeights;
   }
 }

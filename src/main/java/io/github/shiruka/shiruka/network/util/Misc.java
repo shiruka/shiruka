@@ -52,13 +52,13 @@ public final class Misc {
    */
   public static final Path HOME_PATH = Paths.get(Misc.HOME);
 
-  public static final InetSocketAddress LOOPBACK_V4 = new InetSocketAddress(Inet4Address.getLoopbackAddress(), 19132);
-
-  public static final InetSocketAddress LOOPBACK_V6 = new InetSocketAddress(Inet6Address.getLoopbackAddress(), 19132);
-
   public static final InetSocketAddress[] LOCAL_IP_ADDRESSES_V4 = new InetSocketAddress[20];
 
   public static final InetSocketAddress[] LOCAL_IP_ADDRESSES_V6 = new InetSocketAddress[20];
+
+  public static final InetSocketAddress LOOPBACK_V4 = new InetSocketAddress(Inet4Address.getLoopbackAddress(), 19132);
+
+  public static final InetSocketAddress LOOPBACK_V6 = new InetSocketAddress(Inet6Address.getLoopbackAddress(), 19132);
 
   static {
     Misc.LOCAL_IP_ADDRESSES_V4[0] = Misc.LOOPBACK_V4;
@@ -76,14 +76,13 @@ public final class Misc {
   }
 
   /**
-   * obtains the given address's ip header.
+   * flips the given byte array.
    *
-   * @param address the address to obtain header.
-   *
-   * @return ip header of the given address.
+   * @param bytes the bytes to flip.
    */
-  public static byte getIpHeader(@NotNull final InetSocketAddress address) {
-    return Misc.getIpHeader(address.getAddress());
+  public static void flip(@NotNull final byte[] bytes) {
+    IntStream.range(0, bytes.length)
+      .forEach(i -> bytes[i] = (byte) (~bytes[i] & 0xFF));
   }
 
   /**
@@ -104,13 +103,14 @@ public final class Misc {
   }
 
   /**
-   * flips the given byte array.
+   * obtains the given address's ip header.
    *
-   * @param bytes the bytes to flip.
+   * @param address the address to obtain header.
+   *
+   * @return ip header of the given address.
    */
-  public static void flip(@NotNull final byte[] bytes) {
-    IntStream.range(0, bytes.length)
-      .forEach(i -> bytes[i] = (byte) (~bytes[i] & 0xFF));
+  public static byte getIpHeader(@NotNull final InetSocketAddress address) {
+    return Misc.getIpHeader(address.getAddress());
   }
 
   /**

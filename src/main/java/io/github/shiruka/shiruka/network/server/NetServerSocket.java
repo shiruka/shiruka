@@ -48,25 +48,25 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   private final ConcurrentMap<InetAddress, Long> blockedAddresses = new ConcurrentHashMap<>();
 
   /**
+   * caches channel set.
+   */
+  private final Set<Channel> channels = new HashSet<>();
+
+  /**
    * connection's address and connection itself.
    */
   private final ConcurrentMap<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>>
     connectionByAddress = new ConcurrentHashMap<>();
 
   /**
-   * caches channel set.
+   * the exception handlers.
    */
-  private final Set<Channel> channels = new HashSet<>();
+  private final Map<String, Consumer<Throwable>> exceptionHandlers = new HashMap<>();
 
   /**
    * maximum connection amount for the server.
    */
   private final int maxConnections;
-
-  /**
-   * the exception handlers.
-   */
-  private final Map<String, Consumer<Throwable>> exceptionHandlers = new HashMap<>();
 
   /**
    * ctor.
@@ -132,50 +132,8 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   }
 
   @Override
-  public void close() {
-    super.close();
-    this.connectionByAddress.values().forEach(connection ->
-      connection.disconnect(DisconnectReason.SHUTTING_DOWN));
-    this.channels.stream()
-      .map(ChannelOutboundInvoker::close)
-      .forEach(ChannelFuture::syncUninterruptibly);
-  }
-
-  @Override
-  public int getMaxConnections() {
-    return this.maxConnections;
-  }
-
-  @Override
-  public void blockAddress(@NotNull final InetAddress address, final long time, @NotNull final TimeUnit unit) {
-    this.blockedAddresses.put(address, System.currentTimeMillis() + unit.toMillis(time));
-  }
-
-  @Override
-  public void unblockAddress(@NotNull final InetAddress address) {
-    this.blockedAddresses.remove(address);
-  }
-
-  @Override
   public void addChannel(final @NotNull Channel channel) {
     this.channels.add(channel);
-  }
-
-  @Override
-  public void removeChannel(@NotNull final Channel channel) {
-    this.channels.remove(channel);
-  }
-
-  @NotNull
-  @Override
-  public Set<Channel> getChannels() {
-    return Collections.unmodifiableSet(this.channels);
-  }
-
-  @NotNull
-  @Override
-  public Map<InetAddress, Long> getBlockedAddresses() {
-    return Collections.unmodifiableMap(this.blockedAddresses);
   }
 
   @Override
@@ -184,31 +142,13 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   }
 
   @Override
+  public void blockAddress(@NotNull final InetAddress address, final long time, @NotNull final TimeUnit unit) {
+    this.blockedAddresses.put(address, System.currentTimeMillis() + unit.toMillis(time));
+  }
+
+  @Override
   public void clearExceptionHandlers() {
     this.exceptionHandlers.clear();
-  }
-
-  @Override
-  public void removeExceptionHandler(@NotNull final String id) {
-    this.exceptionHandlers.remove(id);
-  }
-
-  @Override
-  @NotNull
-  public Map<String, Consumer<Throwable>> getExceptionHandlers() {
-    return Collections.unmodifiableMap(this.exceptionHandlers);
-  }
-
-  @NotNull
-  @Override
-  public Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress() {
-    return Collections.unmodifiableMap(this.connectionByAddress);
-  }
-
-  @Override
-  public void removeConnection(@NotNull final InetSocketAddress address,
-                               @NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
-    this.connectionByAddress.remove(address, connection);
   }
 
   @Override
@@ -224,19 +164,64 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
     }
   }
 
+  @NotNull
   @Override
-  public void onTick() {
-    final var now = System.currentTimeMillis();
+  public Map<InetAddress, Long> getBlockedAddresses() {
+    return Collections.unmodifiableMap(this.blockedAddresses);
+  }
+
+  @NotNull
+  @Override
+  public Set<Channel> getChannels() {
+    return Collections.unmodifiableSet(this.channels);
+  }
+
+  @NotNull
+  @Override
+  public Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress() {
+    return Collections.unmodifiableMap(this.connectionByAddress);
+  }
+
+  @Override
+  @NotNull
+  public Map<String, Consumer<Throwable>> getExceptionHandlers() {
+    return Collections.unmodifiableMap(this.exceptionHandlers);
+  }
+
+  @Override
+  public int getMaxConnections() {
+    return this.maxConnections;
+  }
+
+  @Override
+  public void removeChannel(@NotNull final Channel channel) {
+    this.channels.remove(channel);
+  }
+
+  @Override
+  public void removeConnection(@NotNull final InetSocketAddress address,
+                               @NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+    this.connectionByAddress.remove(address, connection);
+  }
+
+  @Override
+  public void removeExceptionHandler(@NotNull final String id) {
+    this.exceptionHandlers.remove(id);
+  }
+
+  @Override
+  public void unblockAddress(@NotNull final InetAddress address) {
+    this.blockedAddresses.remove(address);
+  }
+
+  @Override
+  public void close() {
+    super.close();
     this.connectionByAddress.values().forEach(connection ->
-      connection.getEventLoop().execute(() -> connection.onTick(now)));
-    final var it = this.blockedAddresses.values().iterator();
-    long timeout;
-    while (it.hasNext()) {
-      timeout = it.next();
-      if (timeout > 0 && timeout < now) {
-        it.remove();
-      }
-    }
+      connection.disconnect(DisconnectReason.SHUTTING_DOWN));
+    this.channels.stream()
+      .map(ChannelOutboundInvoker::close)
+      .forEach(ChannelFuture::syncUninterruptibly);
   }
 
   @NotNull
@@ -261,5 +246,20 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
         completableFuture.complete(future.channel());
       });
     return CompletableFuture.allOf(completableFuture);
+  }
+
+  @Override
+  public void onTick() {
+    final var now = System.currentTimeMillis();
+    this.connectionByAddress.values().forEach(connection ->
+      connection.getEventLoop().execute(() -> connection.onTick(now)));
+    final var it = this.blockedAddresses.values().iterator();
+    long timeout;
+    while (it.hasNext()) {
+      timeout = it.next();
+      if (timeout > 0 && timeout < now) {
+        it.remove();
+      }
+    }
   }
 }

@@ -67,15 +67,20 @@ public final class CompoundTagBasic implements CompoundTag {
     return Collections.unmodifiableMap(this.original);
   }
 
+  @Override
+  public boolean contains(@NotNull final Tag tag) {
+    return this.original.containsValue(tag);
+  }
+
+  @Override
+  public boolean containsKey(@NotNull final String key) {
+    return this.original.containsKey(key);
+  }
+
   @Nullable
   @Override
   public Tag get(@NotNull final String key) {
     return this.original.get(key);
-  }
-
-  @Override
-  public void set(@NotNull final String key, @NotNull final Tag tag) {
-    this.original.put(key, tag);
   }
 
   @Override
@@ -84,13 +89,8 @@ public final class CompoundTagBasic implements CompoundTag {
   }
 
   @Override
-  public boolean containsKey(@NotNull final String key) {
-    return this.original.containsKey(key);
-  }
-
-  @Override
-  public boolean contains(@NotNull final Tag tag) {
-    return this.original.containsValue(tag);
+  public void set(@NotNull final String key, @NotNull final Tag tag) {
+    this.original.put(key, tag);
   }
 
   @Override

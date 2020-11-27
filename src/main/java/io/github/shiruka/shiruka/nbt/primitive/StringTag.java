@@ -48,11 +48,6 @@ public final class StringTag implements PrimitiveTag<String> {
     this.original = original;
   }
 
-  @Override
-  public boolean isString() {
-    return true;
-  }
-
   @NotNull
   @Override
   public StringTag asString() {
@@ -62,6 +57,11 @@ public final class StringTag implements PrimitiveTag<String> {
   @Override
   public byte id() {
     return 8;
+  }
+
+  @Override
+  public boolean isString() {
+    return true;
   }
 
   @NotNull

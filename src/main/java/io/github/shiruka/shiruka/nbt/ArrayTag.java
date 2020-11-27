@@ -35,23 +35,15 @@ import org.jetbrains.annotations.NotNull;
 public interface ArrayTag<T> extends Tag {
 
   @Override
-  default boolean isArray() {
-    return true;
-  }
-
-  @Override
   @NotNull
   default ArrayTag<?> asArray() {
     return this;
   }
 
-  /**
-   * gets the value.
-   *
-   * @return the value.
-   */
-  @NotNull
-  T @NotNull [] value();
+  @Override
+  default boolean isArray() {
+    return true;
+  }
 
   /**
    * gets the value at {@code index} in this tag.
@@ -71,4 +63,12 @@ public interface ArrayTag<T> extends Tag {
    * @return array size.
    */
   int size();
+
+  /**
+   * gets the value.
+   *
+   * @return the value.
+   */
+  @NotNull
+  T @NotNull [] value();
 }

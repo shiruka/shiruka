@@ -30,6 +30,54 @@ package io.github.shiruka.shiruka.network.util;
  */
 public final class Constants {
 
+  public static final long CC_ADDITIONAL_VARIANCE = 30;
+
+  public static final long CC_MAXIMUM_THRESHOLD = 2000;
+
+  public static final long CC_SYN = 10;
+
+  public static final long CONNECTION_TIMEOUT_MS = 10000L;
+
+  /**
+   * the datagram header size.
+   */
+  public static final int DATAGRAM_HEADER_SIZE = 4;
+
+  public static final byte DATA_HEADER_BYTE_LENGTH = 9;
+
+  /**
+   * it's for checking the packet is an ACK flag.
+   */
+  public static final byte FLAG_ACK = 0x40;
+
+  public static final byte FLAG_CONTINUOUS_SEND = 0b00001000;
+
+  /**
+   * it's for checking the packet is an NACK flag.
+   */
+  public static final byte FLAG_NACK = 0x20;
+
+  /**
+   * using for check when a packet has the RakNet packet.
+   */
+  public static final short FLAG_VALID = 0x80;
+
+  /**
+   * the maximum encapsulated header size.
+   */
+  public static final int MAXIMUM_ENCAPSULATED_HEADER_SIZE = 28;
+
+  public static final short MAXIMUM_MTU_SIZE = 1400;
+
+  /**
+   * maximum amount of ordering channels as defined in vanilla RakNet.
+   */
+  public static final byte MAXIMUM_ORDERING_CHANNELS = 16;
+
+  public static final byte MAX_LOCAL_IPS = 10;
+
+  public static final byte MAX_MESSAGE_HEADER_BYTE_LENGTH = 23;
+
   /**
    * the protocol version of the Minecraft game.
    */
@@ -40,10 +88,14 @@ public final class Constants {
    */
   public static final String MINECRAFT_VERSION = "1.16.40";
 
+  public static final short MINIMUM_MTU_SIZE = 576;
+
   /**
    * the protocol version from the Mojang.
    */
   public static final byte MOJANG_PROTOCOL_VERSION = 10;
+
+  public static final byte NUM_ORDERING_CHANNELS = 32;
 
   /**
    * header size of the udp packets.
@@ -51,63 +103,11 @@ public final class Constants {
   public static final byte UDP_HEADER_SIZE = 8;
 
   /**
-   * the maximum encapsulated header size.
-   */
-  public static final int MAXIMUM_ENCAPSULATED_HEADER_SIZE = 28;
-
-  /**
-   * the datagram header size.
-   */
-  public static final int DATAGRAM_HEADER_SIZE = 4;
-
-  /**
    * magic number from the RakNet itself.
    */
   public static final byte[] UNCONNECTED_MAGIC = new byte[]{
     0, -1, -1, 0, -2, -2, -2, -2, -3, -3, -3, -3, 18, 52, 86, 120
   };
-
-  /**
-   * using for check when a packet has the RakNet packet.
-   */
-  public static final short FLAG_VALID = 0x80;
-
-  public static final byte FLAG_CONTINUOUS_SEND = 0b00001000;
-
-  /**
-   * it's for checking the packet is an ACK flag.
-   */
-  public static final byte FLAG_ACK = 0x40;
-
-  /**
-   * it's for checking the packet is an NACK flag.
-   */
-  public static final byte FLAG_NACK = 0x20;
-
-  public static final byte NUM_ORDERING_CHANNELS = 32;
-
-  public static final byte DATA_HEADER_BYTE_LENGTH = 9;
-
-  public static final byte MAX_MESSAGE_HEADER_BYTE_LENGTH = 23;
-
-  public static final short MINIMUM_MTU_SIZE = 576;
-
-  public static final byte MAX_LOCAL_IPS = 10;
-
-  public static final long CONNECTION_TIMEOUT_MS = 10000L;
-
-  /**
-   * maximum amount of ordering channels as defined in vanilla RakNet.
-   */
-  public static final byte MAXIMUM_ORDERING_CHANNELS = 16;
-
-  public static final long CC_MAXIMUM_THRESHOLD = 2000;
-
-  public static final long CC_ADDITIONAL_VARIANCE = 30;
-
-  public static final long CC_SYN = 10;
-
-  public static final short MAXIMUM_MTU_SIZE = 1400;
 
   /**
    * ctor.

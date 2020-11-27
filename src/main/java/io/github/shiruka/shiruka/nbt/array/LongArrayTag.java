@@ -38,11 +38,6 @@ public final class LongArrayTag extends ArrayTagEnvelope<Long> {
     super(original);
   }
 
-  @Override
-  public boolean isLongArray() {
-    return true;
-  }
-
   @NotNull
   @Override
   public LongArrayTag asLongArray() {
@@ -52,5 +47,10 @@ public final class LongArrayTag extends ArrayTagEnvelope<Long> {
   @Override
   public byte id() {
     return 12;
+  }
+
+  @Override
+  public boolean isLongArray() {
+    return true;
   }
 }

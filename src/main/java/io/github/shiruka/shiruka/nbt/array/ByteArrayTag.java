@@ -38,11 +38,6 @@ public final class ByteArrayTag extends ArrayTagEnvelope<Byte> {
     super(original);
   }
 
-  @Override
-  public boolean isByteArray() {
-    return true;
-  }
-
   @NotNull
   @Override
   public ByteArrayTag asByteArray() {
@@ -52,5 +47,10 @@ public final class ByteArrayTag extends ArrayTagEnvelope<Byte> {
   @Override
   public byte id() {
     return 7;
+  }
+
+  @Override
+  public boolean isByteArray() {
+    return true;
   }
 }

@@ -34,15 +34,15 @@ import org.jetbrains.annotations.NotNull;
 public final class BitQueue {
 
   /**
+   * the head.
+   */
+  private int head;
+
+  /**
    * the queue.
    */
   @NotNull
   private byte[] queue;
-
-  /**
-   * the head.
-   */
-  private int head;
 
   /**
    * the tail.
@@ -77,37 +77,6 @@ public final class BitQueue {
     final var bi = (byte) (1 << (this.head & 7));
     this.queue[by] ^= (byte) (((bit ? 0xFF : 0x00) ^ this.queue[by]) & bi);
     this.head = this.head + 1 & (this.queue.length << 3) - 1;
-  }
-
-  /**
-   * returns the number of elements remaining inside the queue.
-   *
-   * @return The queue's size.
-   */
-  public int size() {
-    if (this.head > this.tail) {
-      return this.head - this.tail;
-    }
-    if (this.head < this.tail) {
-      return (this.queue.length << 3) - (this.tail - this.head);
-    }
-    return 0;
-  }
-
-  /**
-   * sets the n-th bit contained in the queue to the specified value.
-   *
-   * @param n The index of the bit to change.
-   * @param bit The value to assign to the bit.
-   */
-  public void set(final int n, final boolean bit) {
-    if (n >= this.size() || n < 0) {
-      return;
-    }
-    final var idx = this.tail + n & (this.queue.length << 3) - 1;
-    final var arrIdx = idx >> 3;
-    final var mask = (byte) (1 << (idx & 7));
-    this.queue[arrIdx] ^= (byte) (((bit ? 0xFF : 0x00) ^ this.queue[arrIdx]) & mask);
   }
 
   /**
@@ -163,6 +132,37 @@ public final class BitQueue {
     final var mask = (byte) (1 << (this.tail & 7));
     this.tail = this.tail + 1 & (this.queue.length << 3) - 1;
     return (this.queue[arrIdx] & mask) != 0;
+  }
+
+  /**
+   * sets the n-th bit contained in the queue to the specified value.
+   *
+   * @param n The index of the bit to change.
+   * @param bit The value to assign to the bit.
+   */
+  public void set(final int n, final boolean bit) {
+    if (n >= this.size() || n < 0) {
+      return;
+    }
+    final var idx = this.tail + n & (this.queue.length << 3) - 1;
+    final var arrIdx = idx >> 3;
+    final var mask = (byte) (1 << (idx & 7));
+    this.queue[arrIdx] ^= (byte) (((bit ? 0xFF : 0x00) ^ this.queue[arrIdx]) & mask);
+  }
+
+  /**
+   * returns the number of elements remaining inside the queue.
+   *
+   * @return The queue's size.
+   */
+  public int size() {
+    if (this.head > this.tail) {
+      return this.head - this.tail;
+    }
+    if (this.head < this.tail) {
+      return (this.queue.length << 3) - (this.tail - this.head);
+    }
+    return 0;
   }
 
   /**

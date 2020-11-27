@@ -39,9 +39,11 @@ public interface ConnectionHandler {
   void onClose();
 
   /**
-   * sends disconnection packet to the connection.
+   * runs when a raw packet received.
+   *
+   * @param packet the packet to receive.
    */
-  void sendDisconnectionNotification();
+  void onRawDatagram(@NotNull ByteBuf packet);
 
   /**
    * sends connected ping packet to the connection.
@@ -51,9 +53,7 @@ public interface ConnectionHandler {
   void sendConnectedPing(long pingTime);
 
   /**
-   * runs when a raw packet received.
-   *
-   * @param packet the packet to receive.
+   * sends disconnection packet to the connection.
    */
-  void onRawDatagram(@NotNull ByteBuf packet);
+  void sendDisconnectionNotification();
 }

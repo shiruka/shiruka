@@ -50,14 +50,8 @@ public abstract class NumberTagEnvelope implements NumberTag {
 
   @NotNull
   @Override
-  public final Integer intValue() {
-    return this.number.intValue();
-  }
-
-  @NotNull
-  @Override
-  public final Long longValue() {
-    return this.number.longValue();
+  public final Double doubleValue() {
+    return this.number.doubleValue();
   }
 
   @NotNull
@@ -68,7 +62,13 @@ public abstract class NumberTagEnvelope implements NumberTag {
 
   @NotNull
   @Override
-  public final Double doubleValue() {
-    return this.number.doubleValue();
+  public final Integer intValue() {
+    return this.number.intValue();
+  }
+
+  @NotNull
+  @Override
+  public final Long longValue() {
+    return this.number.longValue();
   }
 }

@@ -40,49 +40,39 @@ import org.jetbrains.annotations.NotNull;
 public interface Connection<S extends Socket, H extends ConnectionHandler> extends AutoCloseable {
 
   /**
-   * connection's the unique id.
+   * obtains a byte buffer instance from the given capacity.
    *
-   * @return the unique id to determine the connection.
-   */
-  long getUniqueId();
-
-  /**
-   * set connection's the unique id.
+   * @param capacity the capacity to create.
    *
-   * @param uniqueId the unique id to set.
-   */
-  void setUniqueId(long uniqueId);
-
-  /**
-   * obtains connection's socket.
+   * @return a byte buffer instance.
    *
-   * @return the socket.
+   * @see ByteBuf
    */
   @NotNull
-  S getSocket();
+  default ByteBuf allocateBuffer(final int capacity) {
+    return this.getChannel().alloc().ioBuffer(capacity);
+  }
 
   /**
-   * obtains connection's handler.
+   * checks if the connection is closed.
    *
-   * @return the listener to handle connection's events.
+   * @throws IllegalStateException if the connection is closed.
    */
-  @NotNull
-  H getConnectionHandler();
+  void checkForClosed();
 
   /**
-   * obtains connection's state.
+   * closes the connection with the given reason.
    *
-   * @return connection's state.
+   * @param reason the reason to close.
    */
-  @NotNull
-  ConnectionState getState();
+  void close(@NotNull DisconnectReason reason);
 
   /**
-   * sets the connection's state to the given state.
+   * disconnects the connection.
    *
-   * @param state the state to set.
+   * @param reason the reason to disconnect.
    */
-  void setState(@NotNull ConnectionState state);
+  void disconnect(@NotNull DisconnectReason reason);
 
   /**
    * obtains connection's address.
@@ -93,56 +83,11 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   InetSocketAddress getAddress();
 
   /**
-   * obtains the event loop.
-   *
-   * @return the event loop.
-   */
-  @NotNull
-  EventLoop getEventLoop();
-
-  /**
-   * obtains connection's channel context.
-   *
-   * @return connection's channel context.
-   */
-  @NotNull
-  ChannelHandlerContext getContext();
-
-  /**
-   * obtains connection's channel.
-   *
-   * @return connection's channel.
-   */
-  @NotNull
-  Channel getChannel();
-
-  /**
-   * obtains connection's mtu size.
-   *
-   * @return connection's mtu size.
-   */
-  int getMtu();
-
-  /**
-   * set connection's mtu size.
-   *
-   * @param mtu the mtu to set.
-   */
-  void setMtu(int mtu);
-
-  /**
    * obtains connection's adjusted mtu size.
    *
    * @return connection's adjusted mtu size.
    */
   int getAdjustedMtu();
-
-  /**
-   * obtains connection's protocol version.
-   *
-   * @return connection's protocol version.
-   */
-  short getProtocolVersion();
 
   /**
    * obtains the connection's cache instance.
@@ -153,11 +98,42 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   ConnectionCache<S, H> getCache();
 
   /**
-   * checks and returns {@code true} if the connection is closed.
+   * obtains connection's channel.
    *
-   * @return true if the connection is closed.
+   * @return connection's channel.
    */
-  boolean isClosed();
+  @NotNull
+  Channel getChannel();
+
+  /**
+   * obtains connection's handler.
+   *
+   * @return the listener to handle connection's events.
+   */
+  @NotNull
+  H getConnectionHandler();
+
+  /**
+   * obtains the connection timeout.
+   *
+   * @return the connection timeout.
+   */
+  long getConnectionTimeout();
+
+  /**
+   * sets the connection connection timeout to the given connection timeout.
+   *
+   * @param connectionTimeout the connectionTimeout to set.
+   */
+  void setConnectionTimeout(long connectionTimeout);
+
+  /**
+   * obtains connection's channel context.
+   *
+   * @return connection's channel context.
+   */
+  @NotNull
+  ChannelHandlerContext getContext();
 
   /**
    * obtains the current ping time of the connection.
@@ -166,6 +142,22 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
    */
   @NotNull
   AtomicLong getCurrentPingTime();
+
+  /**
+   * obtains the datagram read index.
+   *
+   * @return the datagram read index.
+   */
+  @NotNull
+  AtomicInteger getDatagramReadIndex();
+
+  /**
+   * obtains the event loop.
+   *
+   * @return the event loop.
+   */
+  @NotNull
+  EventLoop getEventLoop();
 
   /**
    * obtains the latest ping time of the connection.
@@ -184,12 +176,32 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   AtomicLong getLastPongTime();
 
   /**
-   * obtains the datagram read index.
+   * obtains connection's mtu size.
    *
-   * @return the datagram read index.
+   * @return connection's mtu size.
    */
-  @NotNull
-  AtomicInteger getDatagramReadIndex();
+  int getMtu();
+
+  /**
+   * set connection's mtu size.
+   *
+   * @param mtu the mtu to set.
+   */
+  void setMtu(int mtu);
+
+  /**
+   * calculates the connection's ping.
+   *
+   * @return the connection ping.
+   */
+  long getPing();
+
+  /**
+   * obtains connection's protocol version.
+   *
+   * @return connection's protocol version.
+   */
+  short getProtocolVersion();
 
   /**
    * obtains the reliability read index.
@@ -200,11 +212,41 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   AtomicInteger getReliabilityReadIndex();
 
   /**
-   * closes the connection with the given reason.
+   * obtains connection's socket.
    *
-   * @param reason the reason to close.
+   * @return the socket.
    */
-  void close(@NotNull DisconnectReason reason);
+  @NotNull
+  S getSocket();
+
+  /**
+   * obtains connection's state.
+   *
+   * @return connection's state.
+   */
+  @NotNull
+  ConnectionState getState();
+
+  /**
+   * sets the connection's state to the given state.
+   *
+   * @param state the state to set.
+   */
+  void setState(@NotNull ConnectionState state);
+
+  /**
+   * connection's the unique id.
+   *
+   * @return the unique id to determine the connection.
+   */
+  long getUniqueId();
+
+  /**
+   * set connection's the unique id.
+   *
+   * @param uniqueId the unique id to set.
+   */
+  void setUniqueId(long uniqueId);
 
   /**
    * initializes the connection's caches.
@@ -212,28 +254,11 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   void initialize();
 
   /**
-   * resets the connection's caches.
-   */
-  void reset();
-
-  /**
-   * touches when a packet receive.
-   */
-  void touch();
-
-  /**
-   * checks if the connection is closed.
+   * checks and returns {@code true} if the connection is closed.
    *
-   * @throws IllegalStateException if the connection is closed.
+   * @return true if the connection is closed.
    */
-  void checkForClosed();
-
-  /**
-   * disconnects the connection.
-   *
-   * @param reason the reason to disconnect.
-   */
-  void disconnect(@NotNull DisconnectReason reason);
+  boolean isClosed();
 
   /**
    * runs every tick.
@@ -243,25 +268,9 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   void onTick(long now);
 
   /**
-   * calculates the connection's ping.
-   *
-   * @return the connection ping.
+   * resets the connection's caches.
    */
-  long getPing();
-
-  /**
-   * obtains the connection timeout.
-   *
-   * @return the connection timeout.
-   */
-  long getConnectionTimeout();
-
-  /**
-   * sets the connection connection timeout to the given connection timeout.
-   *
-   * @param connectionTimeout the connectionTimeout to set.
-   */
-  void setConnectionTimeout(long connectionTimeout);
+  void reset();
 
   /**
    * send the packet with queue.
@@ -287,20 +296,6 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   }
 
   /**
-   * obtains a byte buffer instance from the given capacity.
-   *
-   * @param capacity the capacity to create.
-   *
-   * @return a byte buffer instance.
-   *
-   * @see ByteBuf
-   */
-  @NotNull
-  default ByteBuf allocateBuffer(final int capacity) {
-    return this.getChannel().alloc().ioBuffer(capacity);
-  }
-
-  /**
    * sends the packet to the connection's address.
    *
    * @param packet the packet to send
@@ -308,4 +303,9 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   default void sendDirect(@NotNull final ByteBuf packet) {
     this.getChannel().writeAndFlush(new DatagramPacket(packet, this.getAddress()));
   }
+
+  /**
+   * touches when a packet receive.
+   */
+  void touch();
 }

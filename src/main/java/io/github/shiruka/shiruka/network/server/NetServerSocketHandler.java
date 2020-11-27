@@ -54,11 +54,6 @@ final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public void handlerAdded(final ChannelHandlerContext ctx) {
-    this.server.addChannel(ctx.channel());
-  }
-
-  @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (!(msg instanceof DatagramPacket)) {
       return;
@@ -86,5 +81,10 @@ final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
   public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
     this.server.getExceptionHandlers().values().forEach(cons ->
       cons.accept(cause));
+  }
+
+  @Override
+  public void handlerAdded(final ChannelHandlerContext ctx) {
+    this.server.addChannel(ctx.channel());
   }
 }

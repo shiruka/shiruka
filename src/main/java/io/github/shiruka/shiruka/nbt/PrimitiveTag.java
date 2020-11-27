@@ -34,15 +34,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface PrimitiveTag<T> extends Tag {
 
-  @Override
-  default boolean isPrimitive() {
-    return true;
-  }
-
   @NotNull
   @Override
   default PrimitiveTag<?> asPrimitive() {
     return this;
+  }
+
+  @Override
+  default boolean isPrimitive() {
+    return true;
   }
 
   /**

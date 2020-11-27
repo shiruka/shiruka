@@ -38,11 +38,6 @@ public final class IntArrayTag extends ArrayTagEnvelope<Integer> {
     super(original);
   }
 
-  @Override
-  public boolean isIntArray() {
-    return true;
-  }
-
   @NotNull
   @Override
   public IntArrayTag asIntArray() {
@@ -52,5 +47,10 @@ public final class IntArrayTag extends ArrayTagEnvelope<Integer> {
   @Override
   public byte id() {
     return 11;
+  }
+
+  @Override
+  public boolean isIntArray() {
+    return true;
   }
 }

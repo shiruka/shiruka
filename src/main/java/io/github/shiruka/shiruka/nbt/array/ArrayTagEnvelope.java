@@ -62,11 +62,6 @@ public abstract class ArrayTagEnvelope<T> implements ArrayTag<T> {
     }
   }
 
-  @Override
-  public final T @NotNull [] value() {
-    return this.original.clone();
-  }
-
   @NotNull
   @Override
   public final T get(final int index) {
@@ -77,5 +72,10 @@ public abstract class ArrayTagEnvelope<T> implements ArrayTag<T> {
   @Override
   public final int size() {
     return this.original.length;
+  }
+
+  @Override
+  public final T @NotNull [] value() {
+    return this.original.clone();
   }
 }

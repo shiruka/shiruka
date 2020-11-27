@@ -41,11 +41,6 @@ public final class IntTag extends NumberTagEnvelope {
     super(original);
   }
 
-  @Override
-  public boolean isInt() {
-    return true;
-  }
-
   @NotNull
   @Override
   public IntTag asInt() {
@@ -55,5 +50,10 @@ public final class IntTag extends NumberTagEnvelope {
   @Override
   public byte id() {
     return 3;
+  }
+
+  @Override
+  public boolean isInt() {
+    return true;
   }
 }

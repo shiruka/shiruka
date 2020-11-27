@@ -43,23 +43,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class Packets {
 
+  public static final byte ALREADY_CONNECTED = 0x12;
+
   public static final byte CONNECTED_PING = 0x00;
-
-  public static final byte UNCONNECTED_PING = 0x01;
-
-  public static final byte UNCONNECTED_PING_OPEN_CONNECTION = 0x02;
 
   public static final byte CONNECTED_PONG = 0x03;
 
-  public static final byte DETECT_LOST_CONNECTION = 0x04;
-
-  public static final byte OPEN_CONNECTION_REQUEST_1 = 0x05;
-
-  public static final byte OPEN_CONNECTION_REPLY_1 = 0x06;
-
-  public static final byte OPEN_CONNECTION_REQUEST_2 = 0x07;
-
-  public static final byte OPEN_CONNECTION_REPLY_2 = 0x08;
+  public static final byte CONNECTION_BANNED = 0x17;
 
   public static final byte CONNECTION_REQUEST = 0x09;
 
@@ -67,17 +57,27 @@ public final class Packets {
 
   public static final byte CONNECTION_REQUEST_FAILED = 0x11;
 
-  public static final byte ALREADY_CONNECTED = 0x12;
-
-  public static final byte NEW_INCOMING_CONNECTION = 0x13;
-
-  public static final byte MAXIMUM_CONNECTION = 0x14;
+  public static final byte DETECT_LOST_CONNECTION = 0x04;
 
   public static final byte DISCONNECTION_NOTIFICATION = 0x15;
 
-  public static final byte CONNECTION_BANNED = 0x17;
-
   public static final byte INCOMPATIBLE_PROTOCOL_VERSION = 0x19;
+
+  public static final byte MAXIMUM_CONNECTION = 0x14;
+
+  public static final byte NEW_INCOMING_CONNECTION = 0x13;
+
+  public static final byte OPEN_CONNECTION_REPLY_1 = 0x06;
+
+  public static final byte OPEN_CONNECTION_REPLY_2 = 0x08;
+
+  public static final byte OPEN_CONNECTION_REQUEST_1 = 0x05;
+
+  public static final byte OPEN_CONNECTION_REQUEST_2 = 0x07;
+
+  public static final byte UNCONNECTED_PING = 0x01;
+
+  public static final byte UNCONNECTED_PING_OPEN_CONNECTION = 0x02;
 
   public static final byte UNCONNECTED_PONG = 0x1C;
 
@@ -117,29 +117,6 @@ public final class Packets {
   }
 
   /**
-   * verifies the magic numbers from the byte array.
-   *
-   * @param buffer the buffer to check.
-   *
-   * @return returns true if the given buffer does not equal {@link Constants#UNCONNECTED_MAGIC}.
-   */
-  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  public static boolean verifyUnconnectedMagic(@NotNull final ByteBuf buffer) {
-    return Arrays.equals(
-      Optionals.useAndGet(new byte[Constants.UNCONNECTED_MAGIC.length], buffer::readBytes),
-      Constants.UNCONNECTED_MAGIC);
-  }
-
-  /**
-   * writes {@link Constants#UNCONNECTED_MAGIC} into the given array.
-   *
-   * @param buffer the buffer to write.
-   */
-  public static void writeUnconnectedMagic(@NotNull final ByteBuf buffer) {
-    buffer.writeBytes(Constants.UNCONNECTED_MAGIC);
-  }
-
-  /**
    * reads the given buffer to parse as {@link InetSocketAddress}.
    *
    * @param buffer the buffer to parse.
@@ -176,6 +153,20 @@ public final class Packets {
   }
 
   /**
+   * verifies the magic numbers from the byte array.
+   *
+   * @param buffer the buffer to check.
+   *
+   * @return returns true if the given buffer does not equal {@link Constants#UNCONNECTED_MAGIC}.
+   */
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+  public static boolean verifyUnconnectedMagic(@NotNull final ByteBuf buffer) {
+    return Arrays.equals(
+      Optionals.useAndGet(new byte[Constants.UNCONNECTED_MAGIC.length], buffer::readBytes),
+      Constants.UNCONNECTED_MAGIC);
+  }
+
+  /**
    * writes the given address into the given buffer.
    *
    * @param buffer the buffer to write.
@@ -201,28 +192,35 @@ public final class Packets {
   }
 
   /**
-   * handles unconnected ping packet.
+   * writes {@link Constants#UNCONNECTED_MAGIC} into the given array.
    *
-   * @param ctx the context to handle.
-   * @param server the server to handle.
-   * @param packet the packet to handle.
+   * @param buffer the buffer to write.
    */
-  private static void handleUnconnectedPing(@NotNull final ChannelHandlerContext ctx,
-                                            @NotNull final ServerSocket server,
-                                            @NotNull final DatagramPacket packet) {
-    final var content = packet.content();
-    if (!content.isReadable(24)) {
-      Loggers.useLogger(logger ->
-        logger.error("Invalid packet content for unconnected ping."));
-      return;
-    }
-    final var pingTime = content.readLong();
-    if (!Packets.verifyUnconnectedMagic(content)) {
-      Loggers.useLogger(logger ->
-        logger.error("Invalid magic number for unconnected ping."));
-      return;
-    }
-    Packets.sendUnconnectedPongPacket(ctx, server, packet.sender(), pingTime);
+  public static void writeUnconnectedMagic(@NotNull final ByteBuf buffer) {
+    buffer.writeBytes(Constants.UNCONNECTED_MAGIC);
+  }
+
+  /**
+   * creates a packet from the given size and runs the given packet consumer.
+   *
+   * @param initialSize the initial size to create.
+   * @param packet the packet to run.
+   */
+  private static void createPacket(@NotNull final ChannelHandlerContext ctx, final int initialSize,
+                                   @NotNull final Consumer<ByteBuf> packet) {
+    Optionals.useAndGet(ctx.alloc().ioBuffer(initialSize), packet);
+  }
+
+  /**
+   * creates a packet from the given size and runs the given packet consumer.
+   *
+   * @param initialSize the initial size to create.
+   * @param maxCapacity the maximum capacity size to create.
+   * @param packet the packet to run.
+   */
+  private static void createPacket(@NotNull final ChannelHandlerContext ctx, final int initialSize,
+                                   final int maxCapacity, @NotNull final Consumer<ByteBuf> packet) {
+    Optionals.useAndGet(ctx.alloc().ioBuffer(initialSize, maxCapacity), packet);
   }
 
   /**
@@ -290,29 +288,28 @@ public final class Packets {
   }
 
   /**
-   * sends unconnected pong packet to the given recipient.
+   * handles unconnected ping packet.
    *
-   * @param ctx the context to send.
-   * @param server the server to send unique id.
-   * @param recipient the recipient to send.
-   * @param pingTime the ping time to send.
+   * @param ctx the context to handle.
+   * @param server the server to handle.
+   * @param packet the packet to handle.
    */
-  private static void sendUnconnectedPongPacket(@NotNull final ChannelHandlerContext ctx,
-                                                @NotNull final ServerSocket server,
-                                                @NotNull final InetSocketAddress recipient,
-                                                final long pingTime) {
-    final var serverData = server.getSocketListener().onRequestServerData(server, recipient);
-    final int serverDataLength = serverData.length;
-    final var packetLength = 35 + serverDataLength;
-    Packets.createPacket(ctx, packetLength, packet -> {
-      packet.writeByte(Packets.UNCONNECTED_PONG);
-      packet.writeLong(pingTime);
-      packet.writeLong(server.getUniqueId());
-      Packets.writeUnconnectedMagic(packet);
-      packet.writeShort(serverDataLength);
-      packet.writeBytes(serverData);
-      Socket.sendWithPromise(ctx, packet, recipient);
-    });
+  private static void handleUnconnectedPing(@NotNull final ChannelHandlerContext ctx,
+                                            @NotNull final ServerSocket server,
+                                            @NotNull final DatagramPacket packet) {
+    final var content = packet.content();
+    if (!content.isReadable(24)) {
+      Loggers.useLogger(logger ->
+        logger.error("Invalid packet content for unconnected ping."));
+      return;
+    }
+    final var pingTime = content.readLong();
+    if (!Packets.verifyUnconnectedMagic(content)) {
+      Loggers.useLogger(logger ->
+        logger.error("Invalid magic number for unconnected ping."));
+      return;
+    }
+    Packets.sendUnconnectedPongPacket(ctx, server, packet.sender(), pingTime);
   }
 
   /**
@@ -330,6 +327,24 @@ public final class Packets {
       Packets.writeUnconnectedMagic(packet);
       packet.writeLong(server.getUniqueId());
       Socket.sendWithPromise(ctx, packet, recipient);
+    });
+  }
+
+  /**
+   * sends connection banned to the recipient.
+   *
+   * @param ctx the context to send.
+   * @param server the server to send unique id.
+   * @param recipient the recipient to send.
+   */
+  private static void sendConnectedBanned(@NotNull final ChannelHandlerContext ctx,
+                                          @NotNull final ServerSocket server,
+                                          @NotNull final InetSocketAddress recipient) {
+    Packets.createPacket(ctx, 25, 25, packet -> {
+      packet.writeByte(Packets.CONNECTION_BANNED);
+      Packets.writeUnconnectedMagic(packet);
+      packet.writeLong(server.getUniqueId());
+      Socket.send(ctx, packet, recipient);
     });
   }
 
@@ -371,43 +386,28 @@ public final class Packets {
   }
 
   /**
-   * sends connection banned to the recipient.
+   * sends unconnected pong packet to the given recipient.
    *
    * @param ctx the context to send.
    * @param server the server to send unique id.
    * @param recipient the recipient to send.
+   * @param pingTime the ping time to send.
    */
-  private static void sendConnectedBanned(@NotNull final ChannelHandlerContext ctx,
-                                          @NotNull final ServerSocket server,
-                                          @NotNull final InetSocketAddress recipient) {
-    Packets.createPacket(ctx, 25, 25, packet -> {
-      packet.writeByte(Packets.CONNECTION_BANNED);
-      Packets.writeUnconnectedMagic(packet);
+  private static void sendUnconnectedPongPacket(@NotNull final ChannelHandlerContext ctx,
+                                                @NotNull final ServerSocket server,
+                                                @NotNull final InetSocketAddress recipient,
+                                                final long pingTime) {
+    final var serverData = server.getSocketListener().onRequestServerData(server, recipient);
+    final int serverDataLength = serverData.length;
+    final var packetLength = 35 + serverDataLength;
+    Packets.createPacket(ctx, packetLength, packet -> {
+      packet.writeByte(Packets.UNCONNECTED_PONG);
+      packet.writeLong(pingTime);
       packet.writeLong(server.getUniqueId());
-      Socket.send(ctx, packet, recipient);
+      Packets.writeUnconnectedMagic(packet);
+      packet.writeShort(serverDataLength);
+      packet.writeBytes(serverData);
+      Socket.sendWithPromise(ctx, packet, recipient);
     });
-  }
-
-  /**
-   * creates a packet from the given size and runs the given packet consumer.
-   *
-   * @param initialSize the initial size to create.
-   * @param packet the packet to run.
-   */
-  private static void createPacket(@NotNull final ChannelHandlerContext ctx, final int initialSize,
-                                   @NotNull final Consumer<ByteBuf> packet) {
-    Optionals.useAndGet(ctx.alloc().ioBuffer(initialSize), packet);
-  }
-
-  /**
-   * creates a packet from the given size and runs the given packet consumer.
-   *
-   * @param initialSize the initial size to create.
-   * @param maxCapacity the maximum capacity size to create.
-   * @param packet the packet to run.
-   */
-  private static void createPacket(@NotNull final ChannelHandlerContext ctx, final int initialSize,
-                                   final int maxCapacity, @NotNull final Consumer<ByteBuf> packet) {
-    Optionals.useAndGet(ctx.alloc().ioBuffer(initialSize, maxCapacity), packet);
   }
 }

@@ -41,11 +41,6 @@ public final class ByteTag extends NumberTagEnvelope {
     super(original);
   }
 
-  @Override
-  public boolean isByte() {
-    return true;
-  }
-
   @NotNull
   @Override
   public ByteTag asByte() {
@@ -55,5 +50,10 @@ public final class ByteTag extends NumberTagEnvelope {
   @Override
   public byte id() {
     return 1;
+  }
+
+  @Override
+  public boolean isByte() {
+    return true;
   }
 }

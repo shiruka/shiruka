@@ -55,14 +55,14 @@ public final class NetDatagramPacket extends AbstractReferenceCounted {
   private short flags = Constants.FLAG_VALID;
 
   /**
-   * the sequence index.
-   */
-  private int sequenceIndex = -1;
-
-  /**
    * the next send time.
    */
   private long nextSend;
+
+  /**
+   * the sequence index.
+   */
+  private int sequenceIndex = -1;
 
   /**
    * ctor.
@@ -71,41 +71,6 @@ public final class NetDatagramPacket extends AbstractReferenceCounted {
    */
   public NetDatagramPacket(final long time) {
     this.time = time;
-  }
-
-  @NotNull
-  @Override
-  public NetDatagramPacket retain() {
-    super.retain();
-    return this;
-  }
-
-  @Override
-  public NetDatagramPacket retain(final int increment) {
-    super.retain(increment);
-    return this;
-  }
-
-  @Override
-  protected void deallocate() {
-    this.packets.forEach(ReferenceCounted::release);
-  }
-
-  @Override
-  public NetDatagramPacket touch(final Object hint) {
-    this.packets.forEach(packet -> packet.touch(hint));
-    return this;
-  }
-
-  /**
-   * encodes all encapsulated packets.
-   *
-   * @param packet the packet to encode.
-   */
-  public void encode(@NotNull final ByteBuf packet) {
-    packet.writeByte(this.flags);
-    packet.writeMediumLE(this.sequenceIndex);
-    this.packets.forEach(encapsulatedPacket -> encapsulatedPacket.encode(packet));
   }
 
   /**
@@ -124,34 +89,32 @@ public final class NetDatagramPacket extends AbstractReferenceCounted {
   }
 
   /**
-   * tries to add the given packet into the {@link NetDatagramPacket#packets}.
+   * encodes all encapsulated packets.
    *
-   * @param packet the packet to add.
-   * @param mtu the mtu.
-   *
-   * @return return true if the adding packet is succeed.
+   * @param packet the packet to encode.
    */
-  public boolean tryAddPacket(@NotNull final EncapsulatedPacket packet, final int mtu) {
-    if (this.getSize() + packet.getSize() > mtu - Constants.DATAGRAM_HEADER_SIZE) {
-      return false;
-    }
-    this.packets.add(packet);
-    if (packet.split) {
-      this.flags |= Constants.FLAG_CONTINUOUS_SEND;
-    }
-    return true;
+  public void encode(@NotNull final ByteBuf packet) {
+    packet.writeByte(this.flags);
+    packet.writeMediumLE(this.sequenceIndex);
+    this.packets.forEach(encapsulatedPacket -> encapsulatedPacket.encode(packet));
   }
 
   /**
-   * obtains size of the packets.
+   * obtains the next send time.
    *
-   * @return the size of the packets.
+   * @return the next send time.
    */
-  public int getSize() {
-    return Constants.DATAGRAM_HEADER_SIZE +
-      this.packets.stream()
-        .mapToInt(EncapsulatedPacket::getSize)
-        .sum();
+  public long getNextSend() {
+    return this.nextSend;
+  }
+
+  /**
+   * sets the next send time.
+   *
+   * @param nextSend the next send to set.
+   */
+  public void setNextSend(final long nextSend) {
+    this.nextSend = nextSend;
   }
 
   /**
@@ -183,21 +146,15 @@ public final class NetDatagramPacket extends AbstractReferenceCounted {
   }
 
   /**
-   * obtains the next send time.
+   * obtains size of the packets.
    *
-   * @return the next send time.
+   * @return the size of the packets.
    */
-  public long getNextSend() {
-    return this.nextSend;
-  }
-
-  /**
-   * sets the next send time.
-   *
-   * @param nextSend the next send to set.
-   */
-  public void setNextSend(final long nextSend) {
-    this.nextSend = nextSend;
+  public int getSize() {
+    return Constants.DATAGRAM_HEADER_SIZE +
+      this.packets.stream()
+        .mapToInt(EncapsulatedPacket::getSize)
+        .sum();
   }
 
   /**
@@ -207,5 +164,48 @@ public final class NetDatagramPacket extends AbstractReferenceCounted {
    */
   public long getTime() {
     return this.time;
+  }
+
+  @NotNull
+  @Override
+  public NetDatagramPacket retain() {
+    super.retain();
+    return this;
+  }
+
+  @Override
+  public NetDatagramPacket retain(final int increment) {
+    super.retain(increment);
+    return this;
+  }
+
+  @Override
+  protected void deallocate() {
+    this.packets.forEach(ReferenceCounted::release);
+  }
+
+  @Override
+  public NetDatagramPacket touch(final Object hint) {
+    this.packets.forEach(packet -> packet.touch(hint));
+    return this;
+  }
+
+  /**
+   * tries to add the given packet into the {@link NetDatagramPacket#packets}.
+   *
+   * @param packet the packet to add.
+   * @param mtu the mtu.
+   *
+   * @return return true if the adding packet is succeed.
+   */
+  public boolean tryAddPacket(@NotNull final EncapsulatedPacket packet, final int mtu) {
+    if (this.getSize() + packet.getSize() > mtu - Constants.DATAGRAM_HEADER_SIZE) {
+      return false;
+    }
+    this.packets.add(packet);
+    if (packet.split) {
+      this.flags |= Constants.FLAG_CONTINUOUS_SEND;
+    }
+    return true;
   }
 }

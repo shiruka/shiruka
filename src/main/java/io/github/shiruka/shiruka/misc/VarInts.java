@@ -42,18 +42,6 @@ public final class VarInts {
   }
 
   /**
-   * writes the given integer into the given output.
-   *
-   * @param output the output to write.
-   * @param integer the integer to write.
-   *
-   * @throws IOException if something went wrong when writing to the output..
-   */
-  public static void writeInt(@NotNull final DataOutput output, final int integer) throws IOException {
-    VarInts.encodeUnsigned(output, (long) integer << 1 ^ integer >> 31);
-  }
-
-  /**
    * reads the integer from the given input.
    *
    * @param input the input to read.
@@ -68,15 +56,17 @@ public final class VarInts {
   }
 
   /**
-   * writes the given integer into the given output.
+   * reads the long from the given input.
    *
-   * @param output the output to write.
-   * @param integer the integer to write.
+   * @param input the input to read.
    *
-   * @throws IOException if something went wrong when writing to the output.
+   * @return the given input's long value.
+   *
+   * @throws IOException if something went wrong when reading the input.
    */
-  public static void writeUnsignedInt(@NotNull final DataOutput output, final long integer) throws IOException {
-    VarInts.encodeUnsigned(output, integer);
+  public static long readLong(@NotNull final DataInput input) throws IOException {
+    final var n = VarInts.decodeUnsigned(input);
+    return n >>> 1 ^ -(n & 1);
   }
 
   /**
@@ -93,6 +83,18 @@ public final class VarInts {
   }
 
   /**
+   * writes the given integer into the given output.
+   *
+   * @param output the output to write.
+   * @param integer the integer to write.
+   *
+   * @throws IOException if something went wrong when writing to the output..
+   */
+  public static void writeInt(@NotNull final DataOutput output, final int integer) throws IOException {
+    VarInts.encodeUnsigned(output, (long) integer << 1 ^ integer >> 31);
+  }
+
+  /**
    * writes the given long into the given output.
    *
    * @param output the output to write.
@@ -105,17 +107,15 @@ public final class VarInts {
   }
 
   /**
-   * reads the long from the given input.
+   * writes the given integer into the given output.
    *
-   * @param input the input to read.
+   * @param output the output to write.
+   * @param integer the integer to write.
    *
-   * @return the given input's long value.
-   *
-   * @throws IOException if something went wrong when reading the input.
+   * @throws IOException if something went wrong when writing to the output.
    */
-  public static long readLong(@NotNull final DataInput input) throws IOException {
-    final var n = VarInts.decodeUnsigned(input);
-    return n >>> 1 ^ -(n & 1);
+  public static void writeUnsignedInt(@NotNull final DataOutput output, final long integer) throws IOException {
+    VarInts.encodeUnsigned(output, integer);
   }
 
   /**

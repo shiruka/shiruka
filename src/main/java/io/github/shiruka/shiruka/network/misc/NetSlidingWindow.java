@@ -38,19 +38,14 @@ public final class NetSlidingWindow {
   private final int mtu;
 
   /**
+   * the backoff this block.
+   */
+  private boolean backoffThisBlock;
+
+  /**
    * the congestion window.
    */
   private double congestionWindow;
-
-  /**
-   * the ss thresh.
-   */
-  private double ssThresh;
-
-  /**
-   * the estimated RTT.
-   */
-  private double estimatedRTT = -1;
 
   /**
    * the deviation RTT.
@@ -58,14 +53,14 @@ public final class NetSlidingWindow {
   private double deviationRTT = -1;
 
   /**
+   * the estimated RTT.
+   */
+  private double estimatedRTT = -1;
+
+  /**
    * the latest rtt.
    */
   private double lastRTT = -1;
-
-  /**
-   * the oldest un sent ACK packet.
-   */
-  private long oldestUnsentAck;
 
   /**
    * the next congestion control block.
@@ -73,9 +68,14 @@ public final class NetSlidingWindow {
   private long nextCongestionControlBlock;
 
   /**
-   * the backoff this block.
+   * the oldest un sent ACK packet.
    */
-  private boolean backoffThisBlock;
+  private long oldestUnsentAck;
+
+  /**
+   * the ss thresh.
+   */
+  private double ssThresh;
 
   /**
    * ctor.
@@ -85,17 +85,6 @@ public final class NetSlidingWindow {
   public NetSlidingWindow(final int mtu) {
     this.mtu = mtu;
     this.congestionWindow = mtu;
-  }
-
-  /**
-   * sets latest incoming ACK packet.
-   *
-   * @param curTime the time to set
-   */
-  public void onPacketReceived(final long curTime) {
-    if (this.oldestUnsentAck == 0) {
-      this.oldestUnsentAck = curTime;
-    }
   }
 
   /**
@@ -109,6 +98,20 @@ public final class NetSlidingWindow {
     }
     final var threshold = (long) (2.0D * this.estimatedRTT + 4.0D * this.deviationRTT + Constants.CC_ADDITIONAL_VARIANCE);
     return Math.min(threshold, Constants.CC_MAXIMUM_THRESHOLD);
+  }
+
+  /**
+   * calculates the transmission bandwidth.
+   *
+   * @param unACKedBytes the bytes to calculate
+   *
+   * @return the transmission bandwidth.
+   */
+  public int getTransmissionBandwidth(final int unACKedBytes) {
+    if (unACKedBytes <= this.congestionWindow) {
+      return (int) (this.congestionWindow - unACKedBytes);
+    }
+    return 0;
   }
 
   /**
@@ -153,15 +156,14 @@ public final class NetSlidingWindow {
   }
 
   /**
-   * checks if it should send the ACK packets.
+   * sets latest incoming ACK packet.
    *
-   * @param curTime the packet to check
-   *
-   * @return return true if it should send the ACK packets.
+   * @param curTime the time to set
    */
-  public boolean shouldSendACKs(final long curTime) {
-    final long rto = this.getSenderRtoForAck();
-    return rto == -1 || curTime >= this.oldestUnsentAck + Constants.CC_SYN;
+  public void onPacketReceived(final long curTime) {
+    if (this.oldestUnsentAck == 0) {
+      this.oldestUnsentAck = curTime;
+    }
   }
 
   /**
@@ -189,17 +191,15 @@ public final class NetSlidingWindow {
   }
 
   /**
-   * calculates the transmission bandwidth.
+   * checks if it should send the ACK packets.
    *
-   * @param unACKedBytes the bytes to calculate
+   * @param curTime the packet to check
    *
-   * @return the transmission bandwidth.
+   * @return return true if it should send the ACK packets.
    */
-  public int getTransmissionBandwidth(final int unACKedBytes) {
-    if (unACKedBytes <= this.congestionWindow) {
-      return (int) (this.congestionWindow - unACKedBytes);
-    }
-    return 0;
+  public boolean shouldSendACKs(final long curTime) {
+    final long rto = this.getSenderRtoForAck();
+    return rto == -1 || curTime >= this.oldestUnsentAck + Constants.CC_SYN;
   }
 
   /**

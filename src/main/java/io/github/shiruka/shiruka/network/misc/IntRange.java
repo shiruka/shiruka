@@ -64,15 +64,6 @@ public final class IntRange {
   }
 
   /**
-   * obtains the minimum number.
-   *
-   * @return the minimum a.k.a. start.
-   */
-  public int getMinimum() {
-    return this.minimum;
-  }
-
-  /**
    * obtains the maximum number.
    *
    * @return the maximum a.k.a. end.
@@ -88,5 +79,14 @@ public final class IntRange {
    */
   public void setMaximum(final int maximum) {
     this.maximum = maximum;
+  }
+
+  /**
+   * obtains the minimum number.
+   *
+   * @return the minimum a.k.a. start.
+   */
+  public int getMinimum() {
+    return this.minimum;
   }
 }

@@ -39,18 +39,6 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   Thread.UncaughtExceptionHandler {
 
   /**
-   * a thread factory that does handling for exceptions,
-   * piping exception output to the loggers.
-   */
-  public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec("Shiru ka - Net", 0,
-    false);
-
-  /**
-   * the thread for worlds.
-   */
-  public static final PoolSpec WORLDS = new PoolSpec("Shiru ka - Worlds", 4, true);
-
-  /**
    * the thread for worlds.
    */
   public static final PoolSpec CHUNKS = new PoolSpec("Shiru ka - Chunks", 4, true);
@@ -66,19 +54,31 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   public static final PoolSpec PLAYERS = new PoolSpec("Shiru ka - Players", 3, false);
 
   /**
-   * the thread for schedulers.
-   */
-  public static final PoolSpec SCHEDULER = new PoolSpec("Shiru ka - Scheduler", 3, false);
-
-  /**
    * the thread for plugins.
    */
   public static final PoolSpec PLUGINS = new PoolSpec("Shiru ka - Plugins", 1, false);
 
   /**
-   * the name of the pool used to identify its threads.
+   * the thread for schedulers.
    */
-  private final String name;
+  public static final PoolSpec SCHEDULER = new PoolSpec("Shiru ka - Scheduler", 3, false);
+
+  /**
+   * a thread factory that does handling for exceptions,
+   * piping exception output to the loggers.
+   */
+  public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec("Shiru ka - Net", 0,
+    false);
+
+  /**
+   * the thread for worlds.
+   */
+  public static final PoolSpec WORLDS = new PoolSpec("Shiru ka - Worlds", 4, true);
+
+  /**
+   * whether or not the task order is relevant.
+   */
+  private final boolean doStealing;
 
   /**
    * maximum number of parallelism that should be limited in the given thread pool.
@@ -86,9 +86,9 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   private final int maxThreads;
 
   /**
-   * whether or not the task order is relevant.
+   * the name of the pool used to identify its threads.
    */
-  private final boolean doStealing;
+  private final String name;
 
   /**
    * Creates a new thread pool spec.
@@ -105,6 +105,15 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   }
 
   /**
+   * maximum number of parallelism that should be limited in the given thread pool.
+   *
+   * @return maximum number of parallelism that should be limited in the given thread pool.
+   */
+  public int getMaxThreads() {
+    return this.maxThreads;
+  }
+
+  /**
    * the name of the pool used to identify its threads.
    *
    * @return the name of the pool used to identify its threads.
@@ -112,15 +121,6 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   @NotNull
   public String getName() {
     return this.name;
-  }
-
-  /**
-   * maximum number of parallelism that should be limited in the given thread pool.
-   *
-   * @return maximum number of parallelism that should be limited in the given thread pool.
-   */
-  public int getMaxThreads() {
-    return this.maxThreads;
   }
 
   /**

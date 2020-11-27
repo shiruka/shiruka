@@ -41,11 +41,6 @@ public final class FloatTag extends NumberTagEnvelope {
     super(original);
   }
 
-  @Override
-  public boolean isFloat() {
-    return true;
-  }
-
   @NotNull
   @Override
   public FloatTag asFloat() {
@@ -55,5 +50,10 @@ public final class FloatTag extends NumberTagEnvelope {
   @Override
   public byte id() {
     return 5;
+  }
+
+  @Override
+  public boolean isFloat() {
+    return true;
   }
 }

@@ -33,6 +33,8 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
+import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -162,6 +164,13 @@ public final class ShirukaMain {
     final var server = new ShirukaServer();
     Shiruka.initServer(server);
     // TODO Continue to the development.
+    final var ip = ServerConfig.ADDRESS.getValue()
+      .orElseThrow();
+    final var port = ServerConfig.PORT.getValue()
+      .orElseThrow();
+    final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue()
+      .orElseThrow();
+    NetServerSocket.init(ip, port, new ShirukaSocketListener(server), maxPlayer);
     final var console = new ShirukaConsole(server);
     console.start();
   }

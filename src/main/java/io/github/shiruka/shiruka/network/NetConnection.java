@@ -221,7 +221,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
       this.setState(ConnectionState.UNCONNECTED);
       this.connectionHandler.onClose();
       Loggers.useLogger(logger ->
-        logger.error("Connection ({} => {}) closed: {}", this.socket.getAddress(), this.address, reason));
+        logger.debug("Connection ({} => {}) closed: {}", this.socket.getAddress(), this.address, reason));
       this.reset();
       this.socket.getSocketListener().onDisconnect(reason);
     });

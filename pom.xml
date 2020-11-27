@@ -142,16 +142,16 @@
       <version>1.2.0</version>
       <exclusions>
         <exclusion>
-          <artifactId>jline-reader</artifactId>
           <groupId>org.jline</groupId>
+          <artifactId>jline-reader</artifactId>
         </exclusion>
         <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
           <artifactId>log4j-api</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>log4j-core</artifactId>
           <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

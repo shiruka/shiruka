@@ -55,14 +55,38 @@ public final class TestSocketListener implements SocketListener {
   }
 
   @Override
-  public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
-    return SocketListener.createOne(server, "Test server description.", 0, 10);
-  }
-
-  @Override
   public void onConnectionCreation(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
     Loggers.useLogger(logger ->
       logger.debug("onConnectionCreation"));
+  }
+
+  @Override
+  public void onConnectionStateChanged(@NotNull final ConnectionState state) {
+    Loggers.useLogger(logger ->
+      logger.debug("onConnectionStateChanged"));
+  }
+
+  @Override
+  public void onDirect(@NotNull final ByteBuf packet) {
+    Loggers.useLogger(logger ->
+      logger.debug("onDirect"));
+  }
+
+  @Override
+  public void onDisconnect(@NotNull final DisconnectReason reason) {
+    Loggers.useLogger(logger ->
+      logger.debug("onDisconnect"));
+  }
+
+  @Override
+  public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
+    Loggers.useLogger(logger ->
+      logger.debug("onEncapsulated"));
+  }
+
+  @Override
+  public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
+    return SocketListener.createOne(server, "Test server description.", 0, 10);
   }
 
   @Override
@@ -85,29 +109,5 @@ public final class TestSocketListener implements SocketListener {
       Loggers.useLogger(logger ->
         logger.error("Error whilst handling packet " + e));
     }
-  }
-
-  @Override
-  public void onDisconnect(@NotNull final DisconnectReason reason) {
-    Loggers.useLogger(logger ->
-      logger.debug("onDisconnect"));
-  }
-
-  @Override
-  public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
-    Loggers.useLogger(logger ->
-      logger.debug("onEncapsulated"));
-  }
-
-  @Override
-  public void onDirect(@NotNull final ByteBuf packet) {
-    Loggers.useLogger(logger ->
-      logger.debug("onDirect"));
-  }
-
-  @Override
-  public void onConnectionStateChanged(@NotNull final ConnectionState state) {
-    Loggers.useLogger(logger ->
-      logger.debug("onConnectionStateChanged"));
   }
 }

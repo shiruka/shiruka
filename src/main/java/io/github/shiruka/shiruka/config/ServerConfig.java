@@ -47,20 +47,6 @@ public final class ServerConfig extends PathableConfig {
       "server's ip address.");
 
   /**
-   * server's port.
-   */
-  public static final ConfigPath<Integer> PORT =
-    commented(integerPath("port", 19132),
-      "server's port.");
-
-  /**
-   * "true" to use linux natives when available.
-   */
-  public static final ConfigPath<Boolean> USE_NATIVE =
-    commented(booleanPath("use-native", true),
-      "\"true\" to use linux natives when available.");
-
-  /**
    * the amount of bytes before compressing packets.
    * <p>
    * use -1 to disable.
@@ -68,13 +54,6 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<Integer> COMPRESSION_THRESHOLD =
     commented(integerPath("compression-threshold", 256),
       "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
-
-  /**
-   * whether to use Mojang auth to check players.
-   */
-  public static final ConfigPath<Boolean> ONLINE_MODE =
-    commented(booleanPath("online-mode", true),
-      "whether to use Mojang auth to check players.");
 
   /**
    * the max players that can be online at once.
@@ -96,6 +75,27 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR =
     commented(booleanPath("netty-leak-detector", false),
       "whether to check for netty memory leaks during runtime");
+
+  /**
+   * whether to use Mojang auth to check players.
+   */
+  public static final ConfigPath<Boolean> ONLINE_MODE =
+    commented(booleanPath("online-mode", true),
+      "whether to use Mojang auth to check players.");
+
+  /**
+   * server's port.
+   */
+  public static final ConfigPath<Integer> PORT =
+    commented(integerPath("port", 19132),
+      "server's port.");
+
+  /**
+   * "true" to use linux natives when available.
+   */
+  public static final ConfigPath<Boolean> USE_NATIVE =
+    commented(booleanPath("use-native", true),
+      "\"true\" to use linux natives when available.");
 
   /**
    * ctor.

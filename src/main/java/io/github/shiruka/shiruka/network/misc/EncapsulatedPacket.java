@@ -43,29 +43,14 @@ import org.jetbrains.annotations.Nullable;
 public final class EncapsulatedPacket implements ReferenceCounted {
 
   /**
-   * the reliability index.
-   */
-  public int reliabilityIndex;
-
-  /**
-   * the sequence index.
-   */
-  public int sequenceIndex;
-
-  /**
-   * the ordering index.
-   */
-  public int orderingIndex;
-
-  /**
    * the ordering channel.
    */
   public short orderingChannel;
 
   /**
-   * the split.
+   * the ordering index.
    */
-  public boolean split;
+  public int orderingIndex;
 
   /**
    * the part count.
@@ -83,10 +68,25 @@ public final class EncapsulatedPacket implements ReferenceCounted {
   public int partIndex;
 
   /**
-   * the packet's reliability.
+   * the reliability index.
+   */
+  public int reliabilityIndex;
+
+  /**
+   * the sequence index.
+   */
+  public int sequenceIndex;
+
+  /**
+   * the split.
+   */
+  public boolean split;
+
+  /**
+   * the packet itself.
    */
   @Nullable
-  private PacketReliability reliability;
+  private ByteBuf buffer;
 
   /**
    * the packet's sending priority.
@@ -95,10 +95,57 @@ public final class EncapsulatedPacket implements ReferenceCounted {
   private PacketPriority priority;
 
   /**
-   * the packet itself.
+   * the packet's reliability.
    */
   @Nullable
-  private ByteBuf buffer;
+  private PacketReliability reliability;
+
+  /**
+   * obtains the buffer.
+   *
+   * @return the buffer.
+   */
+  @NotNull
+  public ByteBuf getBuffer() {
+    return Objects.requireNonNull(this.buffer, "buffer");
+  }
+
+  /**
+   * sets the {@link EncapsulatedPacket#buffer} to the given buffer.
+   *
+   * @param buffer the buffer to set.
+   */
+  public void setBuffer(@NotNull final ByteBuf buffer) {
+    this.buffer = buffer;
+  }
+
+  /**
+   * obtains the reliability of the packet.
+   *
+   * @return the reliability of the packet.
+   */
+  @NotNull
+  public PacketReliability getReliability() {
+    return Objects.requireNonNull(this.reliability, "reliability");
+  }
+
+  /**
+   * sets the {@link EncapsulatedPacket#reliability} to the given reliability.
+   *
+   * @param reliability the reliability to set.
+   */
+  public void setReliability(@NotNull final PacketReliability reliability) {
+    this.reliability = reliability;
+  }
+
+  /**
+   * obtains size of the packet.
+   *
+   * @return size of the packet.
+   */
+  public int getSize() {
+    return 3 + this.getReliability().getSize() + (this.split ? 10 : 0) + this.getBuffer().readableBytes();
+  }
 
   @Override
   public int refCnt() {
@@ -144,89 +191,12 @@ public final class EncapsulatedPacket implements ReferenceCounted {
   }
 
   /**
-   * obtains size of the packet.
-   *
-   * @return size of the packet.
-   */
-  public int getSize() {
-    return 3 + this.getReliability().getSize() + (this.split ? 10 : 0) + this.getBuffer().readableBytes();
-  }
-
-  /**
    * sets the {@link EncapsulatedPacket#priority} to the given priority.
    *
    * @param priority the priority to set.
    */
   public void setPriority(@NotNull final PacketPriority priority) {
     this.priority = priority;
-  }
-
-  /**
-   * obtains the reliability of the packet.
-   *
-   * @return the reliability of the packet.
-   */
-  @NotNull
-  public PacketReliability getReliability() {
-    return Objects.requireNonNull(this.reliability, "reliability");
-  }
-
-  /**
-   * sets the {@link EncapsulatedPacket#reliability} to the given reliability.
-   *
-   * @param reliability the reliability to set.
-   */
-  public void setReliability(@NotNull final PacketReliability reliability) {
-    this.reliability = reliability;
-  }
-
-  /**
-   * obtains the buffer.
-   *
-   * @return the buffer.
-   */
-  @NotNull
-  public ByteBuf getBuffer() {
-    return Objects.requireNonNull(this.buffer, "buffer");
-  }
-
-  /**
-   * sets the {@link EncapsulatedPacket#buffer} to the given buffer.
-   *
-   * @param buffer the buffer to set.
-   */
-  public void setBuffer(@NotNull final ByteBuf buffer) {
-    this.buffer = buffer;
-  }
-
-  /**
-   * encodes the given packet.
-   *
-   * @param packet the packet to encode.
-   */
-  void encode(@NotNull final ByteBuf packet) {
-    var flags = Objects.requireNonNull(this.reliability, "reliability").ordinal() << 5;
-    if (this.split) {
-      flags |= 0b00010000;
-    }
-    packet.writeByte(flags);
-    packet.writeShort(Objects.requireNonNull(this.buffer, "buffer").readableBytes() << 3);
-    if (this.reliability.isReliable()) {
-      packet.writeMediumLE(this.reliabilityIndex);
-    }
-    if (this.reliability.isSequenced()) {
-      packet.writeMediumLE(this.sequenceIndex);
-    }
-    if (this.reliability.isOrdered() || this.reliability.isSequenced()) {
-      packet.writeMediumLE(this.orderingIndex);
-      packet.writeByte(this.orderingChannel);
-    }
-    if (this.split) {
-      packet.writeInt(this.partCount);
-      packet.writeShort(this.partId);
-      packet.writeInt(this.partIndex);
-    }
-    packet.writeBytes(this.buffer, this.buffer.readerIndex(), this.buffer.readableBytes());
   }
 
   /**
@@ -260,6 +230,36 @@ public final class EncapsulatedPacket implements ReferenceCounted {
       this.partIndex = packet.readInt();
     }
     this.buffer = packet.readSlice(size);
+  }
+
+  /**
+   * encodes the given packet.
+   *
+   * @param packet the packet to encode.
+   */
+  void encode(@NotNull final ByteBuf packet) {
+    var flags = Objects.requireNonNull(this.reliability, "reliability").ordinal() << 5;
+    if (this.split) {
+      flags |= 0b00010000;
+    }
+    packet.writeByte(flags);
+    packet.writeShort(Objects.requireNonNull(this.buffer, "buffer").readableBytes() << 3);
+    if (this.reliability.isReliable()) {
+      packet.writeMediumLE(this.reliabilityIndex);
+    }
+    if (this.reliability.isSequenced()) {
+      packet.writeMediumLE(this.sequenceIndex);
+    }
+    if (this.reliability.isOrdered() || this.reliability.isSequenced()) {
+      packet.writeMediumLE(this.orderingIndex);
+      packet.writeByte(this.orderingChannel);
+    }
+    if (this.split) {
+      packet.writeInt(this.partCount);
+      packet.writeShort(this.partId);
+      packet.writeInt(this.partIndex);
+    }
+    packet.writeBytes(this.buffer, this.buffer.readerIndex(), this.buffer.readableBytes());
   }
 
   /**

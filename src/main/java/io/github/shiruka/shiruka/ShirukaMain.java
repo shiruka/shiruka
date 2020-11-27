@@ -104,25 +104,6 @@ public final class ShirukaMain {
   }
 
   /**
-   * initiates the Shiru ka server.
-   *
-   * @throws IOException if something went wrong when creating files.
-   */
-  private void exec() throws IOException {
-    Loggers.init(ShirukaMain.LOGGER);
-    ShirukaMain.LOGGER.info("Shiru ka is starting.");
-    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
-    this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
-    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
-    UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
-    final var server = new ShirukaServer();
-    Shiruka.initServer(server);
-    // TODO Continue to the development.
-    final var console = new ShirukaConsole(server);
-    console.start();
-  }
-
-  /**
    * creates and returns the server file.
    *
    * @param spec the spec to create.
@@ -164,5 +145,24 @@ public final class ShirukaMain {
       }
     }
     return file;
+  }
+
+  /**
+   * initiates the Shiru ka server.
+   *
+   * @throws IOException if something went wrong when creating files.
+   */
+  private void exec() throws IOException {
+    Loggers.init(ShirukaMain.LOGGER);
+    ShirukaMain.LOGGER.info("Shiru ka is starting.");
+    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
+    this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
+    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
+    UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
+    final var server = new ShirukaServer();
+    Shiruka.initServer(server);
+    // TODO Continue to the development.
+    final var console = new ShirukaConsole(server);
+    console.start();
   }
 }

@@ -52,14 +52,52 @@ import org.jetbrains.annotations.Nullable;
 public abstract class NetSocket implements Socket {
 
   /**
+   * the datagram channel class.
+   */
+  private static final Class<? extends Channel> CHANNEL;
+
+  /**
    * the datagram event loop group.
    */
   private static final EventLoopGroup GROUP;
 
   /**
-   * the datagram channel class.
+   * socket's address.
    */
-  private static final Class<? extends Channel> CHANNEL;
+  @NotNull
+  private final InetSocketAddress address;
+
+  /**
+   * the bootstrap to bind the socket.
+   */
+  private final Bootstrap bootstrap = new Bootstrap();
+
+  /**
+   * if the socket is closed or not.
+   */
+  private final AtomicBoolean closed = new AtomicBoolean(false);
+
+  /**
+   * if the socket is running or not.
+   */
+  private final AtomicBoolean running = new AtomicBoolean(false);
+
+  /**
+   * server's listener.
+   */
+  @NotNull
+  private final SocketListener socketListener;
+
+  /**
+   * server's unique id a.k.a. guid.
+   */
+  private final long uniqueId = ThreadLocalRandom.current().nextLong();
+
+  /**
+   * the tick future to run {@link Socket#onTick()} method.
+   */
+  @Nullable
+  private ScheduledFuture<?> tickFuture;
 
   static {
     final var disableNative = System.getProperties().contains("disableNativeEventLoop");
@@ -76,44 +114,6 @@ public abstract class NetSocket implements Socket {
   }
 
   /**
-   * if the socket is running or not.
-   */
-  private final AtomicBoolean running = new AtomicBoolean(false);
-
-  /**
-   * if the socket is closed or not.
-   */
-  private final AtomicBoolean closed = new AtomicBoolean(false);
-
-  /**
-   * server's unique id a.k.a. guid.
-   */
-  private final long uniqueId = ThreadLocalRandom.current().nextLong();
-
-  /**
-   * the bootstrap to bind the socket.
-   */
-  private final Bootstrap bootstrap = new Bootstrap();
-
-  /**
-   * socket's address.
-   */
-  @NotNull
-  private final InetSocketAddress address;
-
-  /**
-   * server's listener.
-   */
-  @NotNull
-  private final SocketListener socketListener;
-
-  /**
-   * the tick future to run {@link Socket#onTick()} method.
-   */
-  @Nullable
-  private ScheduledFuture<?> tickFuture;
-
-  /**
    * ctor.
    *
    * @param address the address.
@@ -126,42 +126,6 @@ public abstract class NetSocket implements Socket {
       .option(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
       .group(NetSocket.GROUP)
       .channel(NetSocket.CHANNEL);
-  }
-
-  @SuppressWarnings("DesignForExtension")
-  @Override
-  public void close() {
-    this.closed.set(true);
-    Optional.ofNullable(this.tickFuture).ifPresent(future ->
-      future.cancel(false));
-  }
-
-  @Override
-  public final long getUniqueId() {
-    return this.uniqueId;
-  }
-
-  @NotNull
-  @Override
-  public final InetSocketAddress getAddress() {
-    return this.address;
-  }
-
-  @NotNull
-  @Override
-  public final SocketListener getSocketListener() {
-    return this.socketListener;
-  }
-
-  @NotNull
-  @Override
-  public final Bootstrap getBootstrap() {
-    return this.bootstrap;
-  }
-
-  @Override
-  public final boolean isClosed() {
-    return this.closed.get();
   }
 
   @NotNull
@@ -180,5 +144,41 @@ public abstract class NetSocket implements Socket {
             TimeUnit.MILLISECONDS);
         }
       }));
+  }
+
+  @NotNull
+  @Override
+  public final InetSocketAddress getAddress() {
+    return this.address;
+  }
+
+  @NotNull
+  @Override
+  public final Bootstrap getBootstrap() {
+    return this.bootstrap;
+  }
+
+  @NotNull
+  @Override
+  public final SocketListener getSocketListener() {
+    return this.socketListener;
+  }
+
+  @Override
+  public final long getUniqueId() {
+    return this.uniqueId;
+  }
+
+  @Override
+  public final boolean isClosed() {
+    return this.closed.get();
+  }
+
+  @SuppressWarnings("DesignForExtension")
+  @Override
+  public void close() {
+    this.closed.set(true);
+    Optional.ofNullable(this.tickFuture).ifPresent(future ->
+      future.cancel(false));
   }
 }

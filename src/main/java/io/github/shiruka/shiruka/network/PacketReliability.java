@@ -47,14 +47,14 @@ public enum PacketReliability {
   private static final PacketReliability[] VALUES = PacketReliability.values();
 
   /**
-   * is reliable or not.
-   */
-  private final boolean reliable;
-
-  /**
    * is ordered or not.
    */
   private final boolean ordered;
+
+  /**
+   * is reliable or not.
+   */
+  private final boolean reliable;
 
   /**
    * is sequenced or not
@@ -62,15 +62,15 @@ public enum PacketReliability {
   private final boolean sequenced;
 
   /**
+   * the size.
+   */
+  private final int size;
+
+  /**
    * include ack receipt or not.
    */
   @SuppressWarnings("FieldCanBeLocal")
   private final boolean withAckReceipt;
-
-  /**
-   * the size.
-   */
-  private final int size;
 
   /**
    * ctor.
@@ -115,21 +115,21 @@ public enum PacketReliability {
   }
 
   /**
+   * size of the reliability.
+   *
+   * @return the size as a number.
+   */
+  public int getSize() {
+    return this.size;
+  }
+
+  /**
    * obtains {@link PacketReliability#ordered}.
    *
    * @return returns true if it's ordered.
    */
   public boolean isOrdered() {
     return this.ordered;
-  }
-
-  /**
-   * obtains {@link PacketReliability#sequenced}.
-   *
-   * @return returns true if it's sequenced.
-   */
-  public boolean isSequenced() {
-    return this.sequenced;
   }
 
   /**
@@ -142,11 +142,11 @@ public enum PacketReliability {
   }
 
   /**
-   * size of the reliability.
+   * obtains {@link PacketReliability#sequenced}.
    *
-   * @return the size as a number.
+   * @return returns true if it's sequenced.
    */
-  public int getSize() {
-    return this.size;
+  public boolean isSequenced() {
+    return this.sequenced;
   }
 }

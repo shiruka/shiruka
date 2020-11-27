@@ -121,41 +121,15 @@ public final class NBTInputStream implements Closeable {
   }
 
   /**
-   * reads the given input and converts it into the {@link CompoundTag}.
+   * reads the given input and converts it into the {@link ByteTag}.
    *
-   * @return an instance of {@link CompoundTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  public CompoundTag readCompoundTag() throws IOException {
-    final var tags = new HashMap<String, Tag>();
-    byte id;
-    while ((id = this.input.readByte()) != Tag.END.id()) {
-      final var key = this.input.readUTF();
-      final var tag = this.read(id);
-      tags.put(key, tag);
-    }
-    return Tag.createCompound(tags);
-  }
-
-  /**
-   * reads the given input and converts it into the {@link ListTag}.
-   *
-   * @return an instance of {@link ListTag}.
+   * @return an instance of {@link ByteTag}.
    *
    * @throws IOException if something went wrong when reading the given input.
    */
   @NotNull
-  public ListTag readListTag() throws IOException {
-    final var id = this.input.readByte();
-    final var length = this.input.readInt();
-    final var tags = new ArrayList<Tag>(length);
-    for (var i = 0; i < length; i++) {
-      final var read = this.read(id);
-      tags.add(read);
-    }
-    return Tag.createList(tags);
+  public ByteTag readByte() throws IOException {
+    return Tag.createByte(this.input.readByte());
   }
 
   /**
@@ -174,49 +148,22 @@ public final class NBTInputStream implements Closeable {
   }
 
   /**
-   * reads the given input and converts it into the {@link IntArrayTag}.
+   * reads the given input and converts it into the {@link CompoundTag}.
    *
-   * @return an instance of {@link IntArrayTag}.
+   * @return an instance of {@link CompoundTag}.
    *
    * @throws IOException if something went wrong when reading the given input.
    */
   @NotNull
-  public IntArrayTag readIntArray() throws IOException {
-    final var length = this.input.readInt();
-    final var value = new Integer[length];
-    for (var i = 0; i < length; i++) {
-      value[i] = this.input.readInt();
+  public CompoundTag readCompoundTag() throws IOException {
+    final var tags = new HashMap<String, Tag>();
+    byte id;
+    while ((id = this.input.readByte()) != Tag.END.id()) {
+      final var key = this.input.readUTF();
+      final var tag = this.read(id);
+      tags.put(key, tag);
     }
-    return Tag.createIntArray(value);
-  }
-
-  /**
-   * reads the given input and converts it into the {@link LongArrayTag}.
-   *
-   * @return an instance of {@link LongArrayTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  public LongArrayTag readLongArray() throws IOException {
-    final var length = this.input.readInt();
-    final var value = new Long[length];
-    for (var i = 0; i < length; i++) {
-      value[i] = this.input.readLong();
-    }
-    return Tag.createLongArray(value);
-  }
-
-  /**
-   * reads the given input and converts it into the {@link ByteTag}.
-   *
-   * @return an instance of {@link ByteTag}.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  @NotNull
-  public ByteTag readByte() throws IOException {
-    return Tag.createByte(this.input.readByte());
+    return Tag.createCompound(tags);
   }
 
   /**
@@ -256,6 +203,42 @@ public final class NBTInputStream implements Closeable {
   }
 
   /**
+   * reads the given input and converts it into the {@link IntArrayTag}.
+   *
+   * @return an instance of {@link IntArrayTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  public IntArrayTag readIntArray() throws IOException {
+    final var length = this.input.readInt();
+    final var value = new Integer[length];
+    for (var i = 0; i < length; i++) {
+      value[i] = this.input.readInt();
+    }
+    return Tag.createIntArray(value);
+  }
+
+  /**
+   * reads the given input and converts it into the {@link ListTag}.
+   *
+   * @return an instance of {@link ListTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  public ListTag readListTag() throws IOException {
+    final var id = this.input.readByte();
+    final var length = this.input.readInt();
+    final var tags = new ArrayList<Tag>(length);
+    for (var i = 0; i < length; i++) {
+      final var read = this.read(id);
+      tags.add(read);
+    }
+    return Tag.createList(tags);
+  }
+
+  /**
    * reads the given input and converts it into the {@link LongTag}.
    *
    * @return an instance of {@link LongTag}.
@@ -265,6 +248,23 @@ public final class NBTInputStream implements Closeable {
   @NotNull
   public LongTag readLong() throws IOException {
     return Tag.createLong(this.input.readLong());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link LongArrayTag}.
+   *
+   * @return an instance of {@link LongArrayTag}.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  @NotNull
+  public LongArrayTag readLongArray() throws IOException {
+    final var length = this.input.readInt();
+    final var value = new Long[length];
+    for (var i = 0; i < length; i++) {
+      value[i] = this.input.readLong();
+    }
+    return Tag.createLongArray(value);
   }
 
   /**

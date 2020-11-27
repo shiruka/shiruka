@@ -67,49 +67,6 @@ public interface Socket extends AutoCloseable {
   }
 
   /**
-   * runs every tick.
-   */
-  void onTick();
-
-  /**
-   * socket's the unique id.
-   *
-   * @return the unique id to determine the socket.
-   */
-  long getUniqueId();
-
-  /**
-   * socket's address.
-   *
-   * @return the address to determine the socket's ip and port.
-   */
-  @NotNull
-  InetSocketAddress getAddress();
-
-  /**
-   * socket's listener.
-   *
-   * @return the listener to handler socket's events.
-   */
-  @NotNull
-  SocketListener getSocketListener();
-
-  /**
-   * socket's bootstrap.
-   *
-   * @return the bootstrap to bind the socket.
-   */
-  @NotNull
-  Bootstrap getBootstrap();
-
-  /**
-   * socket's status in terms of closing.
-   *
-   * @return if the socket is closed returns true otherwise, false.
-   */
-  boolean isClosed();
-
-  /**
    * binds the socket.
    *
    * @return a {@link CompletableFuture} to listen or what you do want.
@@ -124,4 +81,47 @@ public interface Socket extends AutoCloseable {
    */
   @NotNull
   CompletableFuture<Void> exec();
+
+  /**
+   * socket's address.
+   *
+   * @return the address to determine the socket's ip and port.
+   */
+  @NotNull
+  InetSocketAddress getAddress();
+
+  /**
+   * socket's bootstrap.
+   *
+   * @return the bootstrap to bind the socket.
+   */
+  @NotNull
+  Bootstrap getBootstrap();
+
+  /**
+   * socket's listener.
+   *
+   * @return the listener to handler socket's events.
+   */
+  @NotNull
+  SocketListener getSocketListener();
+
+  /**
+   * socket's the unique id.
+   *
+   * @return the unique id to determine the socket.
+   */
+  long getUniqueId();
+
+  /**
+   * socket's status in terms of closing.
+   *
+   * @return if the socket is closed returns true otherwise, false.
+   */
+  boolean isClosed();
+
+  /**
+   * runs every tick.
+   */
+  void onTick();
 }

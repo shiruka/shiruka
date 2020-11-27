@@ -43,28 +43,34 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaConsoleParser {
 
   /**
-   * the help option spec.
-   */
-  @NotNull
-  public static final OptionSpec<Void> HELP;
-
-  /**
    * the server config file option spec.
    */
   @NotNull
   public static final OptionSpec<File> CONFIG;
 
   /**
-   * the plugins directory option spec.
+   * the debug mode option spec.
    */
   @NotNull
-  public static final OptionSpec<File> PLUGINS;
+  public static final OptionSpec<Boolean> DEBUG;
+
+  /**
+   * the help option spec.
+   */
+  @NotNull
+  public static final OptionSpec<Void> HELP;
 
   /**
    * the ops file option spec.
    */
   @NotNull
   public static final OptionSpec<File> OPS;
+
+  /**
+   * the plugins directory option spec.
+   */
+  @NotNull
+  public static final OptionSpec<File> PLUGINS;
 
   /**
    * the ops file option spec.
@@ -77,12 +83,6 @@ public final class ShirukaConsoleParser {
    */
   @NotNull
   public static final OptionSpec<Void> VERSION;
-
-  /**
-   * the debug mode option spec.
-   */
-  @NotNull
-  public static final OptionSpec<Boolean> DEBUG;
 
   /**
    * the option parser.
@@ -157,13 +157,6 @@ public final class ShirukaConsoleParser {
   }
 
   /**
-   * prints the server's version.
-   */
-  public static void printVersion() {
-    System.out.println(ShirukaServer.VERSION);
-  }
-
-  /**
    * prints the help message.
    */
   public static void printHelpOn() {
@@ -172,5 +165,12 @@ public final class ShirukaConsoleParser {
     } catch (final IOException ex) {
       ShirukaConsoleParser.SIMPLE_LOGGER.log(Level.SEVERE, null, ex);
     }
+  }
+
+  /**
+   * prints the server's version.
+   */
+  public static void printVersion() {
+    System.out.println(ShirukaServer.VERSION);
   }
 }

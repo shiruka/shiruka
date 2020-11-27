@@ -39,16 +39,16 @@ import org.jline.reader.LineReaderBuilder;
 public final class ShirukaConsole extends SimpleTerminalConsole {
 
   /**
-   * the server instance.
-   */
-  @NotNull
-  private final Server server;
-
-  /**
    * the console command completer;
    */
   @NotNull
   private final Completer completer;
+
+  /**
+   * the server instance.
+   */
+  @NotNull
+  private final Server server;
 
   /**
    * ctor.
@@ -56,9 +56,9 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
    * @param server the server.
    * @param completer the completer.
    */
-  public ShirukaConsole(@NotNull final Server server, @NotNull final Completer completer) {
-    this.server = server;
+  public ShirukaConsole(@NotNull final Completer completer, @NotNull final Server server) {
     this.completer = completer;
+    this.server = server;
   }
 
   /**
@@ -67,7 +67,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
    * @param server the server.
    */
   public ShirukaConsole(@NotNull final Server server) {
-    this(server, new ConsoleCommandCompleter(server));
+    this(new ConsoleCommandCompleter(server), server);
   }
 
   @Override

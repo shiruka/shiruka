@@ -32,11 +32,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface NumberTag extends PrimitiveTag<Double> {
 
-  @Override
-  default boolean isNumber() {
-    return true;
-  }
-
   @NotNull
   @Override
   default NumberTag asNumber() {
@@ -44,9 +39,8 @@ public interface NumberTag extends PrimitiveTag<Double> {
   }
 
   @Override
-  @NotNull
-  default Double value() {
-    return this.doubleValue();
+  default boolean isNumber() {
+    return true;
   }
 
   /**
@@ -62,16 +56,22 @@ public interface NumberTag extends PrimitiveTag<Double> {
   }
 
   /**
-   * returns the value of the specified number as a {@code short}.
+   * returns the value of the specified number as a {@code double}.
    *
    * @return the numeric value represented by this object after conversion
-   *   to type {@code short}.
+   *   to type {@code double}.
    */
   @NotNull
-  default Short shortValue() {
-    return this.intValue()
-      .shortValue();
-  }
+  Double doubleValue();
+
+  /**
+   * returns the value of the specified number as a {@code float}.
+   *
+   * @return the numeric value represented by this object after conversion
+   *   to type {@code float}.
+   */
+  @NotNull
+  Float floatValue();
 
   /**
    * returns the value of the specified number as an {@code int}.
@@ -92,20 +92,20 @@ public interface NumberTag extends PrimitiveTag<Double> {
   Long longValue();
 
   /**
-   * returns the value of the specified number as a {@code float}.
+   * returns the value of the specified number as a {@code short}.
    *
    * @return the numeric value represented by this object after conversion
-   *   to type {@code float}.
+   *   to type {@code short}.
    */
   @NotNull
-  Float floatValue();
+  default Short shortValue() {
+    return this.intValue()
+      .shortValue();
+  }
 
-  /**
-   * returns the value of the specified number as a {@code double}.
-   *
-   * @return the numeric value represented by this object after conversion
-   *   to type {@code double}.
-   */
+  @Override
   @NotNull
-  Double doubleValue();
+  default Double value() {
+    return this.doubleValue();
+  }
 }

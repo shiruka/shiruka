@@ -90,10 +90,51 @@ public final class ServerThreadPool implements Executor {
   }
 
   /**
+   * executes the given runnable command in the thread
+   * pool.
+   *
+   * @param command the command which to schedule for
+   *   running.
+   */
+  @Override
+  public void execute(@NotNull final Runnable command) {
+    this.delegate.execute(command);
+  }
+
+  /**
+   * submits the given {@link Callable}.
+   *
+   * @param tasks the tasks to submit.
+   * @param <T> type of the submitted task.
+   *
+   * @return submitted future.
+   *
+   * @throws InterruptedException if interrupted while waiting, in
+   *   which case unfinished tasks are cancelled
+   */
+  @NotNull
+  public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks)
+    throws InterruptedException {
+    return this.delegate.invokeAll(tasks);
+  }
+
+  /**
    * attempts to shutdown the thread pool immediately.
    */
   public void shutdown() {
     this.delegate.shutdown();
+  }
+
+  /**
+   * submits the given {@link Runnable}.
+   *
+   * @param task the task to submit.
+   *
+   * @return submitted future.
+   */
+  @NotNull
+  public Future<?> submit(@NotNull final Runnable task) {
+    return this.delegate.submit(task);
   }
 
   /**
@@ -121,46 +162,5 @@ public final class ServerThreadPool implements Executor {
   @NotNull
   public <T> Future<T> submit(@NotNull final Runnable task, @NotNull final T result) {
     return this.delegate.submit(task, result);
-  }
-
-  /**
-   * submits the given {@link Runnable}.
-   *
-   * @param task the task to submit.
-   *
-   * @return submitted future.
-   */
-  @NotNull
-  public Future<?> submit(@NotNull final Runnable task) {
-    return this.delegate.submit(task);
-  }
-
-  /**
-   * submits the given {@link Callable}.
-   *
-   * @param tasks the tasks to submit.
-   * @param <T> type of the submitted task.
-   *
-   * @return submitted future.
-   *
-   * @throws InterruptedException if interrupted while waiting, in
-   *   which case unfinished tasks are cancelled
-   */
-  @NotNull
-  public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks)
-    throws InterruptedException {
-    return this.delegate.invokeAll(tasks);
-  }
-
-  /**
-   * executes the given runnable command in the thread
-   * pool.
-   *
-   * @param command the command which to schedule for
-   *   running.
-   */
-  @Override
-  public void execute(@NotNull final Runnable command) {
-    this.delegate.execute(command);
   }
 }

@@ -44,15 +44,15 @@ public final class ListTagBasic implements ListTag {
   private final int hashCode;
 
   /**
+   * the list id.
+   */
+  private byte listType;
+
+  /**
    * the original.
    */
   @NotNull
   private List<Tag> original;
-
-  /**
-   * the list id.
-   */
-  private byte listType;
 
   /**
    * ctor.
@@ -67,19 +67,6 @@ public final class ListTagBasic implements ListTag {
   }
 
   /**
-   * throws an exception if the given tag's id equals to the end id.
-   *
-   * @param tag the tag to check.
-   *
-   * @throws IllegalArgumentException if the given tag's id equals to the end id.
-   */
-  private static void noAddEnd(@NotNull final Tag tag) {
-    if (tag.id() == Tag.END.id()) {
-      throw new IllegalArgumentException(String.format("Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id()));
-    }
-  }
-
-  /**
    * throws an exception if the given tag's id not equals to the given id.
    *
    * @param tag the tag to check.
@@ -89,6 +76,19 @@ public final class ListTagBasic implements ListTag {
   private static void mustBeSameType(@NotNull final Tag tag, final byte id) {
     if (tag.id() != id) {
       throw new IllegalArgumentException(String.format("Trying to add tag of type %s to list of %s", tag.id(), id));
+    }
+  }
+
+  /**
+   * throws an exception if the given tag's id equals to the end id.
+   *
+   * @param tag the tag to check.
+   *
+   * @throws IllegalArgumentException if the given tag's id equals to the end id.
+   */
+  private static void noAddEnd(@NotNull final Tag tag) {
+    if (tag.id() == Tag.END.id()) {
+      throw new IllegalArgumentException(String.format("Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id()));
     }
   }
 
@@ -105,12 +105,6 @@ public final class ListTagBasic implements ListTag {
 
   @NotNull
   @Override
-  public Stream<Tag> stream() {
-    return this.original.stream();
-  }
-
-  @NotNull
-  @Override
   public List<Tag> all() {
     return Collections.unmodifiableList(this.original);
   }
@@ -120,19 +114,10 @@ public final class ListTagBasic implements ListTag {
     return this.listType;
   }
 
+  @NotNull
   @Override
-  public Tag get(@NotNull final Integer key) {
-    return this.original.get(key);
-  }
-
-  @Override
-  public void set(@NotNull final Integer index, @NotNull final Tag tag) {
-    this.edit(tags -> tags.set(index, tag), tag.id());
-  }
-
-  @Override
-  public void remove(@NotNull final Integer index) {
-    this.edit(tags -> tags.remove(index.intValue()), (byte) -1);
+  public Stream<Tag> stream() {
+    return this.original.stream();
   }
 
   @Override
@@ -141,8 +126,34 @@ public final class ListTagBasic implements ListTag {
   }
 
   @Override
+  public Tag get(@NotNull final Integer key) {
+    return this.original.get(key);
+  }
+
+  @Override
+  public void remove(@NotNull final Integer index) {
+    this.edit(tags -> tags.remove(index.intValue()), (byte) -1);
+  }
+
+  @Override
+  public void set(@NotNull final Integer index, @NotNull final Tag tag) {
+    this.edit(tags -> tags.set(index, tag), tag.id());
+  }
+
+  @Override
   public int size() {
     return this.original.size();
+  }
+
+  @Override
+  public int hashCode() {
+    return this.hashCode;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return this == obj ||
+      obj instanceof ListTagBasic && this.original.equals(((ListTagBasic) obj).original);
   }
 
   @Override
@@ -175,17 +186,6 @@ public final class ListTagBasic implements ListTag {
   @Override
   public Spliterator<Tag> spliterator() {
     return Spliterators.spliterator(this.original, Spliterator.ORDERED | Spliterator.IMMUTABLE);
-  }
-
-  @Override
-  public int hashCode() {
-    return this.hashCode;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    return this == obj ||
-      obj instanceof ListTagBasic && this.original.equals(((ListTagBasic) obj).original);
   }
 
   private void edit(@NotNull final Consumer<List<Tag>> consumer, final byte type) {

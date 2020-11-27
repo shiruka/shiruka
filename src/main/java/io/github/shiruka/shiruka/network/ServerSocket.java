@@ -41,11 +41,19 @@ import org.jetbrains.annotations.NotNull;
 public interface ServerSocket extends Socket {
 
   /**
-   * maximum connection amount of the server.
+   * adds the given channel into the channel list.
    *
-   * @return maximum connection count to limit the server.
+   * @param channel the channel to add into the list.
    */
-  int getMaxConnections();
+  void addChannel(@NotNull Channel channel);
+
+  /**
+   * adds the given id and handler into the exception handler map.
+   *
+   * @param id the id to add.
+   * @param handler the handler to add.
+   */
+  void addExceptionHandler(@NotNull String id, @NotNull Consumer<Throwable> handler);
 
   /**
    * blocks the given address.
@@ -67,86 +75,9 @@ public interface ServerSocket extends Socket {
   }
 
   /**
-   * unblock the given address.
-   *
-   * @param address the address to unblock.
-   */
-  void unblockAddress(@NotNull InetAddress address);
-
-  /**
-   * adds the given channel into the channel list.
-   *
-   * @param channel the channel to add into the list.
-   */
-  void addChannel(@NotNull Channel channel);
-
-  /**
-   * removes the given channel from the channel list.
-   *
-   * @param channel the channel to remove from the list.
-   */
-  void removeChannel(@NotNull Channel channel);
-
-  /**
-   * the channel list.
-   *
-   * @return the channels set.
-   */
-  @NotNull
-  Set<Channel> getChannels();
-
-  /**
-   * list of the blocked addresses.
-   *
-   * @return the key is block address and, the value is when the blocked address will unblock.
-   */
-  @NotNull
-  Map<InetAddress, Long> getBlockedAddresses();
-
-  /**
-   * adds the given id and handler into the exception handler map.
-   *
-   * @param id the id to add.
-   * @param handler the handler to add.
-   */
-  void addExceptionHandler(@NotNull String id, @NotNull Consumer<Throwable> handler);
-
-  /**
    * clears all the exception handlers.
    */
   void clearExceptionHandlers();
-
-  /**
-   * removes the exception handler from the given id
-   *
-   * @param id the id to remove.
-   */
-  void removeExceptionHandler(@NotNull String id);
-
-  /**
-   * obtains all exception handlers.
-   *
-   * @return all exception handlers.
-   */
-  @NotNull
-  Map<String, Consumer<Throwable>> getExceptionHandlers();
-
-  /**
-   * list of the connection by address.
-   *
-   * @return the key is connection's address and, the value is connection itself.
-   */
-  @NotNull
-  Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress();
-
-  /**
-   * removes the connection from {@link ServerSocket#getConnectionsByAddress()}.
-   *
-   * @param address the address to remove.
-   * @param connection the connection to remove.
-   */
-  void removeConnection(@NotNull InetSocketAddress address,
-                        @NotNull Connection<ServerSocket, ServerConnectionHandler> connection);
 
   /**
    * create a new connection and if it's first time for the given recipient the method also
@@ -161,4 +92,73 @@ public interface ServerSocket extends Socket {
    */
   void createNewConnection(@NotNull InetSocketAddress recipient, @NotNull ChannelHandlerContext ctx, int mtu,
                            short protocolVersion);
+
+  /**
+   * list of the blocked addresses.
+   *
+   * @return the key is block address and, the value is when the blocked address will unblock.
+   */
+  @NotNull
+  Map<InetAddress, Long> getBlockedAddresses();
+
+  /**
+   * the channel list.
+   *
+   * @return the channels set.
+   */
+  @NotNull
+  Set<Channel> getChannels();
+
+  /**
+   * list of the connection by address.
+   *
+   * @return the key is connection's address and, the value is connection itself.
+   */
+  @NotNull
+  Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress();
+
+  /**
+   * obtains all exception handlers.
+   *
+   * @return all exception handlers.
+   */
+  @NotNull
+  Map<String, Consumer<Throwable>> getExceptionHandlers();
+
+  /**
+   * maximum connection amount of the server.
+   *
+   * @return maximum connection count to limit the server.
+   */
+  int getMaxConnections();
+
+  /**
+   * removes the given channel from the channel list.
+   *
+   * @param channel the channel to remove from the list.
+   */
+  void removeChannel(@NotNull Channel channel);
+
+  /**
+   * removes the connection from {@link ServerSocket#getConnectionsByAddress()}.
+   *
+   * @param address the address to remove.
+   * @param connection the connection to remove.
+   */
+  void removeConnection(@NotNull InetSocketAddress address,
+                        @NotNull Connection<ServerSocket, ServerConnectionHandler> connection);
+
+  /**
+   * removes the exception handler from the given id
+   *
+   * @param id the id to remove.
+   */
+  void removeExceptionHandler(@NotNull String id);
+
+  /**
+   * unblock the given address.
+   *
+   * @param address the address to unblock.
+   */
+  void unblockAddress(@NotNull InetAddress address);
 }

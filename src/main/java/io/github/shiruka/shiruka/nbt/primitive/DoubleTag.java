@@ -41,11 +41,6 @@ public final class DoubleTag extends NumberTagEnvelope {
     super(original);
   }
 
-  @Override
-  public boolean isDouble() {
-    return true;
-  }
-
   @NotNull
   @Override
   public DoubleTag asDouble() {
@@ -55,5 +50,10 @@ public final class DoubleTag extends NumberTagEnvelope {
   @Override
   public byte id() {
     return 6;
+  }
+
+  @Override
+  public boolean isDouble() {
+    return true;
   }
 }

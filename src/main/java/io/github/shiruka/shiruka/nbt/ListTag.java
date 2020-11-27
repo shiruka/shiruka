@@ -34,10 +34,20 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
 
-  @Override
-  default boolean isList() {
-    return true;
-  }
+  /**
+   * adds the given tag.
+   *
+   * @param tag the tag to add.
+   */
+  void add(@NotNull Tag tag);
+
+  /**
+   * obtains list tag's list as unmodifiable..
+   *
+   * @return list tag's list.
+   */
+  @NotNull
+  List<Tag> all();
 
   @NotNull
   @Override
@@ -51,16 +61,21 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
   }
 
   @Override
+  default boolean isList() {
+    return true;
+  }
+
+  @Override
   default boolean containsKey(@NotNull final Integer key) {
     return this.size() > key;
   }
 
   /**
-   * adds the given tag.
+   * obtains list's inside id of the tags.
    *
-   * @param tag the tag to add.
+   * @return list's inside id of the tags
    */
-  void add(@NotNull Tag tag);
+  byte listType();
 
   /**
    * creates a stream of the tags contained within this list.
@@ -69,19 +84,4 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
    */
   @NotNull
   Stream<Tag> stream();
-
-  /**
-   * obtains list tag's list as unmodifiable..
-   *
-   * @return list tag's list.
-   */
-  @NotNull
-  List<Tag> all();
-
-  /**
-   * obtains list's inside id of the tags.
-   *
-   * @return list's inside id of the tags
-   */
-  byte listType();
 }

@@ -41,11 +41,6 @@ public final class ShortTag extends NumberTagEnvelope {
     super(original);
   }
 
-  @Override
-  public boolean isShort() {
-    return true;
-  }
-
   @NotNull
   @Override
   public ShortTag asShort() {
@@ -55,5 +50,10 @@ public final class ShortTag extends NumberTagEnvelope {
   @Override
   public byte id() {
     return 2;
+  }
+
+  @Override
+  public boolean isShort() {
+    return true;
   }
 }

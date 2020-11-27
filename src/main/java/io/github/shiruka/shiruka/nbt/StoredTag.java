@@ -39,139 +39,32 @@ import org.jetbrains.annotations.Nullable;
 public interface StoredTag<K> {
 
   /**
-   * gets the byte array from the tag store.
+   * checks if the stored tag has the given tag.
+   *
+   * @param tag the tag to check.
+   *
+   * @return {@code true} if the stored tag has the given tag.
+   */
+  boolean contains(@NotNull Tag tag);
+
+  /**
+   * checks if the stored tag has the given key.
+   *
+   * @param key the key to check.
+   *
+   * @return {@code true} if the stored tag has the given key.
+   */
+  boolean containsKey(@NotNull K key);
+
+  /**
+   * gets the tag at the given key.
    *
    * @param key the key to get.
    *
-   * @return a byte array instance from the tag store.
+   * @return the tag.
    */
-  @NotNull
-  default Byte[] getByteArray(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isByteArray()) {
-      return new Byte[0];
-    }
-    return tag.asByteArray()
-      .value();
-  }
-
-  /**
-   * sets the byte array to the tag store.
-   *
-   * @param key the key to set.
-   * @param value the value to set.
-   */
-  default void setByteArray(@NotNull final K key, @NotNull final Byte @NotNull [] value) {
-    this.set(key, Tag.createByteArray(value));
-  }
-
-  /**
-   * gets the int array from the tag store.
-   *
-   * @param key the key to get.
-   *
-   * @return a int array instance from the tag store.
-   */
-  @NotNull
-  default Integer[] getIntArray(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isIntArray()) {
-      return new Integer[0];
-    }
-    return tag.asIntArray()
-      .value();
-  }
-
-  /**
-   * sets the int array to the tag store.
-   *
-   * @param key the key to set.
-   * @param value the value to set.
-   */
-  default void setIntArray(@NotNull final K key, @NotNull final Integer @NotNull [] value) {
-    this.set(key, Tag.createIntArray(value));
-  }
-
-  /**
-   * gets the long array from the tag store.
-   *
-   * @param key the key to get.
-   *
-   * @return a long array instance from the tag store.
-   */
-  @NotNull
-  default Long[] getLongArray(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isLongArray()) {
-      return new Long[0];
-    }
-    return tag.asLongArray()
-      .value();
-  }
-
-  /**
-   * sets the long array to the tag store.
-   *
-   * @param key the key to set.
-   * @param value the value set.
-   */
-  default void setLongArray(@NotNull final K key, @NotNull final Long @NotNull [] value) {
-    this.set(key, Tag.createLongArray(value));
-  }
-
-  /**
-   * gets the map from the tag store.
-   *
-   * @param key the key to get.
-   *
-   * @return a map instance from the tag store.
-   */
-  @NotNull
-  default Map<String, Tag> getMap(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isCompound()) {
-      return Collections.emptyMap();
-    }
-    return tag.asCompound()
-      .all();
-  }
-
-  /**
-   * sets the map to the tag store.
-   *
-   * @param key the key to set.
-   * @param value the value to set.
-   */
-  default void setMap(@NotNull final K key, @NotNull final Map<String, Tag> value) {
-    this.set(key, Tag.createCompound(value));
-  }
-
-  /**
-   * gets the list from the tag store.
-   *
-   * @param key the key to get.
-   *
-   * @return a list instance from the tag store.
-   */
-  @NotNull
-  default List<Tag> getList(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isList()) {
-      return Collections.emptyList();
-    }
-    return tag.asList()
-      .all();
-  }
-
-  /**
-   * sets the list to the tag store.
-   *
-   * @param key the key to set.
-   * @param value the value to set.
-   */
-  default void setList(@NotNull final K key, @NotNull final List<Tag> value) {
-    this.set(key, Tag.createList(value));
-  }
+  @Nullable
+  Tag get(@NotNull K key);
 
   /**
    * gets the byte from the tag store.
@@ -191,13 +84,20 @@ public interface StoredTag<K> {
   }
 
   /**
-   * sets the byte to the tag store.
+   * gets the byte array from the tag store.
    *
-   * @param key the key to set.
-   * @param value the value to set.
+   * @param key the key to get.
+   *
+   * @return a byte array instance from the tag store.
    */
-  default void setByte(@NotNull final K key, @NotNull final Byte value) {
-    this.set(key, Tag.createByte(value));
+  @NotNull
+  default Byte[] getByteArray(@NotNull final K key) {
+    final var tag = this.get(key);
+    if (tag == null || !tag.isByteArray()) {
+      return new Byte[0];
+    }
+    return tag.asByteArray()
+      .value();
   }
 
   /**
@@ -218,16 +118,6 @@ public interface StoredTag<K> {
   }
 
   /**
-   * sets the double to the tag store.
-   *
-   * @param key the key to set.
-   * @param value the value to set.
-   */
-  default void setDouble(@NotNull final K key, @NotNull final Double value) {
-    this.set(key, Tag.createDouble(value));
-  }
-
-  /**
    * gets the float from the tag store.
    *
    * @param key the key to get.
@@ -245,13 +135,20 @@ public interface StoredTag<K> {
   }
 
   /**
-   * sets the float to the tag store.
+   * gets the int array from the tag store.
    *
-   * @param key the key to set.
-   * @param value the value to set.
+   * @param key the key to get.
+   *
+   * @return a int array instance from the tag store.
    */
-  default void setFloat(@NotNull final K key, @NotNull final Float value) {
-    this.set(key, Tag.createFloat(value));
+  @NotNull
+  default Integer[] getIntArray(@NotNull final K key) {
+    final var tag = this.get(key);
+    if (tag == null || !tag.isIntArray()) {
+      return new Integer[0];
+    }
+    return tag.asIntArray()
+      .value();
   }
 
   /**
@@ -272,13 +169,20 @@ public interface StoredTag<K> {
   }
 
   /**
-   * sets the integer to the tag store.
+   * gets the list from the tag store.
    *
-   * @param key the key to set.
-   * @param value the value to set.
+   * @param key the key to get.
+   *
+   * @return a list instance from the tag store.
    */
-  default void setInteger(@NotNull final K key, @NotNull final Integer value) {
-    this.set(key, Tag.createInt(value));
+  @NotNull
+  default List<Tag> getList(@NotNull final K key) {
+    final var tag = this.get(key);
+    if (tag == null || !tag.isList()) {
+      return Collections.emptyList();
+    }
+    return tag.asList()
+      .all();
   }
 
   /**
@@ -299,13 +203,37 @@ public interface StoredTag<K> {
   }
 
   /**
-   * sets the long to the tag store.
+   * gets the long array from the tag store.
    *
-   * @param key the key to set.
-   * @param value the value to set.
+   * @param key the key to get.
+   *
+   * @return a long array instance from the tag store.
    */
-  default void setLong(@NotNull final K key, @NotNull final Long value) {
-    this.set(key, Tag.createLong(value));
+  @NotNull
+  default Long[] getLongArray(@NotNull final K key) {
+    final var tag = this.get(key);
+    if (tag == null || !tag.isLongArray()) {
+      return new Long[0];
+    }
+    return tag.asLongArray()
+      .value();
+  }
+
+  /**
+   * gets the map from the tag store.
+   *
+   * @param key the key to get.
+   *
+   * @return a map instance from the tag store.
+   */
+  @NotNull
+  default Map<String, Tag> getMap(@NotNull final K key) {
+    final var tag = this.get(key);
+    if (tag == null || !tag.isCompound()) {
+      return Collections.emptyMap();
+    }
+    return tag.asCompound()
+      .all();
   }
 
   /**
@@ -326,16 +254,6 @@ public interface StoredTag<K> {
   }
 
   /**
-   * sets the short to the tag store.
-   *
-   * @param key the key to set.
-   * @param value the value to set.
-   */
-  default void setShort(@NotNull final K key, @NotNull final Short value) {
-    this.set(key, Tag.createShort(value));
-  }
-
-  /**
    * gets the string from the tag store.
    *
    * @param key the key to get.
@@ -353,24 +271,11 @@ public interface StoredTag<K> {
   }
 
   /**
-   * sets the string to the tag store.
+   * removes the tag at the given key.
    *
-   * @param key the key to set.
-   * @param value the value to set.
+   * @param key the key to remove.
    */
-  default void setString(@NotNull final K key, @NotNull final String value) {
-    this.set(key, Tag.createString(value));
-  }
-
-  /**
-   * gets the tag at the given key.
-   *
-   * @param key the key to get.
-   *
-   * @return the tag.
-   */
-  @Nullable
-  Tag get(@NotNull K key);
+  void remove(@NotNull K key);
 
   /**
    * sets the given tag into the given key.
@@ -381,29 +286,124 @@ public interface StoredTag<K> {
   void set(@NotNull K key, @NotNull Tag tag);
 
   /**
-   * removes the tag at the given key.
+   * sets the byte to the tag store.
    *
-   * @param key the key to remove.
+   * @param key the key to set.
+   * @param value the value to set.
    */
-  void remove(@NotNull K key);
+  default void setByte(@NotNull final K key, @NotNull final Byte value) {
+    this.set(key, Tag.createByte(value));
+  }
 
   /**
-   * checks if the stored tag has the given key.
+   * sets the byte array to the tag store.
    *
-   * @param key the key to check.
-   *
-   * @return {@code true} if the stored tag has the given key.
+   * @param key the key to set.
+   * @param value the value to set.
    */
-  boolean containsKey(@NotNull K key);
+  default void setByteArray(@NotNull final K key, @NotNull final Byte @NotNull [] value) {
+    this.set(key, Tag.createByteArray(value));
+  }
 
   /**
-   * checks if the stored tag has the given tag.
+   * sets the double to the tag store.
    *
-   * @param tag the tag to check.
-   *
-   * @return {@code true} if the stored tag has the given tag.
+   * @param key the key to set.
+   * @param value the value to set.
    */
-  boolean contains(@NotNull Tag tag);
+  default void setDouble(@NotNull final K key, @NotNull final Double value) {
+    this.set(key, Tag.createDouble(value));
+  }
+
+  /**
+   * sets the float to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setFloat(@NotNull final K key, @NotNull final Float value) {
+    this.set(key, Tag.createFloat(value));
+  }
+
+  /**
+   * sets the int array to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setIntArray(@NotNull final K key, @NotNull final Integer @NotNull [] value) {
+    this.set(key, Tag.createIntArray(value));
+  }
+
+  /**
+   * sets the integer to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setInteger(@NotNull final K key, @NotNull final Integer value) {
+    this.set(key, Tag.createInt(value));
+  }
+
+  /**
+   * sets the list to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setList(@NotNull final K key, @NotNull final List<Tag> value) {
+    this.set(key, Tag.createList(value));
+  }
+
+  /**
+   * sets the long to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setLong(@NotNull final K key, @NotNull final Long value) {
+    this.set(key, Tag.createLong(value));
+  }
+
+  /**
+   * sets the long array to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value set.
+   */
+  default void setLongArray(@NotNull final K key, @NotNull final Long @NotNull [] value) {
+    this.set(key, Tag.createLongArray(value));
+  }
+
+  /**
+   * sets the map to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setMap(@NotNull final K key, @NotNull final Map<String, Tag> value) {
+    this.set(key, Tag.createCompound(value));
+  }
+
+  /**
+   * sets the short to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setShort(@NotNull final K key, @NotNull final Short value) {
+    this.set(key, Tag.createShort(value));
+  }
+
+  /**
+   * sets the string to the tag store.
+   *
+   * @param key the key to set.
+   * @param value the value to set.
+   */
+  default void setString(@NotNull final K key, @NotNull final String value) {
+    this.set(key, Tag.createString(value));
+  }
 
   /**
    * gets the size.

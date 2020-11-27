@@ -62,6 +62,17 @@ public final class RoundRobinArray<E> {
   }
 
   /**
+   * runs the consumer for each element in the array.
+   *
+   * @param consumer the consumer to run.
+   */
+  public void forEach(@NotNull final Consumer<E> consumer) {
+    for (int i = 0, len = this.mask + 1; i < len; i++) {
+      consumer.accept(this.elements.get(i));
+    }
+  }
+
+  /**
    * get the element from the index.
    *
    * @param index the index to get.
@@ -71,18 +82,6 @@ public final class RoundRobinArray<E> {
   @Nullable
   public E get(final int index) {
     return this.elements.get(index & this.mask);
-  }
-
-  /**
-   * sets the element with the given index.
-   *
-   * @param index the index to set.
-   * @param value the value to set.
-   */
-  public void set(final int index, @NotNull final E value) {
-    final var idx = index & this.mask;
-    final var element = this.elements.getAndSet(idx, value);
-    ReferenceCountUtil.release(element);
   }
 
   /**
@@ -99,13 +98,14 @@ public final class RoundRobinArray<E> {
   }
 
   /**
-   * runs the consumer for each element in the array.
+   * sets the element with the given index.
    *
-   * @param consumer the consumer to run.
+   * @param index the index to set.
+   * @param value the value to set.
    */
-  public void forEach(@NotNull final Consumer<E> consumer) {
-    for (int i = 0, len = this.mask + 1; i < len; i++) {
-      consumer.accept(this.elements.get(i));
-    }
+  public void set(final int index, @NotNull final E value) {
+    final var idx = index & this.mask;
+    final var element = this.elements.getAndSet(idx, value);
+    ReferenceCountUtil.release(element);
   }
 }

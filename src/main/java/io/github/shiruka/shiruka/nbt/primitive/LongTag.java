@@ -41,11 +41,6 @@ public final class LongTag extends NumberTagEnvelope {
     super(original);
   }
 
-  @Override
-  public boolean isLong() {
-    return true;
-  }
-
   @NotNull
   @Override
   public LongTag asLong() {
@@ -55,5 +50,10 @@ public final class LongTag extends NumberTagEnvelope {
   @Override
   public byte id() {
     return 4;
+  }
+
+  @Override
+  public boolean isLong() {
+    return true;
   }
 }

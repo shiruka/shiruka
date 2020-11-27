@@ -113,6 +113,30 @@ public final class NBTOutputStream implements Closeable {
   }
 
   /**
+   * reads the given input and converts it into the {@link ByteTag}.
+   *
+   * @param value the value to write.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  public void writeByte(@NotNull final ByteTag value) throws IOException {
+    this.output.writeByte(value.byteValue());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link ByteArrayTag}.
+   *
+   * @param value the value to write.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  public void writeByteArray(@NotNull final ByteArrayTag value) throws IOException {
+    final var primitive = ArrayUtils.toPrimitive(value.value());
+    this.output.writeInt(primitive.length);
+    this.output.write(primitive);
+  }
+
+  /**
    * reads the given input and converts it into the {@link CompoundTag}.
    *
    * @param value the value to write.
@@ -130,73 +154,6 @@ public final class NBTOutputStream implements Closeable {
       }
     }
     this.output.writeByte(Tag.END.id());
-  }
-
-  /**
-   * reads the given input and converts it into the {@link ListTag}.
-   *
-   * @param value the value to write.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  public void writeListTag(@NotNull final ListTag value) throws IOException {
-    this.output.writeByte(value.listType());
-    this.output.writeInt(value.size());
-    for (final var tag : value) {
-      this.write(tag);
-    }
-  }
-
-  /**
-   * reads the given input and converts it into the {@link ByteArrayTag}.
-   *
-   * @param value the value to write.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  public void writeByteArray(@NotNull final ByteArrayTag value) throws IOException {
-    final var primitive = ArrayUtils.toPrimitive(value.value());
-    this.output.writeInt(primitive.length);
-    this.output.write(primitive);
-  }
-
-  /**
-   * reads the given input and converts it into the {@link IntArrayTag}.
-   *
-   * @param value the value to write.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  public void writeIntArray(@NotNull final IntArrayTag value) throws IOException {
-    this.output.writeInt(value.size());
-    for (final var val : value.value()) {
-      this.output.writeInt(val);
-    }
-  }
-
-  /**
-   * reads the given input and converts it into the {@link LongArrayTag}.
-   *
-   * @param value the value to write.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  public void writeLongArray(@NotNull final LongArrayTag value) throws IOException {
-    this.output.writeInt(value.size());
-    for (final var val : value.value()) {
-      this.output.writeLong(val);
-    }
-  }
-
-  /**
-   * reads the given input and converts it into the {@link ByteTag}.
-   *
-   * @param value the value to write.
-   *
-   * @throws IOException if something went wrong when reading the given input.
-   */
-  public void writeByte(@NotNull final ByteTag value) throws IOException {
-    this.output.writeByte(value.byteValue());
   }
 
   /**
@@ -233,6 +190,35 @@ public final class NBTOutputStream implements Closeable {
   }
 
   /**
+   * reads the given input and converts it into the {@link IntArrayTag}.
+   *
+   * @param value the value to write.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  public void writeIntArray(@NotNull final IntArrayTag value) throws IOException {
+    this.output.writeInt(value.size());
+    for (final var val : value.value()) {
+      this.output.writeInt(val);
+    }
+  }
+
+  /**
+   * reads the given input and converts it into the {@link ListTag}.
+   *
+   * @param value the value to write.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  public void writeListTag(@NotNull final ListTag value) throws IOException {
+    this.output.writeByte(value.listType());
+    this.output.writeInt(value.size());
+    for (final var tag : value) {
+      this.write(tag);
+    }
+  }
+
+  /**
    * reads the given input and converts it into the {@link LongTag}.
    *
    * @param value the value to write.
@@ -241,6 +227,20 @@ public final class NBTOutputStream implements Closeable {
    */
   public void writeLong(@NotNull final LongTag value) throws IOException {
     this.output.writeLong(value.longValue());
+  }
+
+  /**
+   * reads the given input and converts it into the {@link LongArrayTag}.
+   *
+   * @param value the value to write.
+   *
+   * @throws IOException if something went wrong when reading the given input.
+   */
+  public void writeLongArray(@NotNull final LongArrayTag value) throws IOException {
+    this.output.writeInt(value.size());
+    for (final var val : value.value()) {
+      this.output.writeLong(val);
+    }
   }
 
   /**

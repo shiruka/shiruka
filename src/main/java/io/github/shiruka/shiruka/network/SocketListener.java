@@ -40,24 +40,6 @@ import org.jetbrains.annotations.NotNull;
 public interface SocketListener {
 
   /**
-   * an example server data byte array.
-   *
-   * @return example server data value for the minecraft bedrock edition.
-   */
-  static byte[] exampleServerData() {
-    return new StringJoiner(";")
-      .add("MCPE")
-      .add("Test server data")
-      .add(String.valueOf(Constants.MINECRAFT_PROTOCOL_VERSION))
-      .add(Constants.MINECRAFT_VERSION)
-      .add("0")
-      .add("10")
-      .add(String.valueOf(1000000000L))
-      .toString()
-      .getBytes(StandardCharsets.UTF_8);
-  }
-
-  /**
    * creates a simple server data.
    *
    * @param server the server.
@@ -90,6 +72,24 @@ public interface SocketListener {
   }
 
   /**
+   * an example server data byte array.
+   *
+   * @return example server data value for the minecraft bedrock edition.
+   */
+  static byte[] exampleServerData() {
+    return new StringJoiner(";")
+      .add("MCPE")
+      .add("Test server data")
+      .add(String.valueOf(Constants.MINECRAFT_PROTOCOL_VERSION))
+      .add(Constants.MINECRAFT_VERSION)
+      .add("0")
+      .add("10")
+      .add(String.valueOf(1000000000L))
+      .toString()
+      .getBytes(StandardCharsets.UTF_8);
+  }
+
+  /**
    * runs before when a client connects to the server.
    *
    * @param address the address to connect.
@@ -101,17 +101,6 @@ public interface SocketListener {
   boolean onConnect(@NotNull InetSocketAddress address);
 
   /**
-   * runs before sending a ping packet to the client.
-   *
-   * @param server the server.
-   * @param requester the requester .
-   *
-   * @return a server data. the byte array must be like {@link SocketListener#exampleServerData()}.
-   *   Use {@link SocketListener#createOne(ServerSocket, String, int, int)}.
-   */
-  byte[] onRequestServerData(@NotNull ServerSocket server, @NotNull InetSocketAddress requester);
-
-  /**
    * runs when a connection created between server and client.
    *
    * @param connection the connection.
@@ -119,14 +108,18 @@ public interface SocketListener {
   void onConnectionCreation(@NotNull Connection<ServerSocket, ServerConnectionHandler> connection);
 
   /**
-   * runs when a raw datagram packet received.
+   * runs when the connection's state changes.
    *
-   * @param server the server to receive.
-   * @param ctx the context to receive.
+   * @param state the state to change.
+   */
+  void onConnectionStateChanged(@NotNull ConnectionState state);
+
+  /**
+   * runs when a packet directly received.
+   *
    * @param packet the packet to receive.
    */
-  void onUnhandledDatagram(@NotNull ServerSocket server, @NotNull ChannelHandlerContext ctx,
-                           @NotNull DatagramPacket packet);
+  void onDirect(@NotNull ByteBuf packet);
 
   /**
    * runs when the connection disconnected.
@@ -143,16 +136,23 @@ public interface SocketListener {
   void onEncapsulated(@NotNull EncapsulatedPacket packet);
 
   /**
-   * runs when a packet directly received.
+   * runs before sending a ping packet to the client.
    *
-   * @param packet the packet to receive.
+   * @param server the server.
+   * @param requester the requester .
+   *
+   * @return a server data. the byte array must be like {@link SocketListener#exampleServerData()}.
+   *   Use {@link SocketListener#createOne(ServerSocket, String, int, int)}.
    */
-  void onDirect(@NotNull ByteBuf packet);
+  byte[] onRequestServerData(@NotNull ServerSocket server, @NotNull InetSocketAddress requester);
 
   /**
-   * runs when the connection's state changes.
+   * runs when a raw datagram packet received.
    *
-   * @param state the state to change.
+   * @param server the server to receive.
+   * @param ctx the context to receive.
+   * @param packet the packet to receive.
    */
-  void onConnectionStateChanged(@NotNull ConnectionState state);
+  void onUnhandledDatagram(@NotNull ServerSocket server, @NotNull ChannelHandlerContext ctx,
+                           @NotNull DatagramPacket packet);
 }

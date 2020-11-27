@@ -40,11 +40,11 @@ public final class ShirukaServer implements Server {
   public static final String VERSION = "1.0.0";
 
   @Override
-  public void runCommand(@NotNull final String command) {
+  public boolean isInShutdownState() {
+    return false;
   }
 
   @Override
-  public boolean isInShutdownState() {
-    return false;
+  public void runCommand(@NotNull final String command) {
   }
 }

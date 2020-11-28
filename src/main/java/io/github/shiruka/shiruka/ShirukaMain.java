@@ -53,11 +53,6 @@ import org.jetbrains.annotations.NotNull;
 public final class ShirukaMain {
 
   /**
-   * the global logger.
-   */
-  private static final Logger LOGGER = (Logger) LogManager.getLogger("Shiru ka");
-
-  /**
    * the parsed arguments.
    */
   @NotNull
@@ -78,6 +73,7 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
+    final var logger = (Logger) Loggers.init(LogManager.getLogger("Shiru ka"));
     System.setProperty("io.netty.tryReflectionSetAccessible", "true");
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
@@ -93,12 +89,12 @@ public final class ShirukaMain {
     }
     if (!parsed.has(ShirukaConsoleParser.DEBUG) ||
       !parsed.valueOf(ShirukaConsoleParser.DEBUG)) {
-      ShirukaMain.LOGGER.setLevel(Level.INFO);
+      logger.setLevel(Level.INFO);
     }
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
-      ShirukaMain.LOGGER.warn("Cannot run server in a directory with ! or + in the pathname.");
-      ShirukaMain.LOGGER.warn("Please rename the affected folders and try again.");
+      logger.warn("Cannot run server in a directory with ! or + in the pathname.");
+      logger.warn("Please rename the affected folders and try again.");
       return;
     }
     System.setProperty("library.jansi.version", "Shiruka");
@@ -121,15 +117,19 @@ public final class ShirukaMain {
   @NotNull
   private static File createsServerFile(@NotNull final File file, final boolean directory) throws IOException {
     if (directory) {
-      ShirukaMain.LOGGER.debug("Checking for {} directory.", file.getName());
+      Loggers.useLogger(logger ->
+        logger.debug("Checking for {} directory.", file.getName()));
       if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("Directory {} not present, creating one for you.", file.getName());
+        Loggers.useLogger(logger ->
+          logger.debug("Directory {} not present, creating one for you.", file.getName()));
         Files.createDirectory(file.toPath());
       }
     } else {
-      ShirukaMain.LOGGER.debug("Checking for {} file.", file.getName());
+      Loggers.useLogger(logger ->
+        logger.debug("Checking for {} file.", file.getName()));
       if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", file.getName());
+        Loggers.useLogger(logger ->
+          logger.debug("File {} not present, creating one for you.", file.getName()));
         Files.createFile(file.toPath());
       }
     }
@@ -173,8 +173,8 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
-    Loggers.init(ShirukaMain.LOGGER);
-    ShirukaMain.LOGGER.info("Shiru ka is starting.");
+    Loggers.useLogger(logger ->
+      logger.info("Shiru ka is starting."));
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));

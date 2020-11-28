@@ -25,8 +25,8 @@
 
 package io.github.shiruka.shiruka.concurrent;
 
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.misc.Loggers;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,9 +56,8 @@ public final class ShirukaTick extends Thread {
       final var elapsed = end - start;
       final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;
       if (waitTime < 0) {
-        Loggers.useLogger(logger ->
-          logger.debug("Server running behind " +
-            -waitTime + "ms, skipped " + -waitTime / ShirukaTick.TICK_MILLIS + " ticks"));
+        Loggers.debug("Server running behind %sms, skipped %s ticks",
+          -waitTime, -waitTime / ShirukaTick.TICK_MILLIS);
         continue;
       }
       try {

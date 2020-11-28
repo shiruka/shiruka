@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.Server;
-import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
@@ -63,32 +63,27 @@ public final class ShirukaSocketListener implements SocketListener {
 
   @Override
   public void onConnectionCreation(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
-    Loggers.useLogger(logger ->
-      logger.debug("onConnectionCreation"));
+    Loggers.debug("onConnectionCreation");
   }
 
   @Override
   public void onConnectionStateChanged(@NotNull final ConnectionState state) {
-    Loggers.useLogger(logger ->
-      logger.debug("onConnectionStateChanged"));
+    Loggers.debug("onConnectionStateChanged");
   }
 
   @Override
   public void onDirect(@NotNull final ByteBuf packet) {
-    Loggers.useLogger(logger ->
-      logger.debug("onDirect"));
+    Loggers.debug("onDirect");
   }
 
   @Override
   public void onDisconnect(@NotNull final DisconnectReason reason) {
-    Loggers.useLogger(logger ->
-      logger.debug("onDisconnect"));
+    Loggers.debug("onDisconnect");
   }
 
   @Override
   public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
-    Loggers.useLogger(logger ->
-      logger.debug("onEncapsulated"));
+    Loggers.debug("onEncapsulated");
   }
 
   @Override
@@ -113,8 +108,7 @@ public final class ShirukaSocketListener implements SocketListener {
       final var sessionId = buffer.readInt();
       System.out.println(packetId);
     } catch (final Exception e) {
-      Loggers.useLogger(logger ->
-        logger.error("Error whilst handling packet ", e));
+      Loggers.error("Error whilst handling packet ", e);
     }
   }
 }

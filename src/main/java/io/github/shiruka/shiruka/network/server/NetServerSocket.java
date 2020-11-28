@@ -24,7 +24,7 @@
  */
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.*;
 import io.netty.channel.*;
 import java.net.InetAddress;
@@ -92,12 +92,10 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
    */
   public static void init(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener,
                           final int maxConnections) {
-    Loggers.useLogger(logger ->
-      logger.debug("Initiating the server socket..."));
+    Loggers.debug("Initiating the server socket...");
     final var socket = new NetServerSocket(ip, port, socketListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
-      Loggers.useLogger(logger ->
-        logger.error("An exception occurred in Network system", t)));
+      Loggers.error("An exception occurred in Network system", t));
     socket.bind();
   }
 
@@ -227,22 +225,18 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   @Override
   public CompletableFuture<Void> exec() {
-    Loggers.useLogger(logger ->
-      logger.debug("Binding the server..."));
+    Loggers.debug("Binding the server...");
     final var completableFuture = new CompletableFuture<>();
     this.getBootstrap()
       .handler(new NetServerSocketHandler(this))
       .bind(this.getAddress())
       .addListener((ChannelFutureListener) future -> {
         if (future.cause() != null) {
-          Loggers.useLogger(logger ->
-            logger.error("An error occurs"));
-          Loggers.useLogger(logger ->
-            logger.error(future.cause().getMessage()));
+          Loggers.error("An error occurs");
+          Loggers.error(future.cause().getMessage());
           completableFuture.completeExceptionally(future.cause());
         }
-        Loggers.useLogger(logger ->
-          logger.debug("The server bound."));
+        Loggers.debug("The server bound.");
         completableFuture.complete(future.channel());
       });
     return CompletableFuture.allOf(completableFuture);

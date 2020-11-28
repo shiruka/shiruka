@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.api.misc.Optionals;
-import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
@@ -189,9 +189,8 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
       final var start = packet.readUnsignedMediumLE();
       final var end = singleton ? start : packet.readMediumLE();
       if (start > end) {
-        Loggers.useLogger(
-          logger -> logger.error("{} sent an IntRange with a start value {} greater than an end value of {}",
-            this.connection.getAddress(), start, end));
+        Loggers.error("%s sent an IntRange with a start value %s greater than an end value of %s",
+          this.connection.getAddress(), start, end);
         this.connection.disconnect(DisconnectReason.BAD_PACKET);
         return;
       }

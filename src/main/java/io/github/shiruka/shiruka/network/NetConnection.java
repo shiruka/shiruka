@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
@@ -220,8 +220,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
     this.eventLoop.execute(() -> {
       this.setState(ConnectionState.UNCONNECTED);
       this.connectionHandler.onClose();
-      Loggers.useLogger(logger ->
-        logger.debug("Connection ({} => {}) closed: {}", this.socket.getAddress(), this.address, reason));
+      Loggers.debug("Connection (%s => %s) closed: %s", this.socket.getAddress(), this.address, reason);
       this.reset();
       this.socket.getSocketListener().onDisconnect(reason);
     });
@@ -638,8 +637,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
           if (datagram == null) {
             continue;
           }
-          Loggers.useLogger(logger ->
-            logger.error("NACKed datagram {} from {}", datagram.getSequenceIndex(), this.address));
+          Loggers.error("NACKed datagram %s from %s", datagram.getSequenceIndex(), this.address);
           this.sendDatagram(datagram, now);
         }
       }
@@ -679,8 +677,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
         if (!hasResent) {
           hasResent = true;
         }
-        Loggers.useLogger(logger ->
-          logger.error("Stale datagram {} from {}", datagram.getSequenceIndex(), this.address));
+        Loggers.error("Stale datagram %s from %s", datagram.getSequenceIndex(), this.address);
         this.sendDatagram(datagram, now);
       }
       if (hasResent) {

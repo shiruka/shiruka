@@ -104,6 +104,7 @@ public final class ShirukaMain {
     JiraExceptionCatcher.run(() ->
       new ShirukaMain(parsed)
         .exec());
+    LogManager.shutdown();
   }
 
   /**

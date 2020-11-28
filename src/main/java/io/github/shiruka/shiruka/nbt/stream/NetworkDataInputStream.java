@@ -30,7 +30,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -66,8 +65,8 @@ public final class NetworkDataInputStream extends LittleEndianDataInputStream {
     return VarInts.readLong(this.stream);
   }
 
+  @NotNull
   @Override
-  @Nonnull
   public String readUTF() throws IOException {
     final var length = VarInts.readUnsignedInt(this.stream);
     final var bytes = new byte[length];

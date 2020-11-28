@@ -51,15 +51,25 @@ public final class DefaultLogger extends PipelineLoggerBase {
     System.setErr(this.stream);
   }
 
-  @NotNull
   @Override
-  public LogMessage handle(@NotNull final LogMessage msg) {
-    throw new UnsupportedOperationException();
+  public void debug(@NotNull final LogMessage msg) {
+    this.stream.println(msg.format(1));
+  }
+
+  @Override
+  public void error(@NotNull final LogMessage msg) {
+    this.stream.println(msg.format(1));
   }
 
   @Override
   public void log(@NotNull final LogMessage msg) {
     this.stream.println(msg.format(1));
+  }
+
+  @NotNull
+  @Override
+  public OutputStream out() {
+    return this.stream;
   }
 
   @Override
@@ -72,19 +82,9 @@ public final class DefaultLogger extends PipelineLoggerBase {
     this.stream.println(msg.format(1));
   }
 
-  @Override
-  public void error(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
-  }
-
-  @Override
-  public void debug(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
-  }
-
   @NotNull
   @Override
-  public OutputStream out() {
-    return this.stream;
+  public LogMessage handle(@NotNull final LogMessage msg) {
+    throw new UnsupportedOperationException();
   }
 }

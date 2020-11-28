@@ -56,6 +56,7 @@ public final class Loggers {
    * @param debug the debug mode to create.
    *
    * @return a new {@link Logger} instance.
+   * @throws IOException pass down exception.
    */
   @NotNull
   public static Logger create(@NotNull final String name, final boolean debug) throws IOException {
@@ -68,6 +69,7 @@ public final class Loggers {
    * @param name the name to create.
    *
    * @return a new {@link Logger} instance.
+   * @throws IOException pass down exception.
    */
   @NotNull
   public static Logger create(@NotNull final String name) throws IOException {
@@ -128,9 +130,10 @@ public final class Loggers {
    * @param name the name to init the global logger.
    *
    * @return the initialized logger instance.
+   * @throws IOException pass down exception.
    */
   @NotNull
-  public static Logger init(@NotNull final String name) throws Exception {
+  public static Logger init(@NotNull final String name) throws IOException {
     return Loggers.init(name, true);
   }
 
@@ -141,9 +144,10 @@ public final class Loggers {
    * @param debug the debug mode to init.
    *
    * @return the initialized logger instance.
+   * @throws IOException pass down exception.
    */
   @NotNull
-  public static Logger init(@NotNull final String name, final boolean debug) throws Exception {
+  public static Logger init(@NotNull final String name, final boolean debug) throws IOException {
     return Loggers.init(Loggers.create(name, debug));
   }
 

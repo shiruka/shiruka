@@ -27,7 +27,6 @@ package io.github.shiruka.shiruka.nbt.stream;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -135,7 +134,7 @@ public class LittleEndianDataInputStream implements DataInput, Closeable {
     return this.stream.readLine();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String readUTF() throws IOException {
     final var bytes = new byte[this.readUnsignedShort()];

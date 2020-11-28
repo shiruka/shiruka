@@ -157,6 +157,7 @@ public final class FileLogger extends PipelineLoggerBase {
    *
    * @return the writer, including if it was updated.
    */
+  @NotNull
   private Writer check() {
     if (ThreadLocalRandom.current().nextInt(50) == 1) {
       synchronized (this.lock) {
@@ -164,14 +165,14 @@ public final class FileLogger extends PipelineLoggerBase {
           if (Files.size(Objects.requireNonNull(this.current, "current")) > FileLogger.MAX_LEN) {
             this.makeNewLog(this.current);
           }
-          return this.out;
+          return Objects.requireNonNull(this.out, "out");
         } catch (final IOException e) {
           throw new IllegalStateException(e);
         }
       }
     } else {
       synchronized (this.lock) {
-        return this.out;
+        return Objects.requireNonNull(this.out, "out");
       }
     }
   }

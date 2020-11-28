@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt.stream;
 
+import io.github.shiruka.shiruka.misc.ArrayUtils;
 import io.github.shiruka.shiruka.nbt.CompoundTag;
 import io.github.shiruka.shiruka.nbt.ListTag;
 import io.github.shiruka.shiruka.nbt.Tag;
@@ -35,7 +36,6 @@ import io.github.shiruka.shiruka.nbt.primitive.*;
 import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**

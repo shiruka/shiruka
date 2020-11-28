@@ -54,7 +54,7 @@ final class ConsoleCommandCompleter implements Completer {
   }
 
   @Override
-  public void complete(final LineReader lineReader, final ParsedLine parsedLine, final List<Candidate> list) {
-    final String buffer = parsedLine.line();
+  public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
+    final String buffer = line.line();
   }
 }

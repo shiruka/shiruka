@@ -55,12 +55,37 @@ public final class ColorizedLogger extends PipelineLoggerBase {
     return msg;
   }
 
+  @Override
+  public void debug(@NotNull final LogMessage msg) {
+    this.next().debug(ColorizedLogger.handle(ConsoleColors.WHITE, msg));
+  }
+
+  @Override
+  public void error(@NotNull final LogMessage msg) {
+    this.next().error(ColorizedLogger.handle(ConsoleColors.RED, msg));
+  }
+
+  @Override
+  public void log(@NotNull final LogMessage msg) {
+    this.next().log(this.handle(msg));
+  }
+
+  @Override
+  public void success(@NotNull final LogMessage msg) {
+    this.next().success(ColorizedLogger.handle(ConsoleColors.GREEN, msg));
+  }
+
+  @Override
+  public void warn(@NotNull final LogMessage msg) {
+    this.next().warn(ColorizedLogger.handle(ConsoleColors.YELLOW, msg));
+  }
+
   @NotNull
   @Override
   public LogMessage handle(@NotNull final LogMessage msg) {
     final var sq = msg.getMessage().toCharArray();
     final var builder = new StringBuilder();
-    for (int index = 0; index < sq.length; index++) {
+    for (var index = 0; index < sq.length; index++) {
       final var c = sq[index];
       if (c != ChatColor.ESCAPE) {
         builder.append(c);
@@ -126,30 +151,5 @@ public final class ColorizedLogger extends PipelineLoggerBase {
     }
     msg.setMessage(builder + ConsoleColors.RESET);
     return msg;
-  }
-
-  @Override
-  public void log(@NotNull final LogMessage msg) {
-    this.next().log(this.handle(msg));
-  }
-
-  @Override
-  public void success(@NotNull final LogMessage msg) {
-    this.next().success(ColorizedLogger.handle(ConsoleColors.GREEN, msg));
-  }
-
-  @Override
-  public void warn(@NotNull final LogMessage msg) {
-    this.next().warn(ColorizedLogger.handle(ConsoleColors.YELLOW, msg));
-  }
-
-  @Override
-  public void error(@NotNull final LogMessage msg) {
-    this.next().error(ColorizedLogger.handle(ConsoleColors.RED, msg));
-  }
-
-  @Override
-  public void debug(@NotNull final LogMessage msg) {
-    this.next().debug(ColorizedLogger.handle(ConsoleColors.WHITE, msg));
   }
 }

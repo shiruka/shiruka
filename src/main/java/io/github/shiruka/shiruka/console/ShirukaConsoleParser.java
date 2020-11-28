@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -92,9 +93,10 @@ public final class ShirukaConsoleParser {
   /**
    * a simple java util logger.
    */
-  private static final java.util.logging.Logger SIMPLE_LOGGER = java.util.logging.Logger.getLogger("Shiru ka");
+  private static final Logger SIMPLE_LOGGER;
 
   static {
+    SIMPLE_LOGGER = Logger.getLogger("Shiru ka");
     PARSER = new OptionParser();
     HELP = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("?", "help"), "Show the help")

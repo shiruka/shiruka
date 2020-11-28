@@ -42,7 +42,6 @@ import java.nio.file.Files;
 import java.util.Objects;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -69,6 +68,8 @@ public final class ShirukaMain {
    * runs the Java program.
    *
    * @param args the args to run.
+   *
+   * @throws Exception if something went wrong.
    */
   public static void main(final String[] args) throws Exception {
     System.setProperty("io.netty.tryReflectionSetAccessible", "true");
@@ -96,7 +97,6 @@ public final class ShirukaMain {
     JiraExceptionCatcher.run(() ->
       new ShirukaMain(parsed)
         .exec());
-    LogManager.shutdown();
   }
 
   /**

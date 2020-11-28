@@ -78,6 +78,7 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
+    System.setProperty("io.netty.tryReflectionSetAccessible", "true");
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }

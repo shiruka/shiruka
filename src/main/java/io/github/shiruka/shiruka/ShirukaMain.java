@@ -109,6 +109,34 @@ public final class ShirukaMain {
   }
 
   /**
+   * creates and returns the server file/d.
+   *
+   * @param file the file to create.
+   * @param directory the directory to create.
+   *
+   * @return a server file instance.
+   *
+   * @throws IOException if something went wrong when the creating the file.
+   */
+  @NotNull
+  private static File createsServerFile(@NotNull final File file, final boolean directory) throws IOException {
+    if (directory) {
+      ShirukaMain.LOGGER.debug("Checking for {} directory.", file.getName());
+      if (!Files.exists(file.toPath())) {
+        ShirukaMain.LOGGER.debug("Directory {} not present, creating one for you.", file.getName());
+        Files.createDirectory(file.toPath());
+      }
+    } else {
+      ShirukaMain.LOGGER.debug("Checking for {} file.", file.getName());
+      if (!Files.exists(file.toPath())) {
+        ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", file.getName());
+        Files.createFile(file.toPath());
+      }
+    }
+    return file;
+  }
+
+  /**
    * creates and returns the server file.
    *
    * @param spec the spec to create.
@@ -135,21 +163,8 @@ public final class ShirukaMain {
    */
   @NotNull
   private File createsServerFile(@NotNull final OptionSpec<File> spec, final boolean directory) throws IOException {
-    final var file = Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!");
-    if (directory) {
-      ShirukaMain.LOGGER.debug("Checking for {} directory.", file.getName());
-      if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("Directory {} not present, creating one for you.", file.getName());
-        Files.createDirectory(file.toPath());
-      }
-    } else {
-      ShirukaMain.LOGGER.debug("Checking for {} file.", file.getName());
-      if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", file.getName());
-        Files.createFile(file.toPath());
-      }
-    }
-    return file;
+    return ShirukaMain.createsServerFile(Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!"),
+      directory);
   }
 
   /**

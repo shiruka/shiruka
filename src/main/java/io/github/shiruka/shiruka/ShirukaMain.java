@@ -58,7 +58,7 @@ public final class ShirukaMain {
   private static final Logger LOGGER = (Logger) LogManager.getLogger("Shiru ka");
 
   /**
-   * the parsed options.
+   * the parsed arguments.
    */
   @NotNull
   private final OptionSet options;

@@ -73,7 +73,6 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
-    final var logger = (Logger) Loggers.init(LogManager.getLogger("Shiru ka"));
     System.setProperty("io.netty.tryReflectionSetAccessible", "true");
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
@@ -87,6 +86,7 @@ public final class ShirukaMain {
       ShirukaConsoleParser.printVersion();
       return;
     }
+    final var logger = (Logger) Loggers.init(LogManager.getLogger("Shiru ka"));
     if (!parsed.has(ShirukaConsoleParser.DEBUG) ||
       !parsed.valueOf(ShirukaConsoleParser.DEBUG)) {
       logger.setLevel(Level.INFO);

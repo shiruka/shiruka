@@ -72,7 +72,6 @@ public final class ShirukaMain {
    * @throws Exception if something went wrong.
    */
   public static void main(final String[] args) throws Exception {
-    System.setProperty("io.netty.tryReflectionSetAccessible", "true");
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
@@ -169,8 +168,6 @@ public final class ShirukaMain {
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
-    final var server = new ShirukaServer();
-    Shiruka.setServer(server);
     ServerThreadPool.init();
     final var ip = ServerConfig.ADDRESS.getValue()
       .orElseThrow();
@@ -178,8 +175,10 @@ public final class ShirukaMain {
       .orElseThrow();
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue()
       .orElseThrow();
+    final var server = new ShirukaServer();
+    Shiruka.setServer(server);
     NetServerSocket.init(ip, port, new ShirukaSocketListener(server), maxPlayer);
-    server.startServer();
+//    server.startServer();
     // TODO Continue to the development here.
     final var console = new ShirukaConsole(server);
     console.start();

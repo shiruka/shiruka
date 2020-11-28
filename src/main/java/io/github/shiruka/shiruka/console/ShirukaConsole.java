@@ -87,12 +87,22 @@ public final class ShirukaConsole {
         .parser(parser)
         .variable(LineReader.LIST_MAX, 50)   // max tab completion candidates
         .build();
+      reader.setOpt(LineReader.Option.DISABLE_EVENT_EXPANSION);
+      reader.unsetOpt(LineReader.Option.INSERT_TAB);
       String line;
       while (!this.server.isInShutdownState()) {
-        line = reader.readLine(">");
+        try {
+          line = reader.readLine("> ");
+        } catch (final EndOfFileException ignored) {
+          continue;
+        }
+        if (line == null) {
+          break;
+        }
         this.server.runCommand(line);
       }
     } catch (final UserInterruptException e) {
+      this.server.stopServer();
 //      JiraExceptionCatcher.serverException(e);
     } catch (final IOException e) {
 //      JiraExceptionCatcher.serverException(e);

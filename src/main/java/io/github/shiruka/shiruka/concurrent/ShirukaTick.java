@@ -25,9 +25,11 @@
 
 package io.github.shiruka.shiruka.concurrent;
 
+import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents the server heartbeat pulse called
@@ -41,15 +43,24 @@ public final class ShirukaTick extends Thread {
   private static final long TICK_MILLIS = TimeUnit.SECONDS.toMillis(1) / 20;
 
   /**
-   * ctor.
+   * the server.
    */
-  public ShirukaTick() {
+  @NotNull
+  private final Server server;
+
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   */
+  public ShirukaTick(@NotNull final Server server) {
     super("Shiruka - Tick");
+    this.server = server;
   }
 
   @Override
   public void run() {
-    while (true) {
+    while (!this.server.isInShutdownState()) {
       final var start = System.currentTimeMillis();
       // TODO Add more tick operations.
       final var end = System.currentTimeMillis();

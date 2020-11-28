@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,14 +42,19 @@ public final class ShirukaServer implements Server {
   public static final String VERSION = "1.0.0";
 
   /**
+   * if the server is running.
+   */
+  private final AtomicBoolean running = new AtomicBoolean(true);
+
+  /**
    * the tick.
    */
   @NotNull
-  private final ShirukaTick tick = new ShirukaTick();
+  private final ShirukaTick tick = new ShirukaTick(this);
 
   @Override
   public boolean isInShutdownState() {
-    return false;
+    return !this.running.get();
   }
 
   @Override
@@ -58,5 +64,10 @@ public final class ShirukaServer implements Server {
   @Override
   public void startServer() {
     this.tick.start();
+  }
+
+  @Override
+  public void stopServer() {
+    this.running.set(false);
   }
 }

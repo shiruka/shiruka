@@ -2,7 +2,7 @@
   <configuration default="false" name="Start" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="io.github.shiruka.shiruka.ShirukaMain" />
     <module name="shiruka" />
-    <option name="VM_PARAMETERS" value="--add-opens java.base/jdk.internal.misc=ALL-UNNAMED" />
+    <option name="PROGRAM_PARAMETERS" value="-D" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/target" />
     <method v="2">
       <option name="Make" enabled="true" />

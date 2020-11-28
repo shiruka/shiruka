@@ -26,17 +26,11 @@
 package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
-import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.network.util.Misc;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
-import org.jline.console.impl.SystemRegistryImpl;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.Parser;
+import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.TerminalBuilder;
 
@@ -98,6 +92,8 @@ public final class ShirukaConsole {
         line = reader.readLine(">");
         this.server.runCommand(line);
       }
+    } catch (final UserInterruptException e) {
+//      JiraExceptionCatcher.serverException(e);
     } catch (final IOException e) {
 //      JiraExceptionCatcher.serverException(e);
     } finally {

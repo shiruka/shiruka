@@ -163,8 +163,8 @@ public final class ShirukaMain {
    */
   @NotNull
   private File createsServerFile(@NotNull final OptionSpec<File> spec, final boolean directory) throws IOException {
-    return ShirukaMain.createsServerFile(Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!"),
-      directory);
+    return ShirukaMain.createsServerFile(
+      Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!"), directory);
   }
 
   /**

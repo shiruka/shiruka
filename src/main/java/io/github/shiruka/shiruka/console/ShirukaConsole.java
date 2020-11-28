@@ -87,7 +87,6 @@ public final class ShirukaConsole {
       .name("Shiru ka")
       .encoding(StandardCharsets.UTF_8)
       .build()) {
-      final var registry = new SystemRegistryImpl(parser, terminal, () -> Misc.HOME_PATH, null);
       final var reader = LineReaderBuilder.builder()
         .terminal(terminal)
         .completer(new ConsoleCommandCompleter(this.server))

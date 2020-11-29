@@ -26,68 +26,39 @@
 package io.github.shiruka.shiruka.world.anvil;
 
 import io.github.shiruka.api.world.World;
-import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.api.world.options.WorldCreateSpec;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.util.Misc;
+import io.github.shiruka.shiruka.world.ShirukaWorldLoader;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that loads Shiru ka's worlds.
  */
-public final class AnvilWorldLoader implements WorldLoader {
-
-  @NotNull
-  private final Map<String, World> worlds = new ConcurrentHashMap<>();
+public final class AnvilWorldLoader extends ShirukaWorldLoader {
 
   @NotNull
   @Override
-  public World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
+  public final World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
     return this.worlds.compute(name, (k, v) -> {
       if (v != null) {
         throw new IllegalArgumentException("World \"" + name + "\" already exists");
       }
       Loggers.log("Creating world \"%s\"...", name);
-      final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
+      final var world = new AnvilWorld(spec, Misc.HOME_PATH.resolve(name), name);
       world.loadSpawnChunks();
       world.save();
       Loggers.log("Finished creating \"%s\".", name);
       return world;
     });
-  }
-
-  @Override
-  public boolean delete(@NotNull final World world) {
-    return false;
-  }
-
-  @NotNull
-  @Override
-  public World get(@NotNull final String name) {
-    return null;
-  }
-
-  @NotNull
-  @Override
-  public World getDefaultWorld() {
-    return null;
-  }
-
-  @NotNull
-  @Override
-  public Map<String, World> getWorlds() {
-    return Collections.unmodifiableMap(this.worlds);
   }
 
   @Override
@@ -118,14 +89,14 @@ public final class AnvilWorldLoader implements WorldLoader {
    * loads method for shortcutting NBT decoding.
    *
    * @param name the name of the world to be loaded.
-   * @param enclosing the enclosing folder.
+   * @param directory the directory folder.
    *
    * @return the world, once it has loaded.
    */
   @NotNull
-  private World load(@NotNull final String name, @NotNull final Path enclosing, @NotNull final Dimension dimension) {
+  private World load(@NotNull final String name, @NotNull final Path directory, @NotNull final Dimension dimension) {
     Loggers.log("Loading world \"%s\"...", name);
-    final var world = new AnvilWorld(name, enclosing, dimension);
+    final var world = new AnvilWorld(dimension, directory, name);
     world.loadSpawnChunks();
     this.worlds.put(name, world);
     Loggers.log("Finished loading \"%s\".", name);

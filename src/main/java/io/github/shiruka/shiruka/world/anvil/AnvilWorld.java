@@ -25,10 +25,10 @@
 
 package io.github.shiruka.shiruka.world.anvil;
 
-import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.api.world.options.WorldCreateSpec;
 import io.github.shiruka.shiruka.nbt.Tag;
+import io.github.shiruka.shiruka.world.ShirukaWorld;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,39 +37,19 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link World}.
+ * an implementation for {@link ShirukaWorld}.
  */
-public final class AnvilWorld implements World {
-
-  /**
-   * the dimension.
-   */
-  @NotNull
-  private final Dimension dimension;
-
-  /**
-   * the directory.
-   */
-  @NotNull
-  private final Path directory;
-
-  /**
-   * the name.
-   */
-  @NotNull
-  private final String name;
+public final class AnvilWorld extends ShirukaWorld {
 
   /**
    * ctor.
    *
-   * @param name the name.
-   * @param directory the enclosing.
    * @param dimension the dimension.
+   * @param directory the directory.
+   * @param name the name.
    */
-  public AnvilWorld(@NotNull final String name, @NotNull final Path directory, @NotNull final Dimension dimension) {
-    this.name = name;
-    this.directory = directory;
-    this.dimension = dimension;
+  public AnvilWorld(@NotNull final Dimension dimension, @NotNull final Path directory, @NotNull final String name) {
+    super(dimension, directory, name);
     try (final var stream =
            Tag.createGZIPReader(new FileInputStream(this.directory.resolve("level.dat").toFile()))) {
       stream.readCompoundTag();
@@ -78,27 +58,8 @@ public final class AnvilWorld implements World {
     }
   }
 
-  /**
-   * ctor.
-   *
-   * @param name the name.
-   * @param directory the enclosing.
-   * @param spec the spec.
-   */
-  public AnvilWorld(@NotNull final String name, @NotNull final Path directory, @NotNull final WorldCreateSpec spec) {
-    this.name = name;
-    this.directory = directory;
-    this.dimension = spec.getDimension();
-  }
-
-  @NotNull
-  @Override
-  public String getName() {
-    return this.name;
-  }
-
-  @Override
-  public void loadSpawnChunks() {
+  public AnvilWorld(@NotNull final WorldCreateSpec spec, @NotNull final Path directory, @NotNull final String name) {
+    super(spec.getDimension(), directory, name);
   }
 
   @Override

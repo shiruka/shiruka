@@ -177,6 +177,7 @@ public final class ShirukaMain {
       .orElseThrow();
     final var address = new InetSocketAddress(ip, port);
     final var server = new ShirukaServer(address, maxPlayer, description);
+    // TODO Continue to development here.
     final var console = new ShirukaConsole(server);
     console.start();
   }

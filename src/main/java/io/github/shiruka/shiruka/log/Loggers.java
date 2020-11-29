@@ -56,6 +56,7 @@ public final class Loggers {
    * @param debug the debug mode to create.
    *
    * @return a new {@link Logger} instance.
+   *
    * @throws IOException pass down exception.
    */
   @NotNull
@@ -69,6 +70,7 @@ public final class Loggers {
    * @param name the name to create.
    *
    * @return a new {@link Logger} instance.
+   *
    * @throws IOException pass down exception.
    */
   @NotNull
@@ -130,6 +132,7 @@ public final class Loggers {
    * @param name the name to init the global logger.
    *
    * @return the initialized logger instance.
+   *
    * @throws IOException pass down exception.
    */
   @NotNull
@@ -144,6 +147,7 @@ public final class Loggers {
    * @param debug the debug mode to init.
    *
    * @return the initialized logger instance.
+   *
    * @throws IOException pass down exception.
    */
   @NotNull

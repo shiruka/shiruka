@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.fusesource.jansi.AnsiConsole;
@@ -103,9 +104,9 @@ public final class ShirukaConsole {
       }
     } catch (final UserInterruptException e) {
       this.server.stopServer();
-//      JiraExceptionCatcher.serverException(e);
+      JiraExceptionCatcher.serverException(e);
     } catch (final IOException e) {
-//      JiraExceptionCatcher.serverException(e);
+      JiraExceptionCatcher.serverException(e);
     } finally {
       AnsiConsole.systemUninstall();
     }

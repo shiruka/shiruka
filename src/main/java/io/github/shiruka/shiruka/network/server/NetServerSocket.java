@@ -89,14 +89,18 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
    * @param port the port to of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
+   *
+   * @return a new {@link ServerSocket} instance.
    */
-  public static void init(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener,
-                          final int maxConnections) {
+  @NotNull
+  public static ServerSocket init(@NotNull final String ip, final int port,
+                                  @NotNull final SocketListener socketListener, final int maxConnections) {
     Loggers.debug("Initiating the server socket...");
     final var socket = new NetServerSocket(ip, port, socketListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
       Loggers.error("An exception occurred in Network system", t));
     socket.bind();
+    return socket;
   }
 
   /**
@@ -105,9 +109,13 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
    * @param ip the ip of the server
    * @param port the port to of the server
    * @param socketListener the listener to handle custom events when a server does anything.
+   *
+   * @return a new {@link ServerSocket} instance.
    */
-  public static void init(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener) {
-    NetServerSocket.init(ip, port, socketListener, 1024);
+  @NotNull
+  public static ServerSocket init(@NotNull final String ip, final int port,
+                                  @NotNull final SocketListener socketListener) {
+    return NetServerSocket.init(ip, port, socketListener, 1024);
   }
 
   /**
@@ -115,18 +123,24 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
    *
    * @param ip the ip of the server
    * @param socketListener the listener to handle custom events when a server does anything.
+   *
+   * @return a new {@link ServerSocket} instance.
    */
-  public static void init(@NotNull final String ip, @NotNull final SocketListener socketListener) {
-    NetServerSocket.init(ip, 19132, socketListener);
+  @NotNull
+  public static ServerSocket init(@NotNull final String ip, @NotNull final SocketListener socketListener) {
+    return NetServerSocket.init(ip, 19132, socketListener);
   }
 
   /**
    * initiates and execs the server.
    *
    * @param socketListener the listener to handle custom events when a server does anything.
+   *
+   * @return a new {@link ServerSocket} instance.
    */
-  public static void init(@NotNull final SocketListener socketListener) {
-    NetServerSocket.init("127.0.0.1", socketListener);
+  @NotNull
+  public static ServerSocket init(@NotNull final SocketListener socketListener) {
+    return NetServerSocket.init("127.0.0.1", socketListener);
   }
 
   @Override

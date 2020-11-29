@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
@@ -34,8 +33,6 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
-import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -175,11 +172,7 @@ public final class ShirukaMain {
       .orElseThrow();
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue()
       .orElseThrow();
-    final var server = new ShirukaServer();
-    Shiruka.setServer(server);
-    NetServerSocket.init(ip, port, new ShirukaSocketListener(server), maxPlayer);
-//    server.startServer();
-    // TODO Continue to the development here.
+    final var server = ShirukaServer.init(ip, port, maxPlayer);
     final var console = new ShirukaConsole(server);
     console.start();
   }

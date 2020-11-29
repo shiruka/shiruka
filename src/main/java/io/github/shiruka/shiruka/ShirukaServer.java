@@ -31,6 +31,7 @@ import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.network.ServerSocket;
 import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,12 +72,14 @@ public final class ShirukaServer implements Server {
   /**
    * ctor.
    *
-   * @param description the description.
+   * @param address the server's address.
+   * @param maxPlayer the server's maximum connection size.
+   * @param description the server's description.
    */
-  public ShirukaServer(@NotNull final String description, @NotNull final String ip, final int port,
-                       final int maxPlayer) {
+  public ShirukaServer(@NotNull final InetSocketAddress address, final int maxPlayer,
+                       @NotNull final String description) {
     this.description = description;
-    this.socket = NetServerSocket.init(ip, port, new ShirukaSocketListener(this), maxPlayer);
+    this.socket = NetServerSocket.init(address, new ShirukaSocketListener(this), maxPlayer);
   }
 
   @Override

@@ -35,6 +35,7 @@ import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.Objects;
 import joptsimple.OptionSet;
@@ -172,7 +173,10 @@ public final class ShirukaMain {
       .orElseThrow();
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue()
       .orElseThrow();
-    final var server = ShirukaServer.init(ip, port, maxPlayer);
+    final var description = ServerConfig.DESCRIPTION.getValue()
+      .orElseThrow();
+    final var address = new InetSocketAddress(ip, port);
+    final var server = new ShirukaServer(address, maxPlayer, description);
     final var console = new ShirukaConsole(server);
     console.start();
   }

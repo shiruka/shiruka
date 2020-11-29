@@ -71,32 +71,30 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   /**
    * ctor.
    *
-   * @param ip the ip of the server
-   * @param port the port to of the server
+   * @param address the address of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
    */
-  private NetServerSocket(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener,
+  private NetServerSocket(@NotNull final InetSocketAddress address, @NotNull final SocketListener socketListener,
                           final int maxConnections) {
-    super(new InetSocketAddress(ip, port), socketListener);
+    super(address, socketListener);
     this.maxConnections = maxConnections;
   }
 
   /**
    * initiates and execs the server.
    *
-   * @param ip the ip of the server
-   * @param port the port to of the server
+   * @param address the address of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
    *
    * @return a new {@link ServerSocket} instance.
    */
   @NotNull
-  public static ServerSocket init(@NotNull final String ip, final int port,
+  public static ServerSocket init(@NotNull final InetSocketAddress address,
                                   @NotNull final SocketListener socketListener, final int maxConnections) {
     Loggers.debug("Initiating the server socket...");
-    final var socket = new NetServerSocket(ip, port, socketListener, maxConnections);
+    final var socket = new NetServerSocket(address, socketListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
       Loggers.error("An exception occurred in Network system", t));
     socket.bind();
@@ -106,16 +104,15 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   /**
    * initiates and execs the server.
    *
-   * @param ip the ip of the server
-   * @param port the port to of the server
+   * @param address the address of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    *
    * @return a new {@link ServerSocket} instance.
    */
   @NotNull
-  public static ServerSocket init(@NotNull final String ip, final int port,
+  public static ServerSocket init(@NotNull final InetSocketAddress address,
                                   @NotNull final SocketListener socketListener) {
-    return NetServerSocket.init(ip, port, socketListener, 1024);
+    return NetServerSocket.init(address, socketListener, 1024);
   }
 
   /**
@@ -128,7 +125,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
    */
   @NotNull
   public static ServerSocket init(@NotNull final String ip, @NotNull final SocketListener socketListener) {
-    return NetServerSocket.init(ip, 19132, socketListener);
+    return NetServerSocket.init(new InetSocketAddress(ip, 19132), socketListener);
   }
 
   /**

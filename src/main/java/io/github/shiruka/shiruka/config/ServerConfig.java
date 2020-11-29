@@ -56,18 +56,18 @@ public final class ServerConfig extends PathableConfig {
       "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
 
   /**
+   * the description message shown in the server list.
+   */
+  public static final ConfigPath<String> DESCRIPTION =
+    commented(stringPath("description", "Shiru ka server"),
+      "the description message shown in the server list.");
+
+  /**
    * the max players that can be online at once.
    */
   public static final ConfigPath<Integer> MAX_PLAYERS =
     commented(integerPath("max-players", 20),
       "the max players that can be online at once.");
-
-  /**
-   * the MOTD message shown in the server list.
-   */
-  public static final ConfigPath<String> MOTD =
-    commented(stringPath("motd", "Shiru ka server"),
-      "the MOTD message shown in the server list.");
 
   /**
    * whether to check for netty memory leaks during runtime

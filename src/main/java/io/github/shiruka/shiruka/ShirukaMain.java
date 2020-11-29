@@ -167,9 +167,9 @@ public final class ShirukaMain {
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
     ServerThreadPool.init();
-    final var ip = ServerConfig.ADDRESS.getValue()
+    final var ip = ServerConfig.ADDRESS_IP.getValue()
       .orElseThrow();
-    final var port = ServerConfig.PORT.getValue()
+    final var port = ServerConfig.ADDRESS_PORT.getValue()
       .orElseThrow();
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue()
       .orElseThrow();

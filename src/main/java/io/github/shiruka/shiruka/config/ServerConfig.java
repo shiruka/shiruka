@@ -42,9 +42,16 @@ public final class ServerConfig extends PathableConfig {
   /**
    * server's ip address.
    */
-  public static final ConfigPath<String> ADDRESS =
-    commented(stringPath("address", "127.0.0.1"),
+  public static final ConfigPath<String> ADDRESS_IP =
+    commented(stringPath("ip", "127.0.0.1"),
       "server's ip address.");
+
+  /**
+   * server's port.
+   */
+  public static final ConfigPath<Integer> ADDRESS_PORT =
+    commented(integerPath("port", 19132),
+      "server's port.");
 
   /**
    * the amount of bytes before compressing packets.
@@ -82,13 +89,6 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<Boolean> ONLINE_MODE =
     commented(booleanPath("online-mode", true),
       "whether to use Mojang auth to check players.");
-
-  /**
-   * server's port.
-   */
-  public static final ConfigPath<Integer> PORT =
-    commented(integerPath("port", 19132),
-      "server's port.");
 
   /**
    * "true" to use linux natives when available.

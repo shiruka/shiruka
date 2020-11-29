@@ -70,13 +70,6 @@ public final class ServerConfig extends PathableConfig {
       "name of the over world.");
 
   /**
-   * type of the worlds to create.
-   */
-  public static final ConfigPath<String> WORLD_TYPE =
-    commented(stringPath("world-type", "anvil"),
-      "type of thw worlds to create.");
-
-  /**
    * the description message shown in the server list.
    */
   public static final ConfigPath<String> DESCRIPTION =
@@ -110,6 +103,13 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<Boolean> USE_NATIVE =
     commented(booleanPath("use-native", true),
       "\"true\" to use linux natives when available.");
+
+  /**
+   * type of the worlds to create.
+   */
+  public static final ConfigPath<String> WORLD_TYPE =
+    commented(stringPath("world-type", "anvil"),
+      "type of thw worlds to create.");
 
   /**
    * ctor.

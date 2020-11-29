@@ -82,6 +82,7 @@ public final class ShirukaServer implements Server {
    * @param address the server's address.
    * @param maxPlayer the server's maximum connection size.
    * @param description the server's description.
+   * @param loader the world loader.
    */
   public ShirukaServer(@NotNull final InetSocketAddress address, final int maxPlayer,
                        @NotNull final String description, @NotNull final WorldLoader loader) {

@@ -32,7 +32,6 @@ import io.github.shiruka.api.world.options.WorldCreateSpec;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.util.Misc;
-import io.github.shiruka.shiruka.world.ShirukaWorld;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -60,7 +59,7 @@ public final class AnvilWorldLoader implements WorldLoader {
         throw new IllegalArgumentException("World \"" + name + "\" already exists");
       }
       Loggers.log("Creating world \"%s\"...", name);
-      final var world = new ShirukaWorld(name, Misc.HOME_PATH.resolve(name), spec);
+      final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
       world.loadSpawnChunks();
       world.save();
       Loggers.log("Finished creating \"%s\".", name);
@@ -126,7 +125,7 @@ public final class AnvilWorldLoader implements WorldLoader {
   @NotNull
   private World load(@NotNull final String name, @NotNull final Path enclosing, @NotNull final Dimension dimension) {
     Loggers.log("Loading world \"%s\"...", name);
-    final var world = new ShirukaWorld(name, enclosing, dimension);
+    final var world = new AnvilWorld(name, enclosing, dimension);
     world.loadSpawnChunks();
     this.worlds.put(name, world);
     Loggers.log("Finished loading \"%s\".", name);

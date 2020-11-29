@@ -99,7 +99,6 @@ public final class TestSocketListener implements SocketListener {
       }
       final var packetId = buffer.readUnsignedByte();
       final var sessionId = buffer.readInt();
-      System.out.println("*********************");
     } catch (final Exception e) {
       Loggers.error("Error whilst handling packet", e);
     }

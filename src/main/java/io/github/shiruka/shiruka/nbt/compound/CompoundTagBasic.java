@@ -97,4 +97,9 @@ public final class CompoundTagBasic implements CompoundTag {
   public int size() {
     return this.original.size();
   }
+
+  @Override
+  public String toString() {
+    return this.original.toString();
+  }
 }

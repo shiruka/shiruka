@@ -110,8 +110,9 @@ public final class NBTOutputStream implements Closeable {
       this.writeIntArray(value.asIntArray());
     } else if (value.isLongArray()) {
       this.writeLongArray(value.asLongArray());
+    } else {
+      throw new IllegalArgumentException("Unknown type " + id);
     }
-    throw new IllegalArgumentException("Unknown type " + id);
   }
 
   /**

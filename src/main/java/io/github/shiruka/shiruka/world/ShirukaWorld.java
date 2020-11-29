@@ -56,9 +56,9 @@ public abstract class ShirukaWorld implements World {
   /**
    * ctor.
    *
-   * @param name the name.
+   * @param dimension the spec.
    * @param directory the enclosing.
-   * @param spec the spec.
+   * @param name the name.
    */
   public ShirukaWorld(@NotNull final Dimension dimension, @NotNull final Path directory, @NotNull final String name) {
     this.dimension = dimension;

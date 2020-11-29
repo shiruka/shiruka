@@ -33,6 +33,7 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.github.shiruka.shiruka.world.ShirukaWorldLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -161,6 +162,7 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
+    final var start = System.currentTimeMillis();
     Loggers.log("Shiru ka is starting.");
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
@@ -177,7 +179,16 @@ public final class ShirukaMain {
       .orElseThrow();
     final var address = new InetSocketAddress(ip, port);
     final var server = new ShirukaServer(address, maxPlayer, description);
-    // TODO Continue to development here.
+    // TODO Load plugins here.
+    // TODO enable plugins which set PluginLoadOrder as STARTUP.
+    Loggers.log("Loading worlds...");
+    final var defaultWorldName = ServerConfig.DEFAULT_WORLD_NAME.getValue()
+      .orElseThrow();
+    final var loader = new ShirukaWorldLoader(defaultWorldName);
+    loader.loadAll();
+    // TODO enable plugins which set PluginLoadOrder as POST_WORLD.
+    final var end = System.currentTimeMillis() - start;
+    Loggers.log("Done. Took %sms.", end);
     final var console = new ShirukaConsole(server);
     console.start();
   }

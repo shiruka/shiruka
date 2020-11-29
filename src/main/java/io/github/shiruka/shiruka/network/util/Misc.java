@@ -80,7 +80,7 @@ public final class Misc {
    *
    * @param bytes the bytes to flip.
    */
-  public static void flip(@NotNull final byte[] bytes) {
+  public static void flip(final byte[] bytes) {
     IntStream.range(0, bytes.length)
       .forEach(i -> bytes[i] = (byte) (~bytes[i] & 0xFF));
   }

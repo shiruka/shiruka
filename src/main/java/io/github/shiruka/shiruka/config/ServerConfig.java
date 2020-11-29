@@ -63,6 +63,13 @@ public final class ServerConfig extends PathableConfig {
       "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
 
   /**
+   * name of the over world.
+   */
+  public static final ConfigPath<String> DEFAULT_WORLD_NAME =
+    commented(stringPath("default-world-name", "world"),
+      "name of the over world.");
+
+  /**
    * the description message shown in the server list.
    */
   public static final ConfigPath<String> DESCRIPTION =

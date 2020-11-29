@@ -88,7 +88,8 @@ public final class ShirukaSocketListener implements SocketListener {
 
   @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
-    return SocketListener.createOne(server, "Test server description.", 0, 10);
+    return SocketListener.createOne(server, this.server.getServerDescription(), this.server.getPlayerCount(),
+      this.server.getMaxPlayerCount());
   }
 
   @Override

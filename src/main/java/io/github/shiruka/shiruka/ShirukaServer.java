@@ -29,12 +29,10 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.network.ServerSocket;
-import io.github.shiruka.shiruka.network.SocketListener;
 import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link Server}.
@@ -48,15 +46,21 @@ public final class ShirukaServer implements Server {
   public static final String VERSION = "1.0.0";
 
   /**
-   * the socket listener.
+   * the server's description.
    */
   @NotNull
-  private final SocketListener listener = new ShirukaSocketListener(this);
+  private final String description;
 
   /**
    * if the server is running.
    */
   private final AtomicBoolean running = new AtomicBoolean(true);
+
+  /**
+   * the socket.
+   */
+  @NotNull
+  private final ServerSocket socket;
 
   /**
    * the tick.
@@ -65,31 +69,30 @@ public final class ShirukaServer implements Server {
   private final ShirukaTick tick = new ShirukaTick(this);
 
   /**
-   * the socket.
-   */
-  @Nullable
-  private ServerSocket socket;
-
-  /**
    * ctor.
+   *
+   * @param description the description.
    */
-  private ShirukaServer() {
+  public ShirukaServer(@NotNull final String description, @NotNull final String ip, final int port,
+                       final int maxPlayer) {
+    this.description = description;
+    this.socket = NetServerSocket.init(ip, port, new ShirukaSocketListener(this), maxPlayer);
   }
 
-  /**
-   * initiates the server with ip, port and max player.
-   *
-   * @param ip the ip to initiate.
-   * @param port the port to initiate.
-   * @param maxPlayer the maximum player to initiate.
-   *
-   * @return a new {@link Server} instance.
-   */
+  @Override
+  public int getMaxPlayerCount() {
+    return this.socket.getMaxConnections();
+  }
+
+  @Override
+  public int getPlayerCount() {
+    return this.socket.getConnectionsByAddress().size();
+  }
+
   @NotNull
-  public static Server init(@NotNull final String ip, final int port, final int maxPlayer) {
-    final var server = new ShirukaServer();
-    server.socket = NetServerSocket.init(ip, port, server.listener, maxPlayer);
-    return server;
+  @Override
+  public String getServerDescription() {
+    return this.description;
   }
 
   @Override
@@ -110,12 +113,10 @@ public final class ShirukaServer implements Server {
   @Override
   public void stopServer() {
     this.running.set(false);
-    if (this.socket != null) {
-      try {
-        this.socket.close();
-      } catch (final Exception e) {
-        e.printStackTrace();
-      }
+    try {
+      this.socket.close();
+    } catch (final Exception e) {
+      e.printStackTrace();
     }
     ServerThreadPool.shutdownAll();
     System.exit(0);

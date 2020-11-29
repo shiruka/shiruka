@@ -85,10 +85,10 @@ public final class ShirukaServer implements Server {
    *
    * @return a new {@link Server} instance.
    */
+  @NotNull
   public static Server init(@NotNull final String ip, final int port, final int maxPlayer) {
     final var server = new ShirukaServer();
-    final var socket = NetServerSocket.init(ip, port, server.listener, maxPlayer);
-    server.setSocket(socket);
+    server.socket = NetServerSocket.init(ip, port, server.listener, maxPlayer);
     return server;
   }
 
@@ -119,14 +119,5 @@ public final class ShirukaServer implements Server {
     }
     ServerThreadPool.shutdownAll();
     System.exit(0);
-  }
-
-  /**
-   * sets the server's socket.
-   *
-   * @param socket the socket to set.
-   */
-  private void setSocket(@NotNull final ServerSocket socket) {
-    this.socket = socket;
   }
 }

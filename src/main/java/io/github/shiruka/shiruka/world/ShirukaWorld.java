@@ -60,7 +60,7 @@ public abstract class ShirukaWorld implements World {
    * @param directory the enclosing.
    * @param name the name.
    */
-  public ShirukaWorld(@NotNull final Dimension dimension, @NotNull final Path directory, @NotNull final String name) {
+  protected ShirukaWorld(@NotNull final Dimension dimension, @NotNull final Path directory, @NotNull final String name) {
     this.dimension = dimension;
     this.directory = directory;
     this.name = name;

@@ -43,6 +43,12 @@ public abstract class ShirukaWorldLoader implements WorldLoader {
   @NotNull
   protected final Map<String, World> worlds = new ConcurrentHashMap<>();
 
+  /**
+   * ctor.
+   */
+  protected ShirukaWorldLoader() {
+  }
+
   @Override
   public final boolean delete(@NotNull final World world) {
     return false;

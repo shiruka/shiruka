@@ -157,6 +157,11 @@ public final class ListTagBasic implements ListTag {
   }
 
   @Override
+  public String toString() {
+    return this.original.toString();
+  }
+
+  @Override
   public Iterator<Tag> iterator() {
     final var iterator = this.original.iterator();
     return new Iterator<>() {

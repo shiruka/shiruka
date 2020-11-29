@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.nbt.array;
 
 import io.github.shiruka.shiruka.nbt.ArrayTag;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -77,5 +78,10 @@ public abstract class ArrayTagEnvelope<T> implements ArrayTag<T> {
   @Override
   public final T @NotNull [] value() {
     return this.original.clone();
+  }
+
+  @Override
+  public final String toString() {
+    return Arrays.toString(this.original);
   }
 }

@@ -71,4 +71,9 @@ public abstract class NumberTagEnvelope implements NumberTag {
   public final Long longValue() {
     return this.number.longValue();
   }
+
+  @Override
+  public String toString() {
+    return this.number.toString();
+  }
 }

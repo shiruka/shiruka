@@ -23,14 +23,16 @@
  *
  */
 
-package io.github.shiruka.shiruka.world;
+package io.github.shiruka.shiruka.world.anvil;
 
 import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.api.world.options.WorldCreateSpec;
+import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.util.Misc;
+import io.github.shiruka.shiruka.world.ShirukaWorld;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -45,25 +47,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that loads Shiru ka's worlds.
  */
-public final class ShirukaWorldLoader implements WorldLoader {
-
-  /**
-   * the world name.
-   */
-  @NotNull
-  private final String defaultWorldName;
+public final class AnvilWorldLoader implements WorldLoader {
 
   @NotNull
   private final Map<String, World> worlds = new ConcurrentHashMap<>();
-
-  /**
-   * ctor.
-   *
-   * @param defaultWorldName the default world name.
-   */
-  public ShirukaWorldLoader(@NotNull final String defaultWorldName) {
-    this.defaultWorldName = defaultWorldName;
-  }
 
   @NotNull
   @Override
@@ -104,17 +91,17 @@ public final class ShirukaWorldLoader implements WorldLoader {
     return Collections.unmodifiableMap(this.worlds);
   }
 
-  /**
-   * loads all worlds.
-   */
+  @Override
   public void loadAll() {
+    final var defaultWorldName = ServerConfig.DEFAULT_WORLD_NAME.getValue()
+      .orElseThrow();
     try {
       Files.walkFileTree(Misc.HOME_PATH, new SimpleFileVisitor<>() {
         @Override
         public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
           final var levelDat = dir.resolve("level.dat");
           if (Files.exists(levelDat)) {
-            ShirukaWorldLoader.this.load(dir.getFileName().toString(), dir, Dimension.OVER_WORLD);
+            AnvilWorldLoader.this.load(dir.getFileName().toString(), dir, Dimension.OVER_WORLD);
             return FileVisitResult.SKIP_SUBTREE;
           }
           return FileVisitResult.CONTINUE;
@@ -123,8 +110,8 @@ public final class ShirukaWorldLoader implements WorldLoader {
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
-    if (this.worlds.isEmpty() || !this.worlds.containsKey(this.defaultWorldName)) {
-      this.create(this.defaultWorldName, WorldCreateSpec.getDefaultOptions());
+    if (this.worlds.isEmpty() || !this.worlds.containsKey(defaultWorldName)) {
+      this.create(defaultWorldName, WorldCreateSpec.getDefaultOptions());
     }
   }
 

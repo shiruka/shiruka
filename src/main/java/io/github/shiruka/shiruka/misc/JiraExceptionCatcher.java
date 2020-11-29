@@ -52,6 +52,7 @@ public final class JiraExceptionCatcher {
       run.call();
     } catch (final Exception e) {
       JiraExceptionCatcher.serverException(e);
+      System.exit(1);
     }
   }
 

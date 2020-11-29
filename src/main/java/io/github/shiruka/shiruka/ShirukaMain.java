@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
@@ -33,7 +34,7 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.world.ShirukaWorldLoader;
+import io.github.shiruka.shiruka.world.anvil.AnvilWorldLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -125,19 +126,13 @@ public final class ShirukaMain {
     return file;
   }
 
-  /**
-   * creates and returns the server file.
-   *
-   * @param spec the spec to create.
-   *
-   * @return a server file instance.
-   *
-   * @throws IOException if something went wrong when the creating the file.
-   */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec)
-    throws IOException {
-    return this.createsServerFile(spec, false);
+  private WorldLoader createWorldType(@NotNull final String worldType) {
+    // TODO create a WorldType class to move this method.
+    if (worldType.equalsIgnoreCase("anvil")) {
+      return new AnvilWorldLoader();
+    }
+    throw new IllegalStateException("The given world type called " + worldType + "is not supported!");
   }
 
   /**
@@ -154,6 +149,21 @@ public final class ShirukaMain {
   private File createsServerFile(@NotNull final OptionSpec<File> spec, final boolean directory) throws IOException {
     return ShirukaMain.createsServerFile(
       Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!"), directory);
+  }
+
+  /**
+   * creates and returns the server file.
+   *
+   * @param spec the spec to create.
+   *
+   * @return a server file instance.
+   *
+   * @throws IOException if something went wrong when the creating the file.
+   */
+  @NotNull
+  private File createsServerFile(@NotNull final OptionSpec<File> spec)
+    throws IOException {
+    return this.createsServerFile(spec, false);
   }
 
   /**
@@ -178,17 +188,20 @@ public final class ShirukaMain {
     final var description = ServerConfig.DESCRIPTION.getValue()
       .orElseThrow();
     final var address = new InetSocketAddress(ip, port);
-    final var server = new ShirukaServer(address, maxPlayer, description);
+    final var worldType = ServerConfig.WORLD_TYPE.getValue()
+      .orElseThrow();
+    final var loader = this.createWorldType(worldType);
+    final var server = new ShirukaServer(address, maxPlayer, description, loader);
+    Loggers.log("Loading plugins...");
     // TODO Load plugins here.
+    Loggers.log("Enabling startup plugins...");
     // TODO enable plugins which set PluginLoadOrder as STARTUP.
     Loggers.log("Loading worlds...");
-    final var defaultWorldName = ServerConfig.DEFAULT_WORLD_NAME.getValue()
-      .orElseThrow();
-    final var loader = new ShirukaWorldLoader(defaultWorldName);
     loader.loadAll();
+    Loggers.log("Enabling post world plugins...");
     // TODO enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - start;
-    Loggers.log("Done. Took %sms.", end);
+    Loggers.log("Done, took %sms.", end);
     final var console = new ShirukaConsole(server);
     console.start();
   }

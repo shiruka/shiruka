@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.network.ServerSocket;
@@ -53,6 +54,12 @@ public final class ShirukaServer implements Server {
   private final String description;
 
   /**
+   * the loader.
+   */
+  @NotNull
+  private final WorldLoader loader;
+
+  /**
    * if the server is running.
    */
   private final AtomicBoolean running = new AtomicBoolean(true);
@@ -77,8 +84,9 @@ public final class ShirukaServer implements Server {
    * @param description the server's description.
    */
   public ShirukaServer(@NotNull final InetSocketAddress address, final int maxPlayer,
-                       @NotNull final String description) {
+                       @NotNull final String description, @NotNull final WorldLoader loader) {
     this.description = description;
+    this.loader = loader;
     this.socket = NetServerSocket.init(address, new ShirukaSocketListener(this), maxPlayer);
   }
 

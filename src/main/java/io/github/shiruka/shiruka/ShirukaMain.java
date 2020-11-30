@@ -172,8 +172,8 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
-    final var start = System.currentTimeMillis();
     Loggers.log("Shiru ka is starting.");
+    final var start = System.currentTimeMillis();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
@@ -190,16 +190,8 @@ public final class ShirukaMain {
     final var address = new InetSocketAddress(ip, port);
     final var worldType = ServerConfig.WORLD_TYPE.getValue()
       .orElseThrow();
-    final var loader = this.createWorldType(worldType);
-    final var server = new ShirukaServer(address, maxPlayer, description, loader);
-    Loggers.log("Loading plugins...");
-    // TODO Load plugins here.
-    Loggers.log("Enabling startup plugins...");
-    // TODO enable plugins which set PluginLoadOrder as STARTUP.
-    Loggers.log("Loading worlds...");
-    loader.loadAll();
-    Loggers.log("Enabling post world plugins...");
-    // TODO enable plugins which set PluginLoadOrder as POST_WORLD.
+    final var server = new ShirukaServer(address, maxPlayer, description, this.createWorldType(worldType));
+    server.startServer();
     final var end = System.currentTimeMillis() - start;
     Loggers.log("Done, took %sms.", end);
     final var console = new ShirukaConsole(server);

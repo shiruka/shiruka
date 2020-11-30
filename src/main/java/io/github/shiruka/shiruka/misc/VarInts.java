@@ -25,9 +25,13 @@
 
 package io.github.shiruka.shiruka.misc;
 
+import io.github.shiruka.api.util.Vector;
+import io.netty.buffer.ByteBuf;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,9 +40,50 @@ import org.jetbrains.annotations.NotNull;
 public final class VarInts {
 
   /**
+   * The default character encoding for protocol Strings.
+   */
+  public static final Charset NET_CHARSET = StandardCharsets.UTF_8;
+
+  /**
    * ctor.
    */
   private VarInts() {
+  }
+
+  /**
+   * transfers all of the next readable bytes from the buffer into a new byte array.
+   *
+   * @param buf the buffer to transfer from.
+   *
+   * @return the an array containing the bytes of the buffer.
+   */
+  public static byte[] arr(@NotNull final ByteBuf buf) {
+    return VarInts.arr(buf, buf.readableBytes());
+  }
+
+  /**
+   * transfers the specified length of bytes from the buffer into a new byte array.
+   *
+   * @param buf the buffer to transfer from.
+   * @param len the length of bytes to transfer.
+   *
+   * @return the new byte array.
+   */
+  public static byte[] arr(@NotNull final ByteBuf buf, final int len) {
+    final var bytes = new byte[len];
+    buf.readBytes(bytes);
+    return bytes;
+  }
+
+  /**
+   * converts the given angle into protocol format.
+   *
+   * @param angle the angle to convert.
+   *
+   * @return the protocol format.
+   */
+  public static byte convertAngle(final float angle) {
+    return (byte) (angle / 1.40625);
   }
 
   /**
@@ -70,6 +115,19 @@ public final class VarInts {
   }
 
   /**
+   * reads the next String value from the byte stream represented by the given buffer.
+   *
+   * @param buf the buffer which to read the String.
+   *
+   * @return the next String value.
+   */
+  public static String readString(final ByteBuf buf) {
+    final var len = VarInts.readVarInt(buf);
+    final var stringData = VarInts.arr(buf, len);
+    return new String(stringData, VarInts.NET_CHARSET);
+  }
+
+  /**
    * reads the integer from the given input.
    *
    * @param input the input to read.
@@ -80,6 +138,65 @@ public final class VarInts {
    */
   public static int readUnsignedInt(@NotNull final DataInput input) throws IOException {
     return (int) VarInts.decodeUnsigned(input);
+  }
+
+  /**
+   * reads the next VarInt from the given buffer.
+   *
+   * @param buf the buffer to read.
+   *
+   * @return the next VarInt.
+   */
+  public static int readVarInt(@NotNull final ByteBuf buf) {
+    var result = 0;
+    var indent = 0;
+    var b = (int) buf.readByte();
+    while ((b & 0x80) == 0x80) {
+      if (indent >= 21) {
+        throw new RuntimeException("Too many bytes for a VarInt32.");
+      }
+      result += (b & 0x7f) << indent;
+      indent += 7;
+      b = buf.readByte();
+    }
+    result += (b & 0x7f) << indent;
+    return result;
+  }
+
+  /**
+   * reads the next VarLong value from the byte stream represented by the given buffer.
+   *
+   * @param buf the buffer which to read the VarLong.
+   *
+   * @return the next VarLong value.
+   */
+  public static long readVarlong(@NotNull final ByteBuf buf) {
+    var result = 0L;
+    var indent = 0;
+    var b = (long) buf.readByte();
+    while ((b & 0x80L) == 0x80) {
+      if (indent >= 48) {
+        throw new RuntimeException("Too many bytes for a VarInt64.");
+      }
+      result += (b & 0x7fL) << indent;
+      indent += 7;
+      b = buf.readByte();
+    }
+    result += b & 0x7fL;
+    return result << indent;
+  }
+
+  /**
+   * reads the next vector and creates a new Vector instance.
+   *
+   * @param buf the buffer to read from.
+   *
+   * @return a new vector.
+   */
+  @NotNull
+  public static Vector readVector(@NotNull final ByteBuf buf) {
+    final var pos = buf.readLong();
+    return Vector.create(pos >> 38, pos >> 26 & 0xFFF, pos << 38 >> 38);
   }
 
   /**
@@ -107,6 +224,17 @@ public final class VarInts {
   }
 
   /**
+   * encodes the given String into the given buffer using the Minecraft protocol format.
+   *
+   * @param buf the buffer which to write.
+   * @param s the String to write.
+   */
+  public static void writeString(@NotNull final ByteBuf buf, @NotNull final String s) {
+    VarInts.writeVarInt(buf, s.length());
+    buf.writeBytes(s.getBytes(VarInts.NET_CHARSET));
+  }
+
+  /**
    * writes the given integer into the given output.
    *
    * @param output the output to write.
@@ -116,6 +244,45 @@ public final class VarInts {
    */
   public static void writeUnsignedInt(@NotNull final DataOutput output, final long integer) throws IOException {
     VarInts.encodeUnsigned(output, integer);
+  }
+
+  /**
+   * writes a VarInt value to the given buffer.
+   *
+   * @param buf the buffer to write.
+   * @param i the VarInt to write.
+   */
+  public static void writeVarInt(@NotNull final ByteBuf buf, int i) {
+    while ((i & 0xFFFFFF80) != 0L) {
+      buf.writeByte(i & 0x7F | 0x80);
+      i >>>= 7;
+    }
+    buf.writeByte(i & 0x7F);
+  }
+
+  /**
+   * writes a VarLong value to the given buffer.
+   *
+   * @param buf the buffer which to write.
+   * @param l the VarLong value.
+   */
+  public static void writeVarLong(@NotNull final ByteBuf buf, long l) {
+    while ((l & 0xFFFFFFFFFFFFFF80L) != 0L) {
+      buf.writeByte((int) (l & 0x7FL | 0x80L));
+      l >>>= 7L;
+    }
+    buf.writeByte((int) (l & 0x7FL));
+  }
+
+  /**
+   * writes a vector value to the given buffer.
+   *
+   * @param buf the buffer to write.
+   * @param vec the Vector coordinates to write.
+   */
+  public static void writeVector(@NotNull final ByteBuf buf, @NotNull final Vector vec) {
+    final var l = ((long) vec.getX() & 0x3FFFFFFL) << 38 | ((long) vec.getY() & 0xFFFL) << 26 | (long) vec.getZ() & 0x3FFFFFFL;
+    buf.writeLong(l);
   }
 
   /**

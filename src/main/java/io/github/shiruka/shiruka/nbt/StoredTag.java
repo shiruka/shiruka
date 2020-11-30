@@ -25,11 +25,10 @@
 
 package io.github.shiruka.shiruka.nbt;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * an interface to determine stored tags.
@@ -63,8 +62,8 @@ public interface StoredTag<K> {
    *
    * @return the tag.
    */
-  @Nullable
-  Tag get(@NotNull K key);
+  @NotNull
+  Optional<Tag> get(@NotNull K key);
 
   /**
    * gets the byte from the tag store.
@@ -73,14 +72,12 @@ public interface StoredTag<K> {
    *
    * @return a byte instance from the tag store.
    */
-  @Nullable
-  default Byte getByte(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isByte()) {
-      return null;
-    }
-    return tag.asByte()
-      .byteValue();
+  @NotNull
+  default Optional<Byte> getByte(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isByte)
+      .map(Tag::asByte)
+      .map(NumberTag::byteValue);
   }
 
   /**
@@ -91,13 +88,11 @@ public interface StoredTag<K> {
    * @return a byte array instance from the tag store.
    */
   @NotNull
-  default Byte[] getByteArray(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isByteArray()) {
-      return new Byte[0];
-    }
-    return tag.asByteArray()
-      .value();
+  default Optional<byte[]> getByteArray(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isByteArray)
+      .map(Tag::asByteArray)
+      .map(ArrayTag::value);
   }
 
   /**
@@ -107,14 +102,12 @@ public interface StoredTag<K> {
    *
    * @return a double instance from the tag store.
    */
-  @Nullable
-  default Double getDouble(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isDouble()) {
-      return null;
-    }
-    return tag.asDouble()
-      .doubleValue();
+  @NotNull
+  default Optional<Double> getDouble(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isDouble)
+      .map(Tag::asDouble)
+      .map(NumberTag::doubleValue);
   }
 
   /**
@@ -124,14 +117,12 @@ public interface StoredTag<K> {
    *
    * @return a float instance from the tag store.
    */
-  @Nullable
-  default Float getFloat(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isFloat()) {
-      return null;
-    }
-    return tag.asFloat()
-      .floatValue();
+  @NotNull
+  default Optional<Float> getFloat(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isFloat)
+      .map(Tag::asFloat)
+      .map(NumberTag::floatValue);
   }
 
   /**
@@ -142,13 +133,11 @@ public interface StoredTag<K> {
    * @return a int array instance from the tag store.
    */
   @NotNull
-  default Integer[] getIntArray(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isIntArray()) {
-      return new Integer[0];
-    }
-    return tag.asIntArray()
-      .value();
+  default Optional<int[]> getIntArray(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isIntArray)
+      .map(Tag::asIntArray)
+      .map(ArrayTag::value);
   }
 
   /**
@@ -158,14 +147,12 @@ public interface StoredTag<K> {
    *
    * @return a integer instance from the tag store.
    */
-  @Nullable
-  default Integer getInteger(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isInt()) {
-      return null;
-    }
-    return tag.asInt()
-      .intValue();
+  @NotNull
+  default Optional<Integer> getInteger(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isInt)
+      .map(Tag::asInt)
+      .map(NumberTag::intValue);
   }
 
   /**
@@ -176,13 +163,11 @@ public interface StoredTag<K> {
    * @return a list instance from the tag store.
    */
   @NotNull
-  default List<Tag> getList(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isList()) {
-      return Collections.emptyList();
-    }
-    return tag.asList()
-      .all();
+  default Optional<List<Tag>> getList(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isList)
+      .map(Tag::asList)
+      .map(ListTag::all);
   }
 
   /**
@@ -192,14 +177,12 @@ public interface StoredTag<K> {
    *
    * @return a long instance from the tag store.
    */
-  @Nullable
-  default Long getLong(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isLong()) {
-      return null;
-    }
-    return tag.asLong()
-      .longValue();
+  @NotNull
+  default Optional<Long> getLong(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isLong)
+      .map(Tag::asLong)
+      .map(NumberTag::longValue);
   }
 
   /**
@@ -210,13 +193,11 @@ public interface StoredTag<K> {
    * @return a long array instance from the tag store.
    */
   @NotNull
-  default Long[] getLongArray(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isLongArray()) {
-      return new Long[0];
-    }
-    return tag.asLongArray()
-      .value();
+  default Optional<long[]> getLongArray(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isLongArray)
+      .map(Tag::asLongArray)
+      .map(ArrayTag::value);
   }
 
   /**
@@ -227,13 +208,11 @@ public interface StoredTag<K> {
    * @return a map instance from the tag store.
    */
   @NotNull
-  default Map<String, Tag> getMap(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isCompound()) {
-      return Collections.emptyMap();
-    }
-    return tag.asCompound()
-      .all();
+  default Optional<Map<String, Tag>> getMap(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isCompound)
+      .map(Tag::asCompound)
+      .map(CompoundTag::all);
   }
 
   /**
@@ -243,14 +222,12 @@ public interface StoredTag<K> {
    *
    * @return a short instance from the tag store.
    */
-  @Nullable
-  default Short getShort(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isShort()) {
-      return null;
-    }
-    return tag.asShort()
-      .shortValue();
+  @NotNull
+  default Optional<Short> getShort(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isShort)
+      .map(Tag::asShort)
+      .map(NumberTag::shortValue);
   }
 
   /**
@@ -260,14 +237,12 @@ public interface StoredTag<K> {
    *
    * @return a string instance from the tag store.
    */
-  @Nullable
-  default String getString(@NotNull final K key) {
-    final var tag = this.get(key);
-    if (tag == null || !tag.isString()) {
-      return null;
-    }
-    return tag.asString()
-      .value();
+  @NotNull
+  default Optional<String> getString(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isString)
+      .map(Tag::asString)
+      .map(PrimitiveTag::value);
   }
 
   /**
@@ -301,7 +276,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setByteArray(@NotNull final K key, @NotNull final Byte @NotNull [] value) {
+  default void setByteArray(@NotNull final K key, final byte @NotNull [] value) {
     this.set(key, Tag.createByteArray(value));
   }
 
@@ -331,7 +306,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setIntArray(@NotNull final K key, @NotNull final Integer @NotNull [] value) {
+  default void setIntArray(@NotNull final K key, final int @NotNull [] value) {
     this.set(key, Tag.createIntArray(value));
   }
 
@@ -371,7 +346,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value set.
    */
-  default void setLongArray(@NotNull final K key, @NotNull final Long @NotNull [] value) {
+  default void setLongArray(@NotNull final K key, final long @NotNull [] value) {
     this.set(key, Tag.createLongArray(value));
   }
 

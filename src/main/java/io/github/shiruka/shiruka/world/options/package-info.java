@@ -22,57 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.world;
-
-import io.github.shiruka.api.world.World;
-import io.github.shiruka.api.world.options.Dimension;
-import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an abstract implementation for {@link World}
+ * the package that contains option classes of worlds.
  */
-public abstract class ShirukaWorld implements World {
-
-  /**
-   * the dimension.
-   */
-  @NotNull
-  protected final Dimension dimension;
-
-  /**
-   * the directory.
-   */
-  @NotNull
-  protected final Path directory;
-
-  /**
-   * the name.
-   */
-  @NotNull
-  protected final String name;
-
-  /**
-   * ctor.
-   *
-   * @param dimension the spec.
-   * @param directory the enclosing.
-   * @param name the name.
-   */
-  protected ShirukaWorld(@NotNull final Dimension dimension, @NotNull final Path directory, @NotNull final String name) {
-    this.dimension = dimension;
-    this.directory = directory;
-    this.name = name;
-  }
-
-  @NotNull
-  @Override
-  public String getName() {
-    return this.name;
-  }
-
-  @Override
-  public void loadSpawnChunks() {
-  }
-}
+package io.github.shiruka.shiruka.world.options;

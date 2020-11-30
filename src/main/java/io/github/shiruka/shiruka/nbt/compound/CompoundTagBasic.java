@@ -30,9 +30,9 @@ import io.github.shiruka.shiruka.nbt.Tag;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.cactoos.map.MapEnvelope;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link CompoundTag} and {@link MapEnvelope}.
@@ -77,10 +77,10 @@ public final class CompoundTagBasic implements CompoundTag {
     return this.original.containsKey(key);
   }
 
-  @Nullable
+  @NotNull
   @Override
-  public Tag get(@NotNull final String key) {
-    return this.original.get(key);
+  public Optional<Tag> get(@NotNull final String key) {
+    return Optional.ofNullable(this.original.get(key));
   }
 
   @Override

@@ -125,9 +125,10 @@ public final class ListTagBasic implements ListTag {
     return this.original.contains(tag);
   }
 
+  @NotNull
   @Override
-  public Tag get(@NotNull final Integer key) {
-    return this.original.get(key);
+  public Optional<Tag> get(@NotNull final Integer key) {
+    return Optional.ofNullable(this.original.get(key));
   }
 
   @Override

@@ -23,61 +23,55 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt.array;
+package io.github.shiruka.shiruka.world.generators;
 
-import io.github.shiruka.shiruka.nbt.ArrayTag;
-import java.util.Arrays;
+import io.github.shiruka.api.base.FeatureGenerator;
+import io.github.shiruka.api.world.World;
+import io.github.shiruka.api.world.generators.GeneratorContainer;
+import io.github.shiruka.api.world.generators.GeneratorProvider;
+import io.github.shiruka.api.world.generators.PropGenerator;
+import io.github.shiruka.api.world.generators.TerrainGenerator;
+import java.util.Collections;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
-public final class ByteArrayTag implements ArrayTag<byte[]> {
+/**
+ * a generator provider that provides the proper generators for a flat world level type.
+ */
+public final class FlatGeneratorProvider implements GeneratorProvider {
 
   /**
-   * the original.
+   * the singleton instance of this provider.
    */
-  private final byte[] original;
+  public static final FlatGeneratorProvider INSTANCE = new FlatGeneratorProvider();
 
   /**
    * ctor.
-   *
-   * @param original the original.
    */
-  public ByteArrayTag(final byte[] original) {
-    this.original = original.clone();
-  }
-
-  public final byte get(final int index) {
-    ArrayTag.checkIndex(index, this.original.length);
-    return this.original[index];
-  }
-
-  @Override
-  public final int size() {
-    return this.original.length;
-  }
-
-  @Override
-  public final String toString() {
-    return Arrays.toString(this.original);
-  }
-
-  @Override
-  public final byte @NotNull [] value() {
-    return this.original.clone();
+  private FlatGeneratorProvider() {
   }
 
   @NotNull
   @Override
-  public ByteArrayTag asByteArray() {
-    return this;
+  public Set<FeatureGenerator> getFeatureGenerators(@NotNull final World world) {
+    return Collections.emptySet();
   }
 
+  @NotNull
   @Override
-  public byte id() {
-    return 7;
+  public GeneratorContainer getGenerationContainer() {
+    return GeneratorContainer.ARBITRARY;
   }
 
+  @NotNull
   @Override
-  public boolean isByteArray() {
-    return true;
+  public Set<PropGenerator> getPropGenerators(@NotNull final World world) {
+    return Collections.emptySet();
+  }
+
+  @NotNull
+  @Override
+  public TerrainGenerator getTerrainGenerator(@NotNull final World world) {
+    return FlatTerrainGenerator.INSTANCE;
   }
 }

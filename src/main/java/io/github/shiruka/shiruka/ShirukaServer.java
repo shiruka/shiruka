@@ -29,6 +29,7 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.ServerSocket;
 import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
@@ -120,6 +121,14 @@ public final class ShirukaServer implements Server {
   public void startServer() {
     this.running.set(true);
     this.tick.start();
+    Loggers.log("Loading plugins...");
+    // TODO Load plugins here.
+    Loggers.log("Enabling startup plugins...");
+    // TODO enable plugins which set PluginLoadOrder as STARTUP.
+    Loggers.log("Loading worlds...");
+    this.loader.loadAll();
+    Loggers.log("Enabling post world plugins...");
+    // TODO enable plugins which set PluginLoadOrder as POST_WORLD.
   }
 
   @Override

@@ -22,62 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.nbt.array;
-
-import io.github.shiruka.shiruka.nbt.ArrayTag;
-import java.util.Arrays;
-import org.jetbrains.annotations.NotNull;
-
-public final class ByteArrayTag implements ArrayTag<byte[]> {
-
-  /**
-   * the original.
-   */
-  private final byte[] original;
-
-  /**
-   * ctor.
-   *
-   * @param original the original.
-   */
-  public ByteArrayTag(final byte[] original) {
-    this.original = original.clone();
-  }
-
-  public final byte get(final int index) {
-    ArrayTag.checkIndex(index, this.original.length);
-    return this.original[index];
-  }
-
-  @Override
-  public final int size() {
-    return this.original.length;
-  }
-
-  @Override
-  public final String toString() {
-    return Arrays.toString(this.original);
-  }
-
-  @Override
-  public final byte @NotNull [] value() {
-    return this.original.clone();
-  }
-
-  @NotNull
-  @Override
-  public ByteArrayTag asByteArray() {
-    return this;
-  }
-
-  @Override
-  public byte id() {
-    return 7;
-  }
-
-  @Override
-  public boolean isByteArray() {
-    return true;
-  }
-}
+/**
+ * the package that contains generator classes of worlds.
+ */
+package io.github.shiruka.shiruka.world.generators;

@@ -23,65 +23,37 @@
  *
  */
 
-package io.github.shiruka.shiruka.nbt.array;
+package io.github.shiruka.shiruka.world.generators;
 
-import io.github.shiruka.shiruka.nbt.ArrayTag;
-import java.util.Arrays;
+import io.github.shiruka.api.world.generators.GeneratorContext;
+import io.github.shiruka.api.world.generators.TerrainGenerator;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link ArrayTag}.
- *
- * @param <T> type of array.
+ * this generator generates the base chunk layer used for generating flat worlds.
  */
-public abstract class ArrayTagEnvelope<T> implements ArrayTag<T> {
+public final class FlatTerrainGenerator implements TerrainGenerator {
 
   /**
-   * the original.
+   * instance of this generator.
    */
-  @NotNull
-  private final T @NotNull [] original;
+  public static final FlatTerrainGenerator INSTANCE = new FlatTerrainGenerator();
 
   /**
-   * ctor.
-   *
-   * @param original the original.
+   * ctpr.
    */
-  ArrayTagEnvelope(@NotNull final T @NotNull [] original) {
-    this.original = original.clone();
+  private FlatTerrainGenerator() {
   }
 
-  /**
-   * checks indexes of the array tag.
-   *
-   * @param index the index to check.
-   * @param length the length to check.
-   */
-  private static void checkIndex(final int index, final int length) {
-    if (index < 0 || index >= length) {
-      throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+  @Override
+  public void generate(final int chunkX, final int chunkZ, @NotNull final GeneratorContext context) {
+    for (int x = 0; x < 16; x++) {
+      for (int z = 0; z < 16; z++) {
+        context.set(x, 0, z, 7, (byte) 0);
+        context.set(x, 1, z, 3, (byte) 0);
+        context.set(x, 2, z, 3, (byte) 0);
+        context.set(x, 3, z, 2, (byte) 0);
+      }
     }
-  }
-
-  @NotNull
-  @Override
-  public final T get(final int index) {
-    ArrayTagEnvelope.checkIndex(index, this.original.length);
-    return this.original[index];
-  }
-
-  @Override
-  public final int size() {
-    return this.original.length;
-  }
-
-  @Override
-  public final T @NotNull [] value() {
-    return this.original.clone();
-  }
-
-  @Override
-  public final String toString() {
-    return Arrays.toString(this.original);
   }
 }

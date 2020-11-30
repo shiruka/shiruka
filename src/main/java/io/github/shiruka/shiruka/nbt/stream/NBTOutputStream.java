@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.nbt.stream;
 
-import io.github.shiruka.shiruka.misc.ArrayUtils;
 import io.github.shiruka.shiruka.nbt.CompoundTag;
 import io.github.shiruka.shiruka.nbt.ListTag;
 import io.github.shiruka.shiruka.nbt.Tag;
@@ -134,9 +133,9 @@ public final class NBTOutputStream implements Closeable {
    * @throws IOException if something went wrong when reading the given input.
    */
   public void writeByteArray(@NotNull final ByteArrayTag value) throws IOException {
-    final var primitive = ArrayUtils.toPrimitive(value.value());
-    this.output.writeInt(primitive.length);
-    this.output.write(primitive);
+    final var bytes = value.value();
+    this.output.writeInt(bytes.length);
+    this.output.write(bytes);
   }
 
   /**

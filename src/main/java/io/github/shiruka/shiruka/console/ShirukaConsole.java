@@ -26,17 +26,19 @@
 package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
-import java.nio.file.Paths;
-import net.minecrell.terminalconsole.SimpleTerminalConsole;
+import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.*;
+import org.jline.reader.impl.DefaultParser;
+import org.jline.terminal.TerminalBuilder;
 
 /**
  * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
-public final class ShirukaConsole extends SimpleTerminalConsole {
+public final class ShirukaConsole {
 
   /**
    * the console command completer;
@@ -70,25 +72,43 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
     this(new ConsoleCommandCompleter(server), server);
   }
 
-  @Override
-  protected boolean isRunning() {
-    return !this.server.isInShutdownState();
-  }
-
-  @Override
-  protected void runCommand(final String command) {
-    this.server.runCommand(command);
-  }
-
-  @Override
-  protected void shutdown() {
-  }
-
-  @Override
-  protected LineReader buildReader(final LineReaderBuilder builder) {
-    return super.buildReader(builder
-      .appName("Shiru ka")
-      .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
-      .completer(this.completer));
+  /**
+   * starts the reading inputs.
+   */
+  public void start() {
+    AnsiConsole.systemInstall();
+    final Parser parser = new DefaultParser();
+    try (final var terminal = TerminalBuilder.builder()
+      .name("Shiru ka")
+      .encoding(StandardCharsets.UTF_8)
+      .build()) {
+      final var reader = LineReaderBuilder.builder()
+        .terminal(terminal)
+        .completer(new ConsoleCommandCompleter(this.server))
+        .parser(parser)
+        .variable(LineReader.LIST_MAX, 50)   // max tab completion candidates
+        .build();
+      reader.setOpt(LineReader.Option.DISABLE_EVENT_EXPANSION);
+      reader.unsetOpt(LineReader.Option.INSERT_TAB);
+      String line;
+      while (!this.server.isInShutdownState()) {
+        try {
+          line = reader.readLine("> ");
+        } catch (final EndOfFileException ignored) {
+          continue;
+        }
+        if (line == null) {
+          break;
+        }
+        this.server.runCommand(line);
+      }
+    } catch (final UserInterruptException e) {
+      this.server.stopServer();
+      JiraExceptionCatcher.serverException(e);
+    } catch (final IOException e) {
+      JiraExceptionCatcher.serverException(e);
+    } finally {
+      AnsiConsole.systemUninstall();
+    }
   }
 }

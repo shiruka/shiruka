@@ -53,7 +53,7 @@ public interface Tag {
   /**
    * an empty {@link ByteArrayTag} instance.
    */
-  ByteArrayTag BYTE_ARRAY = Tag.createByteArray(new Byte[0]);
+  ByteArrayTag BYTE_ARRAY = Tag.createByteArray(new byte[0]);
 
   /**
    * an empty {@link CompoundTag} instance.
@@ -83,7 +83,7 @@ public interface Tag {
   /**
    * an empty {@link IntArrayTag} instance.
    */
-  IntArrayTag INT_ARRAY = Tag.createIntArray(new Integer[0]);
+  IntArrayTag INT_ARRAY = Tag.createIntArray(new int[0]);
 
   /**
    * an empty {@link ListTag} instance.
@@ -98,7 +98,7 @@ public interface Tag {
   /**
    * an empty {@link LongArrayTag} instance.
    */
-  LongArrayTag LONG_ARRAY = Tag.createLongArray(new Long[0]);
+  LongArrayTag LONG_ARRAY = Tag.createLongArray(new long[0]);
 
   /**
    * an empty {@link ShortTag} instance.
@@ -130,7 +130,7 @@ public interface Tag {
    * @return an instance of {@link ByteArrayTag}.
    */
   @NotNull
-  static ByteArrayTag createByteArray(@NotNull final Byte @NotNull [] original) {
+  static ByteArrayTag createByteArray(final byte @NotNull [] original) {
     return new ByteArrayTag(original);
   }
 
@@ -186,6 +186,8 @@ public interface Tag {
    * @param stream the stream to create.
    *
    * @return a new instance of {@link NBTInputStream} with {@link GZIPInputStream}.
+   *
+   * @throws IOException if an I/O error has occurred.
    */
   @NotNull
   static NBTInputStream createGZIPReader(@NotNull final InputStream stream) throws IOException {
@@ -198,6 +200,8 @@ public interface Tag {
    * @param stream the stream to create.
    *
    * @return a new instance of {@link NBTOutputStream} with {@link GZIPOutputStream}.
+   *
+   * @throws IOException if an I/O error has occurred.
    */
   @NotNull
   static NBTOutputStream createGZIPWriter(@NotNull final OutputStream stream) throws IOException {
@@ -224,7 +228,7 @@ public interface Tag {
    * @return an instance of {@link IntArrayTag}.
    */
   @NotNull
-  static IntArrayTag createIntArray(@NotNull final Integer @NotNull [] original) {
+  static IntArrayTag createIntArray(final int @NotNull [] original) {
     return new IntArrayTag(original);
   }
 
@@ -272,7 +276,7 @@ public interface Tag {
    * @return an instance of {@link LongArrayTag}.
    */
   @NotNull
-  static LongArrayTag createLongArray(@NotNull final Long @NotNull [] original) {
+  static LongArrayTag createLongArray(final long @NotNull [] original) {
     return new LongArrayTag(original);
   }
 

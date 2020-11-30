@@ -22,60 +22,33 @@
  * SOFTWARE.
  *
  */
+package io.github.shiruka.shiruka.log.pipeline;
 
-package io.github.shiruka.shiruka.nbt.array;
-
-import io.github.shiruka.shiruka.nbt.ArrayTag;
+import io.github.shiruka.shiruka.log.LogMessage;
+import io.github.shiruka.shiruka.log.PipelineLogger;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link ArrayTag}.
- *
- * @param <T> type of array.
+ * creates a new logger that handles debug messages without printing it.
  */
-public abstract class ArrayTagEnvelope<T> implements ArrayTag<T> {
-
-  /**
-   * the original.
-   */
-  @NotNull
-  private final T @NotNull [] original;
+public final class NoDebugLogger extends PipelineLoggerBase {
 
   /**
    * ctor.
    *
-   * @param original the original.
+   * @param next the next logger in the pipeline
    */
-  ArrayTagEnvelope(@NotNull final T @NotNull [] original) {
-    this.original = original.clone();
+  public NoDebugLogger(@NotNull final PipelineLogger next) {
+    super(next);
   }
 
-  /**
-   * checks indexes of the array tag.
-   *
-   * @param index the index to check.
-   * @param length the length to check.
-   */
-  private static void checkIndex(final int index, final int length) {
-    if (index < 0 || index >= length) {
-      throw new IndexOutOfBoundsException("Index out of bounds: " + index);
-    }
+  @Override
+  public void debug(@NotNull final LogMessage msg) {
   }
 
   @NotNull
   @Override
-  public final T get(final int index) {
-    ArrayTagEnvelope.checkIndex(index, this.original.length);
-    return this.original[index];
-  }
-
-  @Override
-  public final int size() {
-    return this.original.length;
-  }
-
-  @Override
-  public final T @NotNull [] value() {
-    return this.original.clone();
+  public LogMessage handle(@NotNull final LogMessage msg) {
+    return msg;
   }
 }

@@ -81,6 +81,18 @@ public final class ServerThreadPool implements Executor {
   }
 
   /**
+   * initiates server's pool specs.
+   */
+  public static void init() {
+    ServerThreadPool.forSpec(PoolSpec.WORLDS);
+    ServerThreadPool.forSpec(PoolSpec.CHUNKS);
+    ServerThreadPool.forSpec(PoolSpec.ENTITIES);
+    ServerThreadPool.forSpec(PoolSpec.PLAYERS);
+    ServerThreadPool.forSpec(PoolSpec.PLUGINS);
+    ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
+  }
+
+  /**
    * attempts to shutdown every thread pool that has been
    * registered through a spec in the server.
    */

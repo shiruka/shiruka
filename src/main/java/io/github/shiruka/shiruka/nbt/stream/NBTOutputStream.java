@@ -35,7 +35,6 @@ import io.github.shiruka.shiruka.nbt.primitive.*;
 import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -56,6 +55,8 @@ public final class NBTOutputStream implements Closeable {
 
   /**
    * ctor.
+   *
+   * @param output the output.
    */
   public NBTOutputStream(@NotNull final DataOutput output) {
     this.output = output;
@@ -108,8 +109,9 @@ public final class NBTOutputStream implements Closeable {
       this.writeIntArray(value.asIntArray());
     } else if (value.isLongArray()) {
       this.writeLongArray(value.asLongArray());
+    } else {
+      throw new IllegalArgumentException("Unknown type " + id);
     }
-    throw new IllegalArgumentException("Unknown type " + id);
   }
 
   /**
@@ -131,9 +133,9 @@ public final class NBTOutputStream implements Closeable {
    * @throws IOException if something went wrong when reading the given input.
    */
   public void writeByteArray(@NotNull final ByteArrayTag value) throws IOException {
-    final var primitive = ArrayUtils.toPrimitive(value.value());
-    this.output.writeInt(primitive.length);
-    this.output.write(primitive);
+    final var bytes = value.value();
+    this.output.writeInt(bytes.length);
+    this.output.write(bytes);
   }
 
   /**

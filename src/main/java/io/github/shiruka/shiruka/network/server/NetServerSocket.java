@@ -24,7 +24,7 @@
  */
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.*;
 import io.netty.channel.*;
 import java.net.InetAddress;
@@ -71,64 +71,73 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   /**
    * ctor.
    *
-   * @param ip the ip of the server
-   * @param port the port to of the server
+   * @param address the address of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
    */
-  private NetServerSocket(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener,
+  private NetServerSocket(@NotNull final InetSocketAddress address, @NotNull final SocketListener socketListener,
                           final int maxConnections) {
-    super(new InetSocketAddress(ip, port), socketListener);
+    super(address, socketListener);
     this.maxConnections = maxConnections;
   }
 
   /**
    * initiates and execs the server.
    *
-   * @param ip the ip of the server
-   * @param port the port to of the server
+   * @param address the address of the server
    * @param socketListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
+   *
+   * @return a new {@link ServerSocket} instance.
    */
-  public static void init(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener,
-                          final int maxConnections) {
-    Loggers.useLogger(logger ->
-      logger.debug("Initiating the server socket..."));
-    final var socket = new NetServerSocket(ip, port, socketListener, maxConnections);
+  @NotNull
+  public static ServerSocket init(@NotNull final InetSocketAddress address,
+                                  @NotNull final SocketListener socketListener, final int maxConnections) {
+    Loggers.debug("Initiating the server socket...");
+    final var socket = new NetServerSocket(address, socketListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
-      Loggers.useLogger(logger ->
-        logger.error("An exception occurred in Network system", t)));
+      Loggers.error("An exception occurred in Network system", t));
     socket.bind();
+    return socket;
+  }
+
+  /**
+   * initiates and execs the server.
+   *
+   * @param address the address of the server
+   * @param socketListener the listener to handle custom events when a server does anything.
+   *
+   * @return a new {@link ServerSocket} instance.
+   */
+  @NotNull
+  public static ServerSocket init(@NotNull final InetSocketAddress address,
+                                  @NotNull final SocketListener socketListener) {
+    return NetServerSocket.init(address, socketListener, 1024);
   }
 
   /**
    * initiates and execs the server.
    *
    * @param ip the ip of the server
-   * @param port the port to of the server
    * @param socketListener the listener to handle custom events when a server does anything.
-   */
-  public static void init(@NotNull final String ip, final int port, @NotNull final SocketListener socketListener) {
-    NetServerSocket.init(ip, port, socketListener, 1024);
-  }
-
-  /**
-   * initiates and execs the server.
    *
-   * @param ip the ip of the server
-   * @param socketListener the listener to handle custom events when a server does anything.
+   * @return a new {@link ServerSocket} instance.
    */
-  public static void init(@NotNull final String ip, @NotNull final SocketListener socketListener) {
-    NetServerSocket.init(ip, 19132, socketListener);
+  @NotNull
+  public static ServerSocket init(@NotNull final String ip, @NotNull final SocketListener socketListener) {
+    return NetServerSocket.init(new InetSocketAddress(ip, 19132), socketListener);
   }
 
   /**
    * initiates and execs the server.
    *
    * @param socketListener the listener to handle custom events when a server does anything.
+   *
+   * @return a new {@link ServerSocket} instance.
    */
-  public static void init(@NotNull final SocketListener socketListener) {
-    NetServerSocket.init("127.0.0.1", socketListener);
+  @NotNull
+  public static ServerSocket init(@NotNull final SocketListener socketListener) {
+    return NetServerSocket.init("127.0.0.1", socketListener);
   }
 
   @Override
@@ -227,22 +236,18 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   @Override
   public CompletableFuture<Void> exec() {
-    Loggers.useLogger(logger ->
-      logger.debug("Binding the server..."));
+    Loggers.debug("Binding the server...");
     final var completableFuture = new CompletableFuture<>();
     this.getBootstrap()
       .handler(new NetServerSocketHandler(this))
       .bind(this.getAddress())
       .addListener((ChannelFutureListener) future -> {
         if (future.cause() != null) {
-          Loggers.useLogger(logger ->
-            logger.error("An error occurs"));
-          Loggers.useLogger(logger ->
-            logger.error(future.cause().getMessage()));
+          Loggers.error("An error occurs");
+          Loggers.error(future.cause().getMessage());
           completableFuture.completeExceptionally(future.cause());
         }
-        Loggers.useLogger(logger ->
-          logger.debug("The server bound."));
+        Loggers.debug("The server bound.");
         completableFuture.complete(future.channel());
       });
     return CompletableFuture.allOf(completableFuture);

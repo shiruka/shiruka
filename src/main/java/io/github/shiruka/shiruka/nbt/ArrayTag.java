@@ -32,7 +32,19 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> type of arrays.
  */
-public interface ArrayTag<T> extends Tag {
+public interface ArrayTag<T> extends PrimitiveTag<T> {
+
+  /**
+   * checks indexes of the array tag.
+   *
+   * @param index the index to check.
+   * @param length the length to check.
+   */
+  static void checkIndex(final int index, final int length) {
+    if (index < 0 || index >= length) {
+      throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+    }
+  }
 
   @Override
   @NotNull
@@ -46,29 +58,9 @@ public interface ArrayTag<T> extends Tag {
   }
 
   /**
-   * gets the value at {@code index} in this tag.
-   *
-   * @param index the index in the array.
-   *
-   * @return the byte at the index in the array.
-   *
-   * @throws IndexOutOfBoundsException if index is &lt; 0 or &ge; {@link #size()}.
-   */
-  @NotNull
-  T get(final int index);
-
-  /**
    * gets the size of the array.
    *
    * @return array size.
    */
   int size();
-
-  /**
-   * gets the value.
-   *
-   * @return the value.
-   */
-  @NotNull
-  T @NotNull [] value();
 }

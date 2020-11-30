@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.util;
 
 import io.github.shiruka.api.misc.Optionals;
-import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.ServerSocket;
 import io.github.shiruka.shiruka.network.Socket;
@@ -235,13 +235,11 @@ public final class Packets {
                                                    @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(16)) {
-      Loggers.useLogger(logger ->
-        logger.error("Invalid packet content for unconnected ping."));
+      Loggers.error("Invalid packet content for unconnected ping.");
       return;
     }
     if (!Packets.verifyUnconnectedMagic(content)) {
-      Loggers.useLogger(logger ->
-        logger.error("Invalid magic number for unconnected ping."));
+      Loggers.error("Invalid magic number for unconnected ping.");
       return;
     }
     final var protocolVersion = content.readUnsignedByte();
@@ -249,34 +247,26 @@ public final class Packets {
     final var recipient = packet.sender();
     final var connection = server.getConnectionsByAddress().get(recipient);
     if (connection != null && connection.getState() == ConnectionState.CONNECTED) {
-      Loggers.useLogger(logger ->
-        logger.error("{} is already connected!", recipient));
-      Loggers.useLogger(
-        logger -> logger.debug("Sending already connected packet..."));
+      Loggers.error("%s is already connected!", recipient);
+      Loggers.debug("Sending already connected packet...");
       Packets.sendAlreadyConnected(ctx, server, recipient);
       return;
     }
     if (Constants.MOJANG_PROTOCOL_VERSION != protocolVersion) {
-      Loggers.useLogger(logger ->
-        logger.error("Incompatible protocol version from {}!", recipient));
-      Loggers.useLogger(
-        logger -> logger.debug("Sending incompatible protocol version packet..."));
+      Loggers.error("Incompatible protocol version from %s!", recipient);
+      Loggers.debug("Sending incompatible protocol version packet...");
       Packets.sendIncompatibleProtocolVersion(ctx, server, recipient);
       return;
     }
     if (server.getMaxConnections() >= 0 && server.getMaxConnections() <= server.getConnectionsByAddress().size()) {
-      Loggers.useLogger(logger ->
-        logger.error("Reached Maximum connection size!"));
-      Loggers.useLogger(
-        logger -> logger.debug("Sending maximum connection packet..."));
+      Loggers.error("Reached Maximum connection size!");
+      Loggers.debug("Sending maximum connection packet...");
       Packets.sendMaximumConnection(ctx, server, recipient);
       return;
     }
     if (!server.getSocketListener().onConnect(recipient)) {
-      Loggers.useLogger(logger ->
-        logger.error("{} can't connect to the server!", recipient));
-      Loggers.useLogger(
-        logger -> logger.debug("Sending connection banned packet..."));
+      Loggers.error("%s can't connect to the server!", recipient);
+      Loggers.debug("Sending connection banned packet...");
       Packets.sendConnectedBanned(ctx, server, recipient);
       return;
     }
@@ -299,14 +289,12 @@ public final class Packets {
                                             @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(24)) {
-      Loggers.useLogger(logger ->
-        logger.error("Invalid packet content for unconnected ping."));
+      Loggers.error("Invalid packet content for unconnected ping.");
       return;
     }
     final var pingTime = content.readLong();
     if (!Packets.verifyUnconnectedMagic(content)) {
-      Loggers.useLogger(logger ->
-        logger.error("Invalid magic number for unconnected ping."));
+      Loggers.error("Invalid magic number for unconnected ping.");
       return;
     }
     Packets.sendUnconnectedPongPacket(ctx, server, packet.sender(), pingTime);

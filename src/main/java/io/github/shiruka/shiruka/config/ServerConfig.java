@@ -42,9 +42,16 @@ public final class ServerConfig extends PathableConfig {
   /**
    * server's ip address.
    */
-  public static final ConfigPath<String> ADDRESS =
-    commented(stringPath("address", "0.0.0.0"),
+  public static final ConfigPath<String> ADDRESS_IP =
+    commented(stringPath("ip", "127.0.0.1"),
       "server's ip address.");
+
+  /**
+   * server's port.
+   */
+  public static final ConfigPath<Integer> ADDRESS_PORT =
+    commented(integerPath("port", 19132),
+      "server's port.");
 
   /**
    * the amount of bytes before compressing packets.
@@ -56,18 +63,25 @@ public final class ServerConfig extends PathableConfig {
       "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
 
   /**
+   * name of the over world.
+   */
+  public static final ConfigPath<String> DEFAULT_WORLD_NAME =
+    commented(stringPath("default-world-name", "world"),
+      "name of the over world.");
+
+  /**
+   * the description message shown in the server list.
+   */
+  public static final ConfigPath<String> DESCRIPTION =
+    commented(stringPath("description", "Shiru ka server"),
+      "the description message shown in the server list.");
+
+  /**
    * the max players that can be online at once.
    */
   public static final ConfigPath<Integer> MAX_PLAYERS =
     commented(integerPath("max-players", 20),
       "the max players that can be online at once.");
-
-  /**
-   * the MOTD message shown in the server list.
-   */
-  public static final ConfigPath<String> MOTD =
-    commented(stringPath("motd", "Shiru ka server"),
-      "the MOTD message shown in the server list.");
 
   /**
    * whether to check for netty memory leaks during runtime
@@ -84,18 +98,18 @@ public final class ServerConfig extends PathableConfig {
       "whether to use Mojang auth to check players.");
 
   /**
-   * server's port.
-   */
-  public static final ConfigPath<Integer> PORT =
-    commented(integerPath("port", 19132),
-      "server's port.");
-
-  /**
    * "true" to use linux natives when available.
    */
   public static final ConfigPath<Boolean> USE_NATIVE =
     commented(booleanPath("use-native", true),
       "\"true\" to use linux natives when available.");
+
+  /**
+   * type of the worlds to create.
+   */
+  public static final ConfigPath<String> WORLD_TYPE =
+    commented(stringPath("world-type", "anvil"),
+      "type of thw worlds to create.");
 
   /**
    * ctor.

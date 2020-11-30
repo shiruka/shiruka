@@ -25,17 +25,44 @@
 
 package io.github.shiruka.shiruka.nbt.array;
 
+import io.github.shiruka.shiruka.nbt.ArrayTag;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
-public final class LongArrayTag extends ArrayTagEnvelope<Long> {
+public final class LongArrayTag implements ArrayTag<long[]> {
+
+  /**
+   * the original.
+   */
+  private final long[] original;
 
   /**
    * ctor.
    *
    * @param original the original.
    */
-  public LongArrayTag(@NotNull final Long @NotNull [] original) {
-    super(original);
+  public LongArrayTag(final long @NotNull [] original) {
+    this.original = original.clone();
+  }
+
+  public final long get(final int index) {
+    ArrayTag.checkIndex(index, this.original.length);
+    return this.original[index];
+  }
+
+  @Override
+  public final int size() {
+    return this.original.length;
+  }
+
+  @Override
+  public final String toString() {
+    return Arrays.toString(this.original);
+  }
+
+  @Override
+  public final long @NotNull [] value() {
+    return this.original.clone();
   }
 
   @NotNull

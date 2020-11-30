@@ -25,17 +25,44 @@
 
 package io.github.shiruka.shiruka.nbt.array;
 
+import io.github.shiruka.shiruka.nbt.ArrayTag;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
-public final class ByteArrayTag extends ArrayTagEnvelope<Byte> {
+public final class ByteArrayTag implements ArrayTag<byte[]> {
+
+  /**
+   * the original.
+   */
+  private final byte[] original;
 
   /**
    * ctor.
    *
    * @param original the original.
    */
-  public ByteArrayTag(@NotNull final Byte @NotNull [] original) {
-    super(original);
+  public ByteArrayTag(final byte[] original) {
+    this.original = original.clone();
+  }
+
+  public final byte get(final int index) {
+    ArrayTag.checkIndex(index, this.original.length);
+    return this.original[index];
+  }
+
+  @Override
+  public final int size() {
+    return this.original.length;
+  }
+
+  @Override
+  public final String toString() {
+    return Arrays.toString(this.original);
+  }
+
+  @Override
+  public final byte @NotNull [] value() {
+    return this.original.clone();
   }
 
   @NotNull

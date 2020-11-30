@@ -24,7 +24,7 @@
  */
 package io.github.shiruka.shiruka.concurrent;
 
-import io.github.shiruka.shiruka.misc.Loggers;
+import io.github.shiruka.shiruka.log.Loggers;
 import java.io.PrintStream;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
@@ -152,8 +152,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
     e.printStackTrace(new PrintStream(System.out) {
       @Override
       public void println(final Object x) {
-        Loggers.useLogger(logger ->
-          logger.error(String.valueOf(x)));
+        Loggers.error(String.valueOf(x));
       }
     });
   }

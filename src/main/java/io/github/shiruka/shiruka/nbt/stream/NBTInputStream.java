@@ -37,7 +37,6 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -144,7 +143,7 @@ public final class NBTInputStream implements Closeable {
     final var length = this.input.readInt();
     final var value = new byte[length];
     this.input.readFully(value);
-    return Tag.createByteArray(ArrayUtils.toObject(value));
+    return Tag.createByteArray(value);
   }
 
   /**
@@ -212,7 +211,7 @@ public final class NBTInputStream implements Closeable {
   @NotNull
   public IntArrayTag readIntArray() throws IOException {
     final var length = this.input.readInt();
-    final var value = new Integer[length];
+    final var value = new int[length];
     for (var i = 0; i < length; i++) {
       value[i] = this.input.readInt();
     }
@@ -260,7 +259,7 @@ public final class NBTInputStream implements Closeable {
   @NotNull
   public LongArrayTag readLongArray() throws IOException {
     final var length = this.input.readInt();
-    final var value = new Long[length];
+    final var value = new long[length];
     for (var i = 0; i < length; i++) {
       value[i] = this.input.readLong();
     }

@@ -14,7 +14,7 @@
     </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
-    <Root level="all">
+    <Root level="info">
       <AppenderRef ref="File"/>
       <AppenderRef ref="TerminalConsole"/>
     </Root>

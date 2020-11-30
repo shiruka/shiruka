@@ -27,7 +27,7 @@ package io.github.shiruka.shiruka.world.generators;
 
 import io.github.shiruka.api.base.Material;
 import io.github.shiruka.api.world.generators.GeneratorContext;
-import io.github.shiruka.shiruka.misc.UncheckedCdl;
+import io.github.shiruka.shiruka.misc.CdlUnchecked;
 import io.github.shiruka.shiruka.world.anvil.AnvilChunkSection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -84,7 +84,7 @@ public final class ShirukaGeneratorContext implements GeneratorContext {
   /**
    * queue of generation tasks to be handle upon command.
    */
-  private final Queue<Consumer<UncheckedCdl>> tasks = new ConcurrentLinkedQueue<>();
+  private final Queue<Consumer<CdlUnchecked>> tasks = new ConcurrentLinkedQueue<>();
 
   /**
    * ctor.
@@ -164,7 +164,7 @@ public final class ShirukaGeneratorContext implements GeneratorContext {
    *
    * @param latch the count down latch used to await for the generation to finish before proceeding.
    */
-  public void doRun(@NotNull final UncheckedCdl latch) {
+  public void doRun(@NotNull final CdlUnchecked latch) {
     this.tasks.stream()
       .<Runnable>map(consumer -> () -> consumer.accept(latch))
       .forEach(this.container::execute);
@@ -177,8 +177,8 @@ public final class ShirukaGeneratorContext implements GeneratorContext {
    * @return the count down latch argument.
    */
   @NotNull
-  public UncheckedCdl getCount() {
-    return new UncheckedCdl(this.count.intValue());
+  public CdlUnchecked getCount() {
+    return new CdlUnchecked(this.count.intValue());
   }
 
   @Override

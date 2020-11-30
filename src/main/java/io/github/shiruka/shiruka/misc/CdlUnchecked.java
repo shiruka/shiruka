@@ -30,14 +30,14 @@ import java.util.concurrent.CountDownLatch;
 /**
  * an implementation, that does not throw a checked exception, for {@link CountDownLatch}.
  */
-public final class UncheckedCdl extends CountDownLatch {
+public final class CdlUnchecked extends CountDownLatch {
 
   /**
    * ctor.
    *
    * @param count the count.
    */
-  public UncheckedCdl(final int count) {
+  public CdlUnchecked(final int count) {
     super(count);
   }
 

@@ -31,7 +31,7 @@ import io.github.shiruka.api.world.generators.GeneratorContainer;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
-import io.github.shiruka.shiruka.misc.UncheckedCdl;
+import io.github.shiruka.shiruka.misc.CdlUnchecked;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.nbt.CompoundTag;
 import io.github.shiruka.shiruka.nbt.Tag;
@@ -100,7 +100,7 @@ public final class AnvilChunk implements Chunk {
   /**
    * the ready getState for this chunk, whether it has fully generated yet.
    */
-  private final UncheckedCdl ready = new UncheckedCdl(1);
+  private final CdlUnchecked ready = new CdlUnchecked(1);
 
   /**
    * The sections that the chunk has generated

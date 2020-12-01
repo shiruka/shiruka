@@ -166,7 +166,6 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
     final var connection = new NetServerConnection(this, NetServerConnectionHandler::new, recipient, ctx, mtu,
       protocolVersion);
     connection.setState(ConnectionState.INITIALIZING);
-    // check if the connection created first time.
     if (this.connectionByAddress.putIfAbsent(recipient, connection) == null) {
       connection.getConnectionHandler().sendConnectionReply1();
       this.getSocketListener().onConnectionCreation(connection);

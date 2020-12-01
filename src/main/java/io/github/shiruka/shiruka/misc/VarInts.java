@@ -281,7 +281,7 @@ public final class VarInts {
    * @param vec the Vector coordinates to write.
    */
   public static void writeVector(@NotNull final ByteBuf buf, @NotNull final Vector vec) {
-    final var l = ((long) vec.getX() & 0x3FFFFFFL) << 38 | ((long) vec.getY() & 0xFFFL) << 26 | (long) vec.getZ() & 0x3FFFFFFL;
+    final var l = ((long) vec.getIntX() & 0x3FFFFFFL) << 38 | ((long) vec.getIntY() & 0xFFFL) << 26 | (long) vec.getIntZ() & 0x3FFFFFFL;
     buf.writeLong(l);
   }
 

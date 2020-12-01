@@ -96,9 +96,9 @@ public final class ShirukaWorldOptions implements WorldOptions {
    * @param compound the compound to write to.
    */
   public void write(@NotNull final CompoundTag compound) {
-    compound.setInteger("SpawnX", (int) this.spawn.get().getX());
-    compound.setInteger("SpawnY", (int) this.spawn.get().getY());
-    compound.setInteger("SpawnZ", (int) this.spawn.get().getZ());
+    compound.setInteger("SpawnX", this.spawn.get().getIntX());
+    compound.setInteger("SpawnY", this.spawn.get().getIntY());
+    compound.setInteger("SpawnZ", this.spawn.get().getIntZ());
   }
 
   /**

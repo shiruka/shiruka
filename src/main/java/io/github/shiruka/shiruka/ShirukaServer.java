@@ -92,6 +92,20 @@ public final class ShirukaServer implements Server {
     this.socket = NetServerSocket.init(address, new ShirukaSocketListener(this), maxPlayer);
   }
 
+  /**
+   * ctor.
+   *
+   * @param ip the server's ip address.
+   * @param port the server's port.
+   * @param maxPlayer the server's maximum connection size.
+   * @param description the server's description.
+   * @param loader the world loader.
+   */
+  public ShirukaServer(@NotNull final String ip, final int port, final int maxPlayer,
+                       @NotNull final String description, @NotNull final WorldLoader loader) {
+    this(new InetSocketAddress(ip, port), maxPlayer, description, loader);
+  }
+
   @Override
   public int getMaxPlayerCount() {
     return this.socket.getMaxConnections();

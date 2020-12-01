@@ -191,6 +191,12 @@ public final class AnvilWorld implements World {
     return this.generatorOptions;
   }
 
+  @Nullable
+  @Override
+  public AnvilChunk removeChunkAt(final int x, final int z) {
+    return this.chunks.remove(x, z);
+  }
+
   @Override
   public final int getHighestY(final int x, final int z) {
     return this.getChunkAt(x >> 4, z >> 4).getHighestY(x & 15, z & 15);
@@ -213,8 +219,8 @@ public final class AnvilWorld implements World {
 
   @Override
   public final void loadSpawnChunks() {
-    final var centerX = (int) this.worldOptions.getSpawn().getX() >> 4;
-    final var centerZ = (int) this.worldOptions.getSpawn().getZ() >> 4;
+    final var centerX = this.worldOptions.getSpawn().getIntX() >> 4;
+    final var centerZ = this.worldOptions.getSpawn().getIntZ() >> 4;
     final var radius = 3;
     for (var x = centerX - radius; x < centerX + radius; x++) {
       for (var z = centerZ - radius; z < centerZ + radius; z++) {
@@ -267,5 +273,15 @@ public final class AnvilWorld implements World {
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * obtains the world options.
+   *
+   * @return the world options.
+   */
+  @NotNull
+  public ShirukaWorldOptions getWorldOptions() {
+    return this.worldOptions;
   }
 }

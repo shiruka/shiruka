@@ -27,6 +27,13 @@ package io.github.shiruka.shiruka.world;
 
 import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.WorldLoader;
+import io.github.shiruka.shiruka.config.ServerConfig;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +43,24 @@ import org.jetbrains.annotations.NotNull;
  * an abstract implementation for {@link WorldLoader}
  */
 public abstract class ShirukaWorldLoader implements WorldLoader {
+
+  /**
+   * the file visitor which removes all files under the enclosing directory
+   * (including the enclosing directory and all subdirectories).
+   */
+  protected static final SimpleFileVisitor<Path> DELETE_FILES = new SimpleFileVisitor<>() {
+    @Override
+    public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+      Files.delete(file);
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+      Files.delete(dir);
+      return FileVisitResult.CONTINUE;
+    }
+  };
 
   /**
    * the worlds map.
@@ -49,21 +74,10 @@ public abstract class ShirukaWorldLoader implements WorldLoader {
   protected ShirukaWorldLoader() {
   }
 
-  @Override
-  public final boolean delete(@NotNull final World world) {
-    return false;
-  }
-
-  @NotNull
-  @Override
-  public final World get(@NotNull final String name) {
-    return this.worlds.get(name);
-  }
-
   @NotNull
   @Override
   public final World getDefaultWorld() {
-    return null;
+    return this.worlds.get(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElseThrow());
   }
 
   @NotNull

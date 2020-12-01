@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.world.anvil;
 
+import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.api.world.Chunk;
 import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.generators.GeneratorContainer;
@@ -157,6 +158,9 @@ public final class AnvilChunk implements Chunk {
 
   @Override
   public void generate() {
+    if (!this.generationInProgress.compareAndSet(false, true)) {
+      return;
+    }
     final var region = AnvilRegion.getFile(this, false);
     if (region == null) {
       this.runGenerator();
@@ -171,8 +175,8 @@ public final class AnvilChunk implements Chunk {
     try (final var stream =
            Tag.createGZIPReader(Objects.requireNonNull(region.getChunkDataInputStream(rX, rZ)))) {
       final var compound = stream.readCompoundTag();
-      CompletableFuture.runAsync(() -> this.read(compound), AnvilChunk.ARBITRARY_POOL).
-        whenCompleteAsync((v, t) -> {
+      CompletableFuture.runAsync(() -> this.read(compound), AnvilChunk.ARBITRARY_POOL)
+        .whenCompleteAsync((v, t) -> {
           if (this.ready.getCount() == 1) {
             this.runGenerator();
           }
@@ -211,36 +215,50 @@ public final class AnvilChunk implements Chunk {
   }
 
   /**
-   * writes the chunk data to the region file compound.
-   * <p>
-   * TODO Biomes (byte_array)
-   * TODO TileEntities (list [tag compound?])
-   * TODO Entities (list [tag compound?])
-   *
-   * @param compound the compound to write.
+   * updates the usability state field in order to check if this chunk may still be used or is reclaimable.
    */
-  public void write(@NotNull final CompoundTag compound) {
-    compound.setInteger("xPos", this.x);
-    compound.setInteger("zPos", this.z);
-    final var hasGenerated = (byte) (this.ready.getCount() == 0 ? 1 : 0);
-    compound.setByte("TerrainPopulated", hasGenerated);
-    compound.setByte("LightPopulated", hasGenerated);
-    compound.setLong("InhabitedTime", this.inhabited.longValue());
-    compound.setLong("LastUpdate", (long) this.world.getTime());
-    final var sectionList = Tag.createList(Tag.createCompound());
-    IntStream.range(0, this.sections.length()).forEach(i -> {
-      final var section = this.sections.get(i);
-      if (section != null) {
-        final var sectionCompound = Tag.createCompound();
-        sectionCompound.setByte("Y", (byte) i);
-        section.write(sectionCompound);
-        sectionList.add(sectionCompound);
+  public void checkValidForGc() {
+    this.useState.set(AnvilChunk.TRANSITION);
+    final var centerX = this.world.getWorldOptions().getSpawn().getIntX() >> 4;
+    final var centerZ = this.world.getWorldOptions().getSpawn().getIntZ() >> 4;
+    if (/* TODO this.holders.isEmpty() &&*/ Math.abs(centerX - this.x) > 3 || Math.abs(centerZ - this.z) > 3) {
+      this.useState.set(AnvilChunk.UNUSABLE);
+      if (this.world.removeChunkAt(this.x, this.z) != null) {
+        final var region = AnvilRegion.getFile(this, true);
+        final var rX = this.x & 31;
+        final var rZ = this.z & 31;
+        if (region.hasChunk(rX, rZ)) {
+          try (final var stream = Tag.createGZIPReader(region.getChunkDataInputStream(rX, rZ))) {
+            final var root = stream.readCompoundTag();
+            final var compound = root.get("Level").orElseThrow().asCompound();
+            CompletableFuture.runAsync(() -> this.write(compound), AnvilChunk.ARBITRARY_POOL).
+              whenCompleteAsync((v, t) -> {
+                try (final var writer = Tag.createGZIPWriter(region.getChunkDataOutputStream(rX, rZ))) {
+                  writer.write(root);
+                } catch (final IOException e) {
+                  throw new RuntimeException(e);
+                }
+              }, AnvilChunk.ARBITRARY_POOL);
+          } catch (final IOException e) {
+            throw new RuntimeException(e);
+          }
+        } else {
+          AnvilChunk.ARBITRARY_POOL.execute(() -> {
+            final var root = Tag.createCompound();
+            final var level = Tag.createCompound();
+            root.set("Level", level);
+            this.write(level);
+            try (final var writer = Tag.createGZIPWriter(region.getChunkDataOutputStream(rX, rZ))) {
+              writer.write(root);
+            } catch (final IOException e) {
+              throw new RuntimeException(e);
+            }
+          });
+        }
       }
-    });
-    compound.set("Sections", sectionList);
-    final var heightMap = new int[this.heights.length()];
-    Arrays.setAll(heightMap, this.heights::get);
-    compound.setIntArray("HeightMap", heightMap);
+    } else {
+      this.useState.set(AnvilChunk.USABLE);
+    }
   }
 
   public void write(@NotNull final ByteBuf buf, final boolean continuous) {
@@ -279,6 +297,39 @@ public final class AnvilChunk implements Chunk {
     }
     // TODO Tile entities.
     VarInts.writeVarInt(buf, 0);
+  }
+
+  /**
+   * writes the chunk data to the region file compound.
+   * <p>
+   * TODO Biomes (byte_array)
+   * TODO TileEntities (list [tag compound?])
+   * TODO Entities (list [tag compound?])
+   *
+   * @param compound the compound to write.
+   */
+  public void write(@NotNull final CompoundTag compound) {
+    compound.setInteger("xPos", this.x);
+    compound.setInteger("zPos", this.z);
+    final var hasGenerated = (byte) (this.ready.getCount() == 0 ? 1 : 0);
+    compound.setByte("TerrainPopulated", hasGenerated);
+    compound.setByte("LightPopulated", hasGenerated);
+    compound.setLong("InhabitedTime", this.inhabited.longValue());
+    compound.setLong("LastUpdate", (long) this.world.getTime());
+    final var sectionList = Tag.createList(Tag.createCompound());
+    IntStream.range(0, this.sections.length()).forEach(i -> {
+      final var section = this.sections.get(i);
+      if (section != null) {
+        final var sectionCompound = Tag.createCompound();
+        sectionCompound.setByte("Y", (byte) i);
+        section.write(sectionCompound);
+        sectionList.add(sectionCompound);
+      }
+    });
+    compound.set("Sections", sectionList);
+    final var heightMap = new int[this.heights.length()];
+    Arrays.setAll(heightMap, this.heights::get);
+    compound.setIntArray("HeightMap", heightMap);
   }
 
   /**
@@ -327,16 +378,12 @@ public final class AnvilChunk implements Chunk {
     CompletableFuture.supplyAsync(() -> {
       terrain.generate(this.x, this.z, context);
       features.forEach(generator -> generator.generate(this.x, this.z, context));
-      final var latch = context.getCount();
-      context.doRun(latch);
-      return latch;
+      return Optionals.useAndGet(context.getCount(), context::doRun);
     }, container).thenApplyAsync(l -> {
       l.await();
       context.reset();
       props.forEach(generator -> generator.generate(this.x, this.z, context));
-      final var latch = context.getCount();
-      context.doRun(latch);
-      return latch;
+      return Optionals.useAndGet(context.getCount(), context::doRun);
     }, container).thenAcceptAsync(l -> {
       l.await();
       context.copySections(this.sections);

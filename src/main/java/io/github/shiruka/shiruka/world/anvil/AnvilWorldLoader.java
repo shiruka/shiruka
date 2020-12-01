@@ -50,7 +50,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   public final World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
     return this.worlds.compute(name, (k, v) -> {
       if (v != null) {
-        throw new IllegalArgumentException("World \"" + name + "\" already exists");
+        throw new IllegalArgumentException("World \"" + name + "\" already exists!");
       }
       Loggers.log("Creating world \"%s\"...", name);
       final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
@@ -59,6 +59,48 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
       Loggers.log("Finished creating \"%s\".", name);
       return world;
     });
+  }
+
+  @Override
+  public final boolean delete(@NotNull final World world) {
+    if (this.worlds.remove(world.getName()) == null) {
+      return false;
+    }
+    final var path = world.getDirectory();
+    try {
+      Files.walkFileTree(path, ShirukaWorldLoader.DELETE_FILES);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+    return false;
+  }
+
+  @NotNull
+  @Override
+  public final World get(@NotNull final String name) {
+    final var world = this.worlds.get(name);
+    if (world != null) {
+      return world;
+    }
+    final var path = Misc.HOME_PATH.resolve(name);
+    if (Files.isDirectory(path)) {
+      final var levelDat = path.resolve("level.dat");
+      if (Files.exists(levelDat)) {
+        return this.load(name, path, Dimension.OVER_WORLD);
+      }
+    }
+    throw new IllegalArgumentException(name + " has no world!");
+  }
+
+  @NotNull
+  @Override
+  public World load(@NotNull final String name, @NotNull final Path directory, @NotNull final Dimension dimension) {
+    Loggers.log("Loading world \"%s\"...", name);
+    final var world = new AnvilWorld(name, directory, dimension);
+    world.loadSpawnChunks();
+    this.worlds.put(name, world);
+    Loggers.log("Finished loading \"%s\".", name);
+    return world;
   }
 
   @Override
@@ -83,23 +125,5 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
     if (this.worlds.isEmpty() || !this.worlds.containsKey(defaultWorldName)) {
       this.create(defaultWorldName, WorldCreateSpec.getDefaultOptions());
     }
-  }
-
-  /**
-   * loads method for shortcutting NBT decoding.
-   *
-   * @param name the name of the world to be loaded.
-   * @param directory the directory folder.
-   *
-   * @return the world, once it has loaded.
-   */
-  @NotNull
-  private World load(@NotNull final String name, @NotNull final Path directory, @NotNull final Dimension dimension) {
-    Loggers.log("Loading world \"%s\"...", name);
-    final var world = new AnvilWorld(name, directory, dimension);
-    world.loadSpawnChunks();
-    this.worlds.put(name, world);
-    Loggers.log("Finished loading \"%s\".", name);
-    return world;
   }
 }

@@ -41,6 +41,7 @@ import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.*;
@@ -223,39 +224,40 @@ public final class AnvilChunk implements Chunk {
     final var centerZ = this.world.getWorldOptions().getSpawn().getIntZ() >> 4;
     if (/* TODO this.holders.isEmpty() &&*/ Math.abs(centerX - this.x) > 3 || Math.abs(centerZ - this.z) > 3) {
       this.useState.set(AnvilChunk.UNUSABLE);
-      if (this.world.removeChunkAt(this.x, this.z) != null) {
-        final var region = AnvilRegion.getFile(this, true);
-        final var rX = this.x & 31;
-        final var rZ = this.z & 31;
-        if (region.hasChunk(rX, rZ)) {
-          try (final var stream = Tag.createGZIPReader(region.getChunkDataInputStream(rX, rZ))) {
-            final var root = stream.readCompoundTag();
-            final var compound = root.get("Level").orElseThrow().asCompound();
-            CompletableFuture.runAsync(() -> this.write(compound), AnvilChunk.ARBITRARY_POOL).
-              whenCompleteAsync((v, t) -> {
-                try (final var writer = Tag.createGZIPWriter(region.getChunkDataOutputStream(rX, rZ))) {
-                  writer.write(root);
-                } catch (final IOException e) {
-                  throw new RuntimeException(e);
-                }
-              }, AnvilChunk.ARBITRARY_POOL);
-          } catch (final IOException e) {
-            throw new RuntimeException(e);
-          }
-        } else {
-          AnvilChunk.ARBITRARY_POOL.execute(() -> {
-            final var root = Tag.createCompound();
-            final var level = Tag.createCompound();
-            root.set("Level", level);
-            this.write(level);
-            try (final var writer = Tag.createGZIPWriter(region.getChunkDataOutputStream(rX, rZ))) {
-              writer.write(root);
-            } catch (final IOException e) {
-              throw new RuntimeException(e);
-            }
-          });
-        }
+      if (this.world.removeChunkAt(this.x, this.z) == null) {
+        return;
       }
+      final var region = Objects.requireNonNull(AnvilRegion.getFile(this, true));
+      final var rX = this.x & 31;
+      final var rZ = this.z & 31;
+      if (region.hasChunk(rX, rZ)) {
+        try (final var stream = Tag.createGZIPReader(region.getChunkDataInputStream(rX, rZ))) {
+          final var root = stream.readCompoundTag();
+          final var compound = root.get("Level").orElseThrow().asCompound();
+          CompletableFuture.runAsync(() -> this.write(compound), AnvilChunk.ARBITRARY_POOL)
+            .whenCompleteAsync((v, t) -> {
+              try (final var writer = Tag.createGZIPWriter(region.getChunkDataOutputStream(rX, rZ))) {
+                writer.write(root);
+              } catch (final IOException e) {
+                throw new RuntimeException(e);
+              }
+            }, AnvilChunk.ARBITRARY_POOL);
+        } catch (final IOException e) {
+          throw new RuntimeException(e);
+        }
+        return;
+      }
+      AnvilChunk.ARBITRARY_POOL.execute(() -> {
+        final var root = Tag.createCompound();
+        final var level = Tag.createCompound();
+        root.set("Level", level);
+        this.write(level);
+        try (final var writer = Tag.createGZIPWriter(region.getChunkDataOutputStream(rX, rZ))) {
+          writer.write(root);
+        } catch (final IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
     } else {
       this.useState.set(AnvilChunk.USABLE);
     }
@@ -264,10 +266,10 @@ public final class AnvilChunk implements Chunk {
   public void write(@NotNull final ByteBuf buf, final boolean continuous) {
     final var len = this.sections.length();
     var mask = 0;
-    final var sections = new AnvilChunkSection[16];
+    final var anvilChunkSections = new AnvilChunkSection[16];
     for (int i = 0; i < 16; i++) {
       final var sec = this.sections.get(i);
-      sections[i] = sec;
+      anvilChunkSections[i] = sec;
       if (sec != null) {
         mask |= 1 << i;
       }
@@ -276,13 +278,14 @@ public final class AnvilChunk implements Chunk {
     final var chunkData = buf.alloc().buffer();
     try {
       for (var i = 0; i < len; i++) {
-        if ((mask & 1 << i) == 1 << i) {
-          final var sec = sections[i];
-          if (sec != null) {
-            sec.write(chunkData);
-          } else {
-            this.emptyPlaceholder.write(chunkData);
-          }
+        if ((mask & 1 << i) != 1 << i) {
+          continue;
+        }
+        final var sec = anvilChunkSections[i];
+        if (sec != null) {
+          sec.write(chunkData);
+        } else {
+          this.emptyPlaceholder.write(chunkData);
         }
       }
       VarInts.writeVarInt(buf, chunkData.readableBytes() + (continuous ? 256 : 0));
@@ -317,15 +320,13 @@ public final class AnvilChunk implements Chunk {
     compound.setLong("InhabitedTime", this.inhabited.longValue());
     compound.setLong("LastUpdate", (long) this.world.getTime());
     final var sectionList = Tag.createList(Tag.createCompound());
-    IntStream.range(0, this.sections.length()).forEach(i -> {
-      final var section = this.sections.get(i);
-      if (section != null) {
+    IntStream.range(0, this.sections.length()).forEach(i ->
+      Optional.ofNullable(this.sections.get(i)).ifPresent(section -> {
         final var sectionCompound = Tag.createCompound();
         sectionCompound.setByte("Y", (byte) i);
         section.write(sectionCompound);
         sectionList.add(sectionCompound);
-      }
-    });
+      }));
     compound.set("Sections", sectionList);
     final var heightMap = new int[this.heights.length()];
     Arrays.setAll(heightMap, this.heights::get);
@@ -379,17 +380,19 @@ public final class AnvilChunk implements Chunk {
       terrain.generate(this.x, this.z, context);
       features.forEach(generator -> generator.generate(this.x, this.z, context));
       return Optionals.useAndGet(context.getCount(), context::doRun);
-    }, container).thenApplyAsync(l -> {
-      l.await();
-      context.reset();
-      props.forEach(generator -> generator.generate(this.x, this.z, context));
-      return Optionals.useAndGet(context.getCount(), context::doRun);
-    }, container).thenAcceptAsync(l -> {
-      l.await();
-      context.copySections(this.sections);
-      context.copyHeights(this.heights);
-      this.ready.countDown();
-    }, container);
+    }, container)
+      .thenApplyAsync(l -> {
+        l.await();
+        context.reset();
+        props.forEach(generator -> generator.generate(this.x, this.z, context));
+        return Optionals.useAndGet(context.getCount(), context::doRun);
+      }, container)
+      .thenAcceptAsync(l -> {
+        l.await();
+        context.copySections(this.sections);
+        context.copyHeights(this.heights);
+        this.ready.countDown();
+      }, container);
     this.waitReady();
   }
 }

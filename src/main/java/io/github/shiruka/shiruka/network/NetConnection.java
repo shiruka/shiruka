@@ -413,6 +413,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @Override
   public void onWrappedPacket(@NotNull final ByteBuf packet) {
+    // TODO Continue to development here.
   }
 
   @Override

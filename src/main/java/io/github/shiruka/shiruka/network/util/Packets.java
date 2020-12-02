@@ -243,7 +243,8 @@ public final class Packets {
       return;
     }
     final var protocolVersion = content.readUnsignedByte();
-    final var mtu = content.readableBytes() + 1 + 16 + 1 + Misc.getIpHeader(packet.sender()) + Constants.UDP_HEADER_SIZE;
+    final var mtu = content.readableBytes() + 1 + 16 + 1 +
+      Misc.getIpHeader(packet.sender()) + Constants.UDP_HEADER_SIZE;
     final var recipient = packet.sender();
     final var connection = server.getConnectionsByAddress().get(recipient);
     if (connection != null && connection.getState() == ConnectionState.CONNECTED) {

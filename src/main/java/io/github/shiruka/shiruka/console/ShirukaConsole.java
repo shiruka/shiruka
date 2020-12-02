@@ -103,8 +103,8 @@ public final class ShirukaConsole {
         this.server.runCommand(line);
       }
     } catch (final UserInterruptException e) {
-      this.server.stopServer();
       JiraExceptionCatcher.serverException(e);
+      this.server.stopServer();
     } catch (final IOException e) {
       JiraExceptionCatcher.serverException(e);
     } finally {

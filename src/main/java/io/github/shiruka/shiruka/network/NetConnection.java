@@ -412,6 +412,10 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   }
 
   @Override
+  public void onWrappedPacket(@NotNull final ByteBuf packet) {
+  }
+
+  @Override
   public final void reset() {
     this.cache.reset();
   }

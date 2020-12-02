@@ -284,6 +284,13 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
   void onTick(long now);
 
   /**
+   * runs when a wrapped packet received.
+   *
+   * @param packet the packet to receive.
+   */
+  void onWrappedPacket(@NotNull ByteBuf packet);
+
+  /**
    * resets the connection's caches.
    */
   void reset();

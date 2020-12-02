@@ -35,14 +35,6 @@ import org.jetbrains.annotations.NotNull;
 public interface ConnectionListener {
 
   /**
-   * runs when the connection's state changes.
-   *
-   * @param old the old statement of the connection.
-   * @param state the state to change.
-   */
-  void onStateChanged(@NotNull ConnectionState old, @NotNull ConnectionState state);
-
-  /**
    * runs when a packet directly received.
    *
    * @param packet the packet to receive.
@@ -62,4 +54,12 @@ public interface ConnectionListener {
    * @param packet the packet to receive.
    */
   void onEncapsulated(@NotNull EncapsulatedPacket packet);
+
+  /**
+   * runs when the connection's state changes.
+   *
+   * @param old the old statement of the connection.
+   * @param state the state to change.
+   */
+  void onStateChanged(@NotNull ConnectionState old, @NotNull ConnectionState state);
 }

@@ -37,9 +37,10 @@ public interface ConnectionListener {
   /**
    * runs when the connection's state changes.
    *
+   * @param old the old statement of the connection.
    * @param state the state to change.
    */
-  void onConnectionStateChanged(@NotNull ConnectionState state);
+  void onStateChanged(@NotNull ConnectionState old, @NotNull ConnectionState state);
 
   /**
    * runs when a packet directly received.

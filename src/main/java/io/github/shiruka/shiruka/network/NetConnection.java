@@ -375,10 +375,11 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @Override
   public final void setState(@NotNull final ConnectionState state) {
+    final var old = this.getState();
     if (this.getState() != state) {
       this.state.set(state);
       this.getConnectionListener().ifPresent(listener ->
-        listener.onConnectionStateChanged(state));
+        listener.onStateChanged(old, state));
     }
   }
 

@@ -44,8 +44,8 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   }
 
   @Override
-  public void onConnectionStateChanged(@NotNull final ConnectionState state) {
-    Loggers.debug("onConnectionStateChanged");
+  public void onStateChanged(@NotNull final ConnectionState old, @NotNull final ConnectionState state) {
+    Loggers.debug("onStateChanged");
   }
 
   @Override

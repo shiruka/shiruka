@@ -307,8 +307,7 @@ public final class Packets {
    * @param server the server to send unique id.
    * @param recipient the recipient to send.
    */
-  private static void sendAlreadyConnected(@NotNull final ChannelHandlerContext ctx,
-                                           @NotNull final ServerSocket server,
+  private static void sendAlreadyConnected(@NotNull final ChannelHandlerContext ctx, @NotNull final ServerSocket server,
                                            @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.ALREADY_CONNECTED);
@@ -325,8 +324,7 @@ public final class Packets {
    * @param server the server to send unique id.
    * @param recipient the recipient to send.
    */
-  private static void sendConnectedBanned(@NotNull final ChannelHandlerContext ctx,
-                                          @NotNull final ServerSocket server,
+  private static void sendConnectedBanned(@NotNull final ChannelHandlerContext ctx, @NotNull final ServerSocket server,
                                           @NotNull final InetSocketAddress recipient) {
     Packets.createPacket(ctx, 25, 25, packet -> {
       packet.writeByte(Packets.CONNECTION_BANNED);

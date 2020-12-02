@@ -24,9 +24,7 @@
  */
 package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.util.Constants;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
@@ -35,12 +33,14 @@ import java.util.StringJoiner;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * main server listener to handle custom events.
+ * a socket listener to handle custom events.
  */
 public interface SocketListener {
 
   /**
    * creates a simple server data.
+   * <p>
+   * an example server data must be like MCPE;MOTD;408;1.16.40;0;10;100000000000L
    *
    * @param server the server.
    * @param serverDescription the server description a.k.a. motd.
@@ -48,7 +48,6 @@ public interface SocketListener {
    * @param maximumConnectionCount the maximum connection count a.k.a. maximum client amount to connect.
    *
    * @return a server data's byte array.
-   *   a example server data must be like MCPE;MOTD;408;1.16.40;0;10;100000000000L
    */
   static byte[] createOne(@NotNull final ServerSocket server, @NotNull final String serverDescription, final int connectionCount,
                           final int maximumConnectionCount) {
@@ -106,34 +105,6 @@ public interface SocketListener {
    * @param connection the connection.
    */
   void onConnectionCreation(@NotNull Connection<ServerSocket, ServerConnectionHandler> connection);
-
-  /**
-   * runs when the connection's state changes.
-   *
-   * @param state the state to change.
-   */
-  void onConnectionStateChanged(@NotNull ConnectionState state);
-
-  /**
-   * runs when a packet directly received.
-   *
-   * @param packet the packet to receive.
-   */
-  void onDirect(@NotNull ByteBuf packet);
-
-  /**
-   * runs when the connection disconnected.
-   *
-   * @param reason the reason to disconnect.
-   */
-  void onDisconnect(@NotNull DisconnectReason reason);
-
-  /**
-   * runs when an encapsulated packet received.
-   *
-   * @param packet the packet to receive.
-   */
-  void onEncapsulated(@NotNull EncapsulatedPacket packet);
 
   /**
    * runs before sending a ping packet to the client.

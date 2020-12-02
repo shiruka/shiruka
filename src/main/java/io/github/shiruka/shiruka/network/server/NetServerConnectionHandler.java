@@ -80,7 +80,8 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
       final var packetId = packet.getUnsignedByte(packet.readerIndex());
       packet.readerIndex(0);
       if (packetId >= Packets.USER_PACKET_ENUM) {
-        this.connection.getSocket().getSocketListener().onDirect(packet);
+        this.connection.getConnectionListener().ifPresent(listener ->
+          listener.onDirect(packet));
         return;
       }
       this.onPacket(packet);
@@ -336,7 +337,8 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
       } else {
         buffer.readerIndex(0);
         if (packetId >= Packets.USER_PACKET_ENUM) {
-          this.connection.getSocket().getSocketListener().onEncapsulated(packet);
+          this.connection.getConnectionListener().ifPresent(listener ->
+            listener.onEncapsulated(packet));
         } else {
           this.onPacket(buffer);
         }

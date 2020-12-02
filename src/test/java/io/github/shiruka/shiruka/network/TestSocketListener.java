@@ -60,26 +60,6 @@ public final class TestSocketListener implements SocketListener {
   }
 
   @Override
-  public void onConnectionStateChanged(@NotNull final ConnectionState state) {
-    Loggers.debug("onConnectionStateChanged");
-  }
-
-  @Override
-  public void onDirect(@NotNull final ByteBuf packet) {
-    Loggers.debug("onDirect");
-  }
-
-  @Override
-  public void onDisconnect(@NotNull final DisconnectReason reason) {
-    Loggers.debug("onDisconnect");
-  }
-
-  @Override
-  public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
-    Loggers.debug("onEncapsulated");
-  }
-
-  @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
     return SocketListener.createOne(server, "Test server description.", 0, 10);
   }

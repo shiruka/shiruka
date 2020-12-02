@@ -27,9 +27,10 @@ package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.log.Loggers;
-import io.github.shiruka.shiruka.network.*;
-import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
-import io.netty.buffer.ByteBuf;
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.ServerConnectionHandler;
+import io.github.shiruka.shiruka.network.ServerSocket;
+import io.github.shiruka.shiruka.network.SocketListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
@@ -63,27 +64,8 @@ public final class ShirukaSocketListener implements SocketListener {
 
   @Override
   public void onConnectionCreation(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+    connection.setConnectionListener(new ShirukaConnectionListener(connection));
     Loggers.debug("onConnectionCreation");
-  }
-
-  @Override
-  public void onConnectionStateChanged(@NotNull final ConnectionState state) {
-    Loggers.debug("onConnectionStateChanged");
-  }
-
-  @Override
-  public void onDirect(@NotNull final ByteBuf packet) {
-    Loggers.debug("onDirect");
-  }
-
-  @Override
-  public void onDisconnect(@NotNull final DisconnectReason reason) {
-    Loggers.debug("onDisconnect");
-  }
-
-  @Override
-  public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
-    Loggers.debug("onEncapsulated");
   }
 
   @Override
@@ -107,7 +89,7 @@ public final class ShirukaSocketListener implements SocketListener {
       }
       final var packetId = buffer.readUnsignedByte();
       final var sessionId = buffer.readInt();
-      System.out.println(packetId);
+      System.out.println("onUnhandledDatagram -> " + packetId);
     } catch (final Exception e) {
       Loggers.error("Error whilst handling packet ", e);
     }

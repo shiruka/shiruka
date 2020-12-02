@@ -60,10 +60,10 @@ public final class ShirukaConnectionListener implements ConnectionListener {
 
   @Override
   public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
+    Loggers.debug("onEncapsulated");
     if (this.connection.getState() != ConnectionState.CONNECTED) {
       return;
     }
-    Loggers.debug("onEncapsulated");
     final var buffer = packet.getBuffer();
     final var packetId = buffer.readUnsignedByte();
     if (packetId == 0xfe) {

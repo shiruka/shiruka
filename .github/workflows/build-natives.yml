@@ -6,7 +6,7 @@ on:
 
 jobs:
   windows:
-    if: ${{ contains(github.event.pull_request.labels.*.names, 'build-natives') }}
+    if: ${{ github.event.label.name == 'build-natives' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
           name: shiruka.dll
           path: target/x86_64-pc-windows-msvc/release/shiruka.dll
   linux:
-    if: ${{ contains(github.event.pull_request.labels.*.names, 'build-natives') }}
+    if: ${{ github.event.label.name == 'build-natives' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

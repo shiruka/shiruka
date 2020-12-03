@@ -9,16 +9,13 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Get release label of the pull request.
-        uses: actions-ecosystem/action-release-label@v1
+      - uses: actions-ecosystem/action-release-label@v1
         id: release-label
 
-      - name: Cancel if the the p.r. does not have the release labels.
-        if: ${{ steps.release-label.outputs.level == null }}
+      - if: ${{ steps.release-label.outputs.level == null }}
         run: exit 1
 
-      - name: Turnstyle
-        uses: softprops/turnstyle@v1
+      - uses: softprops/turnstyle@v1
         with:
           poll-interval-seconds: 10
         env:
@@ -26,27 +23,23 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Get Latest Release
-        uses: pozetroninc/github-action-get-latest-release@v0.5.0
+      - uses: pozetroninc/github-action-get-latest-release@v0.5.0
         id: version
         with:
           owner: shiruka
           repo: shiruka
 
-      - name: Bump and return the new version.
-        uses: actions-ecosystem/action-bump-semver@v1
+      - uses: actions-ecosystem/action-bump-semver@v1
         id: bump-semver
         with:
           current_version: ${{ steps.version.outputs.release }}
           level: ${{ steps.release-label.outputs.level }}
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - uses: actions/setup-java@v1
         with:
           java-version: 11
 
-      - name: Publish with Maven
-        run: |
+      - run: |
           [[ "${{ steps.bump-semver.outputs.new_version }}" =~ ^[0-9]+(\.[0-9]+)*$ ]] || exit -1
           mvn versions:set -DnewVersion="${{ steps.bump-semver.outputs.new_version }}" -ntp -B
           mvn install -Dgpg.skip=true -ntp -B

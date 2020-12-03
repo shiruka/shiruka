@@ -44,6 +44,17 @@
   </scm>
   <properties>
     <java.version>11</java.version>
+    <jni.classifier>${os.detected.name}-${os.detected.arch}</jni.classifier>
+    <exe.make>make</exe.make>
+    <exe.compiler>gcc</exe.compiler>
+    <exe.archiver>ar</exe.archiver>
+    <nativeLibName>libshiruka-natives</nativeLibName>
+    <nativeIncludeDir>${project.basedir}/src/main/c</nativeIncludeDir>
+    <nativeJarWorkdir>${project.build.directory}/native-jar-work</nativeJarWorkdir>
+    <nativeObjsOnlyDir>${project.build.directory}/native-objs-only</nativeObjsOnlyDir>
+    <nativeLibOnlyDir>${project.build.directory}/native-lib-only</nativeLibOnlyDir>
+    <defaultJarFile>${project.build.directory}/${project.build.finalName}.jar</defaultJarFile>
+    <nativeJarFile>${project.build.directory}/${project.build.finalName}-${jni.classifier}.jar</nativeJarFile>
   </properties>
   <build>
     <finalName>${project.name}</finalName>
@@ -73,6 +84,13 @@
         </executions>
       </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.6.2</version>
+      </extension>
+    </extensions>
   </build>
   <dependencies>
     <dependency>
@@ -111,4 +129,57 @@
       <version>8.4.4</version>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <properties>
+        <exe.compiler>clang</exe.compiler>
+        <jni.platform>darwin</jni.platform>
+      </properties>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+    </profile>
+    <profile>
+      <properties>
+        <jni.platform>linux</jni.platform>
+      </properties>
+      <id>linux</id>
+      <activation>
+        <os>
+          <family>linux</family>
+        </os>
+      </activation>
+    </profile>
+    <profile>
+      <properties>
+        <exe.compiler>clang</exe.compiler>
+        <exe.make>gmake</exe.make>
+        <jni.platform>freebsd</jni.platform>
+      </properties>
+      <id>freebsd</id>
+      <activation>
+        <os>
+          <name>freebsd</name>
+          <family>unix</family>
+        </os>
+      </activation>
+    </profile>
+    <profile>
+      <properties>
+        <exe.compiler>clang</exe.compiler>
+        <exe.make>gmake</exe.make>
+        <jni.platform>openbsd</jni.platform>
+      </properties>
+      <id>openbsd</id>
+      <activation>
+        <os>
+          <name>openbsd</name>
+          <family>unix</family>
+        </os>
+      </activation>
+    </profile>
+  </profiles>
 </project>

@@ -61,6 +61,7 @@ jobs:
       - run: xargo build --target x86_64-pc-windows-msvc --release --manifest-path Cargo.toml
         env:
           RUSTFLAGS: "-C target-feature=+aes,+ssse3"
+          RUST_BACKTRACE: 1
 
       - uses: actions/upload-artifact@master
         with:

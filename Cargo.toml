@@ -3,6 +3,7 @@ name = "shiruka"
 version = "1.0.0"
 authors = ["Shiru ka"]
 edition = "2018"
+workspace = "src/main/rust"
 
 [dependencies]
 jni = "0.18.0"

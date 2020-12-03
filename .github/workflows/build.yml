@@ -8,9 +8,6 @@ on:
 
 jobs:
   build:
-    needs:
-      - build_windows_natives
-      - build_linux_natives
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

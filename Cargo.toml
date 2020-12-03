@@ -2,7 +2,7 @@
 name = "shiruka"
 version = "1.0.0"
 authors = ["Shiru ka"]
-edition = "2020"
+edition = "2018"
 
 [dependencies]
 jni = "0.18.0"

@@ -28,18 +28,15 @@ jobs:
           name: libshiruka.so
           path: src/main/resources
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - uses: actions/setup-java@v1
         with:
           java-version: 11
 
-      - name: Build with Maven
-        run: |
+      - run: |
           mvn clean install -Dgpg.skip=true -ntp -B
           mvn test -Pcoverage jacoco:report -ntp -B
 
-      - name: Codecov
-        uses: codecov/codecov-action@v1.0.14
+      - uses: codecov/codecov-action@v1.0.14
   build_windows_natives:
     name: Windows x64
     runs-on: windows-latest
@@ -96,9 +93,14 @@ jobs:
           RUSTFLAGS: "-C target-feature=+aes,+ssse3"
 
       - run: |
-          ls
           cd target
+          cd release
           ls
+          cd ..
+          cd x86_64-unknown-linux-gnu
+          ls
+          cd ..
+          cd ..
           strip -s -w -K Java_* target/x86_64-unknown-linux-gnu/release/libshiruka.so
 
       - uses: actions/upload-artifact@master

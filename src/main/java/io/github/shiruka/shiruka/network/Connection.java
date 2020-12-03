@@ -30,6 +30,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
@@ -112,6 +113,21 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
    */
   @NotNull
   H getConnectionHandler();
+
+  /**
+   * obtains the connection's listener.
+   *
+   * @return the connection's listener.
+   */
+  @NotNull
+  Optional<ConnectionListener> getConnectionListener();
+
+  /**
+   * sets the connection's listener.
+   *
+   * @param connectionListener the connection listener to set.
+   */
+  void setConnectionListener(@NotNull ConnectionListener connectionListener);
 
   /**
    * obtains the connection timeout.
@@ -266,6 +282,13 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
    * @param now the current time to handle tick.
    */
   void onTick(long now);
+
+  /**
+   * runs when a wrapped packet received.
+   *
+   * @param packet the packet to receive.
+   */
+  void onWrappedPacket(@NotNull ByteBuf packet);
 
   /**
    * resets the connection's caches.

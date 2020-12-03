@@ -81,7 +81,7 @@ public final class Constants {
   /**
    * the protocol version of the Minecraft game.
    */
-  public static final short MINECRAFT_PROTOCOL_VERSION = 408;
+  public static final short MINECRAFT_PROTOCOL_VERSION = 418;
 
   /**
    * the version of the Minecraft game.

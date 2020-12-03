@@ -63,18 +63,22 @@ final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
     if (this.server.getBlockedAddresses().containsKey(sender.getAddress())) {
       return;
     }
-    final var content = datagram.content();
-    if (!content.isReadable()) {
-      return;
+    try {
+      final var content = datagram.content();
+      if (!content.isReadable()) {
+        return;
+      }
+      if (Packets.handleNoConnectionPackets(ctx, this.server, datagram)) {
+        return;
+      }
+      content.readerIndex(0);
+      Optional.ofNullable(this.server.getConnectionsByAddress().get(sender))
+        .ifPresent(connection -> connection.getConnectionHandler().onRawDatagram(content));
+      content.readerIndex(0);
+      this.server.getSocketListener().onUnhandledDatagram(this.server, ctx, datagram);
+    } finally {
+      datagram.release();
     }
-    if (Packets.handleNoConnectionPackets(ctx, this.server, datagram)) {
-      return;
-    }
-    content.readerIndex(0);
-    Optional.ofNullable(this.server.getConnectionsByAddress().get(sender))
-      .ifPresent(connection -> connection.getConnectionHandler().onRawDatagram(content));
-    content.readerIndex(0);
-    this.server.getSocketListener().onUnhandledDatagram(this.server, ctx, datagram);
   }
 
   @Override

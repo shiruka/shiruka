@@ -37,12 +37,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that provides you to manage the connection.
@@ -167,6 +169,12 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   private int adjustedMtu;
 
   /**
+   * the connection listener instance.
+   */
+  @Nullable
+  private ConnectionListener connectionListener;
+
+  /**
    * the connection's timeout.
    */
   private long connectionTimeout = Constants.CONNECTION_TIMEOUT_MS;
@@ -222,7 +230,8 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
       this.connectionHandler.onClose();
       Loggers.debug("Connection (%s => %s) closed: %s", this.socket.getAddress(), this.address, reason);
       this.reset();
-      this.socket.getSocketListener().onDisconnect(reason);
+      this.getConnectionListener().ifPresent(listener ->
+        listener.onDisconnect(reason));
     });
   }
 
@@ -262,6 +271,17 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   @Override
   public final H getConnectionHandler() {
     return this.connectionHandler;
+  }
+
+  @NotNull
+  @Override
+  public final Optional<ConnectionListener> getConnectionListener() {
+    return Optional.ofNullable(this.connectionListener);
+  }
+
+  @Override
+  public final void setConnectionListener(@NotNull final ConnectionListener connectionListener) {
+    this.connectionListener = connectionListener;
   }
 
   @Override
@@ -355,9 +375,11 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @Override
   public final void setState(@NotNull final ConnectionState state) {
+    final var old = this.getState();
     if (this.getState() != state) {
       this.state.set(state);
-      this.socket.getSocketListener().onConnectionStateChanged(state);
+      this.getConnectionListener().ifPresent(listener ->
+        listener.onStateChanged(old, state));
     }
   }
 
@@ -387,6 +409,11 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
       return;
     }
     this.tick(now);
+  }
+
+  @Override
+  public void onWrappedPacket(@NotNull final ByteBuf packet) {
+    // TODO Continue to development here.
   }
 
   @Override

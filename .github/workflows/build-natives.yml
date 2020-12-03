@@ -37,6 +37,7 @@ jobs:
           name: shiruka.dll
           path: target/x86_64-pc-windows-msvc/release/shiruka.dll
   build_linux_natives:
+    if: ${{ !contains(github.event.pull_request.labels.*.names, 'build-natives') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

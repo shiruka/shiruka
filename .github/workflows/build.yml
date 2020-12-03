@@ -59,6 +59,7 @@ jobs:
           args: xargo
 
       - run: |
+          rustup component list
           rustup component add rust-src
           xargo build --target x86_64-pc-windows-msvc --release --manifest-path Cargo.toml
         env:

@@ -38,8 +38,14 @@ import oshi.SystemInfo;
  */
 public final class NativeCode {
 
+  /**
+   * the prefix.
+   */
   public static final String PREFIX = SystemInfo.getCurrentPlatformEnum() == PlatformEnum.WINDOWS ? "" : "lib";
 
+  /**
+   * the suffix.
+   */
   public static final String SUFFIX = SystemInfo.getCurrentPlatformEnum() == PlatformEnum.WINDOWS ? ".dll" : ".so";
 
   /**

@@ -1,16 +1,13 @@
 name: build-natives
 
-on:
-  pull_request:
-    types: [ opened ]
-  issue_comment:
-    types: [ created ]
+on: [ pull_request ]
 
 jobs:
   windows:
-    if: ${{ github.event.issue.pull_request }}
     runs-on: windows-latest
     steps:
+      - run: |
+        echo ${{ github.event.name }}
       - uses: actions/checkout@v2
 
       - uses: actions-rs/toolchain@v1
@@ -38,7 +35,6 @@ jobs:
           name: shiruka.dll
           path: target/x86_64-pc-windows-msvc/release/shiruka.dll
   linux:
-    if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

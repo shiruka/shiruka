@@ -3,6 +3,7 @@ name: build-natives
 on:
   pull_request:
     type: [ labeled ]
+    branches: [ master ]
 
 jobs:
   windows:

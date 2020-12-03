@@ -7,7 +7,7 @@ on:
 
 jobs:
   windows:
-    if: ${{ !contains(github.event.pull_request.labels.*.names, 'build-natives') }}
+    if: ${{ contains(github.event.pull_request.labels.*.names, 'build-natives') }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2

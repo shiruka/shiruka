@@ -1,6 +1,8 @@
 name: build-natives
 
-on: issue_comment
+on:
+  issue_comment:
+    types: [ created ]
 
 jobs:
   windows:

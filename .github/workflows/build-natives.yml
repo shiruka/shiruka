@@ -1,5 +1,6 @@
 # Add `build-natives` label to the pull request then run:
 # git commit --allow-empty -m "Empty commit to build natives"
+# git push
 
 name: build-natives
 

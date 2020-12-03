@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build_windows_natives:
+  windows:
     if: ${{ !contains(github.event.pull_request.labels.*.names, 'build-natives') }}
     runs-on: windows-latest
     steps:
@@ -36,7 +36,7 @@ jobs:
         with:
           name: shiruka.dll
           path: target/x86_64-pc-windows-msvc/release/shiruka.dll
-  build_linux_natives:
+  linux:
     if: ${{ !contains(github.event.pull_request.labels.*.names, 'build-natives') }}
     runs-on: ubuntu-latest
     steps:

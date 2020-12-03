@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - run: |
-        echo ${{ github.event.name }}
+          echo ${{ github.event.name }}
       - uses: actions/checkout@v2
 
       - uses: actions-rs/toolchain@v1

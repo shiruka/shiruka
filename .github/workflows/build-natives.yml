@@ -1,13 +1,10 @@
 name: build-natives
 
-on:
-  pull_request:
-    type: [ labeled ]
-    branches: [ master ]
+on: issue_comment
 
 jobs:
   windows:
-    if: ${{ github.event.label.name == 'build-natives' }}
+    if: ${{ github.event.issue.pull_request }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -37,7 +34,7 @@ jobs:
           name: shiruka.dll
           path: target/x86_64-pc-windows-msvc/release/shiruka.dll
   linux:
-    if: ${{ github.event.label.name == 'build-natives' }}
+    if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

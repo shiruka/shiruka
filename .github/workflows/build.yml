@@ -95,9 +95,9 @@ jobs:
         env:
           RUSTFLAGS: "-C target-feature=+aes,+ssse3"
 
-      - run: strip -s -w -K Java_* target/x86_64-unknown-linux-gnu/release/shiruka.so
+      - run: strip -s -w -K Java_* target/x86_64-unknown-linux-gnu/release/libshiruka.so
 
       - uses: actions/upload-artifact@master
         with:
           name: shiruka.so
-          path: target/x86_64-unknown-linux-gnu/release/shiruka.so
+          path: target/x86_64-unknown-linux-gnu/release/libshiruka.so

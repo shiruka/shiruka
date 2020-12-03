@@ -47,7 +47,7 @@ public final class Proceed {
   private final long context;
 
   static {
-    LOADER = new NativeCode("crypto");
+    LOADER = new NativeCode("shiruka");
     if (!Proceed.LOADER.load()) {
       throw new IllegalStateException("Could not load crypto native extension!");
     }

@@ -15,8 +15,6 @@ use crate::context::Context;
 use crate::encryption::CryptoT;
 
 const INVALID_JNI_VERSION: jint = 0;
-const SIZED_MEMORY_POINTER_CLASS_PATH: str =
-  *"io/github/shiruka/shiruka/natives/SizedMemoryPointer";
 
 static INIT: Once = Once::new();
 static mut SIZED_MEMORY_POINTER_CONSTRUCTOR: Option<JMethodID> = None;
@@ -39,7 +37,8 @@ pub fn init_cache(env: &JNIEnv) {
 }
 
 unsafe fn cache_methods(env: &JNIEnv) {
-  SIZED_MEMORY_POINTER_CLASS = get_class(env, &SIZED_MEMORY_POINTER_CLASS_PATH);
+  SIZED_MEMORY_POINTER_CLASS =
+    get_class(env, "io/github/shiruka/shiruka/natives/SizedMemoryPointer");
   SIZED_MEMORY_POINTER_CONSTRUCTOR =
     get_constructor(env, SIZED_MEMORY_POINTER_CLASS.clone().unwrap(), "(JI)V");
 }

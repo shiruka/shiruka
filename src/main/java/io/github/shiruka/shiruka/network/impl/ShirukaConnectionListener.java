@@ -44,11 +44,6 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   }
 
   @Override
-  public void onStateChanged(@NotNull final ConnectionState old, @NotNull final ConnectionState state) {
-    Loggers.debug("onStateChanged");
-  }
-
-  @Override
   public void onDirect(@NotNull final ByteBuf packet) {
     Loggers.debug("onDirect");
   }
@@ -69,5 +64,10 @@ public final class ShirukaConnectionListener implements ConnectionListener {
     if (packetId == 0xfe) {
       this.connection.onWrappedPacket(buffer);
     }
+  }
+
+  @Override
+  public void onStateChanged(@NotNull final ConnectionState old, @NotNull final ConnectionState state) {
+    Loggers.debug("onStateChanged");
   }
 }

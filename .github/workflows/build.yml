@@ -58,7 +58,9 @@ jobs:
           command: install
           args: xargo
 
-      - run: xargo build --target x86_64-pc-windows-msvc --release --manifest-path Cargo.toml
+      - run: |
+          rustup component add rust-src
+          xargo build --target x86_64-pc-windows-msvc --release --manifest-path Cargo.toml
         env:
           RUSTFLAGS: "-C target-feature=+aes,+ssse3"
           RUST_BACKTRACE: 1

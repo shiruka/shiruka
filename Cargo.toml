@@ -3,7 +3,6 @@ name = "shiruka"
 version = "1.0.0"
 authors = ["Shiru ka"]
 edition = "2018"
-workspace = "src/main/rust"
 
 [dependencies]
 jni = "0.18.0"
@@ -16,6 +15,7 @@ libdeflater = "0.7.1"
 
 [lib]
 crate-type = ["cdylib"]
+path = "src/main/rust"
 
 [profile.release]
 opt-level = 3

@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.api.Server;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
@@ -35,11 +36,16 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.github.shiruka.shiruka.network.ServerSocket;
+import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
+import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import io.github.shiruka.shiruka.world.anvil.AnvilWorldLoader;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.Objects;
+import java.util.function.Function;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.jetbrains.annotations.NotNull;
@@ -99,6 +105,22 @@ public final class ShirukaMain {
   }
 
   /**
+   * creates a {@link WorldLoader} instance from the given world type string.
+   *
+   * @param worldType the world type to create.
+   *
+   * @return a new {@link WorldLoader} instance.
+   */
+  @NotNull
+  private static WorldLoader createWorldType(@NotNull final String worldType) {
+    // TODO create a WorldType class to move this method.
+    if (worldType.equalsIgnoreCase("anvil")) {
+      return new AnvilWorldLoader();
+    }
+    throw new IllegalStateException("The given world type called " + worldType + "is not supported!");
+  }
+
+  /**
    * creates and returns the server file/d.
    *
    * @param file the file to create.
@@ -124,15 +146,6 @@ public final class ShirukaMain {
       }
     }
     return file;
-  }
-
-  @NotNull
-  private WorldLoader createWorldType(@NotNull final String worldType) {
-    // TODO create a WorldType class to move this method.
-    if (worldType.equalsIgnoreCase("anvil")) {
-      return new AnvilWorldLoader();
-    }
-    throw new IllegalStateException("The given world type called " + worldType + "is not supported!");
   }
 
   /**
@@ -184,7 +197,9 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
     final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
     final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
-    final var server = new ShirukaServer(ip, port, maxPlayer, description, this.createWorldType(worldType));
+    final Function<Server, ServerSocket> socket = instance ->
+      NetServerSocket.init(new InetSocketAddress(ip, port), new ShirukaSocketListener(instance), maxPlayer);
+    final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType), socket);
     server.startServer();
     final var end = System.currentTimeMillis() - start;
     Loggers.log("Done, took %sms.", end);

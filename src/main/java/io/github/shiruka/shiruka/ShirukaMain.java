@@ -126,8 +126,13 @@ public final class ShirukaMain {
     return file;
   }
 
+  /**
+   * creates a {@link WorldLoader} instance from the given world type string.
+   * @param worldType the world type to create.
+   * @return a new {@link WorldLoader} instance.
+   */
   @NotNull
-  private WorldLoader createWorldType(@NotNull final String worldType) {
+  private static WorldLoader createWorldType(@NotNull final String worldType) {
     // TODO create a WorldType class to move this method.
     if (worldType.equalsIgnoreCase("anvil")) {
       return new AnvilWorldLoader();
@@ -184,7 +189,7 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
     final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
     final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
-    final var server = new ShirukaServer(ip, port, maxPlayer, description, this.createWorldType(worldType));
+    final var server = new ShirukaServer(ip, port, maxPlayer, description, ShirukaMain.createWorldType(worldType));
     server.startServer();
     final var end = System.currentTimeMillis() - start;
     Loggers.log("Done, took %sms.", end);

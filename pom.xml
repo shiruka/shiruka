@@ -110,10 +110,5 @@
       <artifactId>fastutil</artifactId>
       <version>8.4.4</version>
     </dependency>
-    <dependency>
-      <groupId>com.github.oshi</groupId>
-      <artifactId>oshi-core</artifactId>
-      <version>5.3.6</version>
-    </dependency>
   </dependencies>
 </project>

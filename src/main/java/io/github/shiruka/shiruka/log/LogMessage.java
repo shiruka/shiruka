@@ -24,6 +24,7 @@
  */
 package io.github.shiruka.shiruka.log;
 
+import io.github.shiruka.api.log.Logger;
 import java.time.ZonedDateTime;
 import org.jetbrains.annotations.NotNull;
 

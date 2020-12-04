@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains implementation of {@link io.github.shiruka.shiruka.log.Logger}.
+ * the package that contains implementation of {@link io.github.shiruka.api.log.Logger}.
  */
 package io.github.shiruka.shiruka.log.logger;

@@ -24,8 +24,8 @@
  */
 package io.github.shiruka.shiruka.log.message;
 
+import io.github.shiruka.api.log.Logger;
 import io.github.shiruka.shiruka.log.LogMessage;
-import io.github.shiruka.shiruka.log.Logger;
 import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

@@ -26,10 +26,10 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
-import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.ServerSocket;
 import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;

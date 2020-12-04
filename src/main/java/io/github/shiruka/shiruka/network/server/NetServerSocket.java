@@ -24,7 +24,7 @@
  */
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.shiruka.log.Loggers;
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.*;
 import io.netty.channel.*;
 import java.net.InetAddress;

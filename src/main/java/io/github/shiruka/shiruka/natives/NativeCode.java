@@ -125,7 +125,7 @@ public final class NativeCode {
       final var temp = File.createTempFile(fullName, NativeCode.SUFFIX);
       temp.deleteOnExit();
       try (final var outputStream = new FileOutputStream(temp)) {
-        ByteStreams.copy(soFile, outputStream);
+        soFile.transferTo(outputStream);
       }
       System.load(temp.getPath());
       this.loaded = true;

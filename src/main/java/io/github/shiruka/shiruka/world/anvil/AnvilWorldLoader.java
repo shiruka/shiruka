@@ -52,7 +52,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
       if (v != null) {
         throw new IllegalArgumentException("World \"" + name + "\" already exists!");
       }
-      Loggers.log("Creating world \"%s\"...", name);
+      Loggers.log("Creating world \"%s\".", name);
       final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
       world.loadSpawnChunks();
       world.save();
@@ -95,7 +95,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   @NotNull
   @Override
   public World load(@NotNull final String name, @NotNull final Path directory, @NotNull final Dimension dimension) {
-    Loggers.log("Loading world \"%s\"...", name);
+    Loggers.log("Loading world \"%s\".", name);
     final var world = new AnvilWorld(name, directory, dimension);
     world.loadSpawnChunks();
     this.worlds.put(name, world);

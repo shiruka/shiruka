@@ -249,25 +249,25 @@ public final class Packets {
     final var connection = server.getConnectionsByAddress().get(recipient);
     if (connection != null && connection.getState() == ConnectionState.CONNECTED) {
       Loggers.error("%s is already connected!", recipient);
-      Loggers.debug("Sending already connected packet...");
+      Loggers.debug("Sending already connected packet.");
       Packets.sendAlreadyConnected(ctx, server, recipient);
       return;
     }
     if (Constants.MOJANG_PROTOCOL_VERSION != protocolVersion) {
       Loggers.error("Incompatible protocol version from %s!", recipient);
-      Loggers.debug("Sending incompatible protocol version packet...");
+      Loggers.debug("Sending incompatible protocol version packet.");
       Packets.sendIncompatibleProtocolVersion(ctx, server, recipient);
       return;
     }
     if (server.getMaxConnections() >= 0 && server.getMaxConnections() <= server.getConnectionsByAddress().size()) {
       Loggers.error("Reached Maximum connection size!");
-      Loggers.debug("Sending maximum connection packet...");
+      Loggers.debug("Sending maximum connection packet.");
       Packets.sendMaximumConnection(ctx, server, recipient);
       return;
     }
     if (!server.getSocketListener().onConnect(recipient)) {
       Loggers.error("%s can't connect to the server!", recipient);
-      Loggers.debug("Sending connection banned packet...");
+      Loggers.debug("Sending connection banned packet.");
       Packets.sendConnectedBanned(ctx, server, recipient);
       return;
     }

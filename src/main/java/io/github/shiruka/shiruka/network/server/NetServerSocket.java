@@ -93,7 +93,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   public static ServerSocket init(@NotNull final InetSocketAddress address,
                                   @NotNull final SocketListener socketListener, final int maxConnections) {
-    Loggers.debug("Initiating the server socket...");
+    Loggers.debug("Initiating the server socket.");
     final var socket = new NetServerSocket(address, socketListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
       Loggers.error("An exception occurred in Network system", t));
@@ -235,7 +235,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   @Override
   public CompletableFuture<Void> exec() {
-    Loggers.debug("Binding the server...");
+    Loggers.debug("Binding the server.");
     final var completableFuture = new CompletableFuture<>();
     this.getBootstrap()
       .handler(new NetServerSocketHandler(this))

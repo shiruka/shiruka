@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.Server;
-import io.github.shiruka.shiruka.log.Loggers;
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ServerConnectionHandler;
 import io.github.shiruka.shiruka.network.ServerSocket;

@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.OpsConfig;
@@ -32,7 +33,7 @@ import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.config.UserCacheConfig;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
-import io.github.shiruka.shiruka.log.Loggers;
+import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.world.anvil.AnvilWorldLoader;
 import java.io.File;
@@ -83,12 +84,12 @@ public final class ShirukaMain {
       ShirukaConsoleParser.printVersion();
       return;
     }
-    final var logger = Loggers.init("Shiru ka",
+    ShirukaLoggers.init("Shiru ka",
       parsed.has(ShirukaConsoleParser.DEBUG) && parsed.valueOf(ShirukaConsoleParser.DEBUG));
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
-      logger.warn("Cannot run server in a directory with ! or + in the pathname.");
-      logger.warn("Please rename the affected folders and try again.");
+      Loggers.warn("Cannot run server in a directory with ! or + in the pathname.");
+      Loggers.warn("Please rename the affected folders and try again.");
       return;
     }
     System.setProperty("library.jansi.version", "Shiruka");

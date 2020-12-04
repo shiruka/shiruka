@@ -25,9 +25,9 @@
 package io.github.shiruka.shiruka.log.logger;
 
 import static java.time.temporal.ChronoField.*;
+import io.github.shiruka.api.log.Logger;
 import io.github.shiruka.shiruka.log.Levels;
 import io.github.shiruka.shiruka.log.LogMessage;
-import io.github.shiruka.shiruka.log.Logger;
 import io.github.shiruka.shiruka.log.PipelineLogger;
 import io.github.shiruka.shiruka.log.message.LogMessageBasic;
 import java.io.OutputStream;

@@ -25,11 +25,11 @@
 
 package io.github.shiruka.shiruka.world.anvil;
 
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.api.world.options.WorldCreateSpec;
 import io.github.shiruka.shiruka.config.ServerConfig;
-import io.github.shiruka.shiruka.log.Loggers;
 import io.github.shiruka.shiruka.network.util.Misc;
 import io.github.shiruka.shiruka.world.ShirukaWorldLoader;
 import java.io.IOException;

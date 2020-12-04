@@ -99,6 +99,22 @@ public final class ShirukaMain {
   }
 
   /**
+   * creates a {@link WorldLoader} instance from the given world type string.
+   *
+   * @param worldType the world type to create.
+   *
+   * @return a new {@link WorldLoader} instance.
+   */
+  @NotNull
+  private static WorldLoader createWorldType(@NotNull final String worldType) {
+    // TODO create a WorldType class to move this method.
+    if (worldType.equalsIgnoreCase("anvil")) {
+      return new AnvilWorldLoader();
+    }
+    throw new IllegalStateException("The given world type called " + worldType + "is not supported!");
+  }
+
+  /**
    * creates and returns the server file/d.
    *
    * @param file the file to create.
@@ -124,20 +140,6 @@ public final class ShirukaMain {
       }
     }
     return file;
-  }
-
-  /**
-   * creates a {@link WorldLoader} instance from the given world type string.
-   * @param worldType the world type to create.
-   * @return a new {@link WorldLoader} instance.
-   */
-  @NotNull
-  private static WorldLoader createWorldType(@NotNull final String worldType) {
-    // TODO create a WorldType class to move this method.
-    if (worldType.equalsIgnoreCase("anvil")) {
-      return new AnvilWorldLoader();
-    }
-    throw new IllegalStateException("The given world type called " + worldType + "is not supported!");
   }
 
   /**

@@ -31,10 +31,8 @@ import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.network.ServerSocket;
-import io.github.shiruka.shiruka.network.impl.ShirukaSocketListener;
-import io.github.shiruka.shiruka.network.server.NetServerSocket;
-import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -80,30 +78,15 @@ public final class ShirukaServer implements Server {
   /**
    * ctor.
    *
-   * @param address the server's address.
-   * @param maxPlayer the server's maximum connection size.
    * @param description the server's description.
    * @param loader the world loader.
+   * @param socket the socket.
    */
-  public ShirukaServer(@NotNull final InetSocketAddress address, final int maxPlayer,
-                       @NotNull final String description, @NotNull final WorldLoader loader) {
+  public ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
+                       @NotNull final Function<Server, ServerSocket> socket) {
     this.description = description;
     this.loader = loader;
-    this.socket = NetServerSocket.init(address, new ShirukaSocketListener(this), maxPlayer);
-  }
-
-  /**
-   * ctor.
-   *
-   * @param ip the server's ip address.
-   * @param port the server's port.
-   * @param maxPlayer the server's maximum connection size.
-   * @param description the server's description.
-   * @param loader the world loader.
-   */
-  public ShirukaServer(@NotNull final String ip, final int port, final int maxPlayer,
-                       @NotNull final String description, @NotNull final WorldLoader loader) {
-    this(new InetSocketAddress(ip, port), maxPlayer, description, loader);
+    this.socket = socket.apply(this);
   }
 
   @Override

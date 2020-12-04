@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.misc;
 
+import java.util.Locale;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +56,7 @@ public final class ShirukaUtils {
     if (ShirukaUtils.os != null) {
       return ShirukaUtils.os;
     }
-    final var name = System.getProperty("os.name").toLowerCase();
+    final var name = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
     if (name.contains("win")) {
       ShirukaUtils.os = OS.WINDOWS;
     } else if (name.contains("nix") ||

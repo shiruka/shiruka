@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.natives;
 
-import com.google.common.io.ByteStreams;
 import io.github.shiruka.api.log.Loggers;
 import java.io.*;
 import org.jetbrains.annotations.NotNull;

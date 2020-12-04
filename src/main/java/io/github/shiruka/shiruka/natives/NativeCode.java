@@ -25,13 +25,11 @@
 
 package io.github.shiruka.shiruka.natives;
 
-import com.google.common.io.ByteStreams;
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.shiruka.misc.ShirukaUtils;
 import java.io.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import oshi.PlatformEnum;
-import oshi.SystemInfo;
 
 /**
  * a class that loads native codes.
@@ -41,12 +39,12 @@ public final class NativeCode {
   /**
    * the prefix.
    */
-  public static final String PREFIX = SystemInfo.getCurrentPlatformEnum() == PlatformEnum.WINDOWS ? "" : "lib";
+  public static final String PREFIX = ShirukaUtils.getOS() == ShirukaUtils.OS.WINDOWS ? "" : "lib";
 
   /**
    * the suffix.
    */
-  public static final String SUFFIX = SystemInfo.getCurrentPlatformEnum() == PlatformEnum.WINDOWS ? ".dll" : ".so";
+  public static final String SUFFIX = ShirukaUtils.getOS() == ShirukaUtils.OS.WINDOWS ? ".dll" : ".so";
 
   /**
    * the name.
@@ -94,8 +92,8 @@ public final class NativeCode {
    * @return {@code true} when supported, false when not.
    */
   private static boolean isSupported() {
-    return (SystemInfo.getCurrentPlatformEnum() == PlatformEnum.WINDOWS ||
-      SystemInfo.getCurrentPlatformEnum() == PlatformEnum.LINUX) &&
+    return (ShirukaUtils.getOS() == ShirukaUtils.OS.WINDOWS ||
+      ShirukaUtils.getOS() == ShirukaUtils.OS.LINUX) &&
       "amd64".equals(System.getProperty("os.arch"));
   }
 
@@ -125,7 +123,7 @@ public final class NativeCode {
       final var temp = File.createTempFile(fullName, NativeCode.SUFFIX);
       temp.deleteOnExit();
       try (final var outputStream = new FileOutputStream(temp)) {
-        ByteStreams.copy(soFile, outputStream);
+        soFile.transferTo(outputStream);
       }
       System.load(temp.getPath());
       this.loaded = true;

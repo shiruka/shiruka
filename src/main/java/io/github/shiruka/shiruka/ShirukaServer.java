@@ -135,13 +135,13 @@ public final class ShirukaServer implements Server {
   public void startServer() {
     this.running.set(true);
     this.tick.start();
-    Loggers.log("Loading plugins...");
+    Loggers.log("Loading plugins.");
     // TODO Load plugins here.
-    Loggers.log("Enabling startup plugins...");
+    Loggers.log("Enabling startup plugins.");
     // TODO enable plugins which set PluginLoadOrder as STARTUP.
-    Loggers.log("Loading worlds...");
+    Loggers.log("Loading worlds.");
     this.loader.loadAll();
-    Loggers.log("Enabling post world plugins...");
+    Loggers.log("Enabling post world plugins.");
     // TODO enable plugins which set PluginLoadOrder as POST_WORLD.
   }
 

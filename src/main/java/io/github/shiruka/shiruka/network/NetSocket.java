@@ -54,11 +54,13 @@ public abstract class NetSocket implements Socket {
   /**
    * the datagram channel class.
    */
+  @NotNull
   private static final Class<? extends Channel> CHANNEL;
 
   /**
    * the datagram event loop group.
    */
+  @NotNull
   private static final EventLoopGroup GROUP;
 
   /**

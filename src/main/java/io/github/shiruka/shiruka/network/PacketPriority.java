@@ -23,17 +23,26 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.network;
 
 /**
- * an interface to determine Minecraft packets.
+ * packet send priority
  */
-public interface Packet {
-
+public enum PacketPriority {
   /**
-   * obtains id of the packet.
-   *
-   * @return the packet id.
+   * sends immediately.
    */
-  int id();
+  IMMEDIATE,
+  /**
+   * sends as soon as possible.
+   */
+  HIGH,
+  /**
+   * the sending speed is moderate
+   */
+  MEDIUM,
+  /**
+   * sends after everything.
+   */
+  LOW
 }

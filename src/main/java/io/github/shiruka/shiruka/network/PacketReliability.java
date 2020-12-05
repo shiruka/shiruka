@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.network;
 
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;

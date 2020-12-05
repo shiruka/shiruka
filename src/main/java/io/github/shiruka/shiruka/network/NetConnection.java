@@ -29,8 +29,6 @@ import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
-import io.github.shiruka.shiruka.network.packet.PacketPriority;
-import io.github.shiruka.shiruka.network.packet.PacketReliability;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Misc;
 import io.netty.buffer.ByteBuf;

@@ -26,23 +26,8 @@
 package io.github.shiruka.shiruka.network.packet;
 
 /**
- * packet send priority
+ * a class that holds packets registered by their identifying packet ID as specified in the Minecraft protocol.
  */
-public enum PacketPriority {
-  /**
-   * sends immediately.
-   */
-  IMMEDIATE,
-  /**
-   * sends as soon as possible.
-   */
-  HIGH,
-  /**
-   * the sending speed is moderate
-   */
-  MEDIUM,
-  /**
-   * sends after everything.
-   */
-  LOW
+public final class PacketRegistry {
+
 }

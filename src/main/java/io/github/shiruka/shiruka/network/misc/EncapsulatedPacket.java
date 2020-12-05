@@ -25,8 +25,8 @@
 
 package io.github.shiruka.shiruka.network.misc;
 
-import io.github.shiruka.shiruka.network.packet.PacketPriority;
-import io.github.shiruka.shiruka.network.packet.PacketReliability;
+import io.github.shiruka.shiruka.network.PacketPriority;
+import io.github.shiruka.shiruka.network.PacketReliability;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCounted;
 import java.util.Objects;

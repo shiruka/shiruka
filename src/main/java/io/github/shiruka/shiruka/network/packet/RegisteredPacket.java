@@ -26,14 +26,26 @@
 package io.github.shiruka.shiruka.network.packet;
 
 /**
- * an interface to determine Minecraft packets.
+ * an implementation for {@link Packet}.
  */
-public interface Packet {
+public abstract class RegisteredPacket implements Packet {
 
   /**
-   * obtains id of the packet.
-   *
-   * @return the packet id.
+   * the id.
    */
-  int id();
+  private final int id;
+
+  /**
+   * ctor.
+   *
+   * @param id the id.
+   */
+  protected RegisteredPacket(final int id) {
+    this.id = id;
+  }
+
+  @Override
+  public final int id() {
+    return this.id;
+  }
 }

@@ -32,8 +32,6 @@ import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
 import io.github.shiruka.shiruka.network.misc.SplitPacketHelper;
-import io.github.shiruka.shiruka.network.packet.PacketPriority;
-import io.github.shiruka.shiruka.network.packet.PacketReliability;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Misc;
 import io.github.shiruka.shiruka.network.util.Packets;
@@ -422,15 +420,14 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
    * @param packet the packet to handle.
    */
   private void onPacket(@NotNull final ByteBuf packet) {
-    Optionals.useAndGet(packet.readUnsignedByte(), packetId -> {
-      if (packetId == Packets.OPEN_CONNECTION_REQUEST_2) {
-        this.onOpenConnectionRequest2(packet);
-      } else if (packetId == Packets.CONNECTION_REQUEST) {
-        this.onConnectionRequest(packet);
-      } else if (packetId == Packets.NEW_INCOMING_CONNECTION) {
-        this.onNewIncomingConnection();
-      }
-    });
+    final var packetId = packet.readUnsignedByte();
+    if (packetId == Packets.OPEN_CONNECTION_REQUEST_2) {
+      this.onOpenConnectionRequest2(packet);
+    } else if (packetId == Packets.CONNECTION_REQUEST) {
+      this.onConnectionRequest(packet);
+    } else if (packetId == Packets.NEW_INCOMING_CONNECTION) {
+      this.onNewIncomingConnection();
+    }
   }
 
   /**

@@ -61,7 +61,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
    * cache values.
    */
   @NotNull
-  private final ConnectionCache<S, H> cache;
+  private final ConnectionCache cache;
 
   /**
    * the channel.
@@ -210,7 +210,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
     this.protocolVersion = protocolVersion;
     this.channel = ctx.channel();
     this.eventLoop = this.channel.eventLoop();
-    this.cache = new ConnectionCache<>(this);
+    this.cache = new ConnectionCache(this);
   }
 
   @Override
@@ -257,7 +257,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @NotNull
   @Override
-  public final ConnectionCache<S, H> getCache() {
+  public final ConnectionCache getCache() {
     return this.cache;
   }
 

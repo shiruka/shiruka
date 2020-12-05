@@ -96,7 +96,7 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
    * @return the connection cache {@link ConnectionCache}
    */
   @NotNull
-  ConnectionCache<S, H> getCache();
+  ConnectionCache getCache();
 
   /**
    * obtains connection's channel.

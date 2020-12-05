@@ -36,10 +36,18 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ShirukaConnectionListener implements ConnectionListener {
 
+  /**
+   * the connection.
+   */
   @NotNull
   private final Connection<ServerSocket, ServerConnectionHandler> connection;
 
-  public ShirukaConnectionListener(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+  /**
+   * ctor.
+   *
+   * @param connection the connection.
+   */
+  ShirukaConnectionListener(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
     this.connection = connection;
   }
 

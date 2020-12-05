@@ -30,4 +30,9 @@ package io.github.shiruka.shiruka.network.packet;
  */
 public final class PacketRegistry {
 
+  /**
+   * ctor.
+   */
+  private PacketRegistry() {
+  }
 }

@@ -26,27 +26,13 @@
 package io.github.shiruka.shiruka.network.packet;
 
 /**
- * an implementation for {@link Packet}.
+ * a class that controls packets if they can able to send or receive.
  */
-public abstract class RegisteredPacket implements Packet {
-
-  /**
-   * the id.
-   */
-  private final int id;
+public final class PacketController {
 
   /**
    * ctor.
-   *
-   * @param id the id.
    */
-  protected RegisteredPacket(final int id) {
-    // TODO Check if the given id is registered.
-    this.id = id;
-  }
-
-  @Override
-  public final int id() {
-    return this.id;
+  private PacketController() {
   }
 }

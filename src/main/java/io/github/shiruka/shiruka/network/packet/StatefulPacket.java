@@ -41,7 +41,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class StatefulPacket extends ConditionalPacket {
 
-  public static final @NotNull Predicate<Connection<ServerSocket, ServerConnectionHandler>> FREE = connection -> true;
+  /**
+   * the simple implementation for {@link Predicate} that always returns {@code true}.
+   */
+  @NotNull
+  private static final Predicate<Connection<ServerSocket, ServerConnectionHandler>> FREE = connection -> true;
 
   /**
    * the check.

@@ -256,7 +256,7 @@ public final class ConnectionCache {
    * @param intRange the int range to offer.
    */
   public void offerIncomingACKs(@NotNull final IntRange intRange) {
-    Objects.requireNonNull(this.incomingACKs, "incoming ACKs").offer(intRange);
+    this.getIncomingACKs().offer(intRange);
   }
 
   /**
@@ -265,7 +265,7 @@ public final class ConnectionCache {
    * @param intRange the int range to offer.
    */
   public void offerIncomingNACKs(@NotNull final IntRange intRange) {
-    Objects.requireNonNull(this.incomingNACKs, "incoming NACKs").offer(intRange);
+    this.getIncomingNACKs().offer(intRange);
   }
 
   /**

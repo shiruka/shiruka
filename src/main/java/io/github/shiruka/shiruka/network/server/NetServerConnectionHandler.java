@@ -185,7 +185,7 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
   private void onACKnowledge(@NotNull final ByteBuf packet, @NotNull final Consumer<IntRange> consumer) {
     this.connection.checkForClosed();
     final var size = packet.readUnsignedShort();
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       final var singleton = packet.readBoolean();
       final var start = packet.readUnsignedMediumLE();
       final var end = singleton ? start : packet.readMediumLE();

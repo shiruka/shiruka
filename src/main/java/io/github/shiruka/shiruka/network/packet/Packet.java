@@ -43,17 +43,8 @@ public abstract class Packet {
    *
    * @param id the id.
    */
-  private Packet(final int id) {
+  protected Packet(final int id) {
     this.id = id;
-  }
-
-  /**
-   * ctor.
-   *
-   * @param cls the class itself.
-   */
-  protected Packet(@NotNull final Class<? extends Packet> cls) {
-    // TODO Check if the given id is registered.
   }
 
   /**

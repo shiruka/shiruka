@@ -189,13 +189,13 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
       final var singleton = packet.readBoolean();
       final var start = packet.readUnsignedMediumLE();
       final var end = singleton ? start : packet.readMediumLE();
-      if (start > end) {
-        Loggers.error("%s sent an IntRange with a start value %s greater than an end value of %s",
-          this.connection.getAddress(), start, end);
-        this.connection.disconnect(DisconnectReason.BAD_PACKET);
-        return;
+      if (start <= end) {
+        consumer.accept(new IntRange(start, end));
+        continue;
       }
-      consumer.accept(new IntRange(start, end));
+      Loggers.error("%s sent an IntRange with a start value %s greater than an end value of %s",
+        this.connection.getAddress(), start, end);
+      this.connection.disconnect(DisconnectReason.BAD_PACKET);
     }
   }
 

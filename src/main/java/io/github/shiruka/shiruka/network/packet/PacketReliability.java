@@ -69,7 +69,6 @@ public enum PacketReliability {
   /**
    * include ack receipt or not.
    */
-  @SuppressWarnings("FieldCanBeLocal")
   private final boolean withAckReceipt;
 
   /**

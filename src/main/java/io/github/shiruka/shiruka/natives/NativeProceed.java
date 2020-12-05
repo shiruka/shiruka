@@ -28,7 +28,7 @@ package io.github.shiruka.shiruka.natives;
 /**
  * an interface to determine methods that have to wrote by native codes.
  */
-public class NativeProceed {
+public final class NativeProceed {
 
   /**
    * ctor.

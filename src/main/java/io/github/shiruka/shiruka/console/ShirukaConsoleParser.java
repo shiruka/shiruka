@@ -88,11 +88,13 @@ public final class ShirukaConsoleParser {
   /**
    * the option parser.
    */
+  @NotNull
   private static final OptionParser PARSER;
 
   /**
    * a simple java util logger.
    */
+  @NotNull
   private static final Logger SIMPLE_LOGGER;
 
   static {

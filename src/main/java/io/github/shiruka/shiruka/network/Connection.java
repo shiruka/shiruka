@@ -24,6 +24,8 @@
  */
 package io.github.shiruka.shiruka.network;
 
+import io.github.shiruka.shiruka.network.packet.PacketPriority;
+import io.github.shiruka.shiruka.network.packet.PacketReliability;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;

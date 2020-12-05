@@ -32,6 +32,8 @@ import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
 import io.github.shiruka.shiruka.network.misc.SplitPacketHelper;
+import io.github.shiruka.shiruka.network.packet.PacketPriority;
+import io.github.shiruka.shiruka.network.packet.PacketReliability;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Misc;
 import io.github.shiruka.shiruka.network.util.Packets;

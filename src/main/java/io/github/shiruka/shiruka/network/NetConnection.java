@@ -29,6 +29,8 @@ import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
+import io.github.shiruka.shiruka.network.packet.PacketPriority;
+import io.github.shiruka.shiruka.network.packet.PacketReliability;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Misc;
 import io.netty.buffer.ByteBuf;
@@ -536,22 +538,22 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   /**
    * gets the next weight.
    *
-   * @param packetPriority the priority to get
+   * @param priority the priority to get.
    *
    * @return the next weight.
    */
-  private long getNextWeight(@NotNull final PacketPriority packetPriority) {
-    final var priority = packetPriority.ordinal();
-    var next = this.getCache().getOutgoingPacketNextWeight(priority);
+  private long getNextWeight(@NotNull final PacketPriority priority) {
+    final var ordinal = priority.ordinal();
+    var next = this.getCache().getOutgoingPacketNextWeight(ordinal);
     if (!this.getCache().getOutgoingPackets().isEmpty()) {
       if (next >= this.lastMinWeight.longValue()) {
-        next = this.lastMinWeight.longValue() + (1L << priority) * priority + priority;
-        this.getCache().setOutgoingPacketNextWeights(priority, next + (1L << priority) * (priority + 1) + priority);
+        next = this.lastMinWeight.longValue() + (1L << ordinal) * ordinal + ordinal;
+        this.getCache().setOutgoingPacketNextWeights(ordinal, next + (1L << ordinal) * (ordinal + 1) + ordinal);
       }
     } else {
       this.getCache().initHeapWeights();
     }
-    this.lastMinWeight.set(next - (1L << priority) * priority + priority);
+    this.lastMinWeight.set(next - (1L << ordinal) * ordinal + ordinal);
     return next;
   }
 

@@ -22,27 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.network;
-
 /**
- * packet send priority
+ * the package that contains packet classes.
  */
-public enum PacketPriority {
-  /**
-   * sends immediately.
-   */
-  IMMEDIATE,
-  /**
-   * sends as soon as possible.
-   */
-  HIGH,
-  /**
-   * the sending speed is moderate
-   */
-  MEDIUM,
-  /**
-   * sends after everything.
-   */
-  LOW
-}
+package io.github.shiruka.shiruka.network.packet;

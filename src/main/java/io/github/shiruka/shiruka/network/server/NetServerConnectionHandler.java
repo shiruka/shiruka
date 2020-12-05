@@ -327,23 +327,20 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
    */
   private void onEncapsulatedInternal(@NotNull final EncapsulatedPacket packet) {
     final var buffer = packet.getBuffer();
-    Optionals.useAndGet(buffer.readUnsignedByte(), packetId -> {
-      if (packetId == Packets.CONNECTED_PING) {
-        this.onConnectedPing(buffer);
-      } else if (packetId == Packets.CONNECTED_PONG) {
-        this.onConnectedPong(buffer);
-      } else if (packetId == Packets.DISCONNECTION_NOTIFICATION) {
-        this.onDisconnectionNotification();
-      } else {
-        buffer.readerIndex(0);
-        if (packetId >= Packets.USER_PACKET_ENUM) {
-          this.connection.getConnectionListener().ifPresent(listener ->
-            listener.onEncapsulated(packet));
-        } else {
-          this.onPacket(buffer);
-        }
+    final var packetId = buffer.readUnsignedByte();
+    if (packetId == Packets.CONNECTED_PING) {
+      this.onConnectedPing(buffer);
+    } else if (packetId == Packets.CONNECTED_PONG) {
+      this.onConnectedPong(buffer);
+    } else if (packetId == Packets.DISCONNECTION_NOTIFICATION) {
+      this.onDisconnectionNotification();
+    } else {
+      buffer.readerIndex(0);
+      if (!this.onPacket(buffer) && packetId >= Packets.USER_PACKET_ENUM) {
+        this.connection.getConnectionListener().ifPresent(listener ->
+          listener.onEncapsulated(packet));
       }
-    });
+    }
   }
 
   /**
@@ -418,16 +415,24 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
    * handles the simple connection request packets.
    *
    * @param packet the packet to handle.
+   *
+   * @return {@code true} if the incoming packet's id is
+   *   {@link Packets#OPEN_CONNECTION_REQUEST_2} or {@link Packets#CONNECTION_REQUEST} or
+   *   {@link Packets#NEW_INCOMING_CONNECTION}
    */
-  private void onPacket(@NotNull final ByteBuf packet) {
+  private boolean onPacket(@NotNull final ByteBuf packet) {
     final var packetId = packet.readUnsignedByte();
     if (packetId == Packets.OPEN_CONNECTION_REQUEST_2) {
       this.onOpenConnectionRequest2(packet);
+      return true;
     } else if (packetId == Packets.CONNECTION_REQUEST) {
       this.onConnectionRequest(packet);
+      return true;
     } else if (packetId == Packets.NEW_INCOMING_CONNECTION) {
       this.onNewIncomingConnection();
+      return true;
     }
+    return false;
   }
 
   /**

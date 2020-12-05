@@ -25,15 +25,54 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
+import io.github.shiruka.shiruka.network.Connection;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * an interface to determine Minecraft packets.
+ * an abstract class to determine packets.
  */
-public interface Packet {
+public abstract class Packet {
+
+  /**
+   * the id.
+   */
+  private final int id;
+
+  /**
+   * ctor.
+   *
+   * @param id the id.
+   */
+  private Packet(final int id) {
+    this.id = id;
+  }
+
+  /**
+   * ctor.
+   *
+   * @param cls the class itself.
+   */
+  protected Packet(@NotNull final Class<? extends Packet> cls) {
+    // TODO Check if the given id is registered.
+  }
 
   /**
    * obtains id of the packet.
    *
    * @return the packet id.
    */
-  int id();
+  public final int id() {
+    return this.id;
+  }
+
+  /**
+   * checks if the connection can handle this packet.
+   *
+   * @param connection the connection to check.
+   *
+   * @return {@code true} if the given connection should access this packet.
+   */
+  public boolean canAccess(@NotNull final Connection<?, ?> connection) {
+    return true;
+  }
 }

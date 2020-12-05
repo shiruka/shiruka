@@ -53,18 +53,41 @@ public final class Proceed {
     }
   }
 
+  /**
+   * ctor.
+   *
+   * @param encryptionModeToggle the encryption mode toggle.
+   */
   public Proceed(final boolean encryptionModeToggle) {
     this.context = NativeProceed.createNewContext(encryptionModeToggle);
   }
 
+  /**
+   * enables or disables the debug mode.
+   *
+   * @param debug the debug to enable or disable.
+   */
   public void debug(final boolean debug) {
     NativeProceed.debug(this.context, debug);
   }
 
+  /**
+   * enables the crypto.
+   *
+   * @param key the key to enable.
+   * @param iv the iv to enable.
+   */
   public void enableCrypto(final byte[] key, final byte[] iv) {
     NativeProceed.enableCrypto(this.context, key, iv);
   }
 
+  /**
+   * processes the given data.
+   *
+   * @param data the data to process.
+   *
+   * @return a proceed {@link ByteBuf} instance.
+   */
   @NotNull
   public ByteBuf process(@NotNull final ByteBuf data) {
     try {

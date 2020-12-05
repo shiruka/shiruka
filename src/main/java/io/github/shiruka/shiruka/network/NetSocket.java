@@ -143,7 +143,7 @@ public abstract class NetSocket implements Socket {
           return;
         }
         this.closed.set(false);
-        this.tickFuture = NetSocket.GROUP.scheduleAtFixedRate(this::onTick, 0, 10,
+        this.tickFuture = NetSocket.GROUP.next().scheduleAtFixedRate(this::onTick, 0, 10,
           TimeUnit.MILLISECONDS);
       }));
   }

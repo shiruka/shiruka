@@ -31,6 +31,7 @@ import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Misc;
+import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -49,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that provides you to manage the connection.
  */
-public abstract class NetConnection<S extends Socket, H extends ConnectionHandler> implements Connection<S, H> {
+public abstract class NetConnection<S extends Socket> implements Connection<S> {
 
   /**
    * connection's address.
@@ -61,7 +62,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
    * cache values.
    */
   @NotNull
-  private final ConnectionCache<S, H> cache;
+  private final ConnectionCache cache;
 
   /**
    * the channel.
@@ -78,7 +79,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
    * the connection handler instance.
    */
   @NotNull
-  private final H connectionHandler;
+  private final ConnectionHandler connectionHandler;
 
   /**
    * connection's channel handler context.
@@ -199,7 +200,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
    * @param mtu the mtu size.
    * @param protocolVersion the protocol version.
    */
-  protected NetConnection(@NotNull final S socket, @NotNull final Function<Connection<S, H>, H> handler,
+  protected NetConnection(@NotNull final S socket, @NotNull final Function<Connection<S>, ConnectionHandler> handler,
                           @NotNull final InetSocketAddress address, @NotNull final ChannelHandlerContext ctx,
                           final int mtu, final short protocolVersion) {
     this.socket = socket;
@@ -210,7 +211,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
     this.protocolVersion = protocolVersion;
     this.channel = ctx.channel();
     this.eventLoop = this.channel.eventLoop();
-    this.cache = new ConnectionCache<>(this);
+    this.cache = new ConnectionCache(this);
   }
 
   @Override
@@ -240,7 +241,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
     if (this.isClosed()) {
       return;
     }
-    this.connectionHandler.sendDisconnectionNotification();
+    Packets.sendDisconnectionNotification(this);
     this.close(reason);
   }
 
@@ -257,7 +258,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @NotNull
   @Override
-  public final ConnectionCache<S, H> getCache() {
+  public final ConnectionCache getCache() {
     return this.cache;
   }
 
@@ -269,7 +270,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @NotNull
   @Override
-  public final H getConnectionHandler() {
+  public final ConnectionHandler getConnectionHandler() {
     return this.connectionHandler;
   }
 
@@ -536,22 +537,22 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   /**
    * gets the next weight.
    *
-   * @param packetPriority the priority to get
+   * @param priority the priority to get.
    *
    * @return the next weight.
    */
-  private long getNextWeight(@NotNull final PacketPriority packetPriority) {
-    final var priority = packetPriority.ordinal();
-    var next = this.getCache().getOutgoingPacketNextWeight(priority);
+  private long getNextWeight(@NotNull final PacketPriority priority) {
+    final var ordinal = priority.ordinal();
+    var next = this.getCache().getOutgoingPacketNextWeight(ordinal);
     if (!this.getCache().getOutgoingPackets().isEmpty()) {
       if (next >= this.lastMinWeight.longValue()) {
-        next = this.lastMinWeight.longValue() + (1L << priority) * priority + priority;
-        this.getCache().setOutgoingPacketNextWeights(priority, next + (1L << priority) * (priority + 1) + priority);
+        next = this.lastMinWeight.longValue() + (1L << ordinal) * ordinal + ordinal;
+        this.getCache().setOutgoingPacketNextWeights(ordinal, next + (1L << ordinal) * (ordinal + 1) + ordinal);
       }
     } else {
       this.getCache().initHeapWeights();
     }
-    this.lastMinWeight.set(next - (1L << priority) * priority + priority);
+    this.lastMinWeight.set(next - (1L << ordinal) * ordinal + ordinal);
     return next;
   }
 
@@ -635,7 +636,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
       return;
     }
     if (this.currentPingTime.get() + 2000L < now) {
-      this.connectionHandler.sendConnectedPing(now);
+      Packets.sendConnectedPing(this, now);
     }
     final var temp = this.getCache();
     final var slidingWindow = temp.getSlidingWindow();

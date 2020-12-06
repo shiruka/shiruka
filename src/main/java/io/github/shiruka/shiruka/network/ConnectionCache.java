@@ -43,13 +43,13 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that contains the connection's cache values.
  */
-public final class ConnectionCache<S extends Socket, H extends ConnectionHandler> {
+public final class ConnectionCache {
 
   /**
    * the connection instance.
    */
   @NotNull
-  private final Connection<S, H> connection;
+  private final Connection<?> connection;
 
   /**
    * incoming ACK packets.
@@ -150,7 +150,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    *
    * @param connection the connection instance.
    */
-  ConnectionCache(@NotNull final Connection<S, H> connection) {
+  ConnectionCache(@NotNull final Connection<?> connection) {
     this.connection = connection;
   }
 
@@ -256,7 +256,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @param intRange the int range to offer.
    */
   public void offerIncomingACKs(@NotNull final IntRange intRange) {
-    Objects.requireNonNull(this.incomingACKs, "incoming ACKs").offer(intRange);
+    this.getIncomingACKs().offer(intRange);
   }
 
   /**
@@ -265,7 +265,7 @@ public final class ConnectionCache<S extends Socket, H extends ConnectionHandler
    * @param intRange the int range to offer.
    */
   public void offerIncomingNACKs(@NotNull final IntRange intRange) {
-    Objects.requireNonNull(this.incomingNACKs, "incoming NACKs").offer(intRange);
+    this.getIncomingNACKs().offer(intRange);
   }
 
   /**

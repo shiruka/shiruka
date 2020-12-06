@@ -27,17 +27,17 @@ package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.misc.Optionals;
-import io.github.shiruka.shiruka.network.*;
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.ConnectionHandler;
+import io.github.shiruka.shiruka.network.ConnectionState;
+import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
 import io.github.shiruka.shiruka.network.misc.SplitPacketHelper;
 import io.github.shiruka.shiruka.network.util.Constants;
-import io.github.shiruka.shiruka.network.util.Misc;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
-import java.net.Inet6Address;
-import java.util.Arrays;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,20 +45,20 @@ import org.jetbrains.annotations.Nullable;
 /**
  * server connection handler implementation class.
  */
-public final class NetServerConnectionHandler implements ServerConnectionHandler {
+public final class NetServerConnectionHandler implements ConnectionHandler {
 
   /**
    * the server connection instance.
    */
   @NotNull
-  private final Connection<ServerSocket, ServerConnectionHandler> connection;
+  private final Connection<ServerSocket> connection;
 
   /**
    * ctor.
    *
    * @param connection the server connection.
    */
-  NetServerConnectionHandler(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+  NetServerConnectionHandler(@NotNull final Connection<ServerSocket> connection) {
     this.connection = connection;
   }
 
@@ -100,36 +100,6 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
     }
   }
 
-  @Override
-  public void sendConnectedPing(final long pingTime) {
-    this.createPacket(9, packet -> {
-      packet.writeByte(Packets.CONNECTED_PING);
-      packet.writeLong(pingTime);
-      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
-      this.connection.getCurrentPingTime().set(pingTime);
-    });
-  }
-
-  @Override
-  public void sendDisconnectionNotification() {
-    this.createPacket(1, packet -> {
-      packet.writeByte(Packets.DISCONNECTION_NOTIFICATION);
-      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE_ORDERED);
-    });
-  }
-
-  @Override
-  public void sendConnectionReply1() {
-    this.createPacket(28, packet -> {
-      packet.writeByte(Packets.OPEN_CONNECTION_REPLY_1);
-      Packets.writeUnconnectedMagic(packet);
-      packet.writeLong(this.connection.getSocket().getUniqueId());
-      packet.writeBoolean(false);
-      packet.writeShort(this.connection.getMtu());
-      this.connection.sendDirect(packet);
-    });
-  }
-
   /**
    * checks for ordered the packet
    *
@@ -141,16 +111,6 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
     } else {
       this.onEncapsulatedInternal(packet);
     }
-  }
-
-  /**
-   * creates a packet from the given size and runs the given packet consumer.
-   *
-   * @param size the size to create.
-   * @param packet the packet to run.
-   */
-  private void createPacket(final int size, @NotNull final Consumer<ByteBuf> packet) {
-    Optionals.useAndGet(this.connection.allocateBuffer(size), packet);
   }
 
   /**
@@ -185,17 +145,17 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
   private void onACKnowledge(@NotNull final ByteBuf packet, @NotNull final Consumer<IntRange> consumer) {
     this.connection.checkForClosed();
     final var size = packet.readUnsignedShort();
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       final var singleton = packet.readBoolean();
       final var start = packet.readUnsignedMediumLE();
       final var end = singleton ? start : packet.readMediumLE();
-      if (start > end) {
-        Loggers.error("%s sent an IntRange with a start value %s greater than an end value of %s",
-          this.connection.getAddress(), start, end);
-        this.connection.disconnect(DisconnectReason.BAD_PACKET);
-        return;
+      if (start <= end) {
+        consumer.accept(new IntRange(start, end));
+        continue;
       }
-      consumer.accept(new IntRange(start, end));
+      Loggers.error("%s sent an IntRange with a start value %s greater than an end value of %s",
+        this.connection.getAddress(), start, end);
+      this.connection.disconnect(DisconnectReason.BAD_PACKET);
     }
   }
 
@@ -206,7 +166,7 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
    */
   private void onConnectedPing(@NotNull final ByteBuf packet) {
     final var pingTime = packet.readLong();
-    this.sendConnectedPong(pingTime);
+    Packets.sendConnectedPong(this.connection, pingTime);
   }
 
   /**
@@ -233,12 +193,12 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
     final var time = packet.readLong();
     final var security = packet.readBoolean();
     if (this.connection.getUniqueId() != uniqueId || security) {
-      this.sendConnectionRequestFailed();
+      Packets.sendConnectionRequestFailed(this.connection);
       this.connection.close(DisconnectReason.CONNECTION_REQUEST_FAILED);
       return;
     }
     this.connection.setState(ConnectionState.CONNECTING);
-    this.sendConnectionRequestAccepted(time);
+    Packets.sendConnectionRequestAccepted(this.connection, time);
   }
 
   /**
@@ -327,23 +287,20 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
    */
   private void onEncapsulatedInternal(@NotNull final EncapsulatedPacket packet) {
     final var buffer = packet.getBuffer();
-    Optionals.useAndGet(buffer.readUnsignedByte(), packetId -> {
-      if (packetId == Packets.CONNECTED_PING) {
-        this.onConnectedPing(buffer);
-      } else if (packetId == Packets.CONNECTED_PONG) {
-        this.onConnectedPong(buffer);
-      } else if (packetId == Packets.DISCONNECTION_NOTIFICATION) {
-        this.onDisconnectionNotification();
-      } else {
-        buffer.readerIndex(0);
-        if (packetId >= Packets.USER_PACKET_ENUM) {
-          this.connection.getConnectionListener().ifPresent(listener ->
-            listener.onEncapsulated(packet));
-        } else {
-          this.onPacket(buffer);
-        }
+    final var packetId = buffer.readUnsignedByte();
+    if (packetId == Packets.CONNECTED_PING) {
+      this.onConnectedPing(buffer);
+    } else if (packetId == Packets.CONNECTED_PONG) {
+      this.onConnectedPong(buffer);
+    } else if (packetId == Packets.DISCONNECTION_NOTIFICATION) {
+      this.onDisconnectionNotification();
+    } else {
+      buffer.readerIndex(0);
+      if (!this.onPacket(buffer) && packetId >= Packets.USER_PACKET_ENUM) {
+        this.connection.getConnectionListener().ifPresent(listener ->
+          listener.onEncapsulated(packet));
       }
-    });
+    }
   }
 
   /**
@@ -372,7 +329,7 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
       this.connection.setMtu(mtu);
       this.connection.setUniqueId(packet.readLong());
       this.connection.initialize();
-      this.sendOpenConnectionReply2();
+      Packets.sendOpenConnectionReply2(this.connection);
       this.connection.setState(ConnectionState.INITIALIZED);
     });
   }
@@ -418,77 +375,23 @@ public final class NetServerConnectionHandler implements ServerConnectionHandler
    * handles the simple connection request packets.
    *
    * @param packet the packet to handle.
-   */
-  private void onPacket(@NotNull final ByteBuf packet) {
-    Optionals.useAndGet(packet.readUnsignedByte(), packetId -> {
-      if (packetId == Packets.OPEN_CONNECTION_REQUEST_2) {
-        this.onOpenConnectionRequest2(packet);
-      } else if (packetId == Packets.CONNECTION_REQUEST) {
-        this.onConnectionRequest(packet);
-      } else if (packetId == Packets.NEW_INCOMING_CONNECTION) {
-        this.onNewIncomingConnection();
-      }
-    });
-  }
-
-  /**
-   * send a connected pong packet to the connection.
    *
-   * @param pingTime the pint time to send.
+   * @return {@code true} if the incoming packet's id is
+   *   {@link Packets#OPEN_CONNECTION_REQUEST_2} or {@link Packets#CONNECTION_REQUEST} or
+   *   {@link Packets#NEW_INCOMING_CONNECTION}
    */
-  private void sendConnectedPong(final long pingTime) {
-    this.createPacket(17, packet -> {
-      packet.writeByte(Packets.CONNECTED_PONG);
-      packet.writeLong(pingTime);
-      packet.writeLong(System.currentTimeMillis());
-      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
-    });
-  }
-
-  /**
-   * send the connection request accepted packet to the connection.
-   *
-   * @param time the time to send.
-   */
-  private void sendConnectionRequestAccepted(final long time) {
-    final var address = this.connection.getAddress();
-    final var ipv6 = address.getAddress() instanceof Inet6Address;
-    this.createPacket(ipv6 ? 628 : 166, packet -> {
-      packet.writeByte(Packets.CONNECTION_REQUEST_ACCEPTED);
-      Packets.writeAddress(packet, address);
-      packet.writeShort(0);
-      Arrays.stream(ipv6 ? Misc.LOCAL_IP_ADDRESSES_V6 : Misc.LOCAL_IP_ADDRESSES_V4)
-        .forEach(socketAddress -> Packets.writeAddress(packet, socketAddress));
-      packet.writeLong(time);
-      packet.writeLong(System.currentTimeMillis());
-      this.connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
-    });
-  }
-
-  /**
-   * sends the connection request failed packet to the connection.
-   */
-  private void sendConnectionRequestFailed() {
-    this.createPacket(21, packet -> {
-      packet.writeByte(Packets.CONNECTION_REQUEST_FAILED);
-      Packets.writeUnconnectedMagic(packet);
-      packet.writeLong(this.connection.getSocket().getUniqueId());
-      this.connection.sendDirect(packet);
-    });
-  }
-
-  /**
-   * sends the open connection reply 2 packet to the connection.
-   */
-  private void sendOpenConnectionReply2() {
-    this.createPacket(31, packet -> {
-      packet.writeByte(Packets.OPEN_CONNECTION_REPLY_2);
-      Packets.writeUnconnectedMagic(packet);
-      packet.writeLong(this.connection.getSocket().getUniqueId());
-      Packets.writeAddress(packet, this.connection.getAddress());
-      packet.writeShort(this.connection.getMtu());
-      packet.writeBoolean(false);
-      this.connection.sendDirect(packet);
-    });
+  private boolean onPacket(@NotNull final ByteBuf packet) {
+    final var packetId = packet.readUnsignedByte();
+    if (packetId == Packets.OPEN_CONNECTION_REQUEST_2) {
+      this.onOpenConnectionRequest2(packet);
+      return true;
+    } else if (packetId == Packets.CONNECTION_REQUEST) {
+      this.onConnectionRequest(packet);
+      return true;
+    } else if (packetId == Packets.NEW_INCOMING_CONNECTION) {
+      this.onNewIncomingConnection();
+      return true;
+    }
+    return false;
   }
 }

@@ -23,35 +23,16 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.server;
-
-import io.github.shiruka.shiruka.network.Connection;
-import io.github.shiruka.shiruka.network.ConnectionHandler;
-import io.github.shiruka.shiruka.network.NetConnection;
-import io.netty.channel.ChannelHandlerContext;
-import java.net.InetSocketAddress;
-import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+package io.github.shiruka.shiruka.network.packet;
 
 /**
- * a class that provides you to manage the connection.
+ * a class that holds packets registered by their identifying packet ID as specified in the Minecraft protocol.
  */
-final class NetServerConnection extends NetConnection<ServerSocket> {
+public final class PacketRegistry {
 
   /**
    * ctor.
-   *
-   * @param socket the socket.
-   * @param handler the handler.
-   * @param address the address.
-   * @param ctx the context.
-   * @param mtu the mtu size.
-   * @param protocolVersion the protocol version.
    */
-  NetServerConnection(@NotNull final ServerSocket socket,
-                      @NotNull final Function<Connection<ServerSocket>, ConnectionHandler> handler,
-                      @NotNull final InetSocketAddress address, @NotNull final ChannelHandlerContext ctx, final int mtu,
-                      final short protocolVersion) {
-    super(socket, handler, address, ctx, mtu, protocolVersion);
+  private PacketRegistry() {
   }
 }

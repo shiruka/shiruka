@@ -23,8 +23,10 @@
  *
  */
 
-package io.github.shiruka.shiruka.network;
+package io.github.shiruka.shiruka.network.server;
 
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.Socket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetAddress;
@@ -87,8 +89,6 @@ public interface ServerSocket extends Socket {
    * @param ctx the context to create.
    * @param mtu the mtu to create.
    * @param protocolVersion the protocol version to create.
-   *
-   * @see ServerConnectionHandler#sendConnectionReply1()
    */
   void createNewConnection(@NotNull InetSocketAddress recipient, @NotNull ChannelHandlerContext ctx, int mtu,
                            short protocolVersion);
@@ -115,7 +115,7 @@ public interface ServerSocket extends Socket {
    * @return the key is connection's address and, the value is connection itself.
    */
   @NotNull
-  Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress();
+  Map<InetSocketAddress, Connection<ServerSocket>> getConnectionsByAddress();
 
   /**
    * obtains all exception handlers.
@@ -133,6 +133,14 @@ public interface ServerSocket extends Socket {
   int getMaxConnections();
 
   /**
+   * socket's listener.
+   *
+   * @return the listener to handler socket's events.
+   */
+  @NotNull
+  ServerListener getServerListener();
+
+  /**
    * removes the given channel from the channel list.
    *
    * @param channel the channel to remove from the list.
@@ -145,8 +153,7 @@ public interface ServerSocket extends Socket {
    * @param address the address to remove.
    * @param connection the connection to remove.
    */
-  void removeConnection(@NotNull InetSocketAddress address,
-                        @NotNull Connection<ServerSocket, ServerConnectionHandler> connection);
+  void removeConnection(@NotNull InetSocketAddress address, @NotNull Connection<ServerSocket> connection);
 
   /**
    * removes the exception handler from the given id

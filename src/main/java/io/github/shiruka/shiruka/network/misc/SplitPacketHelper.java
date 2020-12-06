@@ -63,7 +63,7 @@ public final class SplitPacketHelper extends AbstractReferenceCounted {
   }
 
   @Nullable
-  public EncapsulatedPacket add(@NotNull final EncapsulatedPacket packet, @NotNull final Connection<?, ?> connection) {
+  public EncapsulatedPacket add(@NotNull final EncapsulatedPacket packet, @NotNull final Connection<?> connection) {
     if (!packet.split) {
       throw new IllegalStateException("packet is not split");
     }

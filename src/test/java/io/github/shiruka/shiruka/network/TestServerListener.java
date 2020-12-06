@@ -25,6 +25,8 @@
 package io.github.shiruka.shiruka.network;
 
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.shiruka.network.server.ServerListener;
+import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
@@ -32,19 +34,19 @@ import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that implements {@link SocketListener}.
+ * a class that implements {@link ServerListener}.
  */
-public final class TestSocketListener implements SocketListener {
+public final class TestServerListener implements ServerListener {
 
   /**
    * the singleton instance.
    */
-  static final TestSocketListener INSTANCE = new TestSocketListener();
+  static final TestServerListener INSTANCE = new TestServerListener();
 
   /**
    * ctor.
    */
-  private TestSocketListener() {
+  private TestServerListener() {
   }
 
   @Override
@@ -53,13 +55,13 @@ public final class TestSocketListener implements SocketListener {
   }
 
   @Override
-  public void onConnectionCreation(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+  public void onConnectionCreation(@NotNull final Connection<ServerSocket> connection) {
     Loggers.debug("onConnectionCreation");
   }
 
   @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
-    return SocketListener.createOne(server, "Test server description.", 0, 10);
+    return ServerListener.createOne(server, "Test server description.", 0, 10);
   }
 
   @Override

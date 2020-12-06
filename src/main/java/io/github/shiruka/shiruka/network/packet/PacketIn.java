@@ -23,35 +23,31 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.server;
+package io.github.shiruka.shiruka.network.packet;
 
 import io.github.shiruka.shiruka.network.Connection;
-import io.github.shiruka.shiruka.network.ConnectionHandler;
-import io.github.shiruka.shiruka.network.NetConnection;
-import io.netty.channel.ChannelHandlerContext;
-import java.net.InetSocketAddress;
-import java.util.function.Function;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that provides you to manage the connection.
+ * an abstract implementation for {@link Packet} that determines incoming packets.
  */
-final class NetServerConnection extends NetConnection<ServerSocket> {
+public abstract class PacketIn extends Packet {
 
   /**
    * ctor.
    *
-   * @param socket the socket.
-   * @param handler the handler.
-   * @param address the address.
-   * @param ctx the context.
-   * @param mtu the mtu size.
-   * @param protocolVersion the protocol version.
+   * @param id the id.
    */
-  NetServerConnection(@NotNull final ServerSocket socket,
-                      @NotNull final Function<Connection<ServerSocket>, ConnectionHandler> handler,
-                      @NotNull final InetSocketAddress address, @NotNull final ChannelHandlerContext ctx, final int mtu,
-                      final short protocolVersion) {
-    super(socket, handler, address, ctx, mtu, protocolVersion);
+  protected PacketIn(final int id) {
+    super(id);
   }
+
+  /**
+   * reads the buf that was sent by the injected connection.
+   *
+   * @param buf the buf to read.
+   * @param connection the connection to read.
+   */
+  public abstract void read(@NotNull ByteBuf buf, @NotNull Connection<?> connection);
 }

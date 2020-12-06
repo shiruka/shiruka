@@ -54,11 +54,13 @@ public abstract class NetSocket implements Socket {
   /**
    * the datagram channel class.
    */
+  @NotNull
   private static final Class<? extends Channel> CHANNEL;
 
   /**
    * the datagram event loop group.
    */
+  @NotNull
   private static final EventLoopGroup GROUP;
 
   /**
@@ -81,12 +83,6 @@ public abstract class NetSocket implements Socket {
    * if the socket is running or not.
    */
   private final AtomicBoolean running = new AtomicBoolean(false);
-
-  /**
-   * server's listener.
-   */
-  @NotNull
-  private final SocketListener socketListener;
 
   /**
    * server's unique id a.k.a. guid.
@@ -117,11 +113,9 @@ public abstract class NetSocket implements Socket {
    * ctor.
    *
    * @param address the address.
-   * @param socketListener the socket listener.
    */
-  protected NetSocket(@NotNull final InetSocketAddress address, @NotNull final SocketListener socketListener) {
+  protected NetSocket(@NotNull final InetSocketAddress address) {
     this.address = address;
-    this.socketListener = socketListener;
     this.bootstrap
       .option(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
       .group(NetSocket.GROUP)
@@ -141,7 +135,7 @@ public abstract class NetSocket implements Socket {
           return;
         }
         this.closed.set(false);
-        this.tickFuture = NetSocket.GROUP.scheduleAtFixedRate(this::onTick, 0, 10,
+        this.tickFuture = NetSocket.GROUP.next().scheduleAtFixedRate(this::onTick, 0, 10,
           TimeUnit.MILLISECONDS);
       }));
   }
@@ -156,12 +150,6 @@ public abstract class NetSocket implements Socket {
   @Override
   public final Bootstrap getBootstrap() {
     return this.bootstrap;
-  }
-
-  @NotNull
-  @Override
-  public final SocketListener getSocketListener() {
-    return this.socketListener;
   }
 
   @Override

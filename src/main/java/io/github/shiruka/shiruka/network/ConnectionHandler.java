@@ -44,16 +44,4 @@ public interface ConnectionHandler {
    * @param packet the packet to receive.
    */
   void onRawDatagram(@NotNull ByteBuf packet);
-
-  /**
-   * sends connected ping packet to the connection.
-   *
-   * @param pingTime the pingTime to send as ping.
-   */
-  void sendConnectedPing(long pingTime);
-
-  /**
-   * sends disconnection packet to the connection.
-   */
-  void sendDisconnectionNotification();
 }

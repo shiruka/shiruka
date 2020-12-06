@@ -25,7 +25,11 @@
 package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.api.log.Loggers;
-import io.github.shiruka.shiruka.network.*;
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.ConnectionState;
+import io.github.shiruka.shiruka.network.DisconnectReason;
+import io.github.shiruka.shiruka.network.NetSocket;
+import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.channel.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -55,8 +59,8 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   /**
    * connection's address and connection itself.
    */
-  private final ConcurrentMap<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>>
-    connectionByAddress = new ConcurrentHashMap<>();
+  private final ConcurrentMap<InetSocketAddress, Connection<ServerSocket>> connectionByAddress =
+    new ConcurrentHashMap<>();
 
   /**
    * the exception handlers.
@@ -69,32 +73,39 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   private final int maxConnections;
 
   /**
+   * server's listener.
+   */
+  @NotNull
+  private final ServerListener serverListener;
+
+  /**
    * ctor.
    *
    * @param address the address of the server
-   * @param socketListener the listener to handle custom events when a server does anything.
+   * @param serverListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
    */
-  private NetServerSocket(@NotNull final InetSocketAddress address, @NotNull final SocketListener socketListener,
+  private NetServerSocket(@NotNull final InetSocketAddress address, @NotNull final ServerListener serverListener,
                           final int maxConnections) {
-    super(address, socketListener);
+    super(address);
     this.maxConnections = maxConnections;
+    this.serverListener = serverListener;
   }
 
   /**
    * initiates and execs the server.
    *
    * @param address the address of the server
-   * @param socketListener the listener to handle custom events when a server does anything.
+   * @param serverListener the listener to handle custom events when a server does anything.
    * @param maxConnections the maximum connection to limit maximum connections for the server.
    *
    * @return a new {@link ServerSocket} instance.
    */
   @NotNull
   public static ServerSocket init(@NotNull final InetSocketAddress address,
-                                  @NotNull final SocketListener socketListener, final int maxConnections) {
+                                  @NotNull final ServerListener serverListener, final int maxConnections) {
     Loggers.debug("Initiating the server socket.");
-    final var socket = new NetServerSocket(address, socketListener, maxConnections);
+    final var socket = new NetServerSocket(address, serverListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
       Loggers.error("An exception occurred in Network system", t));
     socket.bind();
@@ -105,43 +116,43 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
    * initiates and execs the server.
    *
    * @param address the address of the server
-   * @param socketListener the listener to handle custom events when a server does anything.
+   * @param serverListener the listener to handle custom events when a server does anything.
    *
    * @return a new {@link ServerSocket} instance.
    */
   @NotNull
   public static ServerSocket init(@NotNull final InetSocketAddress address,
-                                  @NotNull final SocketListener socketListener) {
-    return NetServerSocket.init(address, socketListener, 1024);
+                                  @NotNull final ServerListener serverListener) {
+    return NetServerSocket.init(address, serverListener, 1024);
   }
 
   /**
    * initiates and execs the server.
    *
    * @param ip the ip of the server
-   * @param socketListener the listener to handle custom events when a server does anything.
+   * @param serverListener the listener to handle custom events when a server does anything.
    *
    * @return a new {@link ServerSocket} instance.
    */
   @NotNull
-  public static ServerSocket init(@NotNull final String ip, @NotNull final SocketListener socketListener) {
-    return NetServerSocket.init(new InetSocketAddress(ip, 19132), socketListener);
+  public static ServerSocket init(@NotNull final String ip, @NotNull final ServerListener serverListener) {
+    return NetServerSocket.init(new InetSocketAddress(ip, 19132), serverListener);
   }
 
   /**
    * initiates and execs the server.
    *
-   * @param socketListener the listener to handle custom events when a server does anything.
+   * @param serverListener the listener to handle custom events when a server does anything.
    *
    * @return a new {@link ServerSocket} instance.
    */
   @NotNull
-  public static ServerSocket init(@NotNull final SocketListener socketListener) {
-    return NetServerSocket.init("127.0.0.1", socketListener);
+  public static ServerSocket init(@NotNull final ServerListener serverListener) {
+    return NetServerSocket.init("127.0.0.1", serverListener);
   }
 
   @Override
-  public void addChannel(final @NotNull Channel channel) {
+  public void addChannel(@NotNull final Channel channel) {
     this.channels.add(channel);
   }
 
@@ -167,8 +178,8 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
       protocolVersion);
     connection.setState(ConnectionState.INITIALIZING);
     if (this.connectionByAddress.putIfAbsent(recipient, connection) == null) {
-      connection.getConnectionHandler().sendConnectionReply1();
-      this.getSocketListener().onConnectionCreation(connection);
+      Packets.sendConnectionReply1(connection);
+      this.getServerListener().onConnectionCreation(connection);
     }
   }
 
@@ -186,7 +197,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
 
   @NotNull
   @Override
-  public Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress() {
+  public Map<InetSocketAddress, Connection<ServerSocket>> getConnectionsByAddress() {
     return Collections.unmodifiableMap(this.connectionByAddress);
   }
 
@@ -201,6 +212,12 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
     return this.maxConnections;
   }
 
+  @NotNull
+  @Override
+  public final ServerListener getServerListener() {
+    return this.serverListener;
+  }
+
   @Override
   public void removeChannel(@NotNull final Channel channel) {
     this.channels.remove(channel);
@@ -208,7 +225,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
 
   @Override
   public void removeConnection(@NotNull final InetSocketAddress address,
-                               @NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+                               @NotNull final Connection<ServerSocket> connection) {
     this.connectionByAddress.remove(address, connection);
   }
 
@@ -238,7 +255,14 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
     Loggers.debug("Binding the server.");
     final var completableFuture = new CompletableFuture<>();
     this.getBootstrap()
-      .handler(new NetServerSocketHandler(this))
+      .handler(new ChannelInitializer<>() {
+        @Override
+        protected void initChannel(final Channel ch) {
+          ch.pipeline()
+            .addLast(new NetServerInboundHandler(NetServerSocket.this))
+            .addLast(new NetServerOutboundHandler(NetServerSocket.this));
+        }
+      })
       .bind(this.getAddress())
       .addListener((ChannelFutureListener) future -> {
         if (future.cause() != null) {

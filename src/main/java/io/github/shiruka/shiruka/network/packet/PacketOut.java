@@ -23,15 +23,29 @@
  *
  */
 
-package io.github.shiruka.shiruka.network;
+package io.github.shiruka.shiruka.network.packet;
+
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that handles packets.
+ * an abstract implementation for {@link Packet} that determines outgoing packets.
  */
-public interface ServerConnectionHandler extends ConnectionHandler {
+public abstract class PacketOut extends Packet {
 
   /**
-   * sends connection reply 1 packet to the connection's address.
+   * ctor.
+   *
+   * @param id the id.
    */
-  void sendConnectionReply1();
+  protected PacketOut(final int id) {
+    super(id);
+  }
+
+  /**
+   * writes the buf of a client-bound buf.
+   *
+   * @param buf the buf to write.
+   */
+  public abstract void write(@NotNull ByteBuf buf);
 }

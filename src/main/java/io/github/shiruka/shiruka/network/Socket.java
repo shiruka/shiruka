@@ -100,14 +100,6 @@ public interface Socket extends Closeable {
   Bootstrap getBootstrap();
 
   /**
-   * socket's listener.
-   *
-   * @return the listener to handler socket's events.
-   */
-  @NotNull
-  SocketListener getSocketListener();
-
-  /**
    * socket's the unique id.
    *
    * @return the unique id to determine the socket.

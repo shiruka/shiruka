@@ -25,18 +25,20 @@
 
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.shiruka.network.ServerSocket;
 import io.github.shiruka.shiruka.network.util.Packets;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageDecoder;
+import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple server datagram handler.
  */
-final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
+@ChannelHandler.Sharable
+final class NetServerInboundHandler extends MessageToMessageDecoder<DatagramPacket> {
 
   /**
    * the server socket instance.
@@ -49,36 +51,8 @@ final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
    *
    * @param server the server socket.
    */
-  NetServerSocketHandler(@NotNull final ServerSocket server) {
+  NetServerInboundHandler(@NotNull final ServerSocket server) {
     this.server = server;
-  }
-
-  @Override
-  public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    if (!(msg instanceof DatagramPacket)) {
-      return;
-    }
-    final var datagram = (DatagramPacket) msg;
-    final var sender = datagram.sender();
-    if (this.server.getBlockedAddresses().containsKey(sender.getAddress())) {
-      return;
-    }
-    try {
-      final var content = datagram.content();
-      if (!content.isReadable()) {
-        return;
-      }
-      if (Packets.handleNoConnectionPackets(ctx, this.server, datagram)) {
-        return;
-      }
-      content.readerIndex(0);
-      Optional.ofNullable(this.server.getConnectionsByAddress().get(sender))
-        .ifPresent(connection -> connection.getConnectionHandler().onRawDatagram(content));
-      content.readerIndex(0);
-      this.server.getSocketListener().onUnhandledDatagram(this.server, ctx, datagram);
-    } finally {
-      datagram.release();
-    }
   }
 
   @Override
@@ -90,5 +64,25 @@ final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void handlerAdded(final ChannelHandlerContext ctx) {
     this.server.addChannel(ctx.channel());
+  }
+
+  @Override
+  protected void decode(final ChannelHandlerContext ctx, final DatagramPacket datagram, final List<Object> out) {
+    final var sender = datagram.sender();
+    if (this.server.getBlockedAddresses().containsKey(sender.getAddress())) {
+      return;
+    }
+    final var content = datagram.content();
+    if (!content.isReadable()) {
+      return;
+    }
+    if (Packets.handleNoConnectionPackets(ctx, this.server, datagram)) {
+      return;
+    }
+    content.readerIndex(0);
+    Optional.ofNullable(this.server.getConnectionsByAddress().get(sender))
+      .ifPresent(con -> con.getConnectionHandler().onRawDatagram(content));
+    content.readerIndex(0);
+    this.server.getServerListener().onUnhandledDatagram(this.server, ctx, datagram);
   }
 }

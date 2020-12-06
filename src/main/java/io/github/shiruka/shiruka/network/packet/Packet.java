@@ -23,35 +23,34 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.server;
-
-import io.github.shiruka.shiruka.network.Connection;
-import io.github.shiruka.shiruka.network.ConnectionHandler;
-import io.github.shiruka.shiruka.network.NetConnection;
-import io.netty.channel.ChannelHandlerContext;
-import java.net.InetSocketAddress;
-import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+package io.github.shiruka.shiruka.network.packet;
 
 /**
- * a class that provides you to manage the connection.
+ * an abstract class to determine packets.
  */
-final class NetServerConnection extends NetConnection<ServerSocket> {
+public abstract class Packet {
+
+  /**
+   * the id.
+   */
+  private final int id;
 
   /**
    * ctor.
    *
-   * @param socket the socket.
-   * @param handler the handler.
-   * @param address the address.
-   * @param ctx the context.
-   * @param mtu the mtu size.
-   * @param protocolVersion the protocol version.
+   * @param id the id.
    */
-  NetServerConnection(@NotNull final ServerSocket socket,
-                      @NotNull final Function<Connection<ServerSocket>, ConnectionHandler> handler,
-                      @NotNull final InetSocketAddress address, @NotNull final ChannelHandlerContext ctx, final int mtu,
-                      final short protocolVersion) {
-    super(socket, handler, address, ctx, mtu, protocolVersion);
+  protected Packet(final int id) {
+    // TODO Get packet id from the PacketRegistry.
+    this.id = id;
+  }
+
+  /**
+   * obtains id of the packet.
+   *
+   * @return the packet id.
+   */
+  public final int id() {
+    return this.id;
   }
 }

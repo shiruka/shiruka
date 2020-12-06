@@ -26,8 +26,12 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.log.Loggers;
-import io.github.shiruka.shiruka.network.*;
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.ConnectionListener;
+import io.github.shiruka.shiruka.network.ConnectionState;
+import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
+import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,10 +40,18 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ShirukaConnectionListener implements ConnectionListener {
 
+  /**
+   * the connection.
+   */
   @NotNull
-  private final Connection<ServerSocket, ServerConnectionHandler> connection;
+  private final Connection<ServerSocket> connection;
 
-  public ShirukaConnectionListener(@NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+  /**
+   * ctor.
+   *
+   * @param connection the connection.
+   */
+  ShirukaConnectionListener(@NotNull final Connection<ServerSocket> connection) {
     this.connection = connection;
   }
 

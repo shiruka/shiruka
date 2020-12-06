@@ -413,11 +413,6 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
   }
 
   @Override
-  public void onWrappedPacket(@NotNull final ByteBuf packet) {
-    // TODO Continue to development here.
-  }
-
-  @Override
   public final void reset() {
     this.cache.reset();
   }

@@ -30,6 +30,11 @@ package io.github.shiruka.shiruka.network.util;
  */
 public final class Constants {
 
+  /**
+   * the batch magic.
+   */
+  public static final int BATCH_MAGIC = 0xfe;
+
   public static final long CC_ADDITIONAL_VARIANCE = 30;
 
   public static final long CC_MAXIMUM_THRESHOLD = 2000;

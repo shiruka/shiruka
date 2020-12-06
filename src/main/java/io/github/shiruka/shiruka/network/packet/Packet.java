@@ -44,6 +44,7 @@ public abstract class Packet {
    * @param id the id.
    */
   protected Packet(final int id) {
+    // TODO Get packet id from the PacketRegistry.
     this.id = id;
   }
 

@@ -22,17 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.network.packet;
-
 /**
- * a class that controls packets if they can able to send or receive.
+ * the package that contains packet implementation of the network system.
  */
-public final class PacketController {
-
-  /**
-   * ctor.
-   */
-  private PacketController() {
-  }
-}
+package io.github.shiruka.shiruka.network.packets;

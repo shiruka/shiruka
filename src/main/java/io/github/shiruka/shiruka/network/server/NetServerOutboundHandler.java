@@ -27,13 +27,11 @@ package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple server datagram handler.

@@ -76,16 +76,12 @@ final class NetServerInboundHandler extends MessageToMessageDecoder<DatagramPack
     if (!content.isReadable()) {
       return;
     }
-    final var connection =
-      Optional.ofNullable(this.server.getConnectionsByAddress().get(sender));
-    if (connection.isPresent()) {
-    } else {
-    }
     if (Packets.handleNoConnectionPackets(ctx, this.server, datagram)) {
       return;
     }
     content.readerIndex(0);
-    connection.ifPresent(con -> con.getConnectionHandler().onRawDatagram(content));
+    Optional.ofNullable(this.server.getConnectionsByAddress().get(sender))
+      .ifPresent(con -> con.getConnectionHandler().onRawDatagram(content));
     content.readerIndex(0);
     this.server.getServerListener().onUnhandledDatagram(this.server, ctx, datagram);
   }

@@ -70,6 +70,25 @@ public final class ShirukaConnectionListener implements ConnectionListener {
     this.connection = connection;
   }
 
+  /**
+   * handles the given buffer packet.
+   *
+   * @param buffer the buffer to handler
+   * @param skippablePosition the skippable position to handle.
+   *
+   * @return handled packet's id.
+   */
+  private static int handlePacket(@NotNull final ByteBuf buffer, final int skippablePosition) {
+    final int rawId = VarInts.readUnsignedVarInt(buffer);
+    final int packetId = rawId & 0x3FF;
+    if (packetId == Constants.BATCH_MAGIC) {
+      Loggers.error("Malformed batch packet payload: Batch packets are not allowed to contain further batch packets!");
+      return packetId;
+    }
+    System.out.println("pure packet id -> " + packetId);
+    return packetId;
+  }
+
   @Override
   public void onDirect(@NotNull final ByteBuf packet) {
     Loggers.debug("onDirect");
@@ -87,20 +106,24 @@ public final class ShirukaConnectionListener implements ConnectionListener {
     if (buffer.readableBytes() <= 0) {
       return;
     }
-    final var packetId = buffer.readUnsignedByte();
+    final var packetId = buffer.readByte();
+    System.out.println("packet id -> " + packetId);
     if (packetId != Constants.BATCH_MAGIC) {
       buffer.readerIndex(0);
       return;
     }
+    System.out.println("test1");
     final var purePacket = this.inputProcessor.process(buffer);
     if (purePacket.readableBytes() <= 0) {
       return;
     }
+    System.out.println("test2");
     try {
       while (purePacket.readableBytes() > 0) {
+        System.out.println("test3");
         final int packetLength = VarInts.readUnsignedVarInt(purePacket);
         final int currentIndex = purePacket.readerIndex();
-        final var packetID = this.handlePacket(purePacket, currentIndex + packetLength);
+        final var packetID = ShirukaConnectionListener.handlePacket(purePacket, currentIndex + packetLength);
         final var consumedByPacket = purePacket.readerIndex() - currentIndex;
         if (consumedByPacket != packetLength) {
           final int remaining = packetLength - consumedByPacket;
@@ -117,24 +140,5 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   @Override
   public void onStateChanged(@NotNull final ConnectionState old, @NotNull final ConnectionState state) {
     Loggers.debug("onStateChanged");
-  }
-
-  /**
-   * handles the given buffer packet.
-   *
-   * @param buffer the buffer to handler
-   * @param skippablePosition the skippable position to handle.
-   *
-   * @return handled packet's id.
-   */
-  private int handlePacket(@NotNull final ByteBuf buffer, final int skippablePosition) {
-    final int rawId = VarInts.readUnsignedVarInt(buffer);
-    final int packetId = rawId & 0x3FF;
-    if (packetId == Constants.BATCH_MAGIC) {
-      Loggers.error("Malformed batch packet payload: Batch packets are not allowed to contain further batch packets!");
-      return packetId;
-    }
-    System.out.println(packetId);
-    return packetId;
   }
 }

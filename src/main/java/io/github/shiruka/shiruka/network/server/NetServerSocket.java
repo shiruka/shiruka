@@ -238,7 +238,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
     Loggers.debug("Binding the server.");
     final var completableFuture = new CompletableFuture<>();
     this.getBootstrap()
-      .handler(new NetServerSocketHandler(this))
+      .handler(new NetServerSocketInboundHandler(this))
       .bind(this.getAddress())
       .addListener((ChannelFutureListener) future -> {
         if (future.cause() != null) {

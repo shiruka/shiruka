@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a simple server datagram handler.
  */
-final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
+final class NetServerSocketInboundHandler extends ChannelInboundHandlerAdapter {
 
   /**
    * the server socket instance.
@@ -49,7 +49,7 @@ final class NetServerSocketHandler extends ChannelInboundHandlerAdapter {
    *
    * @param server the server socket.
    */
-  NetServerSocketHandler(@NotNull final ServerSocket server) {
+  NetServerSocketInboundHandler(@NotNull final ServerSocket server) {
     this.server = server;
   }
 

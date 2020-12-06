@@ -64,7 +64,6 @@ public final class ShirukaServerListener implements ServerListener {
   @Override
   public void onConnectionCreation(@NotNull final Connection<ServerSocket> connection) {
     connection.setConnectionListener(new ShirukaConnectionListener(connection));
-    Loggers.debug("onConnectionCreation");
   }
 
   @Override

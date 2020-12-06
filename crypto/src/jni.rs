@@ -59,7 +59,7 @@ fn get_class(env: &JNIEnv, class: &str) -> Option<GlobalRef> {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_createNewContext(_env: JNIEnv, _class: JClass, encryption_mode_toggle: jboolean) -> jlong {
+pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProceed_createNewContext(_env: JNIEnv, _class: JClass, encryption_mode_toggle: jboolean) -> jlong {
   let ctx = Box::new(Context {
     encryption_mode_toggle: encryption_mode_toggle != 0,
     debug: false,
@@ -81,7 +81,7 @@ pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_cr
 }
 
 #[no_mangle]
-pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_enableCrypto(env: JNIEnv, _class: JClass, ctx: jlong, key: jbyteArray, iv: jbyteArray) {
+pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProceed_enableCrypto(env: JNIEnv, _class: JClass, ctx: jlong, key: jbyteArray, iv: jbyteArray) {
   let key_vec = env.convert_byte_array(key).unwrap();
   let iv_vec = env.convert_byte_array(iv).unwrap();
 
@@ -92,27 +92,27 @@ pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_en
 }
 
 #[no_mangle]
-pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_destroyContext(_env: JNIEnv, _class: JClass, ctx: jlong) {
+pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProceed_destroyContext(_env: JNIEnv, _class: JClass, ctx: jlong) {
   let raw_ptr = ctx as *mut Context;
   mem::drop(raw_ptr)
 }
 
 #[no_mangle]
-pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_debug(_env: JNIEnv, _class: JClass, ctx: jlong, debug_mode: jboolean) {
+pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProceed_debug(_env: JNIEnv, _class: JClass, ctx: jlong, debug_mode: jboolean) {
   let raw_ptr = ctx as *mut Context;
   let context: &mut Context = unsafe { raw_ptr.as_mut().unwrap() };
   context.debug = debug_mode != 0;
 }
 
 #[no_mangle]
-pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_preallocateSize(_env: JNIEnv, _class: JClass, ctx: jlong, preallocate_size: jint) {
+pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProceed_preallocateSize(_env: JNIEnv, _class: JClass, ctx: jlong, preallocate_size: jint) {
   let raw_ptr = ctx as *mut Context;
   let context: &mut Context = unsafe { raw_ptr.as_mut().unwrap() };
   context.preallocate_size = preallocate_size as usize;
 }
 
 #[no_mangle]
-pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProcessor_process(env: JNIEnv, _class: JClass, ctx: jlong, memory_pointer: jobject) -> jobject {
+pub extern "system" fn Java_io_github_shiruka_shiruka_natives_NativeProceed_process(env: JNIEnv, _class: JClass, ctx: jlong, memory_pointer: jobject) -> jobject {
   let res_mem_address = env.call_method(memory_pointer, "getAddress", "()J", &[]);
   let mem_address: i64 = res_mem_address.unwrap().j().unwrap();
 

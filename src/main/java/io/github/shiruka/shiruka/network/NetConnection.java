@@ -70,6 +70,11 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   private final Channel channel;
 
   /**
+   * close status for connection.
+   */
+  private final AtomicInteger closed = new AtomicInteger(0);
+
+  /**
    * the connection handler instance.
    */
   @NotNull
@@ -164,11 +169,6 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
   private int adjustedMtu;
 
   /**
-   * close status for connection.
-   */
-  private volatile byte closed = 0;
-
-  /**
    * the connection listener instance.
    */
   @Nullable
@@ -222,8 +222,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @Override
   public final void close(@NotNull final DisconnectReason reason) {
-    if (!this.isClosed()) {
-      this.closed = 1;
+    if (!this.closed.compareAndSet(0, 1)) {
       return;
     }
     this.eventLoop.execute(() -> {
@@ -401,7 +400,7 @@ public abstract class NetConnection<S extends Socket, H extends ConnectionHandle
 
   @Override
   public final boolean isClosed() {
-    return this.closed == 1;
+    return this.closed.get() == 1;
   }
 
   @Override

@@ -48,12 +48,6 @@ final class NetServerOutboundHandler extends MessageToMessageEncoder<PacketOut> 
   private final ServerSocket server;
 
   /**
-   * the latest decrypted buffer.
-   */
-  @Nullable
-  private ByteBuf lastDecrypted;
-
-  /**
    * ctor.
    *
    * @param server the server socket.

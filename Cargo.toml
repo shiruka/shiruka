@@ -15,6 +15,7 @@ libdeflater = "0.7.1"
 
 [lib]
 crate-type = ["cdylib"]
+path = "crypto/src/lib.rs"
 
 [profile.release]
 opt-level = 3

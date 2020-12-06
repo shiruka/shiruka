@@ -27,8 +27,8 @@ package io.github.shiruka.shiruka.network.util;
 
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.misc.Optionals;
-import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.Socket;
+import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -153,6 +153,116 @@ public final class Packets {
   }
 
   /**
+   * sends connected ping packet to the connection.
+   *
+   * @param connection the connection to send.
+   * @param pingTime the pingTime to send as ping.
+   */
+  public static void sendConnectedPing(@NotNull final Connection<?> connection, final long pingTime) {
+    Packets.createPacket(connection, 9, packet -> {
+      packet.writeByte(Packets.CONNECTED_PING);
+      packet.writeLong(pingTime);
+      connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
+      connection.getCurrentPingTime().set(pingTime);
+    });
+  }
+
+  /**
+   * send a connected pong packet to the connection.
+   *
+   * @param connection the connection to send.
+   * @param pingTime the pint time to send.
+   */
+  public static void sendConnectedPong(@NotNull final Connection<?> connection, final long pingTime) {
+    Packets.createPacket(connection, 17, packet -> {
+      packet.writeByte(Packets.CONNECTED_PONG);
+      packet.writeLong(pingTime);
+      packet.writeLong(System.currentTimeMillis());
+      connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
+    });
+  }
+
+  /**
+   * sends connection reply 1 packet to the connection's address.
+   *
+   * @param connection the connection to send.
+   */
+  public static void sendConnectionReply1(@NotNull final Connection<?> connection) {
+    Packets.createPacket(connection, 28, newPacket -> {
+      newPacket.writeByte(Packets.OPEN_CONNECTION_REPLY_1);
+      Packets.writeUnconnectedMagic(newPacket);
+      newPacket.writeLong(connection.getSocket().getUniqueId());
+      newPacket.writeBoolean(false);
+      newPacket.writeShort(connection.getMtu());
+      connection.sendDirect(newPacket);
+    });
+  }
+
+  /**
+   * send the connection request accepted packet to the connection.
+   *
+   * @param connection the connection to send.
+   * @param time the time to send.
+   */
+  public static void sendConnectionRequestAccepted(@NotNull final Connection<?> connection, final long time) {
+    final var address = connection.getAddress();
+    final var ipv6 = address.getAddress() instanceof Inet6Address;
+    Packets.createPacket(connection, ipv6 ? 628 : 166, packet -> {
+      packet.writeByte(Packets.CONNECTION_REQUEST_ACCEPTED);
+      Packets.writeAddress(packet, address);
+      packet.writeShort(0);
+      Arrays.stream(ipv6 ? Misc.LOCAL_IP_ADDRESSES_V6 : Misc.LOCAL_IP_ADDRESSES_V4)
+        .forEach(socketAddress -> Packets.writeAddress(packet, socketAddress));
+      packet.writeLong(time);
+      packet.writeLong(System.currentTimeMillis());
+      connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE);
+    });
+  }
+
+  /**
+   * sends the connection request failed packet to the connection.
+   *
+   * @param connection the connection to send.
+   */
+  public static void sendConnectionRequestFailed(@NotNull final Connection<?> connection) {
+    Packets.createPacket(connection, 21, packet -> {
+      packet.writeByte(Packets.CONNECTION_REQUEST_FAILED);
+      Packets.writeUnconnectedMagic(packet);
+      packet.writeLong(connection.getSocket().getUniqueId());
+      connection.sendDirect(packet);
+    });
+  }
+
+  /**
+   * sends disconnection packet to the connection.
+   *
+   * @param connection the connection to send.
+   */
+  public static void sendDisconnectionNotification(@NotNull final Connection<?> connection) {
+    Packets.createPacket(connection, 1, packet -> {
+      packet.writeByte(Packets.DISCONNECTION_NOTIFICATION);
+      connection.sendDecent(packet, PacketPriority.IMMEDIATE, PacketReliability.RELIABLE_ORDERED);
+    });
+  }
+
+  /**
+   * sends the open connection reply 2 packet to the connection.
+   *
+   * @param connection the connection to send.
+   */
+  public static void sendOpenConnectionReply2(@NotNull final Connection<?> connection) {
+    Packets.createPacket(connection, 31, packet -> {
+      packet.writeByte(Packets.OPEN_CONNECTION_REPLY_2);
+      Packets.writeUnconnectedMagic(packet);
+      packet.writeLong(connection.getSocket().getUniqueId());
+      Packets.writeAddress(packet, connection.getAddress());
+      packet.writeShort(connection.getMtu());
+      packet.writeBoolean(false);
+      connection.sendDirect(packet);
+    });
+  }
+
+  /**
    * verifies the magic numbers from the byte array.
    *
    * @param buffer the buffer to check.
@@ -224,6 +334,17 @@ public final class Packets {
   }
 
   /**
+   * creates a packet from the given size and runs the given packet consumer.
+   *
+   * @param size the size to create.
+   * @param packet the packet to run.
+   */
+  private static void createPacket(@NotNull final Connection<?> connection, final int size,
+                                   @NotNull final Consumer<ByteBuf> packet) {
+    Optionals.useAndGet(connection.allocateBuffer(size), packet);
+  }
+
+  /**
    * handles open connection request 1 packet.
    *
    * @param ctx the context to handle.
@@ -272,7 +393,7 @@ public final class Packets {
       return;
     }
     if (connection != null) {
-      connection.getConnectionHandler().sendConnectionReply1();
+      Packets.sendConnectionReply1(connection);
       return;
     }
     server.createNewConnection(recipient, ctx, mtu, protocolVersion);

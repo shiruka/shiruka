@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.packet;
 
 import io.github.shiruka.shiruka.network.Connection;
-import io.github.shiruka.shiruka.network.server.ServerConnectionHandler;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.channel.socket.DatagramPacket;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +50,5 @@ public abstract class PacketIn extends Packet {
    * @param packet the packet to read.
    * @param connection the connection to read.
    */
-  public abstract void read(@NotNull DatagramPacket packet,
-                            @NotNull Connection<ServerSocket, ServerConnectionHandler> connection);
+  public abstract void read(@NotNull DatagramPacket packet, @NotNull Connection<ServerSocket> connection);
 }

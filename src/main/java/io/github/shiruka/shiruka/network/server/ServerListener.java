@@ -105,7 +105,7 @@ public interface ServerListener {
    *
    * @param connection the connection.
    */
-  void onConnectionCreation(@NotNull Connection<ServerSocket, ServerConnectionHandler> connection);
+  void onConnectionCreation(@NotNull Connection<ServerSocket> connection);
 
   /**
    * runs before sending a ping packet to the client.

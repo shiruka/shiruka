@@ -29,6 +29,7 @@ import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.NetSocket;
+import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.channel.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -58,8 +59,8 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   /**
    * connection's address and connection itself.
    */
-  private final ConcurrentMap<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>>
-    connectionByAddress = new ConcurrentHashMap<>();
+  private final ConcurrentMap<InetSocketAddress, Connection<ServerSocket>> connectionByAddress =
+    new ConcurrentHashMap<>();
 
   /**
    * the exception handlers.
@@ -177,7 +178,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
       protocolVersion);
     connection.setState(ConnectionState.INITIALIZING);
     if (this.connectionByAddress.putIfAbsent(recipient, connection) == null) {
-      connection.getConnectionHandler().sendConnectionReply1();
+      Packets.sendConnectionReply1(connection);
       this.getServerListener().onConnectionCreation(connection);
     }
   }
@@ -196,7 +197,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
 
   @NotNull
   @Override
-  public Map<InetSocketAddress, Connection<ServerSocket, ServerConnectionHandler>> getConnectionsByAddress() {
+  public Map<InetSocketAddress, Connection<ServerSocket>> getConnectionsByAddress() {
     return Collections.unmodifiableMap(this.connectionByAddress);
   }
 
@@ -224,7 +225,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
 
   @Override
   public void removeConnection(@NotNull final InetSocketAddress address,
-                               @NotNull final Connection<ServerSocket, ServerConnectionHandler> connection) {
+                               @NotNull final Connection<ServerSocket> connection) {
     this.connectionByAddress.remove(address, connection);
   }
 

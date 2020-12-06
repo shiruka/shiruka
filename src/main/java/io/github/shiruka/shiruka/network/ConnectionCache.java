@@ -49,7 +49,7 @@ public final class ConnectionCache {
    * the connection instance.
    */
   @NotNull
-  private final Connection<?, ?> connection;
+  private final Connection<?> connection;
 
   /**
    * incoming ACK packets.
@@ -150,7 +150,7 @@ public final class ConnectionCache {
    *
    * @param connection the connection instance.
    */
-  ConnectionCache(@NotNull final Connection<?, ?> connection) {
+  ConnectionCache(@NotNull final Connection<?> connection) {
     this.connection = connection;
   }
 

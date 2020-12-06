@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.ConnectionHandler;
 import io.github.shiruka.shiruka.network.NetConnection;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
@@ -35,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that provides you to manage the connection.
  */
-final class NetServerConnection extends NetConnection<ServerSocket, ServerConnectionHandler> {
+final class NetServerConnection extends NetConnection<ServerSocket> {
 
   /**
    * ctor.
@@ -48,7 +49,7 @@ final class NetServerConnection extends NetConnection<ServerSocket, ServerConnec
    * @param protocolVersion the protocol version.
    */
   NetServerConnection(@NotNull final ServerSocket socket,
-                      @NotNull final Function<Connection<ServerSocket, ServerConnectionHandler>, ServerConnectionHandler> handler,
+                      @NotNull final Function<Connection<ServerSocket>, ConnectionHandler> handler,
                       @NotNull final InetSocketAddress address, @NotNull final ChannelHandlerContext ctx, final int mtu,
                       final short protocolVersion) {
     super(socket, handler, address, ctx, mtu, protocolVersion);

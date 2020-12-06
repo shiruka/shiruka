@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that provides the connections between server and client.
  */
-public interface Connection<S extends Socket, H extends ConnectionHandler> extends AutoCloseable {
+public interface Connection<S extends Socket> extends AutoCloseable {
 
   /**
    * obtains a byte buffer instance from the given capacity.
@@ -112,7 +112,7 @@ public interface Connection<S extends Socket, H extends ConnectionHandler> exten
    * @return the listener to handle connection's events.
    */
   @NotNull
-  H getConnectionHandler();
+  ConnectionHandler getConnectionHandler();
 
   /**
    * obtains the connection's listener.

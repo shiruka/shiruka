@@ -23,8 +23,10 @@
  *
  */
 
-package io.github.shiruka.shiruka.network;
+package io.github.shiruka.shiruka.network.server;
 
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.Socket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetAddress;

@@ -27,8 +27,6 @@ package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.NetConnection;
-import io.github.shiruka.shiruka.network.ServerConnectionHandler;
-import io.github.shiruka.shiruka.network.ServerSocket;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
 import java.util.function.Function;

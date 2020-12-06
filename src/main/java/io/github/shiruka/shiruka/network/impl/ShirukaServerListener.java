@@ -28,9 +28,9 @@ package io.github.shiruka.shiruka.network.impl;
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.Connection;
-import io.github.shiruka.shiruka.network.ServerConnectionHandler;
-import io.github.shiruka.shiruka.network.ServerSocket;
-import io.github.shiruka.shiruka.network.SocketListener;
+import io.github.shiruka.shiruka.network.server.ServerConnectionHandler;
+import io.github.shiruka.shiruka.network.server.ServerSocket;
+import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
@@ -38,9 +38,9 @@ import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link SocketListener}.
+ * an implementation for {@link ServerListener}.
  */
-public final class ShirukaSocketListener implements SocketListener {
+public final class ShirukaServerListener implements ServerListener {
 
   /**
    * the server instance.
@@ -53,7 +53,7 @@ public final class ShirukaSocketListener implements SocketListener {
    *
    * @param server the server.
    */
-  public ShirukaSocketListener(@NotNull final Server server) {
+  public ShirukaServerListener(@NotNull final Server server) {
     this.server = server;
   }
 
@@ -70,7 +70,7 @@ public final class ShirukaSocketListener implements SocketListener {
 
   @Override
   public byte[] onRequestServerData(@NotNull final ServerSocket server, @NotNull final InetSocketAddress requester) {
-    return SocketListener.createOne(server, this.server.getServerDescription(), this.server.getPlayerCount(),
+    return ServerListener.createOne(server, this.server.getServerDescription(), this.server.getPlayerCount(),
       this.server.getMaxPlayerCount());
   }
 

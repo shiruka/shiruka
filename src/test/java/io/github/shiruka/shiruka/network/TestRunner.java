@@ -55,7 +55,7 @@ public final class TestRunner {
     if (logs != null) {
       Arrays.stream(logs).forEach(File::delete);
     }
-    NetServerSocket.init(TestSocketListener.INSTANCE);
+    NetServerSocket.init(TestServerListener.INSTANCE);
     while (true) {
       Thread.sleep(10L);
     }

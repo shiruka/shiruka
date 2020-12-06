@@ -26,6 +26,7 @@ package io.github.shiruka.shiruka.network;
 
 import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
+import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
@@ -88,7 +89,7 @@ public abstract class NetSocket implements Socket {
    * server's listener.
    */
   @NotNull
-  private final SocketListener socketListener;
+  private final ServerListener serverListener;
 
   /**
    * server's unique id a.k.a. guid.
@@ -119,11 +120,11 @@ public abstract class NetSocket implements Socket {
    * ctor.
    *
    * @param address the address.
-   * @param socketListener the socket listener.
+   * @param serverListener the socket listener.
    */
-  protected NetSocket(@NotNull final InetSocketAddress address, @NotNull final SocketListener socketListener) {
+  protected NetSocket(@NotNull final InetSocketAddress address, @NotNull final ServerListener serverListener) {
     this.address = address;
-    this.socketListener = socketListener;
+    this.serverListener = serverListener;
     this.bootstrap
       .option(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
       .group(NetSocket.GROUP)
@@ -162,8 +163,8 @@ public abstract class NetSocket implements Socket {
 
   @NotNull
   @Override
-  public final SocketListener getSocketListener() {
-    return this.socketListener;
+  public final ServerListener getSocketListener() {
+    return this.serverListener;
   }
 
   @Override

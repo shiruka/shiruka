@@ -23,7 +23,9 @@
  *
  */
 
-package io.github.shiruka.shiruka.network;
+package io.github.shiruka.shiruka.network.server;
+
+import io.github.shiruka.shiruka.network.ConnectionHandler;
 
 /**
  * a class that handles packets.

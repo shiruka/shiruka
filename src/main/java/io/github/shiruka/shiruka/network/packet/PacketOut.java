@@ -25,6 +25,9 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * an abstract implementation for {@link Packet} that determines outgoing packets.
  */
@@ -38,4 +41,11 @@ public abstract class PacketOut extends Packet {
   protected PacketOut(final int id) {
     super(id);
   }
+
+  /**
+   * writes the buf of a client-bound buf.
+   *
+   * @param buf the buf to write.
+   */
+  public abstract void write(@NotNull ByteBuf buf);
 }

@@ -22,8 +22,9 @@
  * SOFTWARE.
  *
  */
-package io.github.shiruka.shiruka.network;
+package io.github.shiruka.shiruka.network.server;
 
+import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -35,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a socket listener to handle custom events.
  */
-public interface SocketListener {
+public interface ServerListener {
 
   /**
    * creates a simple server data.
@@ -112,8 +113,8 @@ public interface SocketListener {
    * @param server the server.
    * @param requester the requester .
    *
-   * @return a server data. the byte array must be like {@link SocketListener#exampleServerData()}.
-   *   Use {@link SocketListener#createOne(ServerSocket, String, int, int)}.
+   * @return a server data. the byte array must be like {@link ServerListener#exampleServerData()}.
+   *   Use {@link ServerListener#createOne(ServerSocket, String, int, int)}.
    */
   byte[] onRequestServerData(@NotNull ServerSocket server, @NotNull InetSocketAddress requester);
 

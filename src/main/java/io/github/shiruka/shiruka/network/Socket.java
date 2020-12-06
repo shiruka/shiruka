@@ -24,6 +24,7 @@
  */
 package io.github.shiruka.shiruka.network;
 
+import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -105,7 +106,7 @@ public interface Socket extends Closeable {
    * @return the listener to handler socket's events.
    */
   @NotNull
-  SocketListener getSocketListener();
+  ServerListener getSocketListener();
 
   /**
    * socket's the unique id.

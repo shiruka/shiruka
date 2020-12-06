@@ -25,18 +25,21 @@
 
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.shiruka.network.ServerSocket;
-import io.github.shiruka.shiruka.network.util.Packets;
+import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.socket.DatagramPacket;
-import java.util.Optional;
+import io.netty.handler.codec.MessageToMessageEncoder;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple server datagram handler.
  */
-final class NetServerSocketInboundHandler extends ChannelInboundHandlerAdapter {
+@ChannelHandler.Sharable
+final class NetServerOutboundHandler extends MessageToMessageEncoder<PacketOut> {
 
   /**
    * the server socket instance.
@@ -45,40 +48,23 @@ final class NetServerSocketInboundHandler extends ChannelInboundHandlerAdapter {
   private final ServerSocket server;
 
   /**
+   * the latest decrypted buffer.
+   */
+  @Nullable
+  private ByteBuf lastDecrypted;
+
+  /**
    * ctor.
    *
    * @param server the server socket.
    */
-  NetServerSocketInboundHandler(@NotNull final ServerSocket server) {
+  NetServerOutboundHandler(@NotNull final ServerSocket server) {
     this.server = server;
   }
 
   @Override
-  public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    if (!(msg instanceof DatagramPacket)) {
-      return;
-    }
-    final var datagram = (DatagramPacket) msg;
-    final var sender = datagram.sender();
-    if (this.server.getBlockedAddresses().containsKey(sender.getAddress())) {
-      return;
-    }
-    try {
-      final var content = datagram.content();
-      if (!content.isReadable()) {
-        return;
-      }
-      if (Packets.handleNoConnectionPackets(ctx, this.server, datagram)) {
-        return;
-      }
-      content.readerIndex(0);
-      Optional.ofNullable(this.server.getConnectionsByAddress().get(sender))
-        .ifPresent(connection -> connection.getConnectionHandler().onRawDatagram(content));
-      content.readerIndex(0);
-      this.server.getSocketListener().onUnhandledDatagram(this.server, ctx, datagram);
-    } finally {
-      datagram.release();
-    }
+  public void handlerAdded(final ChannelHandlerContext ctx) {
+    this.server.addChannel(ctx.channel());
   }
 
   @Override
@@ -88,7 +74,19 @@ final class NetServerSocketInboundHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public void handlerAdded(final ChannelHandlerContext ctx) {
-    this.server.addChannel(ctx.channel());
+  protected void encode(final ChannelHandlerContext ctx, final PacketOut packet, final List<Object> out) {
+    final var payload = ctx.alloc().buffer();
+    try {
+      VarInts.writeVarInt(payload, packet.id());
+      packet.write(payload);
+      final var buf = ctx.alloc().buffer();
+      try {
+        out.add(buf);
+      } finally {
+        buf.release();
+      }
+    } finally {
+      payload.release();
+    }
   }
 }

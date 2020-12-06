@@ -56,15 +56,4 @@ public abstract class Packet {
   public final int id() {
     return this.id;
   }
-
-  /**
-   * checks if the connection can handle this packet.
-   *
-   * @param connection the connection to check.
-   *
-   * @return {@code true} if the given connection should access this packet.
-   */
-  public boolean canAccess(@NotNull final Connection<?, ?> connection) {
-    return true;
-  }
 }

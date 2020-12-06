@@ -191,12 +191,6 @@ public final class AnvilWorld implements World {
     return this.generatorOptions;
   }
 
-  @Nullable
-  @Override
-  public AnvilChunk removeChunkAt(final int x, final int z) {
-    return this.chunks.remove(x, z);
-  }
-
   @Override
   public final int getHighestY(final int x, final int z) {
     return this.getChunkAt(x >> 4, z >> 4).getHighestY(x & 15, z & 15);
@@ -227,6 +221,12 @@ public final class AnvilWorld implements World {
         this.getChunkAt(x, z);
       }
     }
+  }
+
+  @Nullable
+  @Override
+  public AnvilChunk removeChunkAt(final int x, final int z) {
+    return this.chunks.remove(x, z);
   }
 
   @Override

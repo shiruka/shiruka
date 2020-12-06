@@ -28,8 +28,8 @@ package io.github.shiruka.shiruka.network.util;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.network.ConnectionState;
-import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.network.Socket;
+import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -265,7 +265,7 @@ public final class Packets {
       Packets.sendMaximumConnection(ctx, server, recipient);
       return;
     }
-    if (!server.getSocketListener().onConnect(recipient)) {
+    if (!server.getServerListener().onConnect(recipient)) {
       Loggers.error("%s can't connect to the server!", recipient);
       Loggers.debug("Sending connection banned packet.");
       Packets.sendConnectedBanned(ctx, server, recipient);
@@ -384,7 +384,7 @@ public final class Packets {
                                                 @NotNull final ServerSocket server,
                                                 @NotNull final InetSocketAddress recipient,
                                                 final long pingTime) {
-    final var serverData = server.getSocketListener().onRequestServerData(server, recipient);
+    final var serverData = server.getServerListener().onRequestServerData(server, recipient);
     final int serverDataLength = serverData.length;
     final var packetLength = 35 + serverDataLength;
     Packets.createPacket(ctx, packetLength, packet -> {

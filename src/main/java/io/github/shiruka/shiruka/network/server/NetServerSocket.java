@@ -72,6 +72,12 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   private final int maxConnections;
 
   /**
+   * server's listener.
+   */
+  @NotNull
+  private final ServerListener serverListener;
+
+  /**
    * ctor.
    *
    * @param address the address of the server
@@ -80,8 +86,9 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
    */
   private NetServerSocket(@NotNull final InetSocketAddress address, @NotNull final ServerListener serverListener,
                           final int maxConnections) {
-    super(address, serverListener);
+    super(address);
     this.maxConnections = maxConnections;
+    this.serverListener = serverListener;
   }
 
   /**
@@ -171,7 +178,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
     connection.setState(ConnectionState.INITIALIZING);
     if (this.connectionByAddress.putIfAbsent(recipient, connection) == null) {
       connection.getConnectionHandler().sendConnectionReply1();
-      this.getSocketListener().onConnectionCreation(connection);
+      this.getServerListener().onConnectionCreation(connection);
     }
   }
 
@@ -202,6 +209,12 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @Override
   public int getMaxConnections() {
     return this.maxConnections;
+  }
+
+  @NotNull
+  @Override
+  public final ServerListener getServerListener() {
+    return this.serverListener;
   }
 
   @Override

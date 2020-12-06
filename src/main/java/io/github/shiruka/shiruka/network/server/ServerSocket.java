@@ -135,6 +135,14 @@ public interface ServerSocket extends Socket {
   int getMaxConnections();
 
   /**
+   * socket's listener.
+   *
+   * @return the listener to handler socket's events.
+   */
+  @NotNull
+  ServerListener getServerListener();
+
+  /**
    * removes the given channel from the channel list.
    *
    * @param channel the channel to remove from the list.

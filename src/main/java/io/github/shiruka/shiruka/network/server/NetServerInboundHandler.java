@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.server;
 
 import io.github.shiruka.shiruka.network.util.Packets;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -34,7 +33,6 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple server datagram handler.
@@ -89,6 +87,6 @@ final class NetServerInboundHandler extends MessageToMessageDecoder<DatagramPack
     content.readerIndex(0);
     connection.ifPresent(con -> con.getConnectionHandler().onRawDatagram(content));
     content.readerIndex(0);
-    this.server.getSocketListener().onUnhandledDatagram(this.server, ctx, datagram);
+    this.server.getServerListener().onUnhandledDatagram(this.server, ctx, datagram);
   }
 }

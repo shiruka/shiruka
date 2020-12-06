@@ -25,9 +25,6 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
-import io.github.shiruka.shiruka.network.Connection;
-import org.jetbrains.annotations.NotNull;
-
 /**
  * an abstract class to determine packets.
  */

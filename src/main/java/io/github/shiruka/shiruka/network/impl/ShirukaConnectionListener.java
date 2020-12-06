@@ -26,7 +26,10 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.log.Loggers;
-import io.github.shiruka.shiruka.network.*;
+import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.ConnectionListener;
+import io.github.shiruka.shiruka.network.ConnectionState;
+import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.server.ServerConnectionHandler;
 import io.github.shiruka.shiruka.network.server.ServerSocket;

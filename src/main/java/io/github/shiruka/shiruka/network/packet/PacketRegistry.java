@@ -103,6 +103,23 @@ public final class PacketRegistry {
    * @param cls the packet class to instantiate.
    *
    * @return the instantiated packet.
+   *
+   * @throws IllegalAccessException if this {@code Constructor} object
+   *   is enforcing Java language access control and the underlying
+   *   constructor is inaccessible.
+   * @throws IllegalArgumentException if the number of actual
+   *   and formal parameters differ; if an unwrapping
+   *   conversion for primitive arguments fails; or if,
+   *   after possible unwrapping, a parameter value
+   *   cannot be converted to the corresponding formal
+   *   parameter type by a method invocation conversion; if
+   *   this constructor pertains to an enum type.
+   * @throws InstantiationException if the class that declares the
+   *   underlying constructor represents an abstract class.
+   * @throws InvocationTargetException if the underlying constructor
+   *   throws an exception.
+   * @throws ExceptionInInitializerError if the initialization provoked
+   *   by this method fails.
    */
   @NotNull
   public static <T extends Packet> T make(@NotNull final Class<? extends Packet> cls) throws IllegalAccessException,

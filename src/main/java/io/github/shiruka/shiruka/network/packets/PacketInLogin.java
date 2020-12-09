@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
+import com.eclipsesource.json.Json;
 import io.github.shiruka.shiruka.entity.Player;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.PacketPriority;
@@ -61,6 +62,7 @@ public final class PacketInLogin extends PacketIn {
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
       return;
     }
-    // TODO Continue to development here.
+    final var json = Json.parse(chainData.toString());
+    System.out.println(json);
   }
 }

@@ -25,15 +25,20 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.natives.Proceed;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.DisconnectReason;
+import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.security.GeneralSecurityException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link ConnectionListener}.
@@ -94,8 +99,19 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   /**
    * handles wrapped packets.
    *
-   * @param buffer the buffer to handle.
+   * @param wrappedData the wrappedData to handle.
    */
-  private void onWrappedPacket(@NotNull final ByteBuf buffer) {
+  private void onWrappedPacket(@NotNull final ByteBuf wrappedData) {
+    @Nullable ByteBuf batched = null;
+    try {
+      batched = wrappedData;
+      batched.markReaderIndex();
+      final var packets = new ObjectArrayList<>();
+//      this.wrapperSerializer.deserialize(batched, this.packetCodec, packets, this);
+//      this.batchHandler.handle(this, batched, packets);
+//    } catch (final GeneralSecurityException ignore) {
+    } catch (final PacketSerializeException e) {
+      Loggers.warn("Error whilst decoding packets", e);
+    }
   }
 }

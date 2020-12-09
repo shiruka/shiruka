@@ -34,9 +34,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class PacketOutPlayStatus extends PacketOut {
 
+  /**
+   * the status.
+   */
   @NotNull
   private final Status status;
 
+  /**
+   * ctor.
+   *
+   * @param status the status.
+   */
   public PacketOutPlayStatus(@NotNull final Status status) {
     super(PacketOutPlayStatus.class);
     this.status = status;

@@ -104,13 +104,11 @@ public final class PacketRegistry {
    *
    * @return the instantiated packet.
    *
-   * @throws IllegalAccessException if this {@code Constructor} object
-   *   is enforcing Java language access control and the underlying
-   *   constructor is inaccessible.
-   * @throws InstantiationException if the class that declares the
-   *   underlying constructor represents an abstract class.
-   * @throws InvocationTargetException if the underlying constructor
-   *   throws an exception.
+   * @throws IllegalAccessException if this {@code Constructor} object is enforcing Java language access control and
+   *   the underlying constructor is inaccessible.
+   * @throws InstantiationException if the class that declares the underlying constructor represents an abstract
+   *   class.
+   * @throws InvocationTargetException if the underlying constructor throws an exception.
    */
   @NotNull
   public static <T extends Packet> T make(@NotNull final Class<? extends Packet> cls) throws IllegalAccessException,

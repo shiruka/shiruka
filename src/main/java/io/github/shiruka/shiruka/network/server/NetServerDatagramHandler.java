@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
  * a simple server datagram handler.
  */
 @ChannelHandler.Sharable
-final class NetServerInboundHandler extends MessageToMessageDecoder<DatagramPacket> {
+final class NetServerDatagramHandler extends MessageToMessageDecoder<DatagramPacket> {
 
   /**
    * the server socket instance.
@@ -51,7 +51,7 @@ final class NetServerInboundHandler extends MessageToMessageDecoder<DatagramPack
    *
    * @param server the server socket.
    */
-  NetServerInboundHandler(@NotNull final ServerSocket server) {
+  NetServerDatagramHandler(@NotNull final ServerSocket server) {
     this.server = server;
   }
 

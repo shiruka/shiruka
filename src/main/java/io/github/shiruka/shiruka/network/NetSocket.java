@@ -24,7 +24,6 @@
  */
 package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -128,8 +127,8 @@ public abstract class NetSocket implements Socket {
     if (!this.running.compareAndSet(false, true)) {
       throw new IllegalStateException("NetSocket has already been started");
     }
-    return Optionals.useAndGet(this.exec(), future ->
-      future.whenComplete((unused, throwable) -> {
+    return this.exec()
+      .whenComplete((unused, throwable) -> {
         if (throwable != null) {
           this.running.compareAndSet(true, false);
           return;
@@ -137,7 +136,7 @@ public abstract class NetSocket implements Socket {
         this.closed.set(false);
         this.tickFuture = NetSocket.GROUP.next().scheduleAtFixedRate(this::onTick, 0, 10,
           TimeUnit.MILLISECONDS);
-      }));
+      });
   }
 
   @NotNull

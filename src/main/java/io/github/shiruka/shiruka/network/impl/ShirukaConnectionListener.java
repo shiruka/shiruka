@@ -36,9 +36,7 @@ import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.security.GeneralSecurityException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link ConnectionListener}.
@@ -99,19 +97,21 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   /**
    * handles wrapped packets.
    *
-   * @param wrappedData the wrappedData to handle.
+   * @param buf the buf to handle.
    */
-  private void onWrappedPacket(@NotNull final ByteBuf wrappedData) {
-    @Nullable ByteBuf batched = null;
+  private void onWrappedPacket(@NotNull final ByteBuf buf) {
     try {
-      batched = wrappedData;
-      batched.markReaderIndex();
-      final var packets = new ObjectArrayList<>();
-//      this.wrapperSerializer.deserialize(batched, this.packetCodec, packets, this);
+      buf.markReaderIndex();
+//      final var packets = this.wrapperSerializer.deserialize(batched, this.packetCodec, this);
+//      for (final var packet : packets) {
+//
+//      }
 //      this.batchHandler.handle(this, batched, packets);
 //    } catch (final GeneralSecurityException ignore) {
     } catch (final PacketSerializeException e) {
       Loggers.warn("Error whilst decoding packets", e);
+    } finally {
+      buf.release();
     }
   }
 }

@@ -27,7 +27,9 @@ package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.shiruka.entity.Player;
 import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
+import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -35,13 +37,13 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a packet that sends by clients to request a login process.
  */
-public final class LoginPacket extends PacketIn {
+public final class PacketInLogin extends PacketIn {
 
   /**
    * ctor.
    */
-  public LoginPacket() {
-    super(LoginPacket.class);
+  public PacketInLogin() {
+    super(PacketInLogin.class);
   }
 
   @Override
@@ -50,5 +52,15 @@ public final class LoginPacket extends PacketIn {
     final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
     final var chainData = Packets.readLEAsciiString(jwt);
     final var skinData = Packets.readLEAsciiString(jwt);
+    if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
+      final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD);
+      player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
+      return;
+    } else if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
+      final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD);
+      player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
+      return;
+    }
+    // TODO Continue to development here.
   }
 }

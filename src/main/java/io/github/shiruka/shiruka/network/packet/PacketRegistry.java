@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.packet;
 
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
-import io.github.shiruka.shiruka.network.packets.LoginPacket;
+import io.github.shiruka.shiruka.network.packets.PacketInLogin;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import java.lang.reflect.Constructor;
@@ -59,7 +59,7 @@ public final class PacketRegistry {
     new Reference2IntOpenHashMap<>();
 
   static {
-    PacketRegistry.put(LoginPacket.class, PlayerConnection.State.LOGIN, PacketBound.SERVER, 1);
+    PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.LOGIN, PacketBound.SERVER, 1);
     PacketRegistry.PACKETS.trim();
     PacketRegistry.PACKET_IDS.trim();
   }

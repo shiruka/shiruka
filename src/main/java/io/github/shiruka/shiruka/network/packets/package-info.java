@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains packet implementation of the network system.
+ * the package that contains packet implementations of the network system.
  */
 package io.github.shiruka.shiruka.network.packets;

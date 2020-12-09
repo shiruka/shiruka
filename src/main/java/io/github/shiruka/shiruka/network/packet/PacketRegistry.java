@@ -25,11 +25,12 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
-import com.esotericsoftware.reflectasm.ConstructorAccess;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packets.LoginPacket;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,7 @@ public final class PacketRegistry {
   /**
    * the constructors used to instantiate the packets.
    */
-  private static final Map<Class<? extends Packet>, ConstructorAccess<? extends Packet>> CONSTRUCTORS = new HashMap<>();
+  private static final Map<Class<? extends Packet>, Constructor<? extends Packet>> CONSTRUCTORS = new HashMap<>();
 
   /**
    * inverse packet registry.
@@ -104,7 +105,8 @@ public final class PacketRegistry {
    * @return the instantiated packet.
    */
   @NotNull
-  public static <T extends Packet> T make(@NotNull final Class<? extends Packet> cls) {
+  public static <T extends Packet> T make(@NotNull final Class<? extends Packet> cls) throws IllegalAccessException,
+    InvocationTargetException, InstantiationException {
     //noinspection unchecked
     return (T) PacketRegistry.CONSTRUCTORS.get(cls).newInstance();
   }
@@ -136,7 +138,11 @@ public final class PacketRegistry {
     PacketRegistry.PACKET_IDS.put(cls, identifier);
     if (bound == PacketBound.SERVER) {
       PacketRegistry.PACKETS.put(identifier, cls);
-      PacketRegistry.CONSTRUCTORS.put(cls, ConstructorAccess.get(cls));
+      try {
+        PacketRegistry.CONSTRUCTORS.put(cls, cls.getConstructor());
+      } catch (final NoSuchMethodException e) {
+        e.printStackTrace();
+      }
     }
   }
 

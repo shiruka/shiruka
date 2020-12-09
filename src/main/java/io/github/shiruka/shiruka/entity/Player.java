@@ -25,6 +25,8 @@
 
 package io.github.shiruka.shiruka.entity;
 
+import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,10 +36,27 @@ import org.jetbrains.annotations.NotNull;
 public interface Player extends Entity {
 
   /**
+   * runs when the player disconnected.
+   *
+   * @param reason the reason to disconnect.
+   */
+  void disconnect(@NotNull DisconnectReason reason);
+
+  /**
    * obtains the player connection.
    *
    * @return the player connection.
    */
   @NotNull
   PlayerConnection getPlayerConnection();
+
+  /**
+   * obtains the server.
+   *
+   * @return the server.
+   */
+  @NotNull
+  default Server getServer() {
+    return this.getPlayerConnection().getServer();
+  }
 }

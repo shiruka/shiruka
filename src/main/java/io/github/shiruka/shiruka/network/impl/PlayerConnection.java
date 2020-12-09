@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,6 +66,13 @@ public interface PlayerConnection {
    * @param state the state to set.
    */
   void setState(@NotNull State state);
+
+  /**
+   * sends the given packet to the player's connection.
+   *
+   * @param packet the packet to send.
+   */
+  void sendPacket(@NotNull PacketOut packet);
 
   /**
    * represents the current connection state that the client is in whilst connecting to the server.

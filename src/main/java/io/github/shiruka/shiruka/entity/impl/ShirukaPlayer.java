@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.entity.impl;
 
 import io.github.shiruka.shiruka.entity.Player;
+import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +48,10 @@ public final class ShirukaPlayer implements Player {
    */
   public ShirukaPlayer(@NotNull final PlayerConnection connection) {
     this.connection = connection;
+  }
+
+  @Override
+  public void disconnect(@NotNull final DisconnectReason reason) {
   }
 
   @NotNull

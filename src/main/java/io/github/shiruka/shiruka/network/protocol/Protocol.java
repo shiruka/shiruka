@@ -35,6 +35,7 @@ import io.github.shiruka.shiruka.network.packet.PacketRegistry;
 import io.github.shiruka.shiruka.network.util.Zlib;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import java.lang.reflect.InvocationTargetException;
 import java.util.zip.DataFormatException;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,7 +78,8 @@ public final class Protocol {
           packet.setSenderId(header >>> 10 & 3);
           packet.setClientId(header >>> 12 & 3);
           packet.read(packetBuffer, player);
-        } catch (final PacketSerializeException e) {
+        } catch (final PacketSerializeException | InvocationTargetException | InstantiationException |
+          IllegalAccessException e) {
           Loggers.debug("Error occurred whilst decoding packet", e);
           Loggers.debug("Packet contents\n{}", ByteBufUtil.prettyHexDump(packetBuffer.readerIndex(0)));
         }

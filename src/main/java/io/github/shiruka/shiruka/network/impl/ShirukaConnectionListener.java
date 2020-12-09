@@ -72,6 +72,7 @@ public final class ShirukaConnectionListener implements ConnectionListener {
 
   @Override
   public void onDisconnect(@NotNull final DisconnectReason reason) {
+    this.player.disconnect(reason);
   }
 
   @Override
@@ -101,8 +102,6 @@ public final class ShirukaConnectionListener implements ConnectionListener {
       Protocol.deserialize(buf, this.player);
     } catch (final PacketSerializeException e) {
       Loggers.warn("Error whilst decoding packets", e);
-    } finally {
-      buf.release();
     }
   }
 }

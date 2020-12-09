@@ -25,6 +25,9 @@
 
 package io.github.shiruka.shiruka.network;
 
+/**
+ * an enum class to determine disconnect reason for {@link Connection}s.
+ */
 public enum DisconnectReason {
   /**
    *

@@ -29,6 +29,7 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +54,7 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
    * the state.
    */
   @NotNull
-  private PlayerConnection.State state = State.HANDSHAKE;
+  private PlayerConnection.State state = State.LOGIN;
 
   /**
    * ctor.
@@ -61,7 +62,8 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
    * @param connection the connection.
    * @param server the server.
    */
-  public ShirukaPlayerConnection(@NotNull final Connection<ServerSocket> connection, @NotNull final ShirukaServer server) {
+  public ShirukaPlayerConnection(@NotNull final Connection<ServerSocket> connection,
+                                 @NotNull final ShirukaServer server) {
     this.connection = connection;
     this.server = server;
   }
@@ -87,5 +89,9 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
   @Override
   public void setState(@NotNull final PlayerConnection.State state) {
     this.state = state;
+  }
+
+  @Override
+  public void sendPacket(@NotNull final PacketOut packet) {
   }
 }

@@ -37,6 +37,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class LoginPacket extends PacketIn {
 
+  /**
+   * ctor.
+   */
   public LoginPacket() {
     super(LoginPacket.class);
   }
@@ -47,6 +50,5 @@ public final class LoginPacket extends PacketIn {
     final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
     final var chainData = Packets.readLEAsciiString(jwt);
     final var skinData = Packets.readLEAsciiString(jwt);
-    // TODO Handle the packet.
   }
 }

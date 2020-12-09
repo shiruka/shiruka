@@ -36,7 +36,6 @@ import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 
 /**

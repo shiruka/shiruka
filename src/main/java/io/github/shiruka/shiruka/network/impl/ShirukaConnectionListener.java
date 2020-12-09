@@ -26,13 +26,14 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.log.Loggers;
-import io.github.shiruka.shiruka.natives.Proceed;
+import io.github.shiruka.shiruka.entity.impl.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
+import io.github.shiruka.shiruka.network.protocol.Protocol;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.buffer.ByteBuf;
@@ -50,24 +51,19 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   private final Connection<ServerSocket> connection;
 
   /**
-   * the input processor to decrypt.
+   * the player.
    */
   @NotNull
-  private final Proceed inputProcessor = new Proceed(false);
-
-  /**
-   * the output processor to encrypt.
-   */
-  @NotNull
-  private final Proceed outputProcessor = new Proceed(true);
+  private final ShirukaPlayer player;
 
   /**
    * ctor.
    *
-   * @param connection the connection.
+   * @param player the connection.
    */
-  ShirukaConnectionListener(@NotNull final Connection<ServerSocket> connection) {
-    this.connection = connection;
+  ShirukaConnectionListener(@NotNull final ShirukaPlayer player) {
+    this.player = player;
+    this.connection = this.player.getPlayerConnection().getConnection();
   }
 
   @Override
@@ -84,7 +80,7 @@ public final class ShirukaConnectionListener implements ConnectionListener {
       return;
     }
     final var buffer = packet.getBuffer();
-    final int packetId = buffer.readUnsignedByte();
+    final var packetId = buffer.readUnsignedByte();
     if (packetId == Constants.BATCH_MAGIC) {
       this.onWrappedPacket(buffer);
     }
@@ -102,12 +98,7 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   private void onWrappedPacket(@NotNull final ByteBuf buf) {
     try {
       buf.markReaderIndex();
-//      final var packets = this.wrapperSerializer.deserialize(batched, this.packetCodec, this);
-//      for (final var packet : packets) {
-//
-//      }
-//      this.batchHandler.handle(this, batched, packets);
-//    } catch (final GeneralSecurityException ignore) {
+      Protocol.deserialize(buf, this.player);
     } catch (final PacketSerializeException e) {
       Loggers.warn("Error whilst decoding packets", e);
     } finally {

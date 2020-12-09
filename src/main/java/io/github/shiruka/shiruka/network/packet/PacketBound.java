@@ -23,16 +23,35 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.protocol;
+package io.github.shiruka.shiruka.network.packet;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that serializes and deserializes packets.
+ * the direction which a packet is sent towards.
  */
-public final class ProtocolSerializer {
+public enum PacketBound {
+  /**
+   * client-bound, out packets.
+   */
+  CLIENT,
+  /**
+   * server-bound, in packets.
+   */
+  SERVER;
 
   /**
-   * ctor.
+   * obtain the bound of the packet represented by the given class.
+   *
+   * @param cls the class to determine the bound.
+   *
+   * @return the bound of the packet.
    */
-  private ProtocolSerializer() {
+  @NotNull
+  public PacketBound from(@NotNull final Class<? extends Packet> cls) {
+    if (cls.getSuperclass() == PacketIn.class) {
+      return PacketBound.SERVER;
+    }
+    return PacketBound.CLIENT;
   }
 }

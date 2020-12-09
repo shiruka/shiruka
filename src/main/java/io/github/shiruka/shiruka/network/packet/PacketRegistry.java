@@ -25,14 +25,135 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
+import com.esotericsoftware.reflectasm.ConstructorAccess;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
+import io.github.shiruka.shiruka.network.packets.LoginPacket;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import java.util.HashMap;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * a class that holds packets registered by their identifying packet ID as specified in the Minecraft protocol.
  */
 public final class PacketRegistry {
 
   /**
+   * the constructors used to instantiate the packets.
+   */
+  private static final Map<Class<? extends Packet>, ConstructorAccess<? extends Packet>> CONSTRUCTORS = new HashMap<>();
+
+  /**
+   * inverse packet registry.
+   */
+  private static final Int2ReferenceOpenHashMap<Class<? extends Packet>> PACKETS =
+    new Int2ReferenceOpenHashMap<>();
+
+  /**
+   * packet registry.
+   */
+  private static final Reference2IntOpenHashMap<Class<? extends Packet>> PACKET_IDS =
+    new Reference2IntOpenHashMap<>();
+
+  static {
+    PacketRegistry.put(LoginPacket.class, PlayerConnection.State.LOGIN, PacketBound.SERVER, 1);
+    PacketRegistry.PACKETS.trim();
+    PacketRegistry.PACKET_IDS.trim();
+  }
+
+  /**
    * ctor.
    */
   private PacketRegistry() {
+  }
+
+  /**
+   * obtains the class of the packet containing the given ID, bound, and the given getState.
+   *
+   * @param state the packet's network getState.
+   * @param bound the packet bound.
+   * @param id the packet ID.
+   *
+   * @return the packet class.
+   */
+  @Nullable
+  public static Class<? extends Packet> byId(@NotNull final PlayerConnection.State state,
+                                             @NotNull final PacketBound bound, final int id) {
+    return PacketRegistry.PACKETS.get(PacketRegistry.shift(state, bound, id));
+  }
+
+  /**
+   * obtains the ID of the packet with the given info.
+   *
+   * @param info the info.
+   *
+   * @return the packet ID.
+   */
+  public static int idOf(final int info) {
+    return info & 0x7ffffff;
+  }
+
+  /**
+   * creates a new instance of the given packet class.
+   *
+   * @param <T> the packet type.
+   * @param cls the packet class to instantiate.
+   *
+   * @return the instantiated packet.
+   */
+  @NotNull
+  public static <T extends Packet> T make(@NotNull final Class<? extends Packet> cls) {
+    //noinspection unchecked
+    return (T) PacketRegistry.CONSTRUCTORS.get(cls).newInstance();
+  }
+
+  /**
+   * obtains the net getState which the packet is registered to be present in.
+   *
+   * @param cls the packet class.
+   *
+   * @return the getState of the packet.
+   */
+  public static int packetInfo(@NotNull final Class<? extends Packet> cls) {
+    final var identifier = PacketRegistry.PACKET_IDS.getInt(cls);
+    if (identifier != -1) {
+      return identifier;
+    }
+    throw new IllegalArgumentException(cls.getSimpleName() + " is not registered");
+  }
+
+  /**
+   * puts the given packet class into the map with the given ID, and also inserts the constructor into the CTOR cache.
+   *
+   * @param cls the class.
+   * @param id the ID.
+   */
+  private static void put(@NotNull final Class<? extends Packet> cls, @NotNull final PlayerConnection.State state,
+                          @NotNull final PacketBound bound, final int id) {
+    final var identifier = PacketRegistry.shift(state, bound, id);
+    PacketRegistry.PACKET_IDS.put(cls, identifier);
+    if (bound == PacketBound.SERVER) {
+      PacketRegistry.PACKETS.put(identifier, cls);
+      PacketRegistry.CONSTRUCTORS.put(cls, ConstructorAccess.get(cls));
+    }
+  }
+
+  /**
+   * combines the data into a single value which is used to locate the a packet inside of the register.
+   *
+   * @param bound the bound of the packet.
+   * @param state the packet getState.
+   * @param id the packet ID.
+   *
+   * @return the compressed packet represented as an integer.
+   */
+  private static int shift(@NotNull final PlayerConnection.State state, @NotNull final PacketBound bound,
+                           final int id) {
+    var identifier = id;
+    identifier |= state.ordinal() << 27;
+    identifier |= bound.ordinal() << 31;
+    return identifier;
   }
 }

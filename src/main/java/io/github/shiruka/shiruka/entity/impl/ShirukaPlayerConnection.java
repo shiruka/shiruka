@@ -23,68 +23,69 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.impl;
+package io.github.shiruka.shiruka.entity.impl;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine player's connection.
+ * an implementation for {@link PlayerConnection}.
  */
-public interface PlayerConnection {
+public final class ShirukaPlayerConnection implements PlayerConnection {
 
   /**
-   * obtains the original connection.
-   *
-   * @return the original connection.
+   * the connection.
    */
   @NotNull
-  Connection<ServerSocket> getConnection();
+  private final Connection<ServerSocket> connection;
 
   /**
-   * obtains the server.
-   *
-   * @return the server.
+   * the server.
    */
   @NotNull
-  Server getServer();
+  private final ShirukaServer server;
 
   /**
-   * obtains the state.
-   *
-   * @return the state.
+   * the state.
    */
   @NotNull
-  State getState();
+  private PlayerConnection.State state = State.HANDSHAKE;
 
   /**
-   * sets the state.
+   * ctor.
    *
-   * @param state the state to set.
+   * @param connection the connection.
+   * @param server the server.
    */
-  void setState(@NotNull State state);
+  public ShirukaPlayerConnection(@NotNull final Connection<ServerSocket> connection, @NotNull final ShirukaServer server) {
+    this.connection = connection;
+    this.server = server;
+  }
 
-  /**
-   * represents the current connection state that the client is in whilst connecting to the server.
-   */
-  enum State {
-    /**
-     * handshake, attempting to connect to server.
-     */
-    HANDSHAKE,
-    /**
-     * obtain server status via ping.
-     */
-    STATUS,
-    /**
-     * login, authenticate and complete connection formalities before joining.
-     */
-    LOGIN,
-    /**
-     * normal gameplay.
-     */
-    PLAY
+  @NotNull
+  @Override
+  public Connection<ServerSocket> getConnection() {
+    return this.connection;
+  }
+
+  @NotNull
+  @Override
+  public Server getServer() {
+    return this.server;
+  }
+
+  @NotNull
+  @Override
+  public PlayerConnection.State getState() {
+    return this.state;
+  }
+
+  @Override
+  public void setState(@NotNull final PlayerConnection.State state) {
+    this.state = state;
   }
 }

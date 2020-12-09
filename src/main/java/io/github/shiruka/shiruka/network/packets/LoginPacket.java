@@ -23,29 +23,30 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.network.packets;
 
+import io.github.shiruka.shiruka.entity.Player;
+import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.packet.PacketIn;
+import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract implementation for {@link Packet} that determines outgoing packets.
+ * a packet that sends by clients to request a login process.
  */
-public abstract class PacketOut extends Packet {
+public final class LoginPacket extends PacketIn {
 
-  /**
-   * ctor.
-   *
-   * @param cls the packet class.
-   */
-  protected PacketOut(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  public LoginPacket() {
+    super(LoginPacket.class);
   }
 
-  /**
-   * writes the buf of a client-bound buf.
-   *
-   * @param buf the buf to write.
-   */
-  public abstract void write(@NotNull ByteBuf buf);
+  @Override
+  public void read(@NotNull final ByteBuf buf, @NotNull final Player player) {
+    final var protocolVersion = buf.readInt();
+    final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
+    final var chainData = Packets.readLEAsciiString(jwt);
+    final var skinData = Packets.readLEAsciiString(jwt);
+    // TODO Handle the packet.
+  }
 }

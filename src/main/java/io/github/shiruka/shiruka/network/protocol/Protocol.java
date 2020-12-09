@@ -67,6 +67,7 @@ public final class Protocol {
         try {
           final var header = VarInts.readUnsignedVarInt(packetBuffer);
           final var packetId = header & 0x3ff;
+          Loggers.debug("Incoming packet id -> %s", packetId);
           final var cls = PacketRegistry.byId(player.getPlayerConnection().getState(),
             PacketBound.SERVER, packetId);
           if (cls == null) {

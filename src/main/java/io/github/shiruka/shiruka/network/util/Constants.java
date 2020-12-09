@@ -91,7 +91,7 @@ public final class Constants {
   /**
    * the version of the Minecraft game.
    */
-  public static final String MINECRAFT_VERSION = "1.16.200  ";
+  public static final String MINECRAFT_VERSION = "1.16.200";
 
   public static final short MINIMUM_MTU_SIZE = 576;
 

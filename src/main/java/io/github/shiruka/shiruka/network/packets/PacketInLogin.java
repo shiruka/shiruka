@@ -61,5 +61,6 @@ public final class PacketInLogin extends PacketIn {
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
       return;
     }
+    // TODO Continue to development here.
   }
 }

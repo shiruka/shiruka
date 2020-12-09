@@ -34,6 +34,7 @@ import io.github.shiruka.shiruka.network.DisconnectReason;
 import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
@@ -85,7 +86,7 @@ public final class ShirukaConnectionListener implements ConnectionListener {
     }
     final var buffer = packet.getBuffer();
     final int packetId = buffer.readUnsignedByte();
-    if (packetId == 0xfe) {
+    if (packetId == Constants.BATCH_MAGIC) {
       this.onWrappedPacket(buffer);
     }
   }

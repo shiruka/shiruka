@@ -26,10 +26,13 @@
 package io.github.shiruka.shiruka.network.protocol;
 
 /**
- * a class that serializer
+ * a class that serializes and deserializes packets.
  */
 public final class ProtocolSerializer {
 
+  /**
+   * ctor.
+   */
   private ProtocolSerializer() {
   }
 }

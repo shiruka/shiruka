@@ -23,29 +23,31 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.network.exceptions;
 
-import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract implementation for {@link Packet} that determines outgoing packets.
+ * a {@link RuntimeException} implementation to define packet serialization exceptions.
  */
-public abstract class PacketOut extends Packet {
+public final class PacketSerializeException extends RuntimeException {
 
   /**
    * ctor.
    *
-   * @param cls the packet class.
+   * @param cause the cause.
    */
-  protected PacketOut(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  public PacketSerializeException(@NotNull final Throwable cause) {
+    super(cause);
   }
 
   /**
-   * writes the buf of a client-bound buf.
+   * ctor.
    *
-   * @param buf the buf to write.
+   * @param message the message.
+   * @param cause the cause.
    */
-  public abstract void write(@NotNull ByteBuf buf);
+  public PacketSerializeException(@NotNull final String message, final Throwable cause) {
+    super(message, cause);
+  }
 }

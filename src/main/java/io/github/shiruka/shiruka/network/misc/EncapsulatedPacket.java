@@ -269,7 +269,8 @@ public final class EncapsulatedPacket implements ReferenceCounted {
    *
    * @return an encapsulated packet.
    */
-  @NotNull EncapsulatedPacket fromSplit(@NotNull final ByteBuf reassembled) {
+  @NotNull
+  EncapsulatedPacket fromSplit(@NotNull final ByteBuf reassembled) {
     final var packet = new EncapsulatedPacket();
     packet.reliability = this.reliability;
     packet.reliabilityIndex = this.reliabilityIndex;

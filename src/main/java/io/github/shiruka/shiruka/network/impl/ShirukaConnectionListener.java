@@ -26,12 +26,16 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.shiruka.entity.impl.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.DisconnectReason;
+import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
+import io.github.shiruka.shiruka.network.protocol.Protocol;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,39 +51,57 @@ public final class ShirukaConnectionListener implements ConnectionListener {
   private final Connection<ServerSocket> connection;
 
   /**
+   * the player.
+   */
+  @NotNull
+  private final ShirukaPlayer player;
+
+  /**
    * ctor.
    *
-   * @param connection the connection.
+   * @param player the connection.
    */
-  ShirukaConnectionListener(@NotNull final Connection<ServerSocket> connection) {
-    this.connection = connection;
+  ShirukaConnectionListener(@NotNull final ShirukaPlayer player) {
+    this.player = player;
+    this.connection = this.player.getPlayerConnection().getConnection();
   }
 
   @Override
   public void onDirect(@NotNull final ByteBuf packet) {
-    Loggers.debug("onDirect");
   }
 
   @Override
   public void onDisconnect(@NotNull final DisconnectReason reason) {
-    Loggers.debug("onDisconnect");
+    this.player.disconnect(reason);
   }
 
   @Override
   public void onEncapsulated(@NotNull final EncapsulatedPacket packet) {
-    Loggers.debug("onEncapsulated");
     if (this.connection.getState() != ConnectionState.CONNECTED) {
       return;
     }
     final var buffer = packet.getBuffer();
     final var packetId = buffer.readUnsignedByte();
-    if (packetId == 0xfe) {
-      this.connection.onWrappedPacket(buffer);
+    if (packetId == Constants.BATCH_MAGIC) {
+      this.onWrappedPacket(buffer);
     }
   }
 
   @Override
   public void onStateChanged(@NotNull final ConnectionState old, @NotNull final ConnectionState state) {
-    Loggers.debug("onStateChanged");
+  }
+
+  /**
+   * handles wrapped packets.
+   *
+   * @param buf the buf to handle.
+   */
+  private void onWrappedPacket(@NotNull final ByteBuf buf) {
+    try {
+      buf.markReaderIndex();
+      Protocol.deserialize(buf, this.player);
+    } catch (final PacketSerializeException e) {
+      Loggers.warn("Error whilst decoding packets", e);
+    }
   }
 }

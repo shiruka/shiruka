@@ -23,29 +23,40 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.entity;
 
-import io.netty.buffer.ByteBuf;
+import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.network.DisconnectReason;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract implementation for {@link Packet} that determines outgoing packets.
+ * an interface to determine players on the Minecraft.
  */
-public abstract class PacketOut extends Packet {
+public interface Player extends Entity {
 
   /**
-   * ctor.
+   * runs when the player disconnected.
    *
-   * @param cls the packet class.
+   * @param reason the reason to disconnect.
    */
-  protected PacketOut(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  void disconnect(@NotNull DisconnectReason reason);
+
+  /**
+   * obtains the player connection.
+   *
+   * @return the player connection.
+   */
+  @NotNull
+  PlayerConnection getPlayerConnection();
+
+  /**
+   * obtains the server.
+   *
+   * @return the server.
+   */
+  @NotNull
+  default Server getServer() {
+    return this.getPlayerConnection().getServer();
   }
-
-  /**
-   * writes the buf of a client-bound buf.
-   *
-   * @param buf the buf to write.
-   */
-  public abstract void write(@NotNull ByteBuf buf);
 }

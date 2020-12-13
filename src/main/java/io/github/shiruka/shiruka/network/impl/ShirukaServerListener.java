@@ -25,8 +25,8 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
-import io.github.shiruka.api.Server;
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
@@ -45,14 +45,14 @@ public final class ShirukaServerListener implements ServerListener {
    * the server instance.
    */
   @NotNull
-  private final Server server;
+  private final ShirukaServer server;
 
   /**
    * ctor.
    *
    * @param server the server.
    */
-  public ShirukaServerListener(@NotNull final Server server) {
+  public ShirukaServerListener(@NotNull final ShirukaServer server) {
     this.server = server;
   }
 
@@ -63,8 +63,7 @@ public final class ShirukaServerListener implements ServerListener {
 
   @Override
   public void onConnectionCreation(@NotNull final Connection<ServerSocket> connection) {
-    connection.setConnectionListener(new ShirukaConnectionListener(connection));
-    Loggers.debug("onConnectionCreation");
+    connection.setConnectionListener(new ShirukaConnectionListener(this.server.createPlayer(connection)));
   }
 
   @Override

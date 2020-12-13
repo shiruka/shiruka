@@ -30,6 +30,11 @@ package io.github.shiruka.shiruka.network.util;
  */
 public final class Constants {
 
+  /**
+   * the batch magic.
+   */
+  public static final int BATCH_MAGIC = 0xfe;
+
   public static final long CC_ADDITIONAL_VARIANCE = 30;
 
   public static final long CC_MAXIMUM_THRESHOLD = 2000;
@@ -81,12 +86,12 @@ public final class Constants {
   /**
    * the protocol version of the Minecraft game.
    */
-  public static final short MINECRAFT_PROTOCOL_VERSION = 418;
+  public static final short MINECRAFT_PROTOCOL_VERSION = 422;
 
   /**
    * the version of the Minecraft game.
    */
-  public static final String MINECRAFT_VERSION = "1.16.40";
+  public static final String MINECRAFT_VERSION = "1.16.200";
 
   public static final short MINIMUM_MTU_SIZE = 576;
 

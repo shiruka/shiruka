@@ -141,6 +141,27 @@ public final class VarInts {
   }
 
   /**
+   * reads the integer from the given input.
+   *
+   * @param input the input to read.
+   *
+   * @return the given input's integer value.
+   */
+  public static int readUnsignedVarInt(@NotNull final ByteBuf input) {
+    var value = 0;
+    var i = 0;
+    int b;
+    while (((b = input.readByte()) & 0x80) != 0) {
+      value |= (b & 0x7F) << i;
+      i += 7;
+      if (i > 35) {
+        throw new RuntimeException("VarInt too big!");
+      }
+    }
+    return value | b << i;
+  }
+
+  /**
    * reads the next VarInt from the given buffer.
    *
    * @param buf the buffer to read.

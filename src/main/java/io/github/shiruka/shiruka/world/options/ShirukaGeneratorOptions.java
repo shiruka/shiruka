@@ -44,17 +44,32 @@ public final class ShirukaGeneratorOptions implements GeneratorOptions {
    */
   private static final Random SEED_SRC = new Random();
 
+  /**
+   * if features allowed.
+   */
   private final boolean allowFeatures;
 
+  /**
+   * the level type.
+   */
   @NotNull
   private final LevelType levelType;
 
+  /**
+   * the option string.
+   */
   @NotNull
   private final String optionString;
 
+  /**
+   * the provider.
+   */
   @NotNull
   private final GeneratorProvider provider;
 
+  /**
+   * the seed.
+   */
   private final long seed;
 
   /**

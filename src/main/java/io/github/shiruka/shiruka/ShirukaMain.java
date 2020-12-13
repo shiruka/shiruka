@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.Server;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
@@ -197,7 +196,7 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
     final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
     final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
-    final Function<Server, ServerSocket> socket = instance ->
+    final Function<ShirukaServer, ServerSocket> socket = instance ->
       NetServerSocket.init(new InetSocketAddress(ip, port), new ShirukaServerListener(instance), maxPlayer);
     final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType), socket);
     server.startServer();

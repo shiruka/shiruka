@@ -33,6 +33,7 @@ import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.AsciiString;
 import java.net.*;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -150,6 +151,21 @@ public final class Packets {
       throw new IllegalArgumentException(e);
     }
     return new InetSocketAddress(address, port);
+  }
+
+  /**
+   * reads the given buffer and returns {@link AsciiString}.
+   *
+   * @param buffer the buffer to read.
+   *
+   * @return an {@link AsciiString} instance.
+   */
+  @NotNull
+  public static AsciiString readLEAsciiString(@NotNull final ByteBuf buffer) {
+    final var length = buffer.readIntLE();
+    final var bytes = new byte[length];
+    buffer.readBytes(bytes);
+    return new AsciiString(bytes);
   }
 
   /**

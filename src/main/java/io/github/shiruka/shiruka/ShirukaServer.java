@@ -30,6 +30,9 @@ import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
+import io.github.shiruka.shiruka.entity.impl.ShirukaPlayer;
+import io.github.shiruka.shiruka.entity.impl.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -83,10 +86,22 @@ public final class ShirukaServer implements Server {
    * @param socket the socket.
    */
   public ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
-                       @NotNull final Function<Server, ServerSocket> socket) {
+                       @NotNull final Function<ShirukaServer, ServerSocket> socket) {
     this.description = description;
     this.loader = loader;
     this.socket = socket.apply(this);
+  }
+
+  /**
+   * creates a new {@link ShirukaPlayer} instance.
+   *
+   * @param connection the connection to create.
+   *
+   * @return a new player instance.
+   */
+  @NotNull
+  public ShirukaPlayer createPlayer(@NotNull final Connection<ServerSocket> connection) {
+    return new ShirukaPlayer(new ShirukaPlayerConnection(connection, this));
   }
 
   @Override
@@ -120,11 +135,11 @@ public final class ShirukaServer implements Server {
     this.tick.start();
     Loggers.log("Loading plugins.");
     // TODO Load plugins here.
-    Loggers.log("Enabling startup plugins.");
+    Loggers.log("Enabling startup plugins before the loading worlds.");
     // TODO enable plugins which set PluginLoadOrder as STARTUP.
     Loggers.log("Loading worlds.");
     this.loader.loadAll();
-    Loggers.log("Enabling post world plugins.");
+    Loggers.log("Enabling plugins after the loading worlds.");
     // TODO enable plugins which set PluginLoadOrder as POST_WORLD.
   }
 

@@ -22,30 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.network.packet;
-
-import io.netty.buffer.ByteBuf;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an abstract implementation for {@link Packet} that determines outgoing packets.
+ * the package that contains protocol classes.
  */
-public abstract class PacketOut extends Packet {
-
-  /**
-   * ctor.
-   *
-   * @param cls the packet class.
-   */
-  protected PacketOut(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
-  }
-
-  /**
-   * writes the buf of a client-bound buf.
-   *
-   * @param buf the buf to write.
-   */
-  public abstract void write(@NotNull ByteBuf buf);
-}
+package io.github.shiruka.shiruka.network.protocol;

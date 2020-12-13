@@ -284,13 +284,6 @@ public interface Connection<S extends Socket> extends AutoCloseable {
   void onTick(long now);
 
   /**
-   * runs when a wrapped packet received.
-   *
-   * @param packet the packet to receive.
-   */
-  void onWrappedPacket(@NotNull ByteBuf packet);
-
-  /**
    * resets the connection's caches.
    */
   void reset();

@@ -74,6 +74,18 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <id>opencollab-repo-release</id>
+      <url>https://repo.opencollab.dev/maven-releases/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>io.github.shiruka</groupId>
@@ -109,6 +121,16 @@
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
       <version>8.4.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>reflectasm</artifactId>
+      <version>1.11.9</version>
+    </dependency>
+    <dependency>
+      <groupId>com.nukkitx</groupId>
+      <artifactId>natives</artifactId>
+      <version>1.0.2</version>
     </dependency>
   </dependencies>
 </project>

@@ -25,27 +25,33 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
-import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract implementation for {@link Packet} that determines outgoing packets.
+ * the direction which a packet is sent towards.
  */
-public abstract class PacketOut extends Packet {
+public enum PacketBound {
+  /**
+   * client-bound, out packets.
+   */
+  CLIENT,
+  /**
+   * server-bound, in packets.
+   */
+  SERVER;
 
   /**
-   * ctor.
+   * obtain the bound of the packet represented by the given class.
    *
-   * @param cls the packet class.
+   * @param cls the class to determine the bound.
+   *
+   * @return the bound of the packet.
    */
-  protected PacketOut(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  @NotNull
+  public PacketBound from(@NotNull final Class<? extends Packet> cls) {
+    if (cls.getSuperclass() == PacketIn.class) {
+      return PacketBound.SERVER;
+    }
+    return PacketBound.CLIENT;
   }
-
-  /**
-   * writes the buf of a client-bound buf.
-   *
-   * @param buf the buf to write.
-   */
-  public abstract void write(@NotNull ByteBuf buf);
 }

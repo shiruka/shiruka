@@ -23,49 +23,11 @@
  *
  */
 
-package io.github.shiruka.shiruka.natives;
+package io.github.shiruka.shiruka.entity;
 
 /**
- * a class that contains address and its size.
+ * an interface to determine entities on the Minecraft.
  */
-public final class SizedMemoryPointer {
+public interface Entity {
 
-  /**
-   * the address.
-   */
-  private final long address;
-
-  /**
-   * the size.
-   */
-  private final int size;
-
-  /**
-   * ctor.
-   *
-   * @param address the address.
-   * @param size the size.
-   */
-  public SizedMemoryPointer(final long address, final int size) {
-    this.address = address;
-    this.size = size;
-  }
-
-  /**
-   * obtains the addres.
-   *
-   * @return the address.
-   */
-  public long getAddress() {
-    return this.address;
-  }
-
-  /**
-   * botains the size.
-   *
-   * @return the size.
-   */
-  public int getSize() {
-    return this.size;
-  }
 }

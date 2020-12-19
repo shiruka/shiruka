@@ -55,7 +55,6 @@ public final class PacketInLogin extends PacketIn {
     if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD);
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
-      return;
     } else if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD);
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);

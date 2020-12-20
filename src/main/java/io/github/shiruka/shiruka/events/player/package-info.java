@@ -25,4 +25,4 @@
 /**
  * the package that contains event implementations for player events.
  */
-package io.github.shiruka.shiruka.event.player;
+package io.github.shiruka.shiruka.events.player;

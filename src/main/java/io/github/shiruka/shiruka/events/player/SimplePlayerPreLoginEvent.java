@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.event.player;
+package io.github.shiruka.shiruka.events.player;
 
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;

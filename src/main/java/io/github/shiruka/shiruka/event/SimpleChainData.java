@@ -319,17 +319,16 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    */
   @NotNull
   private static ImageData getImage(@NotNull final JsonNode json, @NotNull final String name) {
-    if (json.has(name + "Data")) {
-      final var skinImage = Base64.getDecoder().decode(json.get(name + "Data").textValue());
-      if (json.has(name + SimpleChainData.IMAGE_HEIGHT) && json.has(name + SimpleChainData.IMAGE_WIDTH)) {
-        final var width = json.get(name + SimpleChainData.IMAGE_WIDTH).intValue();
-        final var height = json.get(name + SimpleChainData.IMAGE_HEIGHT).intValue();
-        return ImageData.of(width, height, skinImage);
-      } else {
-        return ImageData.of(skinImage);
-      }
+    if (!json.has(name + "Data")) {
+      return ImageData.empty();
     }
-    return ImageData.empty();
+    final var skinImage = Base64.getDecoder().decode(json.get(name + "Data").textValue());
+    if (!json.has(name + SimpleChainData.IMAGE_HEIGHT) || !json.has(name + SimpleChainData.IMAGE_WIDTH)) {
+      return ImageData.of(skinImage);
+    }
+    final var width = json.get(name + SimpleChainData.IMAGE_WIDTH).intValue();
+    final var height = json.get(name + SimpleChainData.IMAGE_HEIGHT).intValue();
+    return ImageData.of(width, height, skinImage);
   }
 
   /**
@@ -368,14 +367,14 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
     if (json.has("SkinAnimationData")) {
       skinBuilder.animationData(new String(Base64.getDecoder().decode(json.get("SkinAnimationData").textValue()), StandardCharsets.UTF_8));
     }
-    if (json.has("AnimatedImageData")) {
-      final var animations = new ArrayList<AnimationData>();
-      final var jsonArray = json.get("AnimatedImageData");
-      for (final var element : jsonArray) {
-        animations.add(SimpleChainData.getAnimation(element));
-      }
-      skinBuilder.animations(animations);
+    if (!json.has("AnimatedImageData")) {
+      return skinBuilder.build();
     }
+    final var animations = new ArrayList<AnimationData>();
+    final var jsonArray = json.get("AnimatedImageData");
+    jsonArray.forEach(jsonNode ->
+      animations.add(SimpleChainData.getAnimation(jsonNode)));
+    skinBuilder.animations(animations);
     return skinBuilder.build();
   }
 

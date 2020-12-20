@@ -23,83 +23,67 @@
  *
  */
 
-package io.github.shiruka.shiruka.event.player;
+package io.github.shiruka.shiruka.event;
 
+import io.github.shiruka.api.entity.Player;
+import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link PlayerPreLoginEvent}.
+ * a simple implementation of {@link PlayerPreLoginEvent.LoginData}.
  */
-public final class SimplePlayerPreLoginEvent implements PlayerPreLoginEvent {
+public final class SimpleLoginData implements LoginDataEvent.LoginData {
 
   /**
-   * the login data.
+   * the chain data.
    */
   @NotNull
-  private final LoginData loginData;
+  private final LoginDataEvent.ChainData chainData;
+
+  @NotNull
+  private final Player player;
+
+  @NotNull
+  private final String username;
 
   /**
-   * the cancelled.
+   * the should login.
    */
-  private boolean cancelled;
-
-  /**
-   * the kick message.
-   */
-  @Nullable
-  private String kickMessage;
+  private boolean shouldLogin;
 
   /**
    * ctor.
    *
-   * @param loginData the login data.
-   * @param kickMessage the kick message.
+   * @param chainData the chain data.
+   * @param player the player.
+   * @param username the username.
    */
-  public SimplePlayerPreLoginEvent(@NotNull final LoginData loginData, @Nullable final String kickMessage) {
-    this.loginData = loginData;
-    this.kickMessage = kickMessage;
-  }
-
-  /**
-   * ctor.
-   *
-   * @param loginData the login data.
-   */
-  public SimplePlayerPreLoginEvent(@NotNull final LoginData loginData) {
-    this(loginData, null);
-  }
-
-  @Override
-  public void cancel() {
-    this.cancelled = true;
-  }
-
-  @Override
-  public boolean cancelled() {
-    return this.cancelled;
-  }
-
-  @Override
-  public void dontCancel() {
-    this.cancelled = false;
-  }
-
-  @Nullable
-  @Override
-  public String kickMessage() {
-    return this.kickMessage;
-  }
-
-  @Override
-  public void kickMessage(@Nullable final String message) {
-    this.kickMessage = message;
+  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final Player player,
+                         @NotNull final String username) {
+    this.chainData = chainData;
+    this.username = username;
+    this.player = player;
   }
 
   @NotNull
   @Override
-  public LoginData loginData() {
-    return this.loginData;
+  public LoginDataEvent.ChainData chainData() {
+    return this.chainData;
+  }
+
+  /**
+   * initializes the player.
+   */
+  public void initializePlayer() {
+  }
+
+  /**
+   * obtains the should login.
+   *
+   * @return should login.
+   */
+  public boolean shouldLogin() {
+    return this.shouldLogin;
   }
 }

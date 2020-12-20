@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains other implementations of {@link io.github.shiruka.api.events.Event}.
+ * the package that contains event implementations for player events.
  */
-package io.github.shiruka.shiruka.event;
+package io.github.shiruka.shiruka.events.player;

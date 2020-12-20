@@ -25,10 +25,16 @@
 
 package io.github.shiruka.shiruka.event;
 
+import io.github.shiruka.api.event.Listener;
+import io.github.shiruka.api.event.method.MethodAdapter;
+import io.github.shiruka.api.event.method.SimpleMethodAdapter;
 import io.github.shiruka.api.events.Event;
 import io.github.shiruka.api.events.EventFactory;
+import io.github.shiruka.api.events.LoginDataEvent;
+import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
-import io.github.shiruka.shiruka.event.player.SimplePlayerPreLoginEvent;
+import io.github.shiruka.shiruka.events.player.SimplePlayerAsyncLoginEvent;
+import io.github.shiruka.shiruka.events.player.SimplePlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,17 +44,35 @@ import org.jetbrains.annotations.Nullable;
 public final class SimpleEventFactory implements EventFactory {
 
   /**
-   * creates a new {@link SimplePlayerPreLoginEvent} instance.
-   *
-   * @param loginData the login data to create.
-   * @param kickMessage the kick message to create.
-   *
-   * @return a new instance of {@link PlayerPreLoginEvent}.
+   * the adapter.
    */
+  private final MethodAdapter adapter = new SimpleMethodAdapter();
+
+  @Override
+  public void call(@NotNull final Event event) {
+    this.adapter.call(event);
+  }
+
   @NotNull
   @Override
-  public PlayerPreLoginEvent playerPreLogin(@NotNull final PlayerPreLoginEvent.LoginData loginData,
+  public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final LoginDataEvent.LoginData loginData) {
+    return new SimplePlayerAsyncLoginEvent(loginData);
+  }
+
+  @NotNull
+  @Override
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.LoginData loginData,
                                             @Nullable final String kickMessage) {
     return new SimplePlayerPreLoginEvent(loginData, kickMessage);
+  }
+
+  @Override
+  public void register(@NotNull final Listener listener) {
+    this.adapter.register(listener);
+  }
+
+  @Override
+  public void unregister(@NotNull final Listener listener) {
+    this.adapter.unregister(listener);
   }
 }

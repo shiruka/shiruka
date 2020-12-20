@@ -22,7 +22,47 @@
  * SOFTWARE.
  *
  */
+
+package io.github.shiruka.shiruka.network.packets;
+
+import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * the package that contains event implementations for player events.
+ * a packet that disconnects the sent client.
  */
-package io.github.shiruka.shiruka.event.player;
+public final class PacketOutDisconnect extends PacketOut {
+
+  /**
+   * the kick message.
+   */
+  @NotNull
+  private final String kickMessage;
+
+  /**
+   * the message skipped.
+   */
+  private final boolean messageSkipped;
+
+  /**
+   * ctor.
+   *
+   * @param kickMessage the kick message.
+   * @param messageSkipped the message skipped.
+   */
+  public PacketOutDisconnect(@NotNull final String kickMessage, final boolean messageSkipped) {
+    super(PacketOutDisconnect.class);
+    this.kickMessage = kickMessage;
+    this.messageSkipped = messageSkipped;
+  }
+
+  @Override
+  public void write(@NotNull final ByteBuf buf) {
+    buf.writeBoolean(this.messageSkipped);
+    if (!this.messageSkipped) {
+      VarInts.writeString(buf, this.kickMessage);
+    }
+  }
+}

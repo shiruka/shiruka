@@ -72,7 +72,6 @@ public final class ShirukaConnectionListener implements ConnectionListener {
 
   @Override
   public void onDisconnect(@NotNull final DisconnectReason reason) {
-    this.player.disconnect(reason.getMessage());
   }
 
   @Override

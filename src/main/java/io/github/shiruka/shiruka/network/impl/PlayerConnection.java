@@ -104,6 +104,10 @@ public interface PlayerConnection {
     /**
      * normal gameplay.
      */
-    PLAY
+    PLAY,
+    /**
+     * for any statement of the connection.
+     */
+    ANY
   }
 }

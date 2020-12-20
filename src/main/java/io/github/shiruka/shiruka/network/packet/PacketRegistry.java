@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka.network.packet;
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packets.PacketInLogin;
+import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import io.github.shiruka.shiruka.network.packets.PacketOutPlayStatus;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
@@ -63,6 +64,7 @@ public final class PacketRegistry {
   static {
     PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.HANDSHAKE, PacketBound.SERVER, 1);
     PacketRegistry.put(PacketOutPlayStatus.class, PlayerConnection.State.HANDSHAKE, PacketBound.CLIENT, 2);
+    PacketRegistry.put(PacketOutDisconnect.class, PlayerConnection.State.ANY, PacketBound.CLIENT, 5);
     PacketRegistry.PACKETS.trim();
     PacketRegistry.PACKET_IDS.trim();
   }
@@ -85,7 +87,11 @@ public final class PacketRegistry {
   @Nullable
   public static Class<? extends Packet> byId(@NotNull final PlayerConnection.State state,
                                              @NotNull final PacketBound bound, final int id) {
-    return PacketRegistry.PACKETS.get(PacketRegistry.shift(state, bound, id));
+    final var found = PacketRegistry.PACKETS.get(PacketRegistry.shift(state, bound, id));
+    if (found != null) {
+      return found;
+    }
+    return PacketRegistry.PACKETS.get(PacketRegistry.shift(PlayerConnection.State.ANY, bound, id));
   }
 
   /**
@@ -166,7 +172,9 @@ public final class PacketRegistry {
   private static int shift(@NotNull final PlayerConnection.State state, @NotNull final PacketBound bound,
                            final int id) {
     var identifier = id;
-    identifier |= state.ordinal() << 27;
+    if (state != PlayerConnection.State.ANY) {
+      identifier |= state.ordinal() << 27;
+    }
     identifier |= bound.ordinal() << 31;
     return identifier;
   }

@@ -23,67 +23,43 @@
  *
  */
 
-package io.github.shiruka.shiruka.event;
+package io.github.shiruka.shiruka.network.packets;
 
-import io.github.shiruka.api.entity.Player;
-import io.github.shiruka.api.events.LoginDataEvent;
-import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a simple implementation of {@link PlayerPreLoginEvent.LoginData}.
+ * a packet that disconnects the sent client.
  */
-public final class SimpleLoginData implements LoginDataEvent.LoginData {
+public final class PacketOutDisconnect extends PacketOut {
 
   /**
-   * the chain data.
+   * the kick message.
    */
   @NotNull
-  private final LoginDataEvent.ChainData chainData;
-
-  @NotNull
-  private final Player player;
-
-  @NotNull
-  private final String username;
+  private final String kickMessage;
 
   /**
-   * the should login.
+   * the message skipped.
    */
-  private boolean shouldLogin;
+  private final boolean messageSkipped;
 
   /**
    * ctor.
-   *
-   * @param chainData the chain data.
-   * @param player the player.
-   * @param username the username.
    */
-  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final Player player,
-                         @NotNull final String username) {
-    this.chainData = chainData;
-    this.username = username;
-    this.player = player;
+  public PacketOutDisconnect(@NotNull final String kickMessage, final boolean messageSkipped) {
+    super(PacketOutDisconnect.class);
+    this.kickMessage = kickMessage;
+    this.messageSkipped = messageSkipped;
   }
 
-  @NotNull
   @Override
-  public LoginDataEvent.ChainData chainData() {
-    return this.chainData;
-  }
-
-  /**
-   * initializes the player.
-   */
-  public void initializePlayer() {
-  }
-
-  /**
-   * obtains the should login.
-   *
-   * @return should login.
-   */
-  public boolean shouldLogin() {
-    return this.shouldLogin;
+  public void write(@NotNull final ByteBuf buf) {
+    buf.writeBoolean(this.messageSkipped);
+    if (!this.messageSkipped) {
+      VarInts.writeString(buf, this.kickMessage);
+    }
   }
 }

@@ -29,10 +29,13 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
+import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
+import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link Player}.
@@ -55,7 +58,18 @@ public final class ShirukaPlayer implements Player {
   }
 
   @Override
-  public void disconnect(@NotNull final String reason) {
+  public void disconnect(@Nullable final String reason) {
+    this.connection.getConnection().checkForClosed();
+    final String finalReason;
+    final boolean messageSkipped;
+    if (reason == null) {
+      finalReason = "disconnect.disconnected";
+      messageSkipped = true;
+    } else {
+      finalReason = reason;
+      messageSkipped = false;
+    }
+    this.connection.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped), PacketPriority.IMMEDIATE);
   }
 
   @NotNull

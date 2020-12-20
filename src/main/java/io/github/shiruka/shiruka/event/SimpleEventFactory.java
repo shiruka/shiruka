@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.event;
 
 import io.github.shiruka.api.events.Event;
+import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
 import io.github.shiruka.shiruka.event.player.SimplePlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;
@@ -34,13 +35,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an utility class that helps to call/create {@link Event}.
  */
-public final class Events {
-
-  /**
-   * ctor.
-   */
-  private Events() {
-  }
+public final class SimpleEventFactory implements EventFactory {
 
   /**
    * creates a new {@link SimplePlayerPreLoginEvent} instance.
@@ -51,20 +46,9 @@ public final class Events {
    * @return a new instance of {@link PlayerPreLoginEvent}.
    */
   @NotNull
-  public static PlayerPreLoginEvent createPlayerPreLoginEvent(@NotNull final PlayerPreLoginEvent.LoginData loginData,
-                                                              @Nullable final String kickMessage) {
+  @Override
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final PlayerPreLoginEvent.LoginData loginData,
+                                            @Nullable final String kickMessage) {
     return new SimplePlayerPreLoginEvent(loginData, kickMessage);
-  }
-
-  /**
-   * creates a new {@link SimplePlayerPreLoginEvent} instance.
-   *
-   * @param loginData the login data to create.
-   *
-   * @return a new instance of {@link PlayerPreLoginEvent}.
-   */
-  @NotNull
-  public static PlayerPreLoginEvent createPlayerPreLoginEvent(@NotNull final PlayerPreLoginEvent.LoginData loginData) {
-    return Events.createPlayerPreLoginEvent(loginData, null);
   }
 }

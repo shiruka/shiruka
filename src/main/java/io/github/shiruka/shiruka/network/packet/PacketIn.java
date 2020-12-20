@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
-import io.github.shiruka.shiruka.entity.Player;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,5 +49,5 @@ public abstract class PacketIn extends Packet {
    * @param buf the buf to read.
    * @param player the player to read.
    */
-  public abstract void read(@NotNull ByteBuf buf, @NotNull Player player);
+  public abstract void read(@NotNull ByteBuf buf, @NotNull ShirukaPlayer player);
 }

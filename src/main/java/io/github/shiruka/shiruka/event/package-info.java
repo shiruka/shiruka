@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains implementation for {@link io.github.shiruka.shiruka.entity.Entity}.
+ * the package that contains event classes.
  */
-package io.github.shiruka.shiruka.entity.impl;
+package io.github.shiruka.shiruka.event;

@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
-import io.github.shiruka.shiruka.entity.Player;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
@@ -47,7 +47,7 @@ public final class PacketInLogin extends PacketIn {
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final Player player) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
     final var protocolVersion = buf.readInt();
     final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
     final var chainData = Packets.readLEAsciiString(jwt);
@@ -55,7 +55,6 @@ public final class PacketInLogin extends PacketIn {
     if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD);
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
-      return;
     } else if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD);
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);

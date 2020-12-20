@@ -23,40 +23,48 @@
  *
  */
 
-package io.github.shiruka.shiruka.entity;
+package io.github.shiruka.shiruka.event;
 
-import io.github.shiruka.api.Server;
-import io.github.shiruka.shiruka.network.DisconnectReason;
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
+import io.github.shiruka.api.events.Event;
+import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.shiruka.event.player.SimplePlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * an interface to determine players on the Minecraft.
+ * an utility class that helps to call/create {@link Event}.
  */
-public interface Player extends Entity {
+public final class Events {
 
   /**
-   * runs when the player disconnected.
-   *
-   * @param reason the reason to disconnect.
+   * ctor.
    */
-  void disconnect(@NotNull DisconnectReason reason);
+  private Events() {
+  }
 
   /**
-   * obtains the player connection.
+   * creates a new {@link SimplePlayerPreLoginEvent} instance.
    *
-   * @return the player connection.
-   */
-  @NotNull
-  PlayerConnection getPlayerConnection();
-
-  /**
-   * obtains the server.
+   * @param loginData the login data to create.
+   * @param kickMessage the kick message to create.
    *
-   * @return the server.
+   * @return a new instance of {@link PlayerPreLoginEvent}.
    */
   @NotNull
-  default Server getServer() {
-    return this.getPlayerConnection().getServer();
+  public static PlayerPreLoginEvent createPlayerPreLoginEvent(@NotNull final PlayerPreLoginEvent.LoginData loginData,
+                                                              @Nullable final String kickMessage) {
+    return new SimplePlayerPreLoginEvent(loginData, kickMessage);
+  }
+
+  /**
+   * creates a new {@link SimplePlayerPreLoginEvent} instance.
+   *
+   * @param loginData the login data to create.
+   *
+   * @return a new instance of {@link PlayerPreLoginEvent}.
+   */
+  @NotNull
+  public static PlayerPreLoginEvent createPlayerPreLoginEvent(@NotNull final PlayerPreLoginEvent.LoginData loginData) {
+    return Events.createPlayerPreLoginEvent(loginData, null);
   }
 }

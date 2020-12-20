@@ -22,12 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.entity;
-
 /**
- * an interface to determine entities on the Minecraft.
+ * the package that contains event implementations for player events.
  */
-public interface Entity {
-
-}
+package io.github.shiruka.shiruka.event.player;

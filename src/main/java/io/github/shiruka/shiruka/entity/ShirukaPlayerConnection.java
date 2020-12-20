@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.entity.impl;
+package io.github.shiruka.shiruka.entity;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.ShirukaServer;
@@ -55,7 +55,7 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
    * the state.
    */
   @NotNull
-  private PlayerConnection.State state = State.LOGIN;
+  private PlayerConnection.State state = State.HANDSHAKE;
 
   /**
    * ctor.

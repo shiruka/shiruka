@@ -23,11 +23,15 @@
  *
  */
 
-package io.github.shiruka.shiruka.entity.impl;
+package io.github.shiruka.shiruka.entity;
 
-import io.github.shiruka.shiruka.entity.Player;
-import io.github.shiruka.shiruka.network.DisconnectReason;
+import io.github.shiruka.api.Server;
+import io.github.shiruka.api.entity.Player;
+import io.github.shiruka.api.metadata.MetadataValue;
+import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
+import java.util.Collections;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,11 +55,45 @@ public final class ShirukaPlayer implements Player {
   }
 
   @Override
-  public void disconnect(@NotNull final DisconnectReason reason) {
+  public void disconnect(@NotNull final String reason) {
   }
 
   @NotNull
   @Override
+  public Server getServer() {
+    return this.connection.getServer();
+  }
+
+  @NotNull
+  @Override
+  public List<MetadataValue> getMetadata(@NotNull final String key) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public boolean hasMetadata(@NotNull final String key) {
+    return false;
+  }
+
+  @Override
+  public void removeAllMetadata(@NotNull final String key) {
+  }
+
+  @Override
+  public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
+  }
+
+  @Override
+  public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
+  }
+
+  @NotNull
+  @Override
+  public String getName() {
+    return "null";
+  }
+
+  @NotNull
   public PlayerConnection getPlayerConnection() {
     return this.connection;
   }

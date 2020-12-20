@@ -61,7 +61,6 @@ public final class PacketInLogin extends PacketIn {
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
       return;
     }
-    final var data = new SimpleChainData(encodedChainData, encodedSkinData);
-    data.initialize();
+    final var data = SimpleChainData.create(encodedChainData, encodedSkinData);
   }
 }

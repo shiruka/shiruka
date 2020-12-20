@@ -44,6 +44,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
 import java.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -215,9 +216,25 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * @param chainData the chain data.
    * @param skinData the skin data.
    */
-  public SimpleChainData(@NotNull final String chainData, @NotNull final String skinData) {
+  private SimpleChainData(@NotNull final String chainData, @NotNull final String skinData) {
     this.chainData = chainData;
     this.skinData = skinData;
+  }
+
+  /**
+   * creates a new instance of {@code this} then use {@link #initialize()} method to initiate the chain data.
+   *
+   * @param chainData the chain data to create.
+   * @param skinData the skin data to create.
+   *
+   * @return a new instance of {@link PlayerPreLoginEvent.ChainData}.
+   */
+  @NotNull
+  public static PlayerPreLoginEvent.ChainData create(@NotNull final String chainData,
+                                                     @NotNull final String skinData) {
+    final var data = new SimpleChainData(chainData, skinData);
+    data.initialize();
+    return data;
   }
 
   /**
@@ -248,8 +265,10 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    *
    * @throws NoSuchAlgorithmException if no {@code Provider} supports a
    *   {@code KeyFactorySpi} implementation for the
-   *   specified algorithm
-   * @throws NullPointerException if {@code algorithm} is {@code null}
+   *   specified algorithm.
+   * @throws InvalidKeySpecException if the given key specification
+   *   is inappropriate for this key factory to produce a public key.
+   * @throws NullPointerException if {@code algorithm} is {@code null}.
    */
   @NotNull
   private static PublicKey generateKey(@NotNull final String base64) throws NoSuchAlgorithmException,
@@ -381,10 +400,9 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * @param chains the chains to verify.
    *
    * @return {@code true} if the given chains correct.
-   *
-   * @throws Exception if something went wrong when verifying the given chains.
    */
-  private static boolean verifyChain(@NotNull final List<String> chains) throws Exception {
+  private static boolean verifyChain(@NotNull final List<String> chains) throws ParseException, JOSEException,
+    NoSuchAlgorithmException, InvalidKeySpecException {
     PublicKey lastKey = null;
     var mojangKeyVerified = false;
     for (final var chain : chains) {
@@ -398,7 +416,7 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
       final var payload = jws.getPayload().toJSONObject();
       final var base64key = payload.get(SimpleChainData.IDENTITY_PUBLIC_KEY);
       if (!(base64key instanceof String)) {
-        throw new RuntimeException("No key found");
+        throw new IllegalStateException("No key found");
       }
       lastKey = SimpleChainData.generateKey((String) base64key);
     }
@@ -501,14 +519,6 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
   }
 
   /**
-   * initiates the chain data.
-   */
-  public void initialize() {
-    this.decodeChainData();
-    this.decodeSkinData();
-  }
-
-  /**
    * decodes the chain data.
    */
   private void decodeChainData() {
@@ -522,7 +532,6 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
       return;
     }
     final var chains = map.get(SimpleChainData.CHAIN);
-    // Validate keys
     try {
       this.xboxAuthed = SimpleChainData.verifyChain(chains);
     } catch (final Exception e) {
@@ -531,17 +540,19 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
     chains.stream()
       .map(SimpleChainData::decodeToken)
       .forEach(chainMap -> {
-        if (chainMap.has("extraData")) {
-          final var extra = chainMap.get("extraData");
-          if (extra.has("displayName")) {
-            this.username = extra.get("displayName").textValue();
-          }
-          if (extra.has("identity")) {
-            this.uniqueId = UUID.fromString(extra.get("identity").textValue());
-          }
-          if (extra.has("XUID")) {
-            this.xuid = extra.get("XUID").textValue();
-          }
+        if (!chainMap.has("extraData") && chainMap.has(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
+          this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).textValue();
+          return;
+        }
+        final var extra = chainMap.get("extraData");
+        if (extra.has("displayName")) {
+          this.username = extra.get("displayName").textValue();
+        }
+        if (extra.has("identity")) {
+          this.uniqueId = UUID.fromString(extra.get("identity").textValue());
+        }
+        if (extra.has("XUID")) {
+          this.xuid = extra.get("XUID").textValue();
         }
         if (chainMap.has(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
           this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).textValue();
@@ -591,5 +602,13 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
       this.uiProfile = skinToken.get("UIProfile").intValue();
     }
     this.skin = SimpleChainData.getSkin(skinToken);
+  }
+
+  /**
+   * initiates the chain data.
+   */
+  private void initialize() {
+    this.decodeChainData();
+    this.decodeSkinData();
   }
 }

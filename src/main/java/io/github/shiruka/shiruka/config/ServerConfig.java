@@ -42,74 +42,74 @@ public final class ServerConfig extends PathableConfig {
   /**
    * server's ip address.
    */
-  public static final ConfigPath<String> ADDRESS_IP =
-    commented(stringPath("ip", "127.0.0.1"),
-      "server's ip address.");
+  public static final ConfigPath<String> ADDRESS_IP = commented(stringPath(
+    "ip", "127.0.0.1"),
+    "server's ip address.");
 
   /**
    * server's port.
    */
-  public static final ConfigPath<Integer> ADDRESS_PORT =
-    commented(integerPath("port", 19132),
-      "server's port.");
+  public static final ConfigPath<Integer> ADDRESS_PORT = commented(integerPath(
+    "port", 19132),
+    "server's port.");
 
   /**
    * the amount of bytes before compressing packets.
    * <p>
    * use -1 to disable.
    */
-  public static final ConfigPath<Integer> COMPRESSION_THRESHOLD =
-    commented(integerPath("compression-threshold", 256),
-      "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
+  public static final ConfigPath<Integer> COMPRESSION_THRESHOLD = commented(integerPath(
+    "compression-threshold", 256),
+    "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
 
   /**
    * name of the over world.
    */
-  public static final ConfigPath<String> DEFAULT_WORLD_NAME =
-    commented(stringPath("default-world-name", "world"),
-      "name of the over world.");
+  public static final ConfigPath<String> DEFAULT_WORLD_NAME = commented(stringPath(
+    "default-world-name", "world"),
+    "name of the over world.");
 
   /**
    * the description message shown in the server list.
    */
-  public static final ConfigPath<String> DESCRIPTION =
-    commented(stringPath("description", "Shiru ka server"),
-      "the description message shown in the server list.");
+  public static final ConfigPath<String> DESCRIPTION = commented(stringPath(
+    "description", "Shiru ka server"),
+    "the description message shown in the server list.");
 
   /**
    * the max players that can be online at once.
    */
-  public static final ConfigPath<Integer> MAX_PLAYERS =
-    commented(integerPath("max-players", 20),
-      "the max players that can be online at once.");
+  public static final ConfigPath<Integer> MAX_PLAYERS = commented(integerPath(
+    "max-players", 20),
+    "the max players that can be online at once.");
 
   /**
    * whether to check for netty memory leaks during runtime
    */
-  public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR =
-    commented(booleanPath("netty-leak-detector", false),
-      "whether to check for netty memory leaks during runtime");
+  public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR = commented(booleanPath(
+    "netty-leak-detector", false),
+    "whether to check for netty memory leaks during runtime");
 
   /**
    * whether to use Mojang auth to check players.
    */
-  public static final ConfigPath<Boolean> ONLINE_MODE =
-    commented(booleanPath("online-mode", true),
-      "whether to use Mojang auth to check players.");
+  public static final ConfigPath<Boolean> ONLINE_MODE = commented(booleanPath(
+    "online-mode", true),
+    "whether to use Mojang auth to check players.");
 
   /**
    * "true" to use linux natives when available.
    */
-  public static final ConfigPath<Boolean> USE_NATIVE =
-    commented(booleanPath("use-native", true),
-      "\"true\" to use linux natives when available.");
+  public static final ConfigPath<Boolean> USE_NATIVE = commented(booleanPath(
+    "use-native", true),
+    "\"true\" to use linux natives when available.");
 
   /**
    * type of the worlds to create.
    */
-  public static final ConfigPath<String> WORLD_TYPE =
-    commented(stringPath("world-type", "anvil"),
-      "type of thw worlds to create.");
+  public static final ConfigPath<String> WORLD_TYPE = commented(stringPath(
+    "world-type", "anvil"),
+    "type of thw worlds to create.");
 
   /**
    * ctor.

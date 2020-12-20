@@ -25,8 +25,10 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
+import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.event.SimpleChainData;
+import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
@@ -61,6 +63,11 @@ public final class PacketInLogin extends PacketIn {
       player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
       return;
     }
-    final var data = SimpleChainData.create(encodedChainData, encodedSkinData);
+    final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
+    final var loginData = new SimpleLoginData(chainData);
+    if (!loginData.chainData().xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
+      player.disconnect("disconnectionScreen.notAuthenticated");
+      return;
+    }
   }
 }

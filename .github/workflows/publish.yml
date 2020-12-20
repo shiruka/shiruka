@@ -50,4 +50,4 @@ jobs:
           name: ${{ steps.bump-semver.outputs.new_version }}
           tag: ${{ steps.bump-semver.outputs.new_version }}
           artifacts: "target/shiruka.jar"
-          body: '[Changelog](https://github.com/shiruka/api/compare/${{ steps.version.outputs.release }}...${{ steps.bump-semver.outputs.new_version }})'
+          body: '[Changelog](https://github.com/shiruka/shiruka/compare/${{ steps.version.outputs.release }}...${{ steps.bump-semver.outputs.new_version }})'

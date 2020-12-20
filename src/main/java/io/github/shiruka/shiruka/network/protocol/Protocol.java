@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.protocol;
 
 import io.github.shiruka.api.log.Loggers;
-import io.github.shiruka.shiruka.entity.Player;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
@@ -55,7 +55,7 @@ public final class Protocol {
   private Protocol() {
   }
 
-  public static void deserialize(@NotNull final ByteBuf buf, @NotNull final Player player) {
+  public static void deserialize(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
     ByteBuf decompressed = null;
     try {
       decompressed = Protocol.ZLIB.inflate(buf, 12 * 1024 * 1024);

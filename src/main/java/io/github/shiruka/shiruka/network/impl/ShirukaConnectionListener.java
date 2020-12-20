@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.log.Loggers;
-import io.github.shiruka.shiruka.entity.impl.ShirukaPlayer;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
@@ -72,7 +72,7 @@ public final class ShirukaConnectionListener implements ConnectionListener {
 
   @Override
   public void onDisconnect(@NotNull final DisconnectReason reason) {
-    this.player.disconnect(reason);
+    this.player.disconnect(reason.getMessage());
   }
 
   @Override

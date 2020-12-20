@@ -25,8 +25,10 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packets.PacketInLogin;
+import io.github.shiruka.shiruka.network.packets.PacketOutPlayStatus;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import java.lang.reflect.Constructor;
@@ -59,7 +61,8 @@ public final class PacketRegistry {
     new Reference2IntOpenHashMap<>();
 
   static {
-    PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.LOGIN, PacketBound.SERVER, 1);
+    PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.HANDSHAKE, PacketBound.SERVER, 1);
+    PacketRegistry.put(PacketOutPlayStatus.class, PlayerConnection.State.HANDSHAKE, PacketBound.CLIENT, 2);
     PacketRegistry.PACKETS.trim();
     PacketRegistry.PACKET_IDS.trim();
   }
@@ -126,10 +129,8 @@ public final class PacketRegistry {
    */
   public static int packetInfo(@NotNull final Class<? extends Packet> cls) {
     final var identifier = PacketRegistry.PACKET_IDS.getInt(cls);
-    if (identifier != -1) {
-      return identifier;
-    }
-    throw new IllegalArgumentException(cls.getSimpleName() + " is not registered");
+    Preconditions.checkArgument(identifier != -1, "%s is not registered", cls.getSimpleName());
+    return identifier;
   }
 
   /**
@@ -142,13 +143,14 @@ public final class PacketRegistry {
                           @NotNull final PacketBound bound, final int id) {
     final var identifier = PacketRegistry.shift(state, bound, id);
     PacketRegistry.PACKET_IDS.put(cls, identifier);
-    if (bound == PacketBound.SERVER) {
-      PacketRegistry.PACKETS.put(identifier, cls);
-      try {
-        PacketRegistry.CONSTRUCTORS.put(cls, cls.getConstructor());
-      } catch (final NoSuchMethodException e) {
-        e.printStackTrace();
-      }
+    if (bound != PacketBound.SERVER) {
+      return;
+    }
+    PacketRegistry.PACKETS.put(identifier, cls);
+    try {
+      PacketRegistry.CONSTRUCTORS.put(cls, cls.getConstructor());
+    } catch (final NoSuchMethodException e) {
+      e.printStackTrace();
     }
   }
 

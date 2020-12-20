@@ -26,12 +26,14 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.event.SimpleEventFactory;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,6 +56,11 @@ public final class ShirukaServer implements Server {
    */
   @NotNull
   private final String description;
+
+  /**
+   * the event factory.
+   */
+  private final EventFactory eventFactory = new SimpleEventFactory();
 
   /**
    * the loader.
@@ -102,6 +109,12 @@ public final class ShirukaServer implements Server {
   @NotNull
   public ShirukaPlayer createPlayer(@NotNull final Connection<ServerSocket> connection) {
     return new ShirukaPlayer(new ShirukaPlayerConnection(connection, this));
+  }
+
+  @NotNull
+  @Override
+  public EventFactory getEventFactory() {
+    return this.eventFactory;
   }
 
   @Override

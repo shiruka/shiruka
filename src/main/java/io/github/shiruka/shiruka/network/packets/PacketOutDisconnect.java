@@ -48,6 +48,9 @@ public final class PacketOutDisconnect extends PacketOut {
 
   /**
    * ctor.
+   *
+   * @param kickMessage the kick message.
+   * @param messageSkipped the message skipped.
    */
   public PacketOutDisconnect(@NotNull final String kickMessage, final boolean messageSkipped) {
     super(PacketOutDisconnect.class);

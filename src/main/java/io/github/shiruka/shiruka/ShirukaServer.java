@@ -78,7 +78,7 @@ public final class ShirukaServer implements Server {
   /**
    * the scheduler.
    */
-  private final Scheduler scheduler = new SimpleScheduler();
+  private final SimpleScheduler scheduler = new SimpleScheduler();
 
   /**
    * the socket.

@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.scheduler;
 
+import com.google.common.collect.ForwardingCollection;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.scheduler.ScheduledRunnable;
 import io.github.shiruka.api.scheduler.ScheduledTask;
@@ -32,24 +33,34 @@ import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.scheduler.TaskType;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link Scheduler}.
  */
-public final class SimpleScheduler implements Scheduler {
+public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> implements Scheduler {
 
   /**
    * the pool.
    */
   private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
 
+  /**
+   * the task list.
+   */
+  private final Queue<ScheduledTask> tasks = new ConcurrentLinkedQueue<>();
+
   @NotNull
   @Override
   public ScheduledTask later(@NotNull final Plugin plugin, final boolean async, final long delay,
                              @NotNull final ScheduledRunnable runnable) {
     final var taskType = async ? TaskType.ASYNC_LATER : TaskType.SYNC_LATER;
-    return new SimpleScheduledTask(plugin, runnable, taskType, delay);
+    return this.createTask(plugin, runnable, taskType, delay);
   }
 
   @NotNull
@@ -60,7 +71,7 @@ public final class SimpleScheduler implements Scheduler {
       @Override
       public void run() {
         final var taskType = async ? TaskType.ASYNC_REPEAT : TaskType.SYNC_REPEAT;
-        new SimpleScheduledTask(plugin, runnable, taskType, initialInterval);
+        SimpleScheduler.this.createTask(plugin, runnable, taskType, initialInterval);
       }
     });
   }
@@ -70,13 +81,49 @@ public final class SimpleScheduler implements Scheduler {
   public ScheduledTask run(@NotNull final Plugin plugin, final boolean async,
                            @NotNull final ScheduledRunnable runnable) {
     final var taskType = async ? TaskType.ASYNC_RUN : TaskType.SYNC_RUN;
-    return new SimpleScheduledTask(plugin, runnable, taskType, -1);
+    return this.createTask(plugin, runnable, taskType, -1);
+  }
+
+  /**
+   * ticks the tasks.
+   */
+  public void tick() {
+    this.tasks.forEach(Runnable::run);
+  }
+
+  @Override
+  protected Collection<ScheduledTask> delegate() {
+    return Collections.unmodifiableCollection(this.tasks);
+  }
+
+  /**
+   * creates a new instance of {@link SimpleScheduledTask}.
+   *
+   * @param plugin the plugin to create.
+   * @param runnable the runnable to create.
+   * @param taskType the task type to create.
+   * @param interval the interval to create.
+   *
+   * @return a new instance of scheduled task.
+   */
+  @NotNull
+  private ScheduledTask createTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
+                                   @NotNull final TaskType taskType, final long interval) {
+    final Executor executor = null;
+    final Runnable runner = null;
+    return new SimpleScheduledTask(executor, plugin, runnable, runner, taskType, interval);
   }
 
   /**
    * a simple implementation for {@link ScheduledTask}.
    */
-  private static final class SimpleScheduledTask implements ScheduledTask {
+  private final class SimpleScheduledTask implements ScheduledTask {
+
+    /**
+     * the executor.
+     */
+    @NotNull
+    private final Executor executor;
 
     /**
      * the plugin.
@@ -91,6 +138,12 @@ public final class SimpleScheduler implements Scheduler {
     private final ScheduledRunnable runnable;
 
     /**
+     * the runner.
+     */
+    @NotNull
+    private final Runnable runner;
+
+    /**
      * the task type.
      */
     @NotNull
@@ -102,23 +155,34 @@ public final class SimpleScheduler implements Scheduler {
     private long interval;
 
     /**
+     * the runç
+     */
+    private long run = 0L;
+
+    /**
      * ctor.
      *
+     * @param executor the executor.
      * @param plugin the plugin.
      * @param runnable the runnable.
+     * @param runner the runner.
      * @param taskType the task type.
      * @param interval the step.
      */
-    public SimpleScheduledTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
+    public SimpleScheduledTask(@NotNull final Executor executor, @NotNull final Plugin plugin,
+                               @NotNull final ScheduledRunnable runnable, @NotNull final Runnable runner,
                                @NotNull final TaskType taskType, final long interval) {
+      this.executor = executor;
       this.plugin = plugin;
       this.runnable = runnable;
+      this.runner = runner;
       this.taskType = taskType;
       this.interval = interval;
     }
 
     @Override
     public void cancel() {
+      SimpleScheduler.this.tasks.remove(this);
     }
 
     @Override
@@ -151,12 +215,27 @@ public final class SimpleScheduler implements Scheduler {
 
     @Override
     public void run() {
-    }
-
-    /**
-     * initiates the task.
-     */
-    private void initiate() {
+      switch (this.taskType) {
+        case ASYNC_RUN:
+        case SYNC_RUN:
+          this.executor.execute(this.runner);
+          break;
+        case ASYNC_LATER:
+        case SYNC_LATER:
+          if (++this.run >= this.interval) {
+            this.executor.execute(this.runner);
+          }
+          break;
+        case ASYNC_REPEAT:
+        case SYNC_REPEAT:
+          if (++this.run >= this.interval) {
+            this.executor.execute(this.runner);
+            this.run = 0;
+          }
+          break;
+        default:
+          throw new IllegalStateException();
+      }
     }
   }
 }

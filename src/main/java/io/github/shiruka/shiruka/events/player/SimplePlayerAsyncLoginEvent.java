@@ -71,6 +71,22 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
     this.loginData = loginData;
   }
 
+  @Override
+  public void add(@NotNull final Consumer<Player> o) {
+    this.actions.add(o);
+  }
+
+  @NotNull
+  @Override
+  public List<Consumer<Player>> objects() {
+    return Collections.unmodifiableList(this.actions);
+  }
+
+  @Override
+  public void remove(@NotNull final Consumer<Player> o) {
+    this.actions.remove(o);
+  }
+
   @Nullable
   @Override
   public String kickMessage() {
@@ -97,21 +113,5 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   @Override
   public void loginResult(@NotNull final LoginResult loginResult) {
     this.loginResult = loginResult;
-  }
-
-  @NotNull
-  @Override
-  public List<Consumer<Player>> objects() {
-    return Collections.unmodifiableList(this.actions);
-  }
-
-  @Override
-  public void add(@NotNull final Consumer<Player> o) {
-    this.actions.add(o);
-  }
-
-  @Override
-  public void remove(@NotNull final Consumer<Player> o) {
-    this.actions.remove(o);
   }
 }

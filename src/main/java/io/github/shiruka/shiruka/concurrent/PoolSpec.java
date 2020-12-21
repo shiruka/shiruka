@@ -138,7 +138,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   }
 
   @Override
-  public ForkJoinWorkerThread newThread(final ForkJoinPool pool) {
+  public ForkJoinWorkerThread newThread(@NotNull final ForkJoinPool pool) {
     final var worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
     worker.setName(this.name + " - " + worker.getPoolIndex());
     worker.setUncaughtExceptionHandler(this);
@@ -146,7 +146,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   }
 
   @Override
-  public void uncaughtException(final Thread t, final Throwable e) {
+  public void uncaughtException(@NotNull final Thread t, @NotNull final Throwable e) {
     e.printStackTrace(new PrintStream(System.out) {
       @Override
       public void println(final Object x) {

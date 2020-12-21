@@ -102,10 +102,10 @@ public final class PacketInLogin extends PacketIn {
       return;
     }
     player.getPlayerConnection().setState(PlayerConnection.State.STATUS);
+    final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
     CompletableFuture.supplyAsync(() -> {
-      final var event = eventFactory.playerAsyncLogin(loginData);
-      eventFactory.call(event);
-      return event;
+      eventFactory.call(asyncLogin);
+      return asyncLogin;
     })
       .thenAccept(event -> {
         if (player.getPlayerConnection().getConnection().isClosed()) {

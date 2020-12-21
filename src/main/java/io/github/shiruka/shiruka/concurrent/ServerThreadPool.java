@@ -47,6 +47,7 @@ public final class ServerThreadPool implements Executor {
    * delegate executor service that is determined via
    * spec in the {@link #forSpec(PoolSpec)} method.
    */
+  @NotNull
   private final ExecutorService delegate;
 
   /**

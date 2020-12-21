@@ -41,39 +41,37 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * the thread for worlds.
    */
-  public static final PoolSpec CHUNKS = new PoolSpec("Shiru ka - Chunks", 4, true);
+  public static final PoolSpec CHUNKS = new PoolSpec(true, 4, "Shiru ka - Chunks");
 
   /**
    * the thread for entities.
    */
-  public static final PoolSpec ENTITIES = new PoolSpec("Shiru ka - Entities", 3, false);
+  public static final PoolSpec ENTITIES = new PoolSpec(false, 3, "Shiru ka - Entities");
 
   /**
    * the thread for players.
    */
-  public static final PoolSpec PLAYERS = new PoolSpec("Shiru ka - Players", 3, false);
+  public static final PoolSpec PLAYERS = new PoolSpec(false, 3, "Shiru ka - Players");
 
   /**
    * the thread for plugins.
    */
-  public static final PoolSpec PLUGINS = new PoolSpec("Shiru ka - Plugins", 1, false);
+  public static final PoolSpec PLUGINS = new PoolSpec(false, 1, "Shiru ka - Plugins");
 
   /**
    * the thread for schedulers.
    */
-  public static final PoolSpec SCHEDULER = new PoolSpec("Shiru ka - Scheduler", 3, false);
+  public static final PoolSpec SCHEDULER = new PoolSpec(false, 3, "Shiru ka - Scheduler");
 
   /**
-   * a thread factory that does handling for exceptions,
-   * piping exception output to the loggers.
+   * a thread factory that does handling for exceptions, piping exception output to the loggers.
    */
-  public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec("Shiru ka - Net", 0,
-    false);
+  public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec(false, 0, "Shiru ka - Net");
 
   /**
    * the thread for worlds.
    */
-  public static final PoolSpec WORLDS = new PoolSpec("Shiru ka - Worlds", 4, true);
+  public static final PoolSpec WORLDS = new PoolSpec(true, 4, "Shiru ka - Worlds");
 
   /**
    * whether or not the task order is relevant.
@@ -88,20 +86,20 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * the name of the pool used to identify its threads.
    */
+  @NotNull
   private final String name;
 
   /**
    * Creates a new thread pool spec.
    *
-   * @param name the name of the pool
+   * @param doStealing whether or not the pool performs work steals
    * @param maxThreads the max thread limit
-   * @param doStealing whether or not the pool performs
-   *   work steals
+   * @param name the name of the pool
    */
-  private PoolSpec(final String name, final int maxThreads, final boolean doStealing) {
-    this.name = name;
-    this.maxThreads = maxThreads;
+  public PoolSpec(final boolean doStealing, final int maxThreads, @NotNull final String name) {
     this.doStealing = doStealing;
+    this.maxThreads = maxThreads;
+    this.name = name;
   }
 
   /**

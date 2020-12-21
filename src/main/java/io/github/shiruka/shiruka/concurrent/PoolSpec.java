@@ -96,7 +96,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
    * @param maxThreads the max thread limit
    * @param name the name of the pool
    */
-  public PoolSpec(final boolean doStealing, final int maxThreads, @NotNull final String name) {
+  private PoolSpec(final boolean doStealing, final int maxThreads, @NotNull final String name) {
     this.doStealing = doStealing;
     this.maxThreads = maxThreads;
     this.name = name;

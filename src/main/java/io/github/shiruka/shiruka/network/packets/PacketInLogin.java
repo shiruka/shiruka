@@ -122,6 +122,6 @@ public final class PacketInLogin extends PacketIn {
         action.accept(player));
     });
     player.getPlayerConnection().sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
-    // TODO player.getPlayerConnection().sendPacket(Shiruka.getServer().getResourcePackManager().getPacksInfos());
+    // @todo #0 player.getPlayerConnection().sendPacket(Shiruka.getServer().getResourcePackManager().getPacksInfos());
   }
 }

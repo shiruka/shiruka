@@ -165,7 +165,7 @@ public final class ShirukaWeather implements Weather {
   }
 
   public void tick() {
-    // TODO.
+    // @todo #0.
   }
 
   public void write(@NotNull final CompoundTag compound) {

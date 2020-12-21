@@ -151,7 +151,7 @@ public final class AnvilChunkSection {
       oldSplice = this.data.get(spliceIdx);
       newSplice = oldSplice & placeMask | shiftedState;
     } while (!this.data.compareAndSet(spliceIdx, oldSplice, newSplice));
-    // TODO relighting.
+    // @todo #0 relighting.
   }
 
   /**

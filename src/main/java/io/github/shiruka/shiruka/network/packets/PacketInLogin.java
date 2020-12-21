@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka.network.packets;
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.chat.ChatColor;
 import io.github.shiruka.api.events.LoginResultEvent;
+import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.ServerConfig;
@@ -103,25 +104,23 @@ public final class PacketInLogin extends PacketIn {
     }
     player.getPlayerConnection().setState(PlayerConnection.State.STATUS);
     final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
-    CompletableFuture.supplyAsync(() -> {
-      eventFactory.call(asyncLogin);
-      return asyncLogin;
-    })
-      .thenAccept(event -> {
-        if (player.getPlayerConnection().getConnection().isClosed()) {
-          return;
-        }
-        if (event.loginResult() == LoginResultEvent.LoginResult.KICK) {
-          player.disconnect(event.kickMessage());
-          return;
-        }
-        if (!loginData.shouldLogin()) {
-          return;
-        }
-        loginData.initializePlayer();
-        event.objects().forEach(action ->
-          action.accept(player));
-      });
+    CompletableFuture.supplyAsync(() ->
+      Optionals.useAndGet(asyncLogin, eventFactory::call), ServerThreadPool.forSpec(PoolSpec.PLAYERS)
+    ).thenAccept(event -> {
+      if (player.getPlayerConnection().getConnection().isClosed()) {
+        return;
+      }
+      if (event.loginResult() == LoginResultEvent.LoginResult.KICK) {
+        player.disconnect(event.kickMessage());
+        return;
+      }
+      if (!loginData.shouldLogin()) {
+        return;
+      }
+      loginData.initializePlayer();
+      event.objects().forEach(action ->
+        action.accept(player));
+    });
     player.getPlayerConnection().sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
     // TODO player.getPlayerConnection().sendPacket(Shiruka.getServer().getResourcePackManager().getPacksInfos());
   }

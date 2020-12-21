@@ -41,7 +41,7 @@ public final class ServerThreadPool implements Executor {
   /**
    * mapping of spec objects to delegate thread pools.
    */
-  private static final Map<PoolSpec, ServerThreadPool> pools = new ConcurrentHashMap<>();
+  private static final Map<PoolSpec, ServerThreadPool> POOLS = new ConcurrentHashMap<>();
 
   /**
    * delegate executor service that is determined via
@@ -68,7 +68,7 @@ public final class ServerThreadPool implements Executor {
    */
   @NotNull
   public static ServerThreadPool forSpec(@NotNull final PoolSpec spec) {
-    return ServerThreadPool.pools.computeIfAbsent(spec, k -> {
+    return ServerThreadPool.POOLS.computeIfAbsent(spec, k -> {
       final var config = spec.getMaxThreads();
       if (spec.isDoStealing()) {
         return new ServerThreadPool(new ForkJoinPool(config, spec, null, true));
@@ -97,7 +97,7 @@ public final class ServerThreadPool implements Executor {
    * registered through a spec in the server.
    */
   public static void shutdownAll() {
-    ServerThreadPool.pools.values()
+    ServerThreadPool.POOLS.values()
       .forEach(ServerThreadPool::shutdown);
   }
 

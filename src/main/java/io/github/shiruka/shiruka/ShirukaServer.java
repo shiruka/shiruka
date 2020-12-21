@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka;
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
@@ -36,6 +37,7 @@ import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.event.SimpleEventFactory;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +74,11 @@ public final class ShirukaServer implements Server {
    * if the server is running.
    */
   private final AtomicBoolean running = new AtomicBoolean(true);
+
+  /**
+   * the scheduler.
+   */
+  private final Scheduler scheduler = new SimpleScheduler();
 
   /**
    * the socket.
@@ -125,6 +132,12 @@ public final class ShirukaServer implements Server {
   @Override
   public int getPlayerCount() {
     return this.socket.getConnectionsByAddress().size();
+  }
+
+  @NotNull
+  @Override
+  public Scheduler getScheduler() {
+    return this.scheduler;
   }
 
   @NotNull

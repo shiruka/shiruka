@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
  * in CPU resources and performs work stealing when
  * necessary.
  */
-public final class ServerThreadPool implements Executor {
+public final class ServerThreadPool implements ExecutorService {
 
   /**
    * mapping of spec objects to delegate thread pools.
@@ -70,12 +70,12 @@ public final class ServerThreadPool implements Executor {
   @NotNull
   public static ServerThreadPool forSpec(@NotNull final PoolSpec spec) {
     return ServerThreadPool.POOLS.computeIfAbsent(spec, k -> {
-      final var config = spec.getMaxThreads();
+      final var maxThreads = spec.getMaxThreads();
       final ExecutorService service;
       if (spec.isDoStealing()) {
-        service = new ForkJoinPool(config, spec, null, true);
+        service = new ForkJoinPool(maxThreads, spec, null, true);
       } else {
-        service = new ThreadPoolExecutor(1, config, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), spec);
+        service = new ThreadPoolExecutor(1, maxThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), spec);
       }
       return new ServerThreadPool(service);
     });
@@ -102,78 +102,81 @@ public final class ServerThreadPool implements Executor {
       .forEach(ServerThreadPool::shutdown);
   }
 
-  /**
-   * executes the given runnable command in the thread
-   * pool.
-   *
-   * @param command the command which to schedule for
-   *   running.
-   */
   @Override
   public void execute(@NotNull final Runnable command) {
     this.service.execute(command);
   }
 
-  /**
-   * submits the given {@link Callable}.
-   *
-   * @param tasks the tasks to submit.
-   * @param <T> type of the submitted task.
-   *
-   * @return submitted future.
-   *
-   * @throws InterruptedException if interrupted while waiting, in
-   *   which case unfinished tasks are cancelled
-   */
+  @Override
+  public void shutdown() {
+    this.service.shutdown();
+  }
+
   @NotNull
+  @Override
+  public List<Runnable> shutdownNow() {
+    return this.service.shutdownNow();
+  }
+
+  @Override
+  public boolean isShutdown() {
+    return this.service.isShutdown();
+  }
+
+  @Override
+  public boolean isTerminated() {
+    return this.service.isTerminated();
+  }
+
+  @Override
+  public boolean awaitTermination(final long timeout, @NotNull final TimeUnit unit) throws InterruptedException {
+    return this.service.awaitTermination(timeout, unit);
+  }
+
+  @NotNull
+  @Override
+  public <T> Future<T> submit(@NotNull final Callable<T> task) {
+    return this.service.submit(task);
+  }
+
+  @NotNull
+  @Override
+  public <T> Future<T> submit(@NotNull final Runnable task, @NotNull final T result) {
+    return this.service.submit(task, result);
+  }
+
+  @NotNull
+  @Override
+  public Future<?> submit(@NotNull final Runnable task) {
+    return this.service.submit(task);
+  }
+
+  @NotNull
+  @Override
   public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks)
     throws InterruptedException {
     return this.service.invokeAll(tasks);
   }
 
-  /**
-   * attempts to shutdown the thread pool immediately.
-   */
-  public void shutdown() {
-    this.service.shutdown();
+  @NotNull
+  @Override
+  public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks, final long timeout,
+                                       @NotNull final TimeUnit unit) throws InterruptedException {
+    return this.service.invokeAll(tasks, timeout, unit);
   }
 
-  /**
-   * submits the given {@link Runnable}.
-   *
-   * @param task the task to submit.
-   *
-   * @return submitted future.
-   */
   @NotNull
-  public Future<?> submit(@NotNull final Runnable task) {
-    return this.service.submit(task);
+  @Override
+  public <T> T invokeAny(@NotNull final Collection<? extends Callable<T>> tasks) throws InterruptedException,
+    ExecutionException {
+    return this.service.invokeAny(tasks);
   }
 
-  /**
-   * submits the given {@link Callable}.
-   *
-   * @param task the task to submit.
-   * @param <T> type of the submitted task.
-   *
-   * @return submitted future.
-   */
   @NotNull
-  public <T> Future<T> submit(@NotNull final Callable<T> task) {
-    return this.service.submit(task);
-  }
-
-  /**
-   * submits the given {@link Runnable}.
-   *
-   * @param task the task to submit.
-   * @param <T> type of the submitted task.
-   * @param result the result to submit.
-   *
-   * @return submitted future.
-   */
-  @NotNull
-  public <T> Future<T> submit(@NotNull final Runnable task, @NotNull final T result) {
-    return this.service.submit(task, result);
+  @Override
+  public <T> T invokeAny(@NotNull final Collection<? extends Callable<T>> tasks, final long timeout,
+                         @NotNull final TimeUnit unit) throws InterruptedException, ExecutionException,
+    TimeoutException {
+    return this.service.invokeAny(tasks, timeout, unit);
   }
 }

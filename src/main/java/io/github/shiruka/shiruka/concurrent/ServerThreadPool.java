@@ -67,7 +67,7 @@ public final class ServerThreadPool implements Executor {
    * @return the thread pool that is based on the spec.
    */
   @NotNull
-  public static ServerThreadPool forSpec(final PoolSpec spec) {
+  public static ServerThreadPool forSpec(@NotNull final PoolSpec spec) {
     return ServerThreadPool.pools.computeIfAbsent(spec, k -> {
       final var config = spec.getMaxThreads();
       if (spec.isDoStealing()) {

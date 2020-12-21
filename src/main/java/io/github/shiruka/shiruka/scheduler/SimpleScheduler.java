@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -109,10 +110,29 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   @NotNull
   private ScheduledTask createTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
                                    @NotNull final TaskType taskType, final long interval) {
-    final Executor executor = command -> {
-    };
-    final Runnable runner = () -> {
-    };
+    final Executor executor;
+    if (taskType.name().contains("ASYNC")) {
+      executor = command -> {
+      };
+    } else {
+      executor = command -> {
+      };
+    }
+    final Function<ScheduledTask, Runnable> runner;
+    if (taskType.name().contains("REPEAT")) {
+      runner = task -> () -> {
+        runnable.beforeRun();
+        runnable.run();
+        runnable.afterAsyncRun();
+      };
+    } else {
+      runner = task -> () -> {
+        runnable.beforeRun();
+        runnable.run();
+        runnable.afterAsyncRun();
+        task.cancel();
+      };
+    }
     final var task = new SimpleScheduledTask(executor, plugin, runnable, runner, taskType, interval);
     while (true) {
       if (this.tasks.add(task)) {
@@ -178,14 +198,15 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
      * @param interval the step.
      */
     public SimpleScheduledTask(@NotNull final Executor executor, @NotNull final Plugin plugin,
-                               @NotNull final ScheduledRunnable runnable, @NotNull final Runnable runner,
+                               @NotNull final ScheduledRunnable runnable,
+                               @NotNull final Function<ScheduledTask, Runnable> runner,
                                @NotNull final TaskType taskType, final long interval) {
       this.executor = executor;
       this.plugin = plugin;
       this.runnable = runnable;
-      this.runner = runner;
       this.taskType = taskType;
       this.interval = interval;
+      this.runner = runner.apply(this);
     }
 
     @Override

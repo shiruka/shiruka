@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka.concurrent;
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +63,7 @@ public final class ShirukaTick extends Thread {
   public void run() {
     while (!this.server.isInShutdownState()) {
       final var start = System.currentTimeMillis();
+      ((SimpleScheduler) this.server.getScheduler()).tick();
       // TODO Add more tick operations.
       final var end = System.currentTimeMillis();
       final var elapsed = end - start;

@@ -298,7 +298,7 @@ public final class AnvilChunk implements Chunk {
         .map(i -> 1)
         .forEach(buf::writeByte);
     }
-    // TODO Tile entities.
+    // @todo #0 Tile entities.
     VarInts.writeVarInt(buf, 0);
   }
 

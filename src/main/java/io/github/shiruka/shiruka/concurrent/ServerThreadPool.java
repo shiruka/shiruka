@@ -48,15 +48,15 @@ public final class ServerThreadPool implements Executor {
    * spec in the {@link #forSpec(PoolSpec)} method.
    */
   @NotNull
-  private final ExecutorService delegate;
+  private final ExecutorService service;
 
   /**
    * ctor.
    *
-   * @param delegate the delegate.
+   * @param service the service.
    */
-  private ServerThreadPool(@NotNull final ExecutorService delegate) {
-    this.delegate = delegate;
+  private ServerThreadPool(@NotNull final ExecutorService service) {
+    this.service = service;
   }
 
   /**
@@ -71,13 +71,13 @@ public final class ServerThreadPool implements Executor {
   public static ServerThreadPool forSpec(@NotNull final PoolSpec spec) {
     return ServerThreadPool.POOLS.computeIfAbsent(spec, k -> {
       final var config = spec.getMaxThreads();
+      final ExecutorService service;
       if (spec.isDoStealing()) {
-        return new ServerThreadPool(new ForkJoinPool(config, spec, null, true));
+        service = new ForkJoinPool(config, spec, null, true);
+      } else {
+        service = new ThreadPoolExecutor(1, config, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), spec);
       }
-      return new ServerThreadPool(new ThreadPoolExecutor(1, config,
-        60L, TimeUnit.SECONDS,
-        new LinkedBlockingQueue<>(),
-        spec));
+      return new ServerThreadPool(service);
     });
   }
 
@@ -111,7 +111,7 @@ public final class ServerThreadPool implements Executor {
    */
   @Override
   public void execute(@NotNull final Runnable command) {
-    this.delegate.execute(command);
+    this.service.execute(command);
   }
 
   /**
@@ -128,14 +128,14 @@ public final class ServerThreadPool implements Executor {
   @NotNull
   public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks)
     throws InterruptedException {
-    return this.delegate.invokeAll(tasks);
+    return this.service.invokeAll(tasks);
   }
 
   /**
    * attempts to shutdown the thread pool immediately.
    */
   public void shutdown() {
-    this.delegate.shutdown();
+    this.service.shutdown();
   }
 
   /**
@@ -147,7 +147,7 @@ public final class ServerThreadPool implements Executor {
    */
   @NotNull
   public Future<?> submit(@NotNull final Runnable task) {
-    return this.delegate.submit(task);
+    return this.service.submit(task);
   }
 
   /**
@@ -160,7 +160,7 @@ public final class ServerThreadPool implements Executor {
    */
   @NotNull
   public <T> Future<T> submit(@NotNull final Callable<T> task) {
-    return this.delegate.submit(task);
+    return this.service.submit(task);
   }
 
   /**
@@ -174,6 +174,6 @@ public final class ServerThreadPool implements Executor {
    */
   @NotNull
   public <T> Future<T> submit(@NotNull final Runnable task, @NotNull final T result) {
-    return this.delegate.submit(task, result);
+    return this.service.submit(task, result);
   }
 }

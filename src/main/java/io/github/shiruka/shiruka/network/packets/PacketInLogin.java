@@ -106,7 +106,7 @@ public final class PacketInLogin extends PacketIn {
       final var event = eventFactory.playerAsyncLogin(loginData);
       eventFactory.call(event);
       return event;
-    }, ServerThreadPool.forSpec(PoolSpec.PLAYERS))
+    })
       .thenAccept(event -> {
         if (player.getPlayerConnection().getConnection().isClosed()) {
           return;

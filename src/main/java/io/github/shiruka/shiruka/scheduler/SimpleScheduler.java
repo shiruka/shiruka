@@ -111,7 +111,13 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
                                    @NotNull final TaskType taskType, final long interval) {
     final Executor executor = null;
     final Runnable runner = null;
-    return new SimpleScheduledTask(executor, plugin, runnable, runner, taskType, interval);
+    final var task = new SimpleScheduledTask(executor, plugin, runnable, runner, taskType, interval);
+    while (true) {
+      if (this.tasks.add(task)) {
+        task.runnable().markSchedule(task);
+        return task;
+      }
+    }
   }
 
   /**

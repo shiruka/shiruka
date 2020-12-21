@@ -115,11 +115,12 @@ public final class PacketInLogin extends PacketIn {
           player.disconnect(event.kickMessage());
           return;
         }
-        if (loginData.shouldLogin()) {
-          loginData.initializePlayer();
-          event.objects().forEach(action ->
-            action.accept(player));
+        if (!loginData.shouldLogin()) {
+          return;
         }
+        loginData.initializePlayer();
+        event.objects().forEach(action ->
+          action.accept(player));
       });
     player.getPlayerConnection().sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
     // TODO player.getPlayerConnection().sendPacket(Shiruka.getServer().getResourcePackManager().getPacksInfos());

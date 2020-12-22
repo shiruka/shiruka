@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.scheduler.Scheduler;
@@ -167,7 +168,6 @@ public final class ShirukaServer implements Server {
     this.loader.loadAll();
     Loggers.log("Enabling plugins after the loading worlds.");
     // @todo #0:60m enable plugins which set PluginLoadOrder as POST_WORLD.
-    
   }
 
   @Override

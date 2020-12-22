@@ -73,12 +73,9 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   @Override
   public ScheduledTask repeat(@NotNull final Plugin plugin, final boolean async, final long delay,
                               final long initialInterval, @NotNull final ScheduledRunnable runnable) {
-    return this.later(plugin, async, delay, new ScheduledRunnable() {
-      @Override
-      public void run() {
-        final var taskType = async ? TaskType.ASYNC_REPEAT : TaskType.SYNC_REPEAT;
-        SimpleScheduler.this.createTask(plugin, runnable, taskType, initialInterval);
-      }
+    return this.later(plugin, async, delay, () -> {
+      final var taskType = async ? TaskType.ASYNC_REPEAT : TaskType.SYNC_REPEAT;
+      SimpleScheduler.this.createTask(plugin, runnable, taskType, initialInterval);
     });
   }
 

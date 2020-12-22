@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
@@ -116,7 +117,8 @@ public final class ShirukaMain {
     if (worldType.equalsIgnoreCase("anvil")) {
       return new AnvilWorldLoader();
     }
-    throw new IllegalStateException("The given world type called " + worldType + "is not supported!");
+    throw new IllegalStateException(String.format("The given world type called %s is not supported!",
+      worldType));
   }
 
   /**
@@ -199,6 +201,7 @@ public final class ShirukaMain {
     final Function<ShirukaServer, ServerSocket> socket = instance ->
       NetServerSocket.init(new InetSocketAddress(ip, port), new ShirukaServerListener(instance), maxPlayer);
     final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType), socket);
+    Shiruka.setServer(server);
     server.startServer();
     final var end = System.currentTimeMillis() - start;
     Loggers.log("Done, took %sms.", end);

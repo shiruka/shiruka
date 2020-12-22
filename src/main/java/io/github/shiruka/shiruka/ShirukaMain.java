@@ -110,10 +110,11 @@ public final class ShirukaMain {
    * @param worldType the world type to create.
    *
    * @return a new {@link WorldLoader} instance.
+   *
+   * @todo #0:15m create a WorldType class to move this method.
    */
   @NotNull
   private static WorldLoader createWorldType(@NotNull final String worldType) {
-    // @todo #0:15m create a WorldType class to move this method.
     if (worldType.equalsIgnoreCase("anvil")) {
       return new AnvilWorldLoader();
     }

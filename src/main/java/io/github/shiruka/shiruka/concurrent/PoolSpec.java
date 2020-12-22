@@ -66,7 +66,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * the thread for async schedulers.
    */
-  public static final PoolSpec ASYNC_SCHEDULER = new PoolSpec(false, 1, "Shiru ka - Async Scheduler");
+  public static final PoolSpec ASYNC_SCHEDULER = new PoolSpec(false, 3, "Shiru ka - Async Scheduler");
 
   /**
    * a thread factory that does handling for exceptions, piping exception output to the loggers.

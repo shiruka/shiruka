@@ -105,7 +105,7 @@ public final class ShirukaMain {
   }
 
   /**
-   * creates a {@link WorldLoader} instance from the given world type string.
+   * creates a new instance of {@link WorldLoader} from the given world type string.
    *
    * @param worldType the world type to create.
    *

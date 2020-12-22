@@ -49,6 +49,11 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   /**
    * the pool.
    */
+  private static final ServerThreadPool ASYNC_POOL = ServerThreadPool.forSpec(PoolSpec.ASYNC_SCHEDULER);
+
+  /**
+   * the pool.
+   */
   private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
 
   /**
@@ -112,12 +117,9 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
                                    @NotNull final TaskType taskType, final long interval) {
     final Executor executor;
     if (taskType.name().contains("ASYNC")) {
-      executor = command -> {
-        // @todo #0:30m Continue to development here.
-      };
+      executor = SimpleScheduler.ASYNC_POOL;
     } else {
-      executor = command -> {
-      };
+      executor = SimpleScheduler.POOL;
     }
     final Function<ScheduledTask, Runnable> runner;
     if (taskType.name().contains("REPEAT")) {

@@ -29,19 +29,22 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.AttributedCharSequence;
 
 /**
  * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
 public final class ShirukaConsole {
 
-  public static final DefaultParser PARSER = new DefaultParser();
+  /**
+   * the parser.
+   */
+  private static final DefaultParser PARSER = new DefaultParser();
 
   /**
    * the prompt.
@@ -84,19 +87,23 @@ public final class ShirukaConsole {
    * starts the reading inputs.
    */
   public void start() {
-    AnsiConsole.systemInstall();
+    final var appName = "Shiru ka";
     try (final var terminal = TerminalBuilder.builder()
-      .name("Shiru ka")
+      .name(appName)
+      .jansi(true)
       .encoding(StandardCharsets.UTF_8)
       .build()) {
       final var reader = LineReaderBuilder.builder()
+        .appName(appName)
         .terminal(terminal)
         .completer(this.completer)
         .parser(ShirukaConsole.PARSER)
         .variable(LineReader.LIST_MAX, 50)
+        .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
+        .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
+        .option(LineReader.Option.INSERT_TAB, false)
+        .option(LineReader.Option.BRACKETED_PASTE, false)
         .build();
-      reader.setOpt(LineReader.Option.DISABLE_EVENT_EXPANSION);
-      reader.unsetOpt(LineReader.Option.INSERT_TAB);
       String line;
       while (!this.server.isInShutdownState()) {
         try {

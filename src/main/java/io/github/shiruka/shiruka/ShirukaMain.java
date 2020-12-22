@@ -36,7 +36,6 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
@@ -49,6 +48,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -91,6 +91,7 @@ public final class ShirukaMain {
       ShirukaConsoleParser.printVersion();
       return;
     }
+    AnsiConsole.systemInstall();
     ShirukaLoggers.init("Shiru ka",
       parsed.has(ShirukaConsoleParser.DEBUG) && parsed.valueOf(ShirukaConsoleParser.DEBUG));
     final var here = new File(".").getAbsolutePath();
@@ -99,7 +100,7 @@ public final class ShirukaMain {
       Loggers.warn("Please rename the affected folders and try again.");
       return;
     }
-    System.setProperty("library.jansi.version", "Shiruka");
+    System.setProperty("library.jansi.version", "Shiru ka");
     JiraExceptionCatcher.run(() ->
       new ShirukaMain(parsed)
         .exec());

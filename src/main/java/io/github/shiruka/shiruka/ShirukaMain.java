@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
@@ -37,6 +38,7 @@ import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
+import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.world.anvil.AnvilWorldLoader;
 import java.io.File;
@@ -104,19 +106,21 @@ public final class ShirukaMain {
   }
 
   /**
-   * creates a {@link WorldLoader} instance from the given world type string.
+   * creates a new instance of {@link WorldLoader} from the given world type string.
    *
    * @param worldType the world type to create.
    *
    * @return a new {@link WorldLoader} instance.
+   *
+   * @todo #0:15m create a WorldType class to move this method.
    */
   @NotNull
   private static WorldLoader createWorldType(@NotNull final String worldType) {
-    // @todo #0 create a WorldType class to move this method.
     if (worldType.equalsIgnoreCase("anvil")) {
       return new AnvilWorldLoader();
     }
-    throw new IllegalStateException("The given world type called " + worldType + "is not supported!");
+    throw new IllegalStateException(String.format("The given world type called %s is not supported!",
+      worldType));
   }
 
   /**
@@ -196,9 +200,10 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
     final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
     final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
-    final Function<ShirukaServer, ServerSocket> socket = instance ->
-      NetServerSocket.init(new InetSocketAddress(ip, port), new ShirukaServerListener(instance), maxPlayer);
+    final Function<ServerListener, ServerSocket> socket = listener ->
+      NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer);
     final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType), socket);
+    Shiruka.setServer(server);
     server.startServer();
     final var end = System.currentTimeMillis() - start;
     Loggers.log("Done, took %sms.", end);

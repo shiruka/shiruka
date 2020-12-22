@@ -49,6 +49,11 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   /**
    * the pool.
    */
+  private static final ServerThreadPool ASYNC_POOL = ServerThreadPool.forSpec(PoolSpec.ASYNC_SCHEDULER);
+
+  /**
+   * the pool.
+   */
   private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
 
   /**
@@ -68,12 +73,9 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   @Override
   public ScheduledTask repeat(@NotNull final Plugin plugin, final boolean async, final long delay,
                               final long initialInterval, @NotNull final ScheduledRunnable runnable) {
-    return this.later(plugin, async, delay, new ScheduledRunnable() {
-      @Override
-      public void run() {
-        final var taskType = async ? TaskType.ASYNC_REPEAT : TaskType.SYNC_REPEAT;
-        SimpleScheduler.this.createTask(plugin, runnable, taskType, initialInterval);
-      }
+    return this.later(plugin, async, delay, () -> {
+      final var taskType = async ? TaskType.ASYNC_REPEAT : TaskType.SYNC_REPEAT;
+      SimpleScheduler.this.createTask(plugin, runnable, taskType, initialInterval);
     });
   }
 
@@ -112,12 +114,9 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
                                    @NotNull final TaskType taskType, final long interval) {
     final Executor executor;
     if (taskType.name().contains("ASYNC")) {
-      executor = command -> {
-        // @todo #0 Continue to development here.
-      };
+      executor = SimpleScheduler.ASYNC_POOL;
     } else {
-      executor = command -> {
-      };
+      executor = SimpleScheduler.POOL;
     }
     final Function<ScheduledTask, Runnable> runner;
     if (taskType.name().contains("REPEAT")) {

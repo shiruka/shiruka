@@ -91,6 +91,7 @@ public final class ServerThreadPool implements ExecutorService {
     ServerThreadPool.forSpec(PoolSpec.PLAYERS);
     ServerThreadPool.forSpec(PoolSpec.PLUGINS);
     ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
+    ServerThreadPool.forSpec(PoolSpec.ASYNC_SCHEDULER);
   }
 
   /**

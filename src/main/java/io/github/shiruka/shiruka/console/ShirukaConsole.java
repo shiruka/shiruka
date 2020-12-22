@@ -86,7 +86,7 @@ public final class ShirukaConsole {
         .terminal(terminal)
         .completer(new ConsoleCommandCompleter(this.server))
         .parser(parser)
-        .variable(LineReader.LIST_MAX, 50)   // max tab completion candidates
+        .variable(LineReader.LIST_MAX, 50)
         .build();
       reader.setOpt(LineReader.Option.DISABLE_EVENT_EXPANSION);
       reader.unsetOpt(LineReader.Option.INSERT_TAB);

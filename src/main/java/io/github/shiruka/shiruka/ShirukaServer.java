@@ -36,6 +36,8 @@ import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.event.SimpleEventFactory;
 import io.github.shiruka.shiruka.network.Connection;
+import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
+import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,7 +52,6 @@ public final class ShirukaServer implements Server {
   /**
    * obtains the Shiru ka server's version
    */
-  @NotNull
   public static final String VERSION = "1.0.0";
 
   /**
@@ -63,6 +64,11 @@ public final class ShirukaServer implements Server {
    * the event factory.
    */
   private final EventFactory eventFactory = new SimpleEventFactory();
+
+  /**
+   * the server listener.
+   */
+  private final ServerListener listener = new ShirukaServerListener(this);
 
   /**
    * the loader.
@@ -89,7 +95,6 @@ public final class ShirukaServer implements Server {
   /**
    * the tick.
    */
-  @NotNull
   private final ShirukaTick tick = new ShirukaTick(this);
 
   /**
@@ -100,10 +105,10 @@ public final class ShirukaServer implements Server {
    * @param socket the socket.
    */
   public ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
-                       @NotNull final Function<ShirukaServer, ServerSocket> socket) {
+                       @NotNull final Function<ServerListener, ServerSocket> socket) {
     this.description = description;
     this.loader = loader;
-    this.socket = socket.apply(this);
+    this.socket = socket.apply(this.listener);
   }
 
   /**
@@ -160,13 +165,13 @@ public final class ShirukaServer implements Server {
     this.running.set(true);
     this.tick.start();
     Loggers.log("Loading plugins.");
-    // @todo #0 Load plugins here.
+    // @todo #0:60m Load plugins here.
     Loggers.log("Enabling startup plugins before the loading worlds.");
-    // @todo #0 enable plugins which set PluginLoadOrder as STARTUP.
+    // @todo #0:60m enable plugins which set PluginLoadOrder as STARTUP.
     Loggers.log("Loading worlds.");
     this.loader.loadAll();
     Loggers.log("Enabling plugins after the loading worlds.");
-    // @todo #0 enable plugins which set PluginLoadOrder as POST_WORLD.
+    // @todo #0:60m enable plugins which set PluginLoadOrder as POST_WORLD.
   }
 
   @Override

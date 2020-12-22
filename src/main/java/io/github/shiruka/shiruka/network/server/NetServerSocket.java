@@ -112,45 +112,6 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
     return socket;
   }
 
-  /**
-   * initiates and execs the server.
-   *
-   * @param address the address of the server
-   * @param serverListener the listener to handle custom events when a server does anything.
-   *
-   * @return a new {@link ServerSocket} instance.
-   */
-  @NotNull
-  public static ServerSocket init(@NotNull final InetSocketAddress address,
-                                  @NotNull final ServerListener serverListener) {
-    return NetServerSocket.init(address, serverListener, 1024);
-  }
-
-  /**
-   * initiates and execs the server.
-   *
-   * @param ip the ip of the server
-   * @param serverListener the listener to handle custom events when a server does anything.
-   *
-   * @return a new {@link ServerSocket} instance.
-   */
-  @NotNull
-  public static ServerSocket init(@NotNull final String ip, @NotNull final ServerListener serverListener) {
-    return NetServerSocket.init(new InetSocketAddress(ip, 19132), serverListener);
-  }
-
-  /**
-   * initiates and execs the server.
-   *
-   * @param serverListener the listener to handle custom events when a server does anything.
-   *
-   * @return a new {@link ServerSocket} instance.
-   */
-  @NotNull
-  public static ServerSocket init(@NotNull final ServerListener serverListener) {
-    return NetServerSocket.init("127.0.0.1", serverListener);
-  }
-
   @Override
   public void addChannel(@NotNull final Channel channel) {
     this.channels.add(channel);

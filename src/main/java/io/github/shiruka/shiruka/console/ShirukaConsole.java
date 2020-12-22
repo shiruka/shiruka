@@ -34,11 +34,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.AttributedCharSequence;
 
 /**
  * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
 public final class ShirukaConsole {
+
+  public static final DefaultParser PARSER = new DefaultParser();
+
+  /**
+   * the prompt.
+   */
+  private static final String PROMPT = ">";
 
   /**
    * the console command completer;
@@ -77,15 +85,14 @@ public final class ShirukaConsole {
    */
   public void start() {
     AnsiConsole.systemInstall();
-    final Parser parser = new DefaultParser();
     try (final var terminal = TerminalBuilder.builder()
       .name("Shiru ka")
       .encoding(StandardCharsets.UTF_8)
       .build()) {
       final var reader = LineReaderBuilder.builder()
         .terminal(terminal)
-        .completer(new ConsoleCommandCompleter(this.server))
-        .parser(parser)
+        .completer(this.completer)
+        .parser(ShirukaConsole.PARSER)
         .variable(LineReader.LIST_MAX, 50)
         .build();
       reader.setOpt(LineReader.Option.DISABLE_EVENT_EXPANSION);
@@ -93,7 +100,7 @@ public final class ShirukaConsole {
       String line;
       while (!this.server.isInShutdownState()) {
         try {
-          line = reader.readLine("> ");
+          line = reader.readLine(ShirukaConsole.PROMPT);
         } catch (final EndOfFileException ignored) {
           continue;
         }
@@ -103,7 +110,6 @@ public final class ShirukaConsole {
         this.server.runCommand(line);
       }
     } catch (final UserInterruptException e) {
-      JiraExceptionCatcher.serverException(e);
       this.server.stopServer();
     } catch (final IOException e) {
       JiraExceptionCatcher.serverException(e);

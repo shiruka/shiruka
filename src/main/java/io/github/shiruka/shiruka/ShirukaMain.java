@@ -38,6 +38,7 @@ import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
+import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.world.anvil.AnvilWorldLoader;
 import java.io.File;
@@ -199,8 +200,8 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
     final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
     final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
-    final Function<ShirukaServer, ServerSocket> socket = instance ->
-      NetServerSocket.init(new InetSocketAddress(ip, port), new ShirukaServerListener(instance), maxPlayer);
+    final Function<ServerListener, ServerSocket> socket = listener ->
+      NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer);
     final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType), socket);
     Shiruka.setServer(server);
     server.startServer();

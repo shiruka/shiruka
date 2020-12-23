@@ -24,10 +24,13 @@
  */
 package io.github.shiruka.shiruka.log.pipeline;
 
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.log.LogMessage;
+import io.github.shiruka.shiruka.log.LogPrintStream;
+import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import org.fusesource.jansi.AnsiConsole;
+import org.fusesource.jansi.AnsiPrintStream;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,10 +39,20 @@ import org.jetbrains.annotations.NotNull;
 public final class DefaultLogger extends PipelineLoggerBase {
 
   /**
+   * a simple implementation to cover {@link System#err}.
+   */
+  private static final LogPrintStream ERR = new LogPrintStream(Loggers::error);
+
+  /**
+   * a simple implementation to cover {@link System#out}.
+   */
+  private static final LogPrintStream OUT = new LogPrintStream(Loggers::log);
+
+  /**
    * the underlying stream to which output is passed
    */
   @NotNull
-  private final PrintStream stream;
+  private final AnsiPrintStream stream;
 
   /**
    * ctor.
@@ -47,23 +60,23 @@ public final class DefaultLogger extends PipelineLoggerBase {
   public DefaultLogger() {
     super();
     this.stream = AnsiConsole.out();
-    System.setOut(this.stream);
-    System.setErr(this.stream);
+    System.setOut(DefaultLogger.OUT);
+    System.setErr(DefaultLogger.ERR);
   }
 
   @Override
   public void debug(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @Override
   public void error(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @Override
   public void log(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @NotNull
@@ -74,17 +87,31 @@ public final class DefaultLogger extends PipelineLoggerBase {
 
   @Override
   public void success(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @Override
   public void warn(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @NotNull
   @Override
   public LogMessage handle(@NotNull final LogMessage msg) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * prints the given message.
+   *
+   * @param message the message to print.
+   */
+  private void print(@NotNull final String message) {
+    final var console = ShirukaLoggers.getConsole();
+    if (console.isPresent()) {
+      console.get().getReader().printAbove(message);
+    } else {
+      this.stream.println(message);
+    }
   }
 }

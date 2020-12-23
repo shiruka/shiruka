@@ -104,6 +104,11 @@
     </dependency>
     <dependency>
       <groupId>org.jline</groupId>
+      <artifactId>jline-console</artifactId>
+      <version>3.18.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jline</groupId>
       <artifactId>jline-terminal-jansi</artifactId>
       <version>3.18.0</version>
     </dependency>
@@ -140,7 +145,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>30.0-jre</version>
+      <version>30.1-jre</version>
     </dependency>
     <dependency>
       <groupId>net.minidev</groupId>

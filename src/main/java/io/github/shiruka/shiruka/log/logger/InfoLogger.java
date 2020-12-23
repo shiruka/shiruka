@@ -47,6 +47,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class InfoLogger extends LoggerHandlers implements Logger {
 
+  public static final String LOG_PREFIX_FORMAT = "[%s]";
+
   /**
    * the logger cache.
    */
@@ -157,7 +159,7 @@ public final class InfoLogger extends LoggerHandlers implements Logger {
     final var components = new String[]{
       time.format(InfoLogger.DATE_FORMAT),
       time.format(InfoLogger.TIME_FORMAT),
-      "[" + this.name + "/" + level + "]"
+      String.format(InfoLogger.LOG_PREFIX_FORMAT, level)
     };
     return super.handle(new LogMessageBasic(this, components, s, time));
   }

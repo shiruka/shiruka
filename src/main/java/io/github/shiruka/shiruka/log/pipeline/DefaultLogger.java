@@ -24,11 +24,13 @@
  */
 package io.github.shiruka.shiruka.log.pipeline;
 
+import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.log.LogMessage;
+import io.github.shiruka.shiruka.log.LogPrintStream;
 import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import org.fusesource.jansi.AnsiConsole;
+import org.fusesource.jansi.AnsiPrintStream;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,10 +39,20 @@ import org.jetbrains.annotations.NotNull;
 public final class DefaultLogger extends PipelineLoggerBase {
 
   /**
+   * a simple implementation to cover {@link System#err}.
+   */
+  private static final LogPrintStream ERR = new LogPrintStream(Loggers::error);
+
+  /**
+   * a simple implementation to cover {@link System#out}.
+   */
+  private static final LogPrintStream OUT = new LogPrintStream(Loggers::log);
+
+  /**
    * the underlying stream to which output is passed
    */
   @NotNull
-  private final PrintStream stream;
+  private final AnsiPrintStream stream;
 
   /**
    * ctor.
@@ -48,8 +60,8 @@ public final class DefaultLogger extends PipelineLoggerBase {
   public DefaultLogger() {
     super();
     this.stream = AnsiConsole.out();
-    System.setOut(this.stream);
-    System.setErr(this.stream);
+    System.setOut(DefaultLogger.OUT);
+    System.setErr(DefaultLogger.ERR);
   }
 
   @Override

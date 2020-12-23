@@ -213,11 +213,12 @@ public final class ShirukaMain {
     ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
       Shiruka.getScheduler().later(new Plugin() {
       }, true, 20L, () -> {
-        Loggers.debug("Debug");
-        Loggers.debug("Debug");
-        Loggers.debug("Debug");
-        Loggers.debug("Debug");
-        Loggers.debug("Debug");
+        System.out.println("Log");
+        System.out.println("Log");
+        System.out.println("Log");
+        System.err.println("Log");
+        System.err.println("Log");
+        System.err.println("Log");
       });
     });
     final var console = new ShirukaConsole(server);

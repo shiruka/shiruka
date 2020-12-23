@@ -27,7 +27,9 @@ package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.world.WorldLoader;
+import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
@@ -208,6 +210,16 @@ public final class ShirukaMain {
     server.startServer();
     final var end = System.currentTimeMillis() - start;
     Loggers.log("Done, took %sms.", end);
+    ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+      Shiruka.getScheduler().later(new Plugin() {
+      }, true, 20L, () -> {
+        Loggers.debug("Debug");
+        Loggers.debug("Debug");
+        Loggers.debug("Debug");
+        Loggers.debug("Debug");
+        Loggers.debug("Debug");
+      });
+    });
     final var console = new ShirukaConsole(server);
     console.start();
   }

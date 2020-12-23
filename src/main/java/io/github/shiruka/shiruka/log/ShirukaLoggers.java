@@ -27,14 +27,23 @@ package io.github.shiruka.shiruka.log;
 
 import io.github.shiruka.api.log.Logger;
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.log.logger.InfoLogger;
 import java.io.IOException;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that contains some instance.
  */
 public final class ShirukaLoggers {
+
+  /**
+   * the console.
+   */
+  @Nullable
+  private static ShirukaConsole console;
 
   /**
    * ctor.
@@ -69,6 +78,25 @@ public final class ShirukaLoggers {
   @NotNull
   public static Logger create(@NotNull final String name) throws IOException {
     return ShirukaLoggers.create(name, true);
+  }
+
+  /**
+   * obtains the console.
+   *
+   * @return the console.
+   */
+  @NotNull
+  public static Optional<ShirukaConsole> getConsole() {
+    return Optional.ofNullable(ShirukaLoggers.console);
+  }
+
+  /**
+   * sets the console.
+   *
+   * @param console the console to set.
+   */
+  public static void setConsole(@NotNull final ShirukaConsole console) {
+    ShirukaLoggers.console = console;
   }
 
   /**

@@ -26,12 +26,16 @@
 package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import org.fusesource.jansi.AnsiConsole;
+import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.TerminalBuilder;
@@ -64,6 +68,12 @@ public final class ShirukaConsole {
   private final Server server;
 
   /**
+   * the reader.
+   */
+  @Nullable
+  private LineReader reader;
+
+  /**
    * ctor.
    *
    * @param server the server.
@@ -84,16 +94,28 @@ public final class ShirukaConsole {
   }
 
   /**
+   * obtains the reader.
+   *
+   * @return the reader.
+   */
+  @NotNull
+  public LineReader getReader() {
+    return Objects.requireNonNull(this.reader,
+      "You have to use #start() first to use #getReader() method.");
+  }
+
+  /**
    * starts the reading inputs.
    */
   public void start() {
+    ShirukaLoggers.setConsole(this);
     final var appName = "Shiru ka";
     try (final var terminal = TerminalBuilder.builder()
       .name(appName)
       .jansi(true)
       .encoding(StandardCharsets.UTF_8)
       .build()) {
-      final var reader = LineReaderBuilder.builder()
+      final var inlineReader = LineReaderBuilder.builder()
         .appName(appName)
         .terminal(terminal)
         .completer(this.completer)
@@ -104,10 +126,11 @@ public final class ShirukaConsole {
         .option(LineReader.Option.INSERT_TAB, false)
         .option(LineReader.Option.BRACKETED_PASTE, false)
         .build();
+      this.reader = inlineReader;
       String line;
       while (!this.server.isInShutdownState()) {
         try {
-          line = reader.readLine(ShirukaConsole.PROMPT);
+          line = inlineReader.readLine(ShirukaConsole.PROMPT);
         } catch (final EndOfFileException ignored) {
           continue;
         }
@@ -120,8 +143,6 @@ public final class ShirukaConsole {
       this.server.stopServer();
     } catch (final IOException e) {
       JiraExceptionCatcher.serverException(e);
-    } finally {
-      AnsiConsole.systemUninstall();
     }
   }
 }

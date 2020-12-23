@@ -25,6 +25,7 @@
 package io.github.shiruka.shiruka.log.pipeline;
 
 import io.github.shiruka.shiruka.log.LogMessage;
+import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import org.fusesource.jansi.AnsiConsole;
@@ -53,17 +54,17 @@ public final class DefaultLogger extends PipelineLoggerBase {
 
   @Override
   public void debug(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @Override
   public void error(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @Override
   public void log(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @NotNull
@@ -74,17 +75,31 @@ public final class DefaultLogger extends PipelineLoggerBase {
 
   @Override
   public void success(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @Override
   public void warn(@NotNull final LogMessage msg) {
-    this.stream.println(msg.format(1));
+    this.print(msg.format(1));
   }
 
   @NotNull
   @Override
   public LogMessage handle(@NotNull final LogMessage msg) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * prints the given message.
+   *
+   * @param message the message to print.
+   */
+  private void print(@NotNull final String message) {
+    final var console = ShirukaLoggers.getConsole();
+    if (console.isPresent()) {
+      console.get().getReader().printAbove(message);
+    } else {
+      this.stream.println(message);
+    }
   }
 }

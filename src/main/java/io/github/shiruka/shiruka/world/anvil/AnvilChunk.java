@@ -305,11 +305,12 @@ public final class AnvilChunk implements Chunk {
   /**
    * writes the chunk data to the region file compound.
    * <p>
+   *
+   * @param compound the compound to write.
+   *
    * @todo #1:60m Biomes (byte_array)
    * @todo #1:60m TileEntities (list [tag compound?])
    * @todo #1:60m Entities (list [tag compound?])
-   *
-   * @param compound the compound to write.
    */
   public void write(@NotNull final CompoundTag compound) {
     compound.setInteger("xPos", this.x);

@@ -33,7 +33,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.factories.DefaultJWSVerifierFactory;
 import io.github.shiruka.api.events.LoginDataEvent;
-import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
 import io.github.shiruka.api.geometry.AnimatedTextureType;
 import io.github.shiruka.api.geometry.AnimationData;
 import io.github.shiruka.api.geometry.ImageData;

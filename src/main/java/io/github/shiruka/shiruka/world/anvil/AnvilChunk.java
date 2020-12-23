@@ -222,7 +222,7 @@ public final class AnvilChunk implements Chunk {
     this.useState.set(AnvilChunk.TRANSITION);
     final var centerX = this.world.getWorldOptions().getSpawn().getIntX() >> 4;
     final var centerZ = this.world.getWorldOptions().getSpawn().getIntZ() >> 4;
-    if (/* TODO this.holders.isEmpty() &&*/ Math.abs(centerX - this.x) > 3 || Math.abs(centerZ - this.z) > 3) {
+    if (/* @todo #1:30m this.holders.isEmpty() &&*/ Math.abs(centerX - this.x) > 3 || Math.abs(centerZ - this.z) > 3) {
       this.useState.set(AnvilChunk.UNUSABLE);
       if (this.world.removeChunkAt(this.x, this.z) == null) {
         return;
@@ -305,11 +305,12 @@ public final class AnvilChunk implements Chunk {
   /**
    * writes the chunk data to the region file compound.
    * <p>
-   * TODO Biomes (byte_array)
-   * TODO TileEntities (list [tag compound?])
-   * TODO Entities (list [tag compound?])
    *
    * @param compound the compound to write.
+   *
+   * @todo #1:60m Biomes (byte_array)
+   * @todo #1:60m TileEntities (list [tag compound?])
+   * @todo #1:60m Entities (list [tag compound?])
    */
   public void write(@NotNull final CompoundTag compound) {
     compound.setInteger("xPos", this.x);

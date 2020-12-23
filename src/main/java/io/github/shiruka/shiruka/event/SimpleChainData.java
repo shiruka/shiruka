@@ -25,19 +25,18 @@
 
 package io.github.shiruka.shiruka.event;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 import com.google.common.base.Preconditions;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.factories.DefaultJWSVerifierFactory;
-import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.geometry.AnimatedTextureType;
 import io.github.shiruka.api.geometry.AnimationData;
 import io.github.shiruka.api.geometry.ImageData;
 import io.github.shiruka.api.geometry.Skin;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -46,13 +45,14 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation of {@link PlayerPreLoginEvent.ChainData}.
+ * a simple implementation of {@link LoginDataEvent.ChainData}.
  */
-public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
+public final class SimpleChainData implements LoginDataEvent.ChainData {
 
   /**
    * the key of chain.
@@ -73,17 +73,6 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * the key of image width.
    */
   private static final String IMAGE_WIDTH = "ImageWidth";
-
-  /**
-   * a json mapper instance.
-   */
-  private static final JsonMapper JSON_MAPPER = new JsonMapper();
-
-  /**
-   * the map type reference.
-   */
-  private static final TypeReference<Map<String, List<String>>> MAP_TYPE_REFERENCE = new TypeReference<>() {
-  };
 
   /**
    * the Mojang public key.
@@ -227,11 +216,11 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * @param chainData the chain data to create.
    * @param skinData the skin data to create.
    *
-   * @return a new instance of {@link PlayerPreLoginEvent.ChainData}.
+   * @return a new instance of {@link LoginDataEvent.ChainData}.
    */
   @NotNull
-  public static PlayerPreLoginEvent.ChainData create(@NotNull final String chainData,
-                                                     @NotNull final String skinData) {
+  public static LoginDataEvent.ChainData create(@NotNull final String chainData,
+                                                @NotNull final String skinData) {
     final var data = new SimpleChainData(chainData, skinData);
     data.initialize();
     return data;
@@ -245,13 +234,13 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * @return decoded token.
    */
   @NotNull
-  private static JsonNode decodeToken(@NotNull final String token) {
+  private static JsonObject decodeToken(@NotNull final String token) {
     final var base = token.split("\\.");
     Preconditions.checkArgument(base.length >= 2, "Invalid token length");
     try {
       final var json = new String(Base64.getDecoder().decode(base[1]), StandardCharsets.UTF_8);
-      return SimpleChainData.JSON_MAPPER.readTree(json);
-    } catch (final IOException e) {
+      return Json.parse(json).asObject();
+    } catch (final Exception e) {
       throw new IllegalArgumentException("Invalid token JSON", e);
     }
   }
@@ -300,12 +289,12 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * @return a new instance of {@link AnimationData}.
    */
   @NotNull
-  private static AnimationData getAnimation(@NotNull final JsonNode json) {
-    final var frames = json.get("Frames").floatValue();
-    final var type = AnimatedTextureType.values()[json.get("Type").intValue()];
-    final var data = Base64.getDecoder().decode(json.get("Image").textValue());
-    final var width = json.get(SimpleChainData.IMAGE_WIDTH).intValue();
-    final var height = json.get(SimpleChainData.IMAGE_HEIGHT).intValue();
+  private static AnimationData getAnimation(@NotNull final JsonObject json) {
+    final var frames = json.get("Frames").asFloat();
+    final var type = AnimatedTextureType.values()[json.get("Type").asInt()];
+    final var data = Base64.getDecoder().decode(json.get("Image").asString());
+    final var width = json.get(SimpleChainData.IMAGE_WIDTH).asInt();
+    final var height = json.get(SimpleChainData.IMAGE_HEIGHT).asInt();
     return new AnimationData(frames, ImageData.of(width, height, data), type);
   }
 
@@ -318,16 +307,18 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * @return a new instance of {@link ImageData}.
    */
   @NotNull
-  private static ImageData getImage(@NotNull final JsonNode json, @NotNull final String name) {
-    if (!json.has(name + "Data")) {
+  private static ImageData getImage(@NotNull final JsonObject json, @NotNull final String name) {
+    final var keys = json.names();
+    if (!keys.contains(name + "Data")) {
       return ImageData.empty();
     }
-    final var skinImage = Base64.getDecoder().decode(json.get(name + "Data").textValue());
-    if (!json.has(name + SimpleChainData.IMAGE_HEIGHT) || !json.has(name + SimpleChainData.IMAGE_WIDTH)) {
+    final var skinImage = Base64.getDecoder().decode(json.get(name + "Data").asString());
+    if (!keys.contains(name + SimpleChainData.IMAGE_HEIGHT) ||
+      !keys.contains(name + SimpleChainData.IMAGE_WIDTH)) {
       return ImageData.of(skinImage);
     }
-    final var width = json.get(name + SimpleChainData.IMAGE_WIDTH).intValue();
-    final var height = json.get(name + SimpleChainData.IMAGE_HEIGHT).intValue();
+    final var width = json.get(name + SimpleChainData.IMAGE_WIDTH).asInt();
+    final var height = json.get(name + SimpleChainData.IMAGE_HEIGHT).asInt();
     return ImageData.of(width, height, skinImage);
   }
 
@@ -339,41 +330,42 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * @return a new instance of {@link Skin}.
    */
   @NotNull
-  private static Skin getSkin(@NotNull final JsonNode json) {
+  private static Skin getSkin(@NotNull final JsonObject json) {
     final var skinBuilder = Skin.builder();
-    if (json.has("SkinId")) {
-      skinBuilder.skinId(json.get("SkinId").textValue());
+    final var keys = json.names();
+    if (keys.contains("SkinId")) {
+      skinBuilder.skinId(json.get("SkinId").asString());
     }
-    if (json.has("CapeId")) {
-      skinBuilder.capeId(json.get("CapeId").textValue());
+    if (keys.contains("CapeId")) {
+      skinBuilder.capeId(json.get("CapeId").asString());
     }
     skinBuilder.skinData(SimpleChainData.getImage(json, "Skin"));
     skinBuilder.capeData(SimpleChainData.getImage(json, "Cape"));
-    if (json.has("PremiumSkin")) {
-      skinBuilder.premium(json.get("PremiumSkin").booleanValue());
+    if (keys.contains("PremiumSkin")) {
+      skinBuilder.premium(json.get("PremiumSkin").asBoolean());
     }
-    if (json.has("PersonaSkin")) {
-      skinBuilder.persona(json.get("PersonaSkin").booleanValue());
+    if (keys.contains("PersonaSkin")) {
+      skinBuilder.persona(json.get("PersonaSkin").asBoolean());
     }
-    if (json.has("CapeOnClassicSkin")) {
-      skinBuilder.capeOnClassic(json.get("CapeOnClassicSkin").booleanValue());
+    if (keys.contains("CapeOnClassicSkin")) {
+      skinBuilder.capeOnClassic(json.get("CapeOnClassicSkin").asBoolean());
     }
-    if (json.has("SkinResourcePatch")) {
-      skinBuilder.skinResourcePatch(new String(Base64.getDecoder().decode(json.get("SkinResourcePatch").textValue()), StandardCharsets.UTF_8));
+    if (keys.contains("SkinResourcePatch")) {
+      skinBuilder.skinResourcePatch(new String(Base64.getDecoder().decode(json.get("SkinResourcePatch").asString()), StandardCharsets.UTF_8));
     }
-    if (json.has("SkinGeometryData")) {
-      skinBuilder.geometryData(new String(Base64.getDecoder().decode(json.get("SkinGeometryData").textValue()), StandardCharsets.UTF_8));
+    if (keys.contains("SkinGeometryData")) {
+      skinBuilder.geometryData(new String(Base64.getDecoder().decode(json.get("SkinGeometryData").asString()), StandardCharsets.UTF_8));
     }
-    if (json.has("SkinAnimationData")) {
-      skinBuilder.animationData(new String(Base64.getDecoder().decode(json.get("SkinAnimationData").textValue()), StandardCharsets.UTF_8));
+    if (keys.contains("SkinAnimationData")) {
+      skinBuilder.animationData(new String(Base64.getDecoder().decode(json.get("SkinAnimationData").asString()), StandardCharsets.UTF_8));
     }
-    if (!json.has("AnimatedImageData")) {
+    if (!keys.contains("AnimatedImageData")) {
       return skinBuilder.build();
     }
     final var animations = new ArrayList<AnimationData>();
-    final var jsonArray = json.get("AnimatedImageData");
-    jsonArray.forEach(jsonNode ->
-      animations.add(SimpleChainData.getAnimation(jsonNode)));
+    final var jsonArray = json.get("AnimatedImageData").asArray();
+    jsonArray.forEach(jsonValue ->
+      animations.add(SimpleChainData.getAnimation(jsonValue.asObject())));
     skinBuilder.animations(animations);
     return skinBuilder.build();
   }
@@ -521,16 +513,19 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    * decodes the chain data.
    */
   private void decodeChainData() {
-    final Map<String, List<String>> map;
+    final JsonObject parsed;
     try {
-      map = SimpleChainData.JSON_MAPPER.readValue(this.chainData, SimpleChainData.MAP_TYPE_REFERENCE);
-    } catch (final IOException e) {
+      parsed = Json.parse(this.chainData).asObject();
+    } catch (final Exception e) {
       throw new IllegalArgumentException("Invalid JSON", e);
     }
-    if (map.isEmpty() || !map.containsKey(SimpleChainData.CHAIN) || map.get(SimpleChainData.CHAIN).isEmpty()) {
+    if (parsed.isEmpty() || !parsed.names().contains(SimpleChainData.CHAIN) ||
+      parsed.get(SimpleChainData.CHAIN).asObject().isEmpty()) {
       return;
     }
-    final var chains = map.get(SimpleChainData.CHAIN);
+    final var chains = parsed.get(SimpleChainData.CHAIN).asArray().values().stream()
+      .map(JsonValue::asString)
+      .collect(Collectors.toList());
     try {
       this.xboxAuthed = SimpleChainData.verifyChain(chains);
     } catch (final Exception e) {
@@ -539,22 +534,25 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
     chains.stream()
       .map(SimpleChainData::decodeToken)
       .forEach(chainMap -> {
-        if (!chainMap.has("extraData") && chainMap.has(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
-          this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).textValue();
+        final var keys = chainMap.names();
+        if (!keys.contains("extraData") &&
+          keys.contains(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
+          this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).asString();
           return;
         }
-        final var extra = chainMap.get("extraData");
-        if (extra.has("displayName")) {
-          this.username = extra.get("displayName").textValue();
+        final var extra = chainMap.get("extraData").asObject();
+        final var extrasKeys = extra.names();
+        if (extrasKeys.contains("displayName")) {
+          this.username = extra.get("displayName").asString();
         }
-        if (extra.has("identity")) {
-          this.uniqueId = UUID.fromString(extra.get("identity").textValue());
+        if (extrasKeys.contains("identity")) {
+          this.uniqueId = UUID.fromString(extra.get("identity").asString());
         }
-        if (extra.has("XUID")) {
-          this.xuid = extra.get("XUID").textValue();
+        if (extrasKeys.contains("XUID")) {
+          this.xuid = extra.get("XUID").asString();
         }
-        if (chainMap.has(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
-          this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).textValue();
+        if (keys.contains(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
+          this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).asString();
         }
       });
     if (!this.xboxAuthed) {
@@ -567,38 +565,38 @@ public final class SimpleChainData implements PlayerPreLoginEvent.ChainData {
    */
   private void decodeSkinData() {
     final var skinToken = SimpleChainData.decodeToken(this.skinData);
-    if (skinToken.has("ClientRandomId")) {
-      this.id = skinToken.get("ClientRandomId").longValue();
+    if (skinToken.names().contains("ClientRandomId")) {
+      this.id = skinToken.get("ClientRandomId").asLong();
     }
-    if (skinToken.has("ServerAddress")) {
-      this.serverAddress = skinToken.get("ServerAddress").textValue();
+    if (skinToken.names().contains("ServerAddress")) {
+      this.serverAddress = skinToken.get("ServerAddress").asString();
     }
-    if (skinToken.has("DeviceModel")) {
-      this.deviceModel = skinToken.get("DeviceModel").textValue();
+    if (skinToken.names().contains("DeviceModel")) {
+      this.deviceModel = skinToken.get("DeviceModel").asString();
     }
-    if (skinToken.has("DeviceOS")) {
-      this.deviceOS = skinToken.get("DeviceOS").intValue();
+    if (skinToken.names().contains("DeviceOS")) {
+      this.deviceOS = skinToken.get("DeviceOS").asInt();
     }
-    if (skinToken.has("DeviceId")) {
-      this.deviceId = skinToken.get("DeviceId").textValue();
+    if (skinToken.names().contains("DeviceId")) {
+      this.deviceId = skinToken.get("DeviceId").asString();
     }
-    if (skinToken.has("GameVersion")) {
-      this.gameVersion = skinToken.get("GameVersion").textValue();
+    if (skinToken.names().contains("GameVersion")) {
+      this.gameVersion = skinToken.get("GameVersion").asString();
     }
-    if (skinToken.has("GuiScale")) {
-      this.guiScale = skinToken.get("GuiScale").intValue();
+    if (skinToken.names().contains("GuiScale")) {
+      this.guiScale = skinToken.get("GuiScale").asInt();
     }
-    if (skinToken.has("LanguageCode")) {
-      this.languageCode = skinToken.get("LanguageCode").textValue();
+    if (skinToken.names().contains("LanguageCode")) {
+      this.languageCode = skinToken.get("LanguageCode").asString();
     }
-    if (skinToken.has("CurrentInputMode")) {
-      this.currentInputMode = skinToken.get("CurrentInputMode").intValue();
+    if (skinToken.names().contains("CurrentInputMode")) {
+      this.currentInputMode = skinToken.get("CurrentInputMode").asInt();
     }
-    if (skinToken.has("DefaultInputMode")) {
-      this.defaultInputMode = skinToken.get("DefaultInputMode").intValue();
+    if (skinToken.names().contains("DefaultInputMode")) {
+      this.defaultInputMode = skinToken.get("DefaultInputMode").asInt();
     }
-    if (skinToken.has("UIProfile")) {
-      this.uiProfile = skinToken.get("UIProfile").intValue();
+    if (skinToken.names().contains("UIProfile")) {
+      this.uiProfile = skinToken.get("UIProfile").asInt();
     }
     this.skin = SimpleChainData.getSkin(skinToken);
   }

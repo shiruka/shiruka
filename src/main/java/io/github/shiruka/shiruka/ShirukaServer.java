@@ -207,6 +207,7 @@ public final class ShirukaServer implements Server {
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
     Loggers.log("Done, took %sms.", end);
+    this.console.start();
   }
 
   @Override

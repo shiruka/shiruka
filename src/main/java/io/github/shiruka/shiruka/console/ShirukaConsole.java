@@ -135,7 +135,7 @@ public final class ShirukaConsole {
         if (line == null) {
           break;
         }
-        this.server.runCommand(line);
+        this.server.getCommandManager().execute(line);
       }
     } catch (final UserInterruptException e) {
       this.server.stopServer();

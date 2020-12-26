@@ -101,9 +101,8 @@ public final class ShirukaMain {
       return;
     }
     System.setProperty("library.jansi.version", "Shiru ka");
-    JiraExceptionCatcher.run(() ->
-      new ShirukaMain(parsed)
-        .exec());
+    final var main = new ShirukaMain(parsed);
+    JiraExceptionCatcher.run(main::exec);
   }
 
   /**
@@ -203,12 +202,9 @@ public final class ShirukaMain {
     final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
     final Function<ServerListener, ServerSocket> socket = listener ->
       NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer);
-    final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType), socket);
+    final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType), socket,
+      ShirukaConsole::new);
     Shiruka.setServer(server);
-    server.startServer();
-    final var end = System.currentTimeMillis() - start;
-    Loggers.log("Done, took %sms.", end);
-    final var console = new ShirukaConsole(server);
-    console.start();
+    server.startServer(start);
   }
 }

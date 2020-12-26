@@ -120,6 +120,7 @@ public final class ShirukaServer implements Server {
    * @param description the server's description.
    * @param loader the world loader.
    * @param socket the socket.
+   * @param console the console.
    */
   public ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
                        @NotNull final Function<ServerListener, ServerSocket> socket,

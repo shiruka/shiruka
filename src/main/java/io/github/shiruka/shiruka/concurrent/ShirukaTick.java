@@ -64,7 +64,7 @@ public final class ShirukaTick extends Thread {
     while (!this.server.isInShutdownState()) {
       final var start = System.currentTimeMillis();
       ((SimpleScheduler) this.server.getScheduler()).tick();
-      // @todo #0:15m Add more tick operations.
+      // @todo #1:15m Add more tick operations.
       final var end = System.currentTimeMillis();
       final var elapsed = end - start;
       final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;

@@ -35,7 +35,7 @@
   <artifactId>shiruka</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>shiruka</name>
-  <description>The main project that runs the server.</description>
+  <description>Brand new server software for Minecraft: Bedrock Edition.</description>
   <url>https://github.com/shiruka/shiruka</url>
   <scm>
     <url>https://github.com/skiruka/shiruka</url>
@@ -90,7 +90,7 @@
     <dependency>
       <groupId>io.github.shiruka</groupId>
       <artifactId>api</artifactId>
-      <version>2.39.1</version>
+      <version>2.40.2</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jopt-simple</groupId>

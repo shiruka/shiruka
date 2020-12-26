@@ -113,7 +113,7 @@ public final class ShirukaMain {
    *
    * @return a new {@link WorldLoader} instance.
    *
-   * @todo #0:15m create a WorldType class to move this method.
+   * @todo #1:15m create a WorldType class to move this method.
    */
   @NotNull
   private static WorldLoader createWorldType(@NotNull final String worldType) {

@@ -102,13 +102,18 @@ public final class ShirukaPlayer implements Player {
   }
 
   @NotNull
-  @Override
-  public String getName() {
-    return "null";
+  public PlayerConnection getPlayerConnection() {
+    return this.connection;
   }
 
   @NotNull
-  public PlayerConnection getPlayerConnection() {
-    return this.connection;
+  @Override
+  public String name() {
+    return "null";
+  }
+
+  @Override
+  public void sendMessage(@NotNull final String s) {
+    System.out.println(s);
   }
 }

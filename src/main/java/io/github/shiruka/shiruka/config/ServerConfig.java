@@ -25,10 +25,10 @@
 
 package io.github.shiruka.shiruka.config;
 
-import static io.github.shiruka.api.conf.Paths.*;
-import io.github.shiruka.api.conf.Config;
-import io.github.shiruka.api.conf.ConfigPath;
-import io.github.shiruka.api.conf.config.PathableConfig;
+import static io.github.shiruka.api.config.Paths.*;
+import io.github.shiruka.api.config.Config;
+import io.github.shiruka.api.config.ConfigPath;
+import io.github.shiruka.api.config.config.PathableConfig;
 import java.io.File;
 import org.jetbrains.annotations.NotNull;
 

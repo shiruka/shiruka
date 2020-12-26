@@ -26,12 +26,17 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.api.command.CommandManager;
+import io.github.shiruka.api.command.CommandSender;
 import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.world.WorldLoader;
+import io.github.shiruka.shiruka.command.SimpleCommandManager;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
+import io.github.shiruka.shiruka.console.ShirukaConsole;
+import io.github.shiruka.shiruka.console.SimpleConsoleCommandSender;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.event.SimpleEventFactory;
@@ -55,6 +60,23 @@ public final class ShirukaServer implements Server {
   public static final String VERSION = "1.0.0";
 
   /**
+   * the command manager.
+   */
+  private final CommandManager commandManager = new SimpleCommandManager();
+
+  /**
+   * the console.
+   */
+  @NotNull
+  private final ShirukaConsole console;
+
+  /**
+   * the console command sender.
+   */
+  @NotNull
+  private final CommandSender consoleCommandSender;
+
+  /**
    * the server's description.
    */
   @NotNull
@@ -64,11 +86,6 @@ public final class ShirukaServer implements Server {
    * the event factory.
    */
   private final EventFactory eventFactory = new SimpleEventFactory();
-
-  /**
-   * the server listener.
-   */
-  private final ServerListener listener = new ShirukaServerListener(this);
 
   /**
    * the loader.
@@ -105,10 +122,13 @@ public final class ShirukaServer implements Server {
    * @param socket the socket.
    */
   public ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
-                       @NotNull final Function<ServerListener, ServerSocket> socket) {
+                       @NotNull final Function<ServerListener, ServerSocket> socket,
+                       @NotNull final Function<Server, ShirukaConsole> console) {
     this.description = description;
     this.loader = loader;
-    this.socket = socket.apply(this.listener);
+    this.socket = socket.apply(new ShirukaServerListener(this));
+    this.console = console.apply(this);
+    this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
   }
 
   /**
@@ -121,6 +141,18 @@ public final class ShirukaServer implements Server {
   @NotNull
   public ShirukaPlayer createPlayer(@NotNull final Connection<ServerSocket> connection) {
     return new ShirukaPlayer(new ShirukaPlayerConnection(connection, this));
+  }
+
+  @NotNull
+  @Override
+  public CommandManager getCommandManager() {
+    return this.commandManager;
+  }
+
+  @NotNull
+  @Override
+  public CommandSender getConsoleCommandSender() {
+    return this.consoleCommandSender;
   }
 
   @NotNull
@@ -157,21 +189,24 @@ public final class ShirukaServer implements Server {
   }
 
   @Override
-  public void runCommand(@NotNull final String command) {
+  public boolean isRunning() {
+    return this.running.get();
   }
 
   @Override
-  public void startServer() {
+  public void startServer(final long startTime) {
     this.running.set(true);
     this.tick.start();
     Loggers.log("Loading plugins.");
-    // @todo #0:60m Load plugins here.
+    // @todo #1:60m Load plugins here.
     Loggers.log("Enabling startup plugins before the loading worlds.");
-    // @todo #0:60m enable plugins which set PluginLoadOrder as STARTUP.
+    // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     Loggers.log("Loading worlds.");
     this.loader.loadAll();
     Loggers.log("Enabling plugins after the loading worlds.");
-    // @todo #0:60m enable plugins which set PluginLoadOrder as POST_WORLD.
+    // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
+    final var end = System.currentTimeMillis() - startTime;
+    Loggers.log("Done, took %sms.", end);
   }
 
   @Override

@@ -23,35 +23,36 @@
  *
  */
 
-package io.github.shiruka.shiruka.config;
+package io.github.shiruka.shiruka.command;
 
-import io.github.shiruka.api.config.Config;
-import io.github.shiruka.api.config.config.PathableConfig;
-import java.io.File;
+import io.github.shiruka.api.command.CommandManager;
+import io.github.shiruka.api.command.CommandNode;
+import io.github.shiruka.api.command.CommandSender;
+import io.github.shiruka.api.plugin.Plugin;
+import java.util.Collections;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * list of server operators.
+ * a simple implementation for {@link CommandManager}.
  */
-public final class UserCacheConfig extends PathableConfig {
+public final class SimpleCommandManager implements CommandManager {
 
-  /**
-   * ctor.
-   *
-   * @param origin the origin.
-   */
-  private UserCacheConfig(@NotNull final Config origin) {
-    super(origin);
+  @Override
+  public void execute(@NotNull final String s, @NotNull final CommandSender commandSender) {
   }
 
-  /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(UserCacheConfig::new)
-      .ifPresent(Config::save);
+  @Override
+  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commandNodes) {
+  }
+
+  @NotNull
+  @Override
+  public Map<String, CommandNode> registered(@NotNull final Plugin plugin) {
+    return Collections.emptyMap();
+  }
+
+  @Override
+  public void unregister(@NotNull final String... strings) {
   }
 }

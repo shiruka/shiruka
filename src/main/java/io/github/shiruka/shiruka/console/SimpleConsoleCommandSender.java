@@ -23,73 +23,38 @@
  *
  */
 
-package io.github.shiruka.shiruka.misc;
+package io.github.shiruka.shiruka.console;
 
-import java.util.Locale;
+import io.github.shiruka.api.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * a class that contains Shiru ka's utility methods.
+ * a simple console implementation for {@link CommandSender}.
  */
-public final class ShirukaUtils {
+public final class SimpleConsoleCommandSender implements CommandSender {
 
   /**
-   * the operating system.
+   * the console.
    */
-  @Nullable
-  private static OS os = null;
+  @NotNull
+  private final ShirukaConsole console;
 
   /**
    * ctor.
-   */
-  private ShirukaUtils() {
-  }
-
-  /**
-   * obtains the operating system.
    *
-   * @return the operating system.
+   * @param console the console.
    */
-  @NotNull
-  public static OS getOS() {
-    if (ShirukaUtils.os != null) {
-      return ShirukaUtils.os;
-    }
-    final var name = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
-    if (name.contains("win")) {
-      ShirukaUtils.os = OS.WINDOWS;
-    } else if (name.contains("nix") ||
-      name.contains("nux") ||
-      name.contains("aix")) {
-      ShirukaUtils.os = OS.LINUX;
-    } else if (name.contains("mac")) {
-      ShirukaUtils.os = OS.MAC;
-    } else if (name.contains("sunos")) {
-      ShirukaUtils.os = OS.SOLARIS;
-    }
-    return ShirukaUtils.os;
+  public SimpleConsoleCommandSender(@NotNull final ShirukaConsole console) {
+    this.console = console;
   }
 
-  /**
-   * an enum class to determine operating systems.
-   */
-  public enum OS {
-    /**
-     * the windows.
-     */
-    WINDOWS,
-    /**
-     * the linux.
-     */
-    LINUX,
-    /**
-     * the macOS.
-     */
-    MAC,
-    /**
-     * the solaris.
-     */
-    SOLARIS
+  @NotNull
+  @Override
+  public String name() {
+    return "CONSOLE";
+  }
+
+  @Override
+  public void sendMessage(@NotNull final String message) {
   }
 }

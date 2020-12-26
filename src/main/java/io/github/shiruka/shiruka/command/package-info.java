@@ -22,36 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.config;
-
-import io.github.shiruka.api.config.Config;
-import io.github.shiruka.api.config.config.PathableConfig;
-import java.io.File;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * list of server operators.
+ * the package that contains command classes.
  */
-public final class UserCacheConfig extends PathableConfig {
-
-  /**
-   * ctor.
-   *
-   * @param origin the origin.
-   */
-  private UserCacheConfig(@NotNull final Config origin) {
-    super(origin);
-  }
-
-  /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(UserCacheConfig::new)
-      .ifPresent(Config::save);
-  }
-}
+package io.github.shiruka.shiruka.command;

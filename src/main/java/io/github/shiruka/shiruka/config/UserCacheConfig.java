@@ -25,8 +25,8 @@
 
 package io.github.shiruka.shiruka.config;
 
-import io.github.shiruka.api.conf.Config;
-import io.github.shiruka.api.conf.config.PathableConfig;
+import io.github.shiruka.api.config.Config;
+import io.github.shiruka.api.config.config.PathableConfig;
 import java.io.File;
 import org.jetbrains.annotations.NotNull;
 

@@ -54,7 +54,7 @@ public final class PacketInLogin extends PacketIn {
   /**
    * the name pattern to check client's usernames.
    */
-  private static final Pattern NAME_PATTERN = Pattern.compile("^[aA-zZ\\s\\d_]{3,16}+$");
+  private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
 
   /**
    * ctor.

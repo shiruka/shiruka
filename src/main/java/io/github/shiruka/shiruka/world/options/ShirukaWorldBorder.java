@@ -73,7 +73,7 @@ public final class ShirukaWorldBorder implements WorldBorder {
   public ShirukaWorldBorder(@NotNull final World world) {
     this.world = world;
   }
-@
+
   @NotNull
   @Override
   public WorldBorder.DoubleXZ getCenter() {

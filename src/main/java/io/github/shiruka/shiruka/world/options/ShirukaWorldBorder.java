@@ -73,7 +73,7 @@ public final class ShirukaWorldBorder implements WorldBorder {
   public ShirukaWorldBorder(@NotNull final World world) {
     this.world = world;
   }
-
+@
   @NotNull
   @Override
   public WorldBorder.DoubleXZ getCenter() {
@@ -83,7 +83,7 @@ public final class ShirukaWorldBorder implements WorldBorder {
   @Override
   public void setCenter(@NotNull final DoubleXZ center) {
     this.center.set(center);
-    // @todo 1#:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetCenter(center.getX(), center.getZ()));
+    // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetCenter(center.getX(), center.getZ()));
   }
 
   @Override

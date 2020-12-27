@@ -74,6 +74,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
 
   /**
    * initializes the player.
+   * @todo #1:30m Implement it.
    */
   public void initializePlayer() {
   }

@@ -187,8 +187,8 @@ public final class AnvilChunkSection {
         for (var z = 0; z < 16; z++) {
           for (var x = 0; x < 16; x++) {
             final var realIdx = y << 8 | z << 4 | x;
-            int data = this.dataAt(realIdx);
-            final var shortData = (short) data;
+            final var shortData = this.dataAt(realIdx);
+            var data = (int)shortData;
             final var added = this.mainPalette.add(shortData);
             if (doPalette) {
               if (added) {

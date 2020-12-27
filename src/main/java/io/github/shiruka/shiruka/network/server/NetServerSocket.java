@@ -231,7 +231,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   }
 
   @Override
-  public void onTick() {
+  public void tick() {
     final var now = System.currentTimeMillis();
     this.connectionByAddress.values().forEach(connection ->
       connection.getEventLoop().execute(() -> connection.onTick(now)));

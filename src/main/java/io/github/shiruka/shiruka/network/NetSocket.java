@@ -89,7 +89,7 @@ public abstract class NetSocket implements Socket {
   private final long uniqueId = ThreadLocalRandom.current().nextLong();
 
   /**
-   * the tick future to run {@link Socket#onTick()} method.
+   * the tick future to run {@link Socket#tick()} method.
    */
   @Nullable
   private ScheduledFuture<?> tickFuture;
@@ -134,7 +134,7 @@ public abstract class NetSocket implements Socket {
           return;
         }
         this.closed.set(false);
-        this.tickFuture = NetSocket.GROUP.next().scheduleAtFixedRate(this::onTick, 0, 10,
+        this.tickFuture = NetSocket.GROUP.next().scheduleAtFixedRate(this::tick, 0, 10,
           TimeUnit.MILLISECONDS);
       });
   }

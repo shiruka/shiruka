@@ -51,7 +51,8 @@ public final class ShirukaWeather implements Weather {
   /**
    * amount of time in ticks until thunder toggles, unless it is not raining.
    */
-  private final AtomicInteger thunderTime = new AtomicInteger(ThreadLocalRandom.current().nextInt(ShirukaWeather.MAX_RAND));
+  private final AtomicInteger thunderTime =
+    new AtomicInteger(ThreadLocalRandom.current().nextInt(ShirukaWeather.MAX_RAND));
 
   /**
    * the current weather state.
@@ -76,7 +77,7 @@ public final class ShirukaWeather implements Weather {
   @Override
   public void beginRaining() {
     if (this.weatherState.compareAndSet(WeatherState.CLEAR, WeatherState.RAINING)) {
-//      RecipientSelector.inWorld(this.world, new PlayOutGameState(2, 0));
+      // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutGameState(2, 0));
     }
   }
 
@@ -88,7 +89,7 @@ public final class ShirukaWeather implements Weather {
   @Override
   public void clear() {
     this.weatherState.set(WeatherState.CLEAR);
-//    RecipientSelector.inWorld(this.world, new PlayOutGameState(1, 0));
+    // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutGameState(1, 0));
   }
 
   @Override
@@ -164,6 +165,7 @@ public final class ShirukaWeather implements Weather {
     }
   }
 
+  @Override
   public void tick() {
     // @todo #1:15m tick operations.
   }

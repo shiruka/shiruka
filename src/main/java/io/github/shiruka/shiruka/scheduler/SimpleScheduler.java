@@ -90,6 +90,7 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   /**
    * ticks the tasks.
    */
+  @Override
   public void tick() {
     this.tasks.forEach(Runnable::run);
   }

@@ -24,6 +24,7 @@
  */
 package io.github.shiruka.shiruka.network;
 
+import io.github.shiruka.api.base.Tick;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that covers socket's methods.
  */
-public interface Socket extends Closeable {
+public interface Socket extends Closeable, Tick {
 
   /**
    * sends the packet to the given recipient.
@@ -112,9 +113,4 @@ public interface Socket extends Closeable {
    * @return if the socket is closed returns true otherwise, false.
    */
   boolean isClosed();
-
-  /**
-   * runs every tick.
-   */
-  void onTick();
 }

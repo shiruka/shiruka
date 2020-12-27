@@ -34,8 +34,15 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * the implementation of a world border which can be enabled on a world.
+ *
+ * @todo 1#5m Add more JavaDoc here.
  */
 public final class ShirukaWorldBorder implements WorldBorder {
+
+  /**
+   * the center.
+   */
+  private final ThreadLocal<DoubleXZ> center = ThreadLocal.withInitial(() -> WorldBorder.DEFAULT_CENTER);
 
   private final AtomicLong damage = new AtomicLong(Double.doubleToLongBits(WorldBorder.DEFAULT_DAMAGE));
 
@@ -57,8 +64,6 @@ public final class ShirukaWorldBorder implements WorldBorder {
   @NotNull
   private final World world;
 
-  private volatile DoubleXZ center = WorldBorder.DEFAULT_CENTER;
-
   /**
    * ctor.
    *
@@ -72,13 +77,13 @@ public final class ShirukaWorldBorder implements WorldBorder {
   @NotNull
   @Override
   public WorldBorder.DoubleXZ getCenter() {
-    return this.center;
+    return this.center.get();
   }
 
   @Override
   public void setCenter(@NotNull final DoubleXZ center) {
-    this.center = center;
-//    RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetCenter(center.getX(), center.getZ()));
+    this.center.set(center);
+    // @todo 1#:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetCenter(center.getX(), center.getZ()));
   }
 
   @Override
@@ -124,7 +129,7 @@ public final class ShirukaWorldBorder implements WorldBorder {
   @Override
   public void setWarnDistance(final int dist) {
     this.warn.set(dist);
-//    RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnBlocks(dist));
+    // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnBlocks(dist));
   }
 
   @Override
@@ -135,7 +140,7 @@ public final class ShirukaWorldBorder implements WorldBorder {
   @Override
   public void setWarnTime(final int seconds) {
     this.warnTime.set(seconds);
-//    RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnTime(seconds));
+    // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnTime(seconds));
   }
 
   @Override
@@ -153,9 +158,9 @@ public final class ShirukaWorldBorder implements WorldBorder {
     }
     while (!this.targetSize.compareAndSet(oldSize, newSize));
     if (time == 0) {
-//      RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetSize(nextSize));
+      // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetSize(nextSize));
     } else {
-//      RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.LerpSize(currentSize, nextSize, time));
+      // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.LerpSize(currentSize, nextSize, time));
     }
   }
 
@@ -168,13 +173,13 @@ public final class ShirukaWorldBorder implements WorldBorder {
       newWarn = oldWarn + dist;
     }
     while (!this.warn.compareAndSet(oldWarn, newWarn));
-//    RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnBlocks(newWarn));
+    // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnBlocks(newWarn));
   }
 
   @Override
   public void init() {
-    final DoubleXZ xz = this.center;
-//    RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.Init(xz.getX(), xz.getZ(), WorldBorder.DEFAULT_SIZE, this.getSize(), this.getTargetTime(), this.warnTime.get(), this.warn.get()));
+    final DoubleXZ xz = this.center.get();
+    // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.Init(xz.getX(), xz.getZ(), WorldBorder.DEFAULT_SIZE, this.getSize(), this.getTargetTime(), this.warnTime.get(), this.warn.get()));
   }
 
   @Override
@@ -182,15 +187,15 @@ public final class ShirukaWorldBorder implements WorldBorder {
     this.sizeTime.set(time);
     this.targetSize.set(Double.doubleToLongBits(size));
     if (time == 0) {
-//      RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetSize(size));
+      // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetSize(size));
     } else {
-//      RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.LerpSize(Double.longBitsToDouble(this.size.get()), size, time));
+      // @todo #1:60m RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.LerpSize(Double.longBitsToDouble(this.size.get()), size, time));
     }
   }
 
   public void read(@NotNull final CompoundTag compound) {
-    this.center = new DoubleXZ(compound.getDouble("BorderCenterX").orElseThrow(),
-      compound.getDouble("BorderCenterZ").orElseThrow());
+    this.center.set(new DoubleXZ(compound.getDouble("BorderCenterX").orElseThrow(),
+      compound.getDouble("BorderCenterZ").orElseThrow()));
     this.size.set(Double.doubleToLongBits(compound.getDouble("BorderSize").orElseThrow()));
     this.targetSize.set(Double.doubleToLongBits(compound.getDouble("BorderSizeLerpTarget").orElseThrow()));
     this.sizeTime.set(compound.getLong("BorderSizeLerpTime").orElseThrow());
@@ -200,6 +205,7 @@ public final class ShirukaWorldBorder implements WorldBorder {
     this.warnTime.set(compound.getDouble("BorderWarningTime").orElseThrow().intValue());
   }
 
+  @Override
   public void tick() {
     long prevTime;
     long nextTime;
@@ -227,8 +233,8 @@ public final class ShirukaWorldBorder implements WorldBorder {
   }
 
   public void write(@NotNull final CompoundTag compound) {
-    compound.setDouble("BorderCenterX", this.center.getX());
-    compound.setDouble("BorderCenterZ", this.center.getZ());
+    compound.setDouble("BorderCenterX", this.center.get().getX());
+    compound.setDouble("BorderCenterZ", this.center.get().getZ());
     compound.setDouble("BorderSize", this.getSize());
     compound.setDouble("BorderSizeLerpTarget", this.getTargetSize());
     compound.setLong("BorderSizeLerpTime", this.getTargetTime());

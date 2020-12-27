@@ -207,6 +207,7 @@ public final class AnvilWorld implements World {
     return this.name;
   }
 
+  @Override
   public int getTime() {
     return this.time.get();
   }

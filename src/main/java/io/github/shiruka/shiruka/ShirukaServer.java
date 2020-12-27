@@ -27,7 +27,7 @@ package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.command.CommandManager;
-import io.github.shiruka.api.command.CommandSender;
+import io.github.shiruka.api.console.ConsoleCommandSender;
 import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.scheduler.Scheduler;
@@ -37,14 +37,14 @@ import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.SimpleConsoleCommandSender;
-import io.github.shiruka.shiruka.entity.ShirukaPlayer;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.event.SimpleEventFactory;
-import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
@@ -60,21 +60,10 @@ public final class ShirukaServer implements Server {
   public static final String VERSION = "1.0.0";
 
   /**
-   * the command manager.
-   */
-  private final CommandManager commandManager = new SimpleCommandManager();
-
-  /**
    * the console.
    */
   @NotNull
   private final ShirukaConsole console;
-
-  /**
-   * the console command sender.
-   */
-  @NotNull
-  private final CommandSender consoleCommandSender;
 
   /**
    * the server's description.
@@ -83,9 +72,9 @@ public final class ShirukaServer implements Server {
   private final String description;
 
   /**
-   * the event factory.
+   * the singleton interface implementations.
    */
-  private final EventFactory eventFactory = new SimpleEventFactory();
+  private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
 
   /**
    * the loader.
@@ -97,11 +86,6 @@ public final class ShirukaServer implements Server {
    * if the server is running.
    */
   private final AtomicBoolean running = new AtomicBoolean(true);
-
-  /**
-   * the scheduler.
-   */
-  private final Scheduler scheduler = new SimpleScheduler();
 
   /**
    * the socket.
@@ -129,37 +113,14 @@ public final class ShirukaServer implements Server {
     this.loader = loader;
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.console = console.apply(this);
-    this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
-  }
-
-  /**
-   * creates a new {@link ShirukaPlayer} instance.
-   *
-   * @param connection the connection to create.
-   *
-   * @return a new player instance.
-   */
-  @NotNull
-  public ShirukaPlayer createPlayer(@NotNull final Connection<ServerSocket> connection) {
-    return new ShirukaPlayer(new ShirukaPlayerConnection(connection, this));
   }
 
   @NotNull
   @Override
-  public CommandManager getCommandManager() {
-    return this.commandManager;
-  }
-
-  @NotNull
-  @Override
-  public CommandSender getConsoleCommandSender() {
-    return this.consoleCommandSender;
-  }
-
-  @NotNull
-  @Override
-  public EventFactory getEventFactory() {
-    return this.eventFactory;
+  public <I> I getInterface(@NotNull final Class<I> cls) {
+    //noinspection unchecked
+    return (I) Objects.requireNonNull(this.interfaces.get(cls),
+      String.format("Implementation not found for %s!", cls.toString()));
   }
 
   @Override
@@ -170,12 +131,6 @@ public final class ShirukaServer implements Server {
   @Override
   public int getPlayerCount() {
     return this.socket.getConnectionsByAddress().size();
-  }
-
-  @NotNull
-  @Override
-  public Scheduler getScheduler() {
-    return this.scheduler;
   }
 
   @NotNull
@@ -195,7 +150,16 @@ public final class ShirukaServer implements Server {
   }
 
   @Override
+  public <I> void registerInterface(@NotNull final Class<I> cls, @NotNull final I implementation) {
+    if (this.interfaces.containsKey(cls)) {
+      return;
+    }
+    this.interfaces.put(cls, implementation);
+  }
+
+  @Override
   public void startServer(final long startTime) {
+    this.registerImplementations();
     this.running.set(true);
     this.tick.start();
     Loggers.log("Loading plugins.");
@@ -221,5 +185,24 @@ public final class ShirukaServer implements Server {
     }
     ServerThreadPool.shutdownAll();
     System.exit(0);
+  }
+
+  @Override
+  public <I> void unregisterInterface(@NotNull final Class<I> cls) {
+    this.interfaces.remove(cls);
+  }
+
+  /**
+   * registers the implementation of the interfaces which are singleton.
+   */
+  private void registerImplementations() {
+    this.unregisterInterface(CommandManager.class);
+    this.unregisterInterface(ConsoleCommandSender.class);
+    this.unregisterInterface(EventFactory.class);
+    this.unregisterInterface(Scheduler.class);
+    this.registerInterface(CommandManager.class, new SimpleCommandManager());
+    this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
+    this.registerInterface(EventFactory.class, new SimpleEventFactory());
+    this.registerInterface(Scheduler.class, new SimpleScheduler());
   }
 }

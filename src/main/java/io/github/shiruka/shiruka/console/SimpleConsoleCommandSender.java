@@ -25,13 +25,13 @@
 
 package io.github.shiruka.shiruka.console;
 
-import io.github.shiruka.api.command.CommandSender;
+import io.github.shiruka.api.console.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a simple console implementation for {@link CommandSender}.
+ * a simple console implementation for {@link ConsoleCommandSender}.
  */
-public final class SimpleConsoleCommandSender implements CommandSender {
+public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
 
   /**
    * the console.

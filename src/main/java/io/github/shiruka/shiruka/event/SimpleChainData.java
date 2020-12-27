@@ -520,7 +520,7 @@ public final class SimpleChainData implements LoginDataEvent.ChainData {
       throw new IllegalArgumentException("Invalid JSON", e);
     }
     if (parsed.isEmpty() || !parsed.names().contains(SimpleChainData.CHAIN) ||
-      parsed.get(SimpleChainData.CHAIN).asObject().isEmpty()) {
+      parsed.get(SimpleChainData.CHAIN).asArray().isEmpty()) {
       return;
     }
     final var chains = parsed.get(SimpleChainData.CHAIN).asArray().values().stream()

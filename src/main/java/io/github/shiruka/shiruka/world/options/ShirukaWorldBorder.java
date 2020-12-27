@@ -34,9 +34,15 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * the implementation of a world border which can be enabled on a world.
+ *
  * @todo 1#5m Add more JavaDoc here.
  */
 public final class ShirukaWorldBorder implements WorldBorder {
+
+  /**
+   * the center.
+   */
+  private final ThreadLocal<DoubleXZ> center = ThreadLocal.withInitial(() -> WorldBorder.DEFAULT_CENTER);
 
   private final AtomicLong damage = new AtomicLong(Double.doubleToLongBits(WorldBorder.DEFAULT_DAMAGE));
 
@@ -57,11 +63,6 @@ public final class ShirukaWorldBorder implements WorldBorder {
    */
   @NotNull
   private final World world;
-
-  /**
-   * the center.
-   */
-  private final ThreadLocal<DoubleXZ> center = ThreadLocal.withInitial(() -> WorldBorder.DEFAULT_CENTER);
 
   /**
    * ctor.

@@ -30,6 +30,7 @@ import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.console.ConsoleCommandSender;
 import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.log.Loggers;
+import io.github.shiruka.api.resourcepack.ResourcePackManager;
 import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
@@ -41,6 +42,8 @@ import io.github.shiruka.shiruka.event.SimpleEventFactory;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import io.github.shiruka.shiruka.plugin.InternalPlugin;
+import io.github.shiruka.shiruka.resourcepack.SimpleResourcePackManager;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.util.Map;
 import java.util.Objects;
@@ -53,6 +56,11 @@ import org.jetbrains.annotations.NotNull;
  * an implementation for {@link Server}.
  */
 public final class ShirukaServer implements Server {
+
+  /**
+   * the internal plugin.
+   */
+  public static final InternalPlugin INTERNAL_PLUGIN = new InternalPlugin();
 
   /**
    * obtains the Shiru ka server's version
@@ -200,9 +208,11 @@ public final class ShirukaServer implements Server {
     this.unregisterInterface(ConsoleCommandSender.class);
     this.unregisterInterface(EventFactory.class);
     this.unregisterInterface(Scheduler.class);
+    this.unregisterInterface(ResourcePackManager.class);
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventFactory.class, new SimpleEventFactory());
     this.registerInterface(Scheduler.class, new SimpleScheduler());
+    this.registerInterface(ResourcePackManager.class, new SimpleResourcePackManager());
   }
 }

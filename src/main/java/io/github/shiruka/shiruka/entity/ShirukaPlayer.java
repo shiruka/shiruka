@@ -46,14 +46,14 @@ public final class ShirukaPlayer implements Player {
    * the connection.
    */
   @NotNull
-  private final PlayerConnection connection;
+  private final ShirukaPlayerConnection connection;
 
   /**
    * ctor.
    *
    * @param connection the connection.
    */
-  public ShirukaPlayer(@NotNull final PlayerConnection connection) {
+  public ShirukaPlayer(@NotNull final ShirukaPlayerConnection connection) {
     this.connection = connection;
   }
 
@@ -102,7 +102,7 @@ public final class ShirukaPlayer implements Player {
   }
 
   @NotNull
-  public PlayerConnection getPlayerConnection() {
+  public ShirukaPlayerConnection getPlayerConnection() {
     return this.connection;
   }
 

@@ -47,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
 public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> implements Scheduler {
 
   /**
-   * the pool.
+   * the async pool.
    */
   private static final ServerThreadPool ASYNC_POOL = ServerThreadPool.forSpec(PoolSpec.ASYNC_SCHEDULER);
 
@@ -124,13 +124,13 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
       runner = task -> () -> {
         runnable.beforeRun();
         runnable.run();
-        runnable.afterAsyncRun();
+        runnable.afterRun();
       };
     } else {
       runner = task -> () -> {
         runnable.beforeRun();
         runnable.run();
-        runnable.afterAsyncRun();
+        runnable.afterRun();
         task.cancel();
       };
     }
@@ -198,10 +198,10 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
      * @param taskType the task type.
      * @param interval the step.
      */
-    public SimpleScheduledTask(@NotNull final Executor executor, @NotNull final Plugin plugin,
-                               @NotNull final ScheduledRunnable runnable,
-                               @NotNull final Function<ScheduledTask, Runnable> runner,
-                               @NotNull final TaskType taskType, final long interval) {
+    SimpleScheduledTask(@NotNull final Executor executor, @NotNull final Plugin plugin,
+                        @NotNull final ScheduledRunnable runnable,
+                        @NotNull final Function<ScheduledTask, Runnable> runner,
+                        @NotNull final TaskType taskType, final long interval) {
       this.executor = executor;
       this.plugin = plugin;
       this.runnable = runnable;

@@ -26,11 +26,13 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Server;
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.console.ConsoleCommandSender;
 import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.log.Loggers;
-import io.github.shiruka.api.resourcepack.ResourcePackManager;
+import io.github.shiruka.api.pack.PackManager;
+import io.github.shiruka.api.pack.PackManifest;
 import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
@@ -42,8 +44,11 @@ import io.github.shiruka.shiruka.event.SimpleEventFactory;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import io.github.shiruka.shiruka.pack.SimplePackManager;
+import io.github.shiruka.shiruka.pack.loader.RplDirectory;
+import io.github.shiruka.shiruka.pack.loader.RplZip;
+import io.github.shiruka.shiruka.pack.pack.ResourcePack;
 import io.github.shiruka.shiruka.plugin.InternalPlugin;
-import io.github.shiruka.shiruka.resourcepack.SimpleResourcePackManager;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.util.Map;
 import java.util.Objects;
@@ -170,6 +175,7 @@ public final class ShirukaServer implements Server {
     this.registerImplementations();
     this.running.set(true);
     this.tick.start();
+    this.reloadPacks();
     Loggers.log("Loading plugins.");
     // @todo #1:60m Load plugins here.
     Loggers.log("Enabling startup plugins before the loading worlds.");
@@ -208,11 +214,22 @@ public final class ShirukaServer implements Server {
     this.unregisterInterface(ConsoleCommandSender.class);
     this.unregisterInterface(EventFactory.class);
     this.unregisterInterface(Scheduler.class);
-    this.unregisterInterface(ResourcePackManager.class);
+    this.unregisterInterface(PackManager.class);
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventFactory.class, new SimpleEventFactory());
     this.registerInterface(Scheduler.class, new SimpleScheduler());
-    this.registerInterface(ResourcePackManager.class, new SimpleResourcePackManager());
+    this.registerInterface(PackManager.class, new SimplePackManager());
+  }
+
+  /**
+   * reloads packs.
+   */
+  private void reloadPacks() {
+    final var manager = Shiruka.getPackManager();
+    manager.registerLoader(RplZip.class, RplZip.FACTORY);
+    manager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
+    manager.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);
+    manager.closeRegistration();
   }
 }

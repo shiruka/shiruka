@@ -27,70 +27,87 @@ package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.netty.buffer.ByteBuf;
+import java.util.Collections;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a packet that sends to clients to notify connection's play status..
+ * pack stack packet.
+ *
+ * @todo #1:1m Add experimental field.
  */
-public final class PacketOutPlayStatus extends PacketOut {
+public final class PacketOutPackStack extends PacketOut {
 
   /**
-   * the status.
+   * the entries.
    */
   @NotNull
-  private final Status status;
+  private final List<Entry> entries;
+
+  /**
+   * the game version.
+   */
+  @NotNull
+  private final String gameVersion;
+
+  /**
+   * the must accept.
+   */
+  private final boolean mustAccept;
 
   /**
    * ctor.
    *
-   * @param status the status.
+   * @param mustAccept the must accept.
+   * @param gameVersion the game version.
+   * @param entries the entries.
    */
-  public PacketOutPlayStatus(@NotNull final Status status) {
-    super(PacketOutPlayStatus.class);
-    this.status = status;
+  public PacketOutPackStack(@NotNull final List<Entry> entries, @NotNull final String gameVersion,
+                            final boolean mustAccept) {
+    super(PacketOutPackStack.class);
+    this.entries = Collections.unmodifiableList(entries);
+    this.gameVersion = gameVersion;
+    this.mustAccept = mustAccept;
   }
 
   @Override
   public void write(@NotNull final ByteBuf buf) {
-    buf.writeInt(this.status.ordinal());
   }
 
   /**
-   * an enum class to determine play status.
+   * a class that represents entries of {@code this} packet.
    */
-  public enum Status {
+  public static final class Entry {
 
     /**
-     * sent after Login has been successfully decoded and the player has logged in.
+     * the pack id.
      */
-    LOGIN_SUCCESS,
+    @NotNull
+    private final String packId;
+
     /**
-     * displays "Could not connect: Outdated client!".
+     * the pack version.
      */
-    LOGIN_FAILED_CLIENT_OLD,
+    @NotNull
+    private final String packVersion;
+
     /**
-     * displays "Could not connect: Outdated server!".
+     * the sub pack name.
      */
-    LOGIN_FAILED_SERVER_OLD,
+    @NotNull
+    private final String subPackName;
+
     /**
-     * sent after world data to spawn the player.
+     * ctor.
+     *
+     * @param packId the pack id.
+     * @param packVersion the pack version.
+     * @param subPackName the sub pack name.
      */
-    PLAYER_SPAWN,
-    /**
-     * displays "Unable to connect to world. Your school does not have access to this server.".
-     */
-    LOGIN_FAILED_INVALID_TENANT,
-    /**
-     * displays "The server is not running Minecraft: Education Edition. Failed to connect.".
-     */
-    LOGIN_FAILED_EDITION_MISMATCH_EDU_TO_VANILLA,
-    /**
-     * displays "The server is running an incompatible edition of Minecraft. Failed to connect.".
-     */
-    LOGIN_FAILED_EDITION_MISMATCH_VANILLA_TO_EDU,
-    /**
-     * displays "Wow this server is popular! Check back later to see if space opens up. Server Full".
-     */
-    FAILED_SERVER_FULL_SUB_CLIENT
+    public Entry(@NotNull final String packId, @NotNull final String packVersion, @NotNull final String subPackName) {
+      this.packId = packId;
+      this.packVersion = packVersion;
+      this.subPackName = subPackName;
+    }
   }
 }

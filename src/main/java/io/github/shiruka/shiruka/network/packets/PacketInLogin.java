@@ -136,6 +136,6 @@ public final class PacketInLogin extends PacketIn {
       });
     });
     connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
-    Shiruka.getResourcePackManager().send
+//    Shiruka.getPackManager().send
   }
 }

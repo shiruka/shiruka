@@ -77,6 +77,13 @@ public final class ServerConfig extends PathableConfig {
     "the description message shown in the server list.");
 
   /**
+   * forces to accept incoming resource packs.
+   */
+  public static final ConfigPath<Boolean> FORCE_RESOURCES = commented(booleanPath(
+    "force-resources", true),
+    "forces to accept resource packs to players.");
+
+  /**
    * the max players that can be online at once.
    */
   public static final ConfigPath<Integer> MAX_PLAYERS = commented(integerPath(

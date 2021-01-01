@@ -25,7 +25,9 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
+import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.List;
@@ -33,16 +35,30 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * pack stack packet.
- *
- * @todo #1:1m Add experimental field.
  */
 public final class PacketOutPackStack extends PacketOut {
 
   /**
-   * the entries.
+   * the behavior packs.
    */
   @NotNull
-  private final List<Entry> entries;
+  private final List<Entry> behaviorPacks;
+
+  /**
+   * the experiments.
+   */
+  @NotNull
+  private final List<ExperimentData> experiments;
+
+  /**
+   * the experiment previously toggled.
+   */
+  private final boolean experimentsPreviouslyToggled;
+
+  /**
+   * the forced to accept.
+   */
+  private final boolean forcedToAccept;
 
   /**
    * the game version.
@@ -51,27 +67,41 @@ public final class PacketOutPackStack extends PacketOut {
   private final String gameVersion;
 
   /**
-   * the must accept.
+   * the resource packs.
    */
-  private final boolean mustAccept;
+  @NotNull
+  private final List<Entry> resourcePacks;
 
   /**
    * ctor.
    *
-   * @param mustAccept the must accept.
+   * @param behaviorPacks the behavior packs.
+   * @param experiments the experiments.
+   * @param experimentsPreviouslyToggled the experiment previously toggled.
+   * @param forcedToAccept the forced to accept.
    * @param gameVersion the game version.
-   * @param entries the entries.
+   * @param resourcePacks the resource packs.
    */
-  public PacketOutPackStack(@NotNull final List<Entry> entries, @NotNull final String gameVersion,
-                            final boolean mustAccept) {
+  public PacketOutPackStack(@NotNull final List<Entry> behaviorPacks, @NotNull final List<ExperimentData> experiments,
+                            final boolean experimentsPreviouslyToggled, final boolean forcedToAccept,
+                            @NotNull final String gameVersion, @NotNull final List<Entry> resourcePacks) {
     super(PacketOutPackStack.class);
-    this.entries = Collections.unmodifiableList(entries);
+    this.behaviorPacks = Collections.unmodifiableList(behaviorPacks);
+    this.experiments = Collections.unmodifiableList(experiments);
+    this.experimentsPreviouslyToggled = experimentsPreviouslyToggled;
+    this.forcedToAccept = forcedToAccept;
     this.gameVersion = gameVersion;
-    this.mustAccept = mustAccept;
+    this.resourcePacks = Collections.unmodifiableList(resourcePacks);
   }
 
   @Override
   public void write(@NotNull final ByteBuf buf) {
+    buf.writeBoolean(this.forcedToAccept);
+    Packets.writeArray(buf, this.behaviorPacks, Packets::writeEntry);
+    Packets.writeArray(buf, this.resourcePacks, Packets::writeEntry);
+    VarInts.writeString(buf, this.gameVersion);
+    Packets.writeExperiments(buf, this.experiments);
+    buf.writeBoolean(this.experimentsPreviouslyToggled);
   }
 
   /**
@@ -108,6 +138,83 @@ public final class PacketOutPackStack extends PacketOut {
       this.packId = packId;
       this.packVersion = packVersion;
       this.subPackName = subPackName;
+    }
+
+    /**
+     * obtains the pack id.
+     *
+     * @return pack id.
+     */
+    @NotNull
+    public String getPackId() {
+      return this.packId;
+    }
+
+    /**
+     * obtains the pack version.
+     *
+     * @return pack version.
+     */
+    @NotNull
+    public String getPackVersion() {
+      return this.packVersion;
+    }
+
+    /**
+     * obtains the sub pack name.
+     *
+     * @return sub pack name.
+     */
+    @NotNull
+    public String getSubPackName() {
+      return this.subPackName;
+    }
+  }
+
+  /**
+   * a class that represents experiment data.
+   */
+  public static final class ExperimentData {
+
+    /**
+     * the enabled.
+     */
+    private final boolean enabled;
+
+    /**
+     * the name.
+     */
+    @NotNull
+    private final String name;
+
+    /**
+     * ctor.
+     *
+     * @param name the name.
+     * @param enabled the enabled.
+     */
+    public ExperimentData(@NotNull final String name, final boolean enabled) {
+      this.name = name;
+      this.enabled = enabled;
+    }
+
+    /**
+     * obtains the name.
+     *
+     * @return name.
+     */
+    @NotNull
+    public String getName() {
+      return this.name;
+    }
+
+    /**
+     * obtains the enabled.
+     *
+     * @return enabled.
+     */
+    public boolean isEnabled() {
+      return this.enabled;
     }
   }
 }

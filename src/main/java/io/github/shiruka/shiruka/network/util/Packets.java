@@ -27,8 +27,11 @@ package io.github.shiruka.shiruka.network.util;
 
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.misc.Optionals;
+import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.Socket;
 import io.github.shiruka.shiruka.network.*;
+import io.github.shiruka.shiruka.network.packets.PacketOutPackStack;
+import io.github.shiruka.shiruka.network.packets.PacketOutPacksInfo;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -36,11 +39,14 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.AsciiString;
 import java.net.*;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that contains packet constants.
+ * a class that contains packet constants and utility methods..
  */
 public final class Packets {
 
@@ -315,6 +321,81 @@ public final class Packets {
     } else {
       throw new UnsupportedOperationException("Unknown InetAddress instance");
     }
+  }
+
+  public static <T> void writeArray(@NotNull final ByteBuf buffer, @NotNull final Collection<T> array,
+                                    @NotNull final BiConsumer<ByteBuf, T> biConsumer) {
+    VarInts.writeUnsignedInt(buffer, array.size());
+    array.forEach(val -> biConsumer.accept(buffer, val));
+  }
+
+  /**
+   * writes the given array to the buffer.
+   *
+   * @param buffer the buffer to write.
+   * @param array the array to write.
+   * @param consumer the consumer to write.
+   * @param <T> the type of the array.
+   */
+  public static <T> void writeArrayShortLE(@NotNull final ByteBuf buffer, @NotNull final Collection<T> array,
+                                           @NotNull final BiConsumer<ByteBuf, T> consumer) {
+    buffer.writeShortLE(array.size());
+    array.forEach(val -> consumer.accept(buffer, val));
+  }
+
+  /**
+   * writes the given entry into the buffer.
+   *
+   * @param buffer the buffer to write.
+   * @param entry the entry to write.
+   */
+  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PacketOutPackStack.Entry entry) {
+    VarInts.writeString(buffer, entry.getPackId());
+    VarInts.writeString(buffer, entry.getPackVersion());
+    VarInts.writeString(buffer, entry.getSubPackName());
+  }
+
+  /**
+   * writes the given entry to the buffer.
+   *
+   * @param buffer the buffer to write.
+   * @param entry the entry to write.
+   */
+  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PacketOutPacksInfo.Entry entry) {
+    VarInts.writeString(buffer, entry.getPackId());
+    VarInts.writeString(buffer, entry.getPackVersion());
+    buffer.writeLongLE(entry.getPackSize());
+    VarInts.writeString(buffer, entry.getContentKey());
+    VarInts.writeString(buffer, entry.getSubPackName());
+    VarInts.writeString(buffer, entry.getContentId());
+    buffer.writeBoolean(entry.isScripting());
+  }
+
+  /**
+   * writes the given experiments into the buffer.
+   *
+   * @param buffer the buffer to write.
+   * @param experiments the experiment to write.
+   */
+  public static void writeExperiments(@NotNull final ByteBuf buffer,
+                                      @NotNull final List<PacketOutPackStack.ExperimentData> experiments) {
+    buffer.writeIntLE(experiments.size());
+    experiments.forEach(experiment -> {
+      VarInts.writeString(buffer, experiment.getName());
+      buffer.writeBoolean(experiment.isEnabled());
+    });
+  }
+
+  /**
+   * writes the given resource pack entry to
+   *
+   * @param buffer the buffer to write.
+   * @param entry the entry to write.
+   */
+  public static void writeResourcePackEntry(@NotNull final ByteBuf buffer,
+                                            @NotNull final PacketOutPacksInfo.Entry entry) {
+    Packets.writeEntry(buffer, entry);
+    buffer.writeBoolean(entry.isRaytracingCapable());
   }
 
   /**

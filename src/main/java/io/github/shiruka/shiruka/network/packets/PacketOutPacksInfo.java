@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.List;
@@ -37,30 +38,50 @@ import org.jetbrains.annotations.NotNull;
 public final class PacketOutPacksInfo extends PacketOut {
 
   /**
-   * the entries.
+   * the behavior pack infos.
    */
   @NotNull
-  private final List<Entry> entries;
+  private final List<Entry> behaviorPackInfos;
 
   /**
-   * the must accept.
+   * the forced to accept.
    */
-  private final boolean mustAccept;
+  private final boolean forcedToAccept;
+
+  /**
+   * the resource pack infos.
+   */
+  @NotNull
+  private final List<Entry> resourcePackInfos;
+
+  /**
+   * the scripting enabled.
+   */
+  private final boolean scriptingEnabled;
 
   /**
    * ctor.
    *
-   * @param mustAccept the must accept.
-   * @param entries the info entries
+   * @param behaviorPackInfos the behavior pack infos.
+   * @param forcedToAccept the forced to accept.
+   * @param resourcePackInfos the resource pack infos.
+   * @param scriptingEnabled the scripting enabled.
    */
-  public PacketOutPacksInfo(@NotNull final List<Entry> entries, final boolean mustAccept) {
+  public PacketOutPacksInfo(@NotNull final List<Entry> behaviorPackInfos, final boolean forcedToAccept,
+                            @NotNull final List<Entry> resourcePackInfos, final boolean scriptingEnabled) {
     super(PacketOutPacksInfo.class);
-    this.entries = Collections.unmodifiableList(entries);
-    this.mustAccept = mustAccept;
+    this.behaviorPackInfos = Collections.unmodifiableList(behaviorPackInfos);
+    this.forcedToAccept = forcedToAccept;
+    this.resourcePackInfos = Collections.unmodifiableList(resourcePackInfos);
+    this.scriptingEnabled = scriptingEnabled;
   }
 
   @Override
   public void write(@NotNull final ByteBuf buf) {
+    buf.writeBoolean(this.forcedToAccept);
+    buf.writeBoolean(this.scriptingEnabled);
+    Packets.writeArrayShortLE(buf, this.behaviorPackInfos, Packets::writeEntry);
+    Packets.writeArrayShortLE(buf, this.resourcePackInfos, Packets::writeResourcePackEntry);
   }
 
   /**
@@ -136,6 +157,83 @@ public final class PacketOutPacksInfo extends PacketOut {
       this.raytracingCapable = raytracingCapable;
       this.scripting = scripting;
       this.subPackName = subPackName;
+    }
+
+    /**
+     * obtains the content id.
+     *
+     * @return content id.
+     */
+    @NotNull
+    public String getContentId() {
+      return this.contentId;
+    }
+
+    /**
+     * obtains the content key.
+     *
+     * @return content key.
+     */
+    @NotNull
+    public String getContentKey() {
+      return this.contentKey;
+    }
+
+    /**
+     * obtains the pack id.
+     *
+     * @return pack id.
+     */
+    @NotNull
+    public String getPackId() {
+      return this.packId;
+    }
+
+    /**
+     * obtains the pack size.
+     *
+     * @return pack size.
+     */
+    public long getPackSize() {
+      return this.packSize;
+    }
+
+    /**
+     * obtains the pack version.
+     *
+     * @return pack version.
+     */
+    @NotNull
+    public String getPackVersion() {
+      return this.packVersion;
+    }
+
+    /**
+     * obtains the sub pack name.
+     *
+     * @return sub pack name.
+     */
+    @NotNull
+    public String getSubPackName() {
+      return this.subPackName;
+    }
+
+    /**
+     * obtains the raytracing capable.
+     *
+     * @return raytracing capable.
+     */
+    public boolean isRaytracingCapable() {
+      return this.raytracingCapable;
+    }
+
+    /**
+     * obtains the scripting.
+     *
+     * @return scripting.
+     */
+    public boolean isScripting() {
+      return this.scripting;
     }
   }
 }

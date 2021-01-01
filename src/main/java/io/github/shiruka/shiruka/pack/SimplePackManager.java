@@ -26,11 +26,14 @@
 package io.github.shiruka.shiruka.pack;
 
 import com.google.common.base.Preconditions;
+import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.pack.*;
 import io.github.shiruka.shiruka.config.ServerConfig;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackStack;
 import io.github.shiruka.shiruka.network.packets.PacketOutPacksInfo;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -97,23 +100,26 @@ public final class SimplePackManager implements PackManager {
     this.checkRegistrationClosed();
     final var mustAccept = (boolean) ServerConfig.FORCE_RESOURCES.getValue()
       .orElse(false);
-    this.packsInfos.set(new PacketOutPacksInfo(
-      this.packs.values().stream()
+    this.packsInfos.set(new PacketOutPacksInfo(Collections.emptyList(),
+      mustAccept,
+      new ObjectArrayList<>(this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PacketOutPacksInfo.Entry("", "", pack.getId().toString(),
-            pack.getSize(), pack.getVersion().toString(), false, false, ""))
-        .collect(Collectors.toList()),
-      mustAccept));
+          new PacketOutPacksInfo.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
+            false, false, ""))
+        .collect(Collectors.toList())),
+      false));
     this.packStack.set(new PacketOutPackStack(
+      Collections.emptyList(),
+      Collections.emptyList(),
+      false,
+      mustAccept,
+      "*",
       this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PacketOutPackStack.Entry(pack.getId().toString(),
-            pack.getVersion().toString(), ""))
-        .collect(Collectors.toList()),
-      "*",
-      mustAccept));
+          new PacketOutPackStack.Entry(pack.getId().toString(), pack.getVersion().toString(), ""))
+        .collect(Collectors.toList())));
     this.closed = true;
   }
 
@@ -246,6 +252,14 @@ public final class SimplePackManager implements PackManager {
   public void registerPack(@NotNull final PackManifest.PackType type, @NotNull final Pack.Factory factory) {
     Preconditions.checkArgument(this.packFactories.putIfAbsent(type, factory) == null,
       "The pack factory is already registered!");
+  }
+
+  @Override
+  public void sendPackInfos(@NotNull final Player player) {
+    if (!(player instanceof ShirukaPlayer)) {
+      return;
+    }
+    Optional.ofNullable(this.packsInfos.get()).ifPresent(((ShirukaPlayer) player).getPlayerConnection()::sendPacket);
   }
 
   /**

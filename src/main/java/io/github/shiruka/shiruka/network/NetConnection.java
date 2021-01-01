@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
@@ -216,9 +217,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
 
   @Override
   public final void checkForClosed() {
-    if (this.isClosed()) {
-      throw new IllegalStateException("The connection already closed!");
-    }
+    Preconditions.checkState(!this.isClosed(), "The connection already closed!");
   }
 
   @Override
@@ -448,7 +447,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
   @Override
   public final void touch() {
     this.checkForClosed();
-    this.updateLastTouch();
+    this.lastTouched.set(System.currentTimeMillis());
   }
 
   @Override
@@ -503,7 +502,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
     } else {
       buffers = new ByteBuf[]{packet.readRetainedSlice(packet.readableBytes())};
     }
-    int orderingIndex = 0;
+    var orderingIndex = 0;
     if (reliability.isOrdered()) {
       orderingIndex = this.getCache().getOrderWriteIndex().getAndIncrement(orderingChannel);
     }
@@ -569,9 +568,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
    * @param time the packet to send.
    */
   private void sendDatagram(@NotNull final NetDatagramPacket packet, final long time) {
-    if (packet.getPackets().isEmpty()) {
-      throw new IllegalStateException("NetDatagramPacket has not any packet!");
-    }
+    Preconditions.checkState(!packet.getPackets().isEmpty(), "NetDatagramPacket has not any packet!");
     try {
       final var oldIndex = packet.getSequenceIndex();
       packet.setSequenceIndex(this.datagramWriteIndex.getAndIncrement());
@@ -589,9 +586,8 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
         }
       }
       final var buf = this.allocateBuffer(packet.getSize());
-      if (buf.writerIndex() >= this.adjustedMtu) {
-        throw new IllegalStateException("Packet length was " + buf.writerIndex() + " but expected " + this.adjustedMtu);
-      }
+      Preconditions.checkState(buf.writerIndex() < this.adjustedMtu,
+        "Packet length was %s but expected %s", buf.writerIndex(), this.adjustedMtu);
       packet.encode(buf);
       this.channel.write(new DatagramPacket(buf, this.address));
     } finally {
@@ -608,10 +604,8 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
     final var now = System.currentTimeMillis();
     for (final var packet : packets) {
       final var datagram = new NetDatagramPacket(now);
-      if (!datagram.tryAddPacket(packet, this.adjustedMtu)) {
-        throw new IllegalArgumentException("Packet too large to fit in MTU (size: " + packet.getSize() +
-          ", MTU: " + this.adjustedMtu + ")");
-      }
+      Preconditions.checkArgument(datagram.tryAddPacket(packet, this.adjustedMtu),
+        "Packet too large to fit in MTU (size: %s, MTU: %s)", packet.getSize(), this.adjustedMtu);
       this.sendDatagram(datagram, now);
     }
     this.channel.flush();
@@ -687,7 +681,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
     final var sentDatagrams = temp.getSentDatagrams();
     if (!sentDatagrams.isEmpty()) {
       transmissionBandwidth = this.unACKedBytes.get();
-      boolean hasResent = false;
+      var hasResent = false;
       for (final var datagram : sentDatagrams.values()) {
         if (datagram.getNextSend() > now) {
           continue;
@@ -726,9 +720,8 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
           }
           this.sendDatagram(datagram, now);
           datagram = new NetDatagramPacket(now);
-          if (!datagram.tryAddPacket(packet, this.adjustedMtu)) {
-            throw new IllegalArgumentException("Packet too large to fit in MTU (size: " + packet.getSize() + ", MTU: " + this.adjustedMtu + ")");
-          }
+          Preconditions.checkArgument(datagram.tryAddPacket(packet, this.adjustedMtu),
+            "Packet too large to fit in MTU (size: %s, MTU: %s)", packet.getSize(), this.adjustedMtu);
         }
         if (!datagram.getPackets().isEmpty()) {
           this.sendDatagram(datagram, now);
@@ -738,12 +731,5 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
       temp.unlockOutgoingLock();
     }
     this.channel.flush();
-  }
-
-  /**
-   * updates last touch to the current time.
-   */
-  private void updateLastTouch() {
-    this.lastTouched.set(System.currentTimeMillis());
   }
 }

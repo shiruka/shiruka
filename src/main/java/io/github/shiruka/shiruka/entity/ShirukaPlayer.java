@@ -90,14 +90,17 @@ public final class ShirukaPlayer implements Player {
 
   @Override
   public void removeAllMetadata(@NotNull final String key) {
+    // @todo #1:15m Implement it.
   }
 
   @Override
   public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
+    // @todo #1:15m Implement it.
   }
 
   @Override
   public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
+    // @todo #1:15m Implement it.
   }
 
   @NotNull
@@ -112,7 +115,8 @@ public final class ShirukaPlayer implements Player {
   }
 
   @Override
-  public void sendMessage(@NotNull final String s) {
-    System.out.println(s);
+  public void sendMessage(@NotNull final String message) {
+    // @todo #1:15m Implement it.
+    System.out.println(message);
   }
 }

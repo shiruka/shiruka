@@ -256,6 +256,16 @@ public final class VarInts {
   }
 
   /**
+   * writes the given length into the given buffer.
+   *
+   * @param buffer the buffer to write.
+   * @param length the length to write.
+   */
+  public static void writeUnsignedInt(@NotNull final ByteBuf buffer, final long length) {
+    VarInts.encodeUnsigned(buffer, length);
+  }
+
+  /**
    * writes the given integer into the given output.
    *
    * @param output the output to write.
@@ -302,7 +312,9 @@ public final class VarInts {
    * @param vec the Vector coordinates to write.
    */
   public static void writeVector(@NotNull final ByteBuf buf, @NotNull final Vector vec) {
-    final var l = ((long) vec.getIntX() & 0x3FFFFFFL) << 38 | ((long) vec.getIntY() & 0xFFFL) << 26 | (long) vec.getIntZ() & 0x3FFFFFFL;
+    final var l = ((long) vec.getIntX() & 0x3FFFFFFL) << 38 |
+      ((long) vec.getIntY() & 0xFFFL) << 26 |
+      (long) vec.getIntZ() & 0x3FFFFFFL;
     buf.writeLong(l);
   }
 
@@ -328,6 +340,23 @@ public final class VarInts {
   }
 
   /**
+   * encodes the given length into the buffer.
+   *
+   * @param buffer the buffer to encode.
+   * @param length the length to encode.
+   */
+  private static void encodeUnsigned(@NotNull final ByteBuf buffer, long length) {
+    while (true) {
+      if ((length & ~0x7FL) == 0) {
+        buffer.writeByte((int) length);
+        return;
+      }
+      buffer.writeByte((byte) ((int) length & 0x7F | 0x80));
+      length >>>= 7;
+    }
+  }
+
+  /**
    * encodes the given value into the output.
    *
    * @param output the output to encode.
@@ -340,10 +369,9 @@ public final class VarInts {
       if ((value & ~0x7FL) == 0) {
         output.writeByte((int) value);
         return;
-      } else {
-        output.writeByte((byte) ((int) value & 0x7F | 0x80));
-        value >>>= 7;
       }
+      output.writeByte((byte) ((int) value & 0x7F | 0x80));
+      value >>>= 7;
     }
   }
 }

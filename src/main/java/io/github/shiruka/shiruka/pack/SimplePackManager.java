@@ -66,7 +66,8 @@ public final class SimplePackManager implements PackManager {
   /**
    * the pack stack packet.
    */
-  private final AtomicReference<PacketOutPackStack> packStack = new AtomicReference<>();
+  private final AtomicReference<PacketOutPackStack> packStack = new AtomicReference<>(new PacketOutPackStack(
+    Collections.emptyList(), Collections.emptyList(), false, false, "", Collections.emptyList()));
 
   /**
    * the packs.
@@ -81,7 +82,8 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs info packet.
    */
-  private final AtomicReference<PacketOutPacksInfo> packsInfos = new AtomicReference<>();
+  private final AtomicReference<PacketOutPacksInfo> packsInfos = new AtomicReference<>(new PacketOutPacksInfo(
+    Collections.emptyList(), false, Collections.emptyList(), false));
 
   /**
    * the closed.
@@ -259,7 +261,8 @@ public final class SimplePackManager implements PackManager {
     if (!(player instanceof ShirukaPlayer)) {
       return;
     }
-    Optional.ofNullable(this.packsInfos.get()).ifPresent(((ShirukaPlayer) player).getPlayerConnection()::sendPacket);
+    Optional.ofNullable(this.packsInfos.get())
+      .ifPresent(((ShirukaPlayer) player).getPlayerConnection()::sendPacket);
   }
 
   /**

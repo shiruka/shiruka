@@ -35,7 +35,6 @@ import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.event.SimpleChainData;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.misc.VarInts;
-import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.util.Constants;
@@ -70,10 +69,10 @@ public final class PacketInLogin extends PacketIn {
     final var connection = player.getPlayerConnection();
     if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD);
-      connection.sendPacket(packet, PacketPriority.IMMEDIATE);
+      connection.sendPacket(packet);
     } else if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD);
-      connection.sendPacket(packet, PacketPriority.IMMEDIATE);
+      connection.sendPacket(packet);
       return;
     }
     final var plugin = ShirukaServer.INTERNAL_PLUGIN;

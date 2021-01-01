@@ -27,7 +27,6 @@ package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.network.Connection;
-import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import org.jetbrains.annotations.NotNull;
@@ -73,17 +72,7 @@ public interface PlayerConnection {
    *
    * @param packet the packet to send.
    */
-  default void sendPacket(@NotNull final PacketOut packet) {
-    this.sendPacket(packet, PacketPriority.MEDIUM);
-  }
-
-  /**
-   * sends the given packet to the player's connection.
-   *
-   * @param packet the packet to send.
-   * @param priority the priority to send.
-   */
-  void sendPacket(@NotNull PacketOut packet, @NotNull PacketPriority priority);
+  void sendPacket(@NotNull PacketOut packet);
 
   /**
    * represents the current connection state that the client is in whilst connecting to the server.

@@ -29,7 +29,6 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
-import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +67,7 @@ public final class ShirukaPlayer implements Player {
       finalReason = reason;
       messageSkipped = false;
     }
-    this.connection.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped), PacketPriority.IMMEDIATE);
+    this.connection.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped));
   }
 
   @NotNull

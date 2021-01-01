@@ -28,7 +28,6 @@ package io.github.shiruka.shiruka.entity;
 import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.Connection;
-import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
@@ -93,6 +92,8 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
   }
 
   @Override
-  public void sendPacket(@NotNull final PacketOut packet, @NotNull final PacketPriority priority) {
+  public void sendPacket(@NotNull final PacketOut packet) {
+    this.connection.checkForClosed();
+    this.connection.addQueuedPacket(packet);
   }
 }

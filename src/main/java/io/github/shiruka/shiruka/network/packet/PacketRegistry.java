@@ -127,6 +127,44 @@ public final class PacketRegistry {
   }
 
   /**
+   * creates a new instance of the given packet class.
+   *
+   * @param cls the packet class to instantiate.
+   *
+   * @return the instantiated packet.
+   *
+   * @throws IllegalAccessException if this {@code Constructor} object is enforcing Java language access control and
+   *   the underlying constructor is inaccessible.
+   * @throws InstantiationException if the class that declares the underlying constructor represents an abstract
+   *   class.
+   * @throws InvocationTargetException if the underlying constructor throws an exception.
+   */
+  @NotNull
+  public static PacketIn makeIn(@NotNull final Class<? extends Packet> cls) throws IllegalAccessException,
+    InvocationTargetException, InstantiationException {
+    return PacketRegistry.make(cls);
+  }
+
+  /**
+   * creates a new instance of the given packet class.
+   *
+   * @param cls the packet class to instantiate.
+   *
+   * @return the instantiated packet.
+   *
+   * @throws IllegalAccessException if this {@code Constructor} object is enforcing Java language access control and
+   *   the underlying constructor is inaccessible.
+   * @throws InstantiationException if the class that declares the underlying constructor represents an abstract
+   *   class.
+   * @throws InvocationTargetException if the underlying constructor throws an exception.
+   */
+  @NotNull
+  public static PacketOut makeOut(@NotNull final Class<? extends Packet> cls) throws IllegalAccessException,
+    InvocationTargetException, InstantiationException {
+    return PacketRegistry.make(cls);
+  }
+
+  /**
    * obtains the net getState which the packet is registered to be present in.
    *
    * @param cls the packet class.

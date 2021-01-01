@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.misc.*;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.util.ReferenceCountUtil;
@@ -37,6 +38,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -347,18 +349,16 @@ public final class ConnectionCache {
    * initiates heap weights.
    */
   void initHeapWeights() {
-    for (int priority = 0; priority < 4; priority++) {
-      this.outgoingPacketNextWeights[priority] = (1L << priority) * priority + priority;
-    }
+    IntStream.range(0, 4)
+      .forEach(priority -> this.outgoingPacketNextWeights[priority] = (1L << priority) * priority + priority);
   }
 
   /**
    * initializes caches.
    */
   void initialize() {
-    if (this.connection.getState() != ConnectionState.INITIALIZING) {
-      throw new IllegalStateException("Connection's state must be initializing!");
-    }
+    Preconditions.checkState(this.connection.getState() == ConnectionState.INITIALIZING,
+      "Connection's state must be initializing!");
     this.slidingWindow = new NetSlidingWindow(this.connection.getMtu());
     this.reliableDatagramQueue = new BitQueue(512);
     this.reliabilityReadLock = new ReentrantLock(true);

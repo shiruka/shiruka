@@ -30,21 +30,31 @@ import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
+import io.github.shiruka.shiruka.network.packet.NoEncryption;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.github.shiruka.shiruka.network.protocol.Protocol;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Misc;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.internal.PlatformDependent;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.zip.Deflater;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,6 +85,11 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
    * close status for connection.
    */
   private final AtomicInteger closed = new AtomicInteger(0);
+
+  /**
+   * the compression level.
+   */
+  private final AtomicInteger compressionLevel = new AtomicInteger(Deflater.DEFAULT_COMPRESSION);
 
   /**
    * the connection handler instance.
@@ -133,6 +148,11 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
    * connection's protocol version.
    */
   private final short protocolVersion;
+
+  /**
+   * the queued packets.
+   */
+  private final Queue<PacketOut> queuedPackets = PlatformDependent.newMpscQueue();
 
   /**
    * the reliability read index.
@@ -213,6 +233,11 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
     this.channel = ctx.channel();
     this.eventLoop = this.channel.eventLoop();
     this.cache = new ConnectionCache(this);
+  }
+
+  @Override
+  public final void addQueuedPacket(@NotNull final PacketOut packet) {
+    this.queuedPackets.add(packet);
   }
 
   @Override
@@ -409,6 +434,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
       return;
     }
     this.tick(now);
+    this.sendQueued();
   }
 
   @Override
@@ -456,6 +482,24 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
   }
 
   /**
+   * obtains the compression level.
+   *
+   * @return compression level.
+   */
+  public final int getCompressionLevel() {
+    return this.compressionLevel.get();
+  }
+
+  /**
+   * sets the compression level.
+   *
+   * @param level the level to set.
+   */
+  public final void setCompressionLevel(final int level) {
+    this.compressionLevel.set(level);
+  }
+
+  /**
    * creates and returns an encapsulated packet from the given packet.
    *
    * @param packet the packet to create.
@@ -471,7 +515,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
     final var maxLength = this.adjustedMtu -
       Constants.MAXIMUM_ENCAPSULATED_HEADER_SIZE - Constants.DATAGRAM_HEADER_SIZE;
     final ByteBuf[] buffers;
-    int splitId = 0;
+    var splitId = 0;
     if (packet.readableBytes() > maxLength) {
       switch (reliability) {
         case UNRELIABLE:
@@ -609,6 +653,61 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
       this.sendDatagram(datagram, now);
     }
     this.channel.flush();
+  }
+
+  /**
+   * sends queued packets.
+   */
+  private void sendQueued() {
+    var toBatch = new ObjectArrayList<PacketOut>();
+    @Nullable PacketOut packet;
+    while ((packet = this.queuedPackets.poll()) != null) {
+      if (!packet.getClass().isAnnotationPresent(NoEncryption.class)) {
+        toBatch.add(packet);
+        continue;
+      }
+      if (!toBatch.isEmpty()) {
+        this.sendWrapped(toBatch);
+        toBatch = new ObjectArrayList<>();
+      }
+      this.checkForClosed();
+      this.sendWrapped(Collections.singleton(packet));
+    }
+    if (!toBatch.isEmpty()) {
+      this.sendWrapped(toBatch);
+    }
+  }
+
+  /**
+   * sends the wrapped packets to the connection.
+   *
+   * @param packets the packets to send.
+   */
+  private void sendWrapped(@NotNull final Collection<PacketOut> packets) {
+    final var compressed = ByteBufAllocator.DEFAULT.ioBuffer();
+    try {
+      Protocol.serialize(compressed, packets, this.getCompressionLevel());
+      this.sendWrapped(compressed);
+    } catch (final Exception e) {
+      Loggers.error("Unable to compress packets", e);
+    } finally {
+      if (compressed != null) {
+        compressed.release();
+      }
+    }
+  }
+
+  /**
+   * sends the given compressed packet to the connection.
+   *
+   * @param compressed the compressed packet to send.
+   */
+  private synchronized void sendWrapped(@NotNull final ByteBuf compressed) {
+    compressed.readerIndex();
+    final var finalPayload = ByteBufAllocator.DEFAULT.ioBuffer(compressed.readableBytes() + 9);
+    finalPayload.writeByte(0xfe);
+    finalPayload.writeBytes(compressed);
+    this.sendDecent(finalPayload);
   }
 
   /**

@@ -24,6 +24,7 @@
  */
 package io.github.shiruka.shiruka.network;
 
+import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,6 +40,13 @@ import org.jetbrains.annotations.NotNull;
  * a class that provides the connections between server and client.
  */
 public interface Connection<S extends Socket> extends AutoCloseable {
+
+  /**
+   * adds the given packet to the queued packet list.
+   *
+   * @param packet the packet to add.
+   */
+  void addQueuedPacket(@NotNull PacketOut packet);
 
   /**
    * obtains a byte buffer instance from the given capacity.
@@ -292,6 +300,15 @@ public interface Connection<S extends Socket> extends AutoCloseable {
    * send the packet with queue.
    *
    * @param packet the packet to send.
+   */
+  default void sendDecent(@NotNull final ByteBuf packet) {
+    this.sendDecent(packet, PacketPriority.MEDIUM);
+  }
+
+  /**
+   * send the packet with queue.
+   *
+   * @param packet the packet to send.
    * @param priority the priority to send.
    * @param reliability the reliability to send.
    * @param orderingChannel the ordering channel to send.
@@ -309,6 +326,26 @@ public interface Connection<S extends Socket> extends AutoCloseable {
   default void sendDecent(@NotNull final ByteBuf packet, @NotNull final PacketPriority priority,
                           @NotNull final PacketReliability reliability) {
     this.sendDecent(packet, priority, reliability, 0);
+  }
+
+  /**
+   * send the packet with queue.
+   *
+   * @param packet the packet to send.
+   * @param priority the priority to send.
+   */
+  default void sendDecent(@NotNull final ByteBuf packet, @NotNull final PacketPriority priority) {
+    this.sendDecent(packet, priority, PacketReliability.RELIABLE_ORDERED);
+  }
+
+  /**
+   * send the packet with queue.
+   *
+   * @param packet the packet to send.
+   * @param reliability the reliability to send.
+   */
+  default void sendDecent(@NotNull final ByteBuf packet, @NotNull final PacketReliability reliability) {
+    this.sendDecent(packet, PacketPriority.MEDIUM, reliability);
   }
 
   /**

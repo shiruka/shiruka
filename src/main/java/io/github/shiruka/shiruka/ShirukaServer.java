@@ -128,14 +128,6 @@ public final class ShirukaServer implements Server {
     this.console = console.apply(this);
   }
 
-  @NotNull
-  @Override
-  public <I> I getInterface(@NotNull final Class<I> cls) {
-    //noinspection unchecked
-    return (I) Objects.requireNonNull(this.interfaces.get(cls),
-      String.format("Implementation not found for %s!", cls.toString()));
-  }
-
   @Override
   public int getMaxPlayerCount() {
     return this.socket.getMaxConnections();
@@ -204,6 +196,14 @@ public final class ShirukaServer implements Server {
   @Override
   public <I> void unregisterInterface(@NotNull final Class<I> cls) {
     this.interfaces.remove(cls);
+  }
+
+  @NotNull
+  @Override
+  public <I> I getInterface(@NotNull final Class<I> cls) {
+    //noinspection unchecked
+    return (I) Objects.requireNonNull(this.interfaces.get(cls),
+      String.format("Implementation not found for %s!", cls.toString()));
   }
 
   /**

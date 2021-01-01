@@ -30,7 +30,6 @@ import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.shiruka.network.PacketPriority;
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import java.util.Collections;
 import java.util.List;

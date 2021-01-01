@@ -51,16 +51,6 @@ public final class SimplePackManager implements PackManager {
   private static final Path MANIFEST_PATH = Paths.get("manifest.json");
 
   /**
-   * the packs info packet.
-   */
-  private static final AtomicReference<PacketOutPacksInfo> PACKS_INFO = new AtomicReference<>();
-
-  /**
-   * the pack stack packet.
-   */
-  private static final AtomicReference<PacketOutPackStack> PACK_STACK = new AtomicReference<>();
-
-  /**
    * the loaders.
    */
   private final Map<Class<? extends PackLoader>, PackLoader.Factory> loaderFactories = new HashMap<>();
@@ -71,6 +61,11 @@ public final class SimplePackManager implements PackManager {
   private final EnumMap<PackManifest.PackType, Pack.Factory> packFactories = new EnumMap<>(PackManifest.PackType.class);
 
   /**
+   * the pack stack packet.
+   */
+  private final AtomicReference<PacketOutPackStack> packStack = new AtomicReference<>();
+
+  /**
    * the packs.
    */
   private final Map<String, Pack> packs = new HashMap<>();
@@ -79,6 +74,11 @@ public final class SimplePackManager implements PackManager {
    * the packs by id.
    */
   private final Map<UUID, Pack> packsById = new HashMap<>();
+
+  /**
+   * the packs info packet.
+   */
+  private final AtomicReference<PacketOutPacksInfo> packsInfos = new AtomicReference<>();
 
   /**
    * the closed.
@@ -97,7 +97,7 @@ public final class SimplePackManager implements PackManager {
     this.checkRegistrationClosed();
     final var mustAccept = (boolean) ServerConfig.FORCE_RESOURCES.getValue()
       .orElse(false);
-    SimplePackManager.PACKS_INFO.set(new PacketOutPacksInfo(
+    this.packsInfos.set(new PacketOutPacksInfo(
       this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
@@ -105,7 +105,7 @@ public final class SimplePackManager implements PackManager {
             pack.getSize(), pack.getVersion().toString(), false, false, ""))
         .collect(Collectors.toList()),
       mustAccept));
-    SimplePackManager.PACK_STACK.set(new PacketOutPackStack(
+    this.packStack.set(new PacketOutPackStack(
       this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->

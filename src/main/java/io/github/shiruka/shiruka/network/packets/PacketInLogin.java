@@ -64,6 +64,9 @@ public final class PacketInLogin extends PacketIn {
   @Override
   public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
     final var protocolVersion = buf.readInt();
+    final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
+    final var encodedChainData = Packets.readLEAsciiString(jwt).toString();
+    final var encodedSkinData = Packets.readLEAsciiString(jwt).toString();
     final var connection = player.getPlayerConnection();
     if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD);
@@ -76,9 +79,6 @@ public final class PacketInLogin extends PacketIn {
     final var plugin = ShirukaServer.INTERNAL_PLUGIN;
     final var scheduler = Shiruka.getScheduler();
     scheduler.run(plugin, true, () -> {
-      final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
-      final var encodedChainData = Packets.readLEAsciiString(jwt).toString();
-      final var encodedSkinData = Packets.readLEAsciiString(jwt).toString();
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
       scheduler.run(plugin, () -> {
         if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {

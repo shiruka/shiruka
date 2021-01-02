@@ -28,8 +28,9 @@ package io.github.shiruka.shiruka.network.packets;
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.chat.ChatColor;
 import io.github.shiruka.api.events.LoginResultEvent;
-import io.github.shiruka.api.scheduler.ScheduledRunnable;
 import io.github.shiruka.shiruka.ShirukaServer;
+import io.github.shiruka.shiruka.concurrent.PoolSpec;
+import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.event.SimpleChainData;
@@ -40,6 +41,7 @@ import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +49,8 @@ import org.jetbrains.annotations.NotNull;
  * a packet that sends by clients to request a login process.
  */
 public final class PacketInLogin extends PacketIn {
+
+  public static final @NotNull ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
 
   /**
    * the name pattern to check client's usernames.
@@ -79,11 +83,9 @@ public final class PacketInLogin extends PacketIn {
     }
     final var plugin = ShirukaServer.INTERNAL_PLUGIN;
     final var scheduler = Shiruka.getScheduler();
-    scheduler.run(plugin, true, () -> {
-      System.out.println("1: " + Thread.currentThread());
+    PacketInLogin.POOL.execute(() -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
       scheduler.run(plugin, () -> {
-        System.out.println("2: " + Thread.currentThread());
         if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
           player.disconnect("disconnectionScreen.notAuthenticated");
           return;
@@ -110,9 +112,8 @@ public final class PacketInLogin extends PacketIn {
         }
         connection.setState(PlayerConnection.State.STATUS);
         final var event = eventFactory.playerAsyncLogin(loginData);
-        scheduler.run(plugin, true, new ScheduledRunnable() {
-          @Override
-          public void afterRun() {
+        CompletableFuture.runAsync(event::callEvent, PacketInLogin.POOL)
+          .whenComplete((unused, throwable) ->
             scheduler.run(plugin, () -> {
               if (connection.getConnection().isClosed()) {
                 return;
@@ -127,14 +128,7 @@ public final class PacketInLogin extends PacketIn {
               loginData.initializePlayer();
               event.objects().forEach(action ->
                 action.accept(player));
-            });
-          }
-
-          @Override
-          public void run() {
-            event.callEvent();
-          }
-        });
+            }));
         connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
         Shiruka.getPackManager().sendPackInfo(player);
       });

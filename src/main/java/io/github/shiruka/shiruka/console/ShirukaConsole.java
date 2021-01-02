@@ -108,7 +108,7 @@ public final class ShirukaConsole extends Thread {
    * starts the reading inputs.
    */
   @Override
-  public void start() {
+  public void run() {
     ShirukaLoggers.setConsole(this);
     final var appName = "Shiru ka";
     try (final var terminal = TerminalBuilder.builder()

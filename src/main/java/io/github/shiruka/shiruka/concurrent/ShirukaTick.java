@@ -62,7 +62,7 @@ public final class ShirukaTick {
    * starts the ticking.
    */
   public void start() {
-    while (server.isRunning()) {
+    while (this.server.isRunning()) {
       final var scheduler = Shiruka.getScheduler();
       while (!this.server.isInShutdownState()) {
         final var start = System.currentTimeMillis();

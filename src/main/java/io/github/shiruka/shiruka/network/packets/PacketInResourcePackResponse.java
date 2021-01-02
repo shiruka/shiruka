@@ -51,7 +51,7 @@ public final class PacketInResourcePackResponse extends PacketIn {
       final String packName = VarInts.readString(buf);
     }
   }
-""
+
   /**
    * an enum class that represents resource pack response status.
    */

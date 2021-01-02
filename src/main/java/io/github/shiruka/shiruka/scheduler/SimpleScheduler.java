@@ -78,10 +78,10 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
    */
   @Override
   public void tick() {
-    SyncTask.getInstance().tick();
     for (final var task : this.tasks) {
       task.run();
     }
+    SyncTask.getInstance().tick();
   }
 
   @Override

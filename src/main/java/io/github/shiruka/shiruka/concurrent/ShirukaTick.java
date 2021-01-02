@@ -62,28 +62,26 @@ public final class ShirukaTick {
    * starts the ticking.
    */
   public void start() {
+    final var scheduler = Shiruka.getScheduler();
     while (this.server.isRunning()) {
-      final var scheduler = Shiruka.getScheduler();
-      while (!this.server.isInShutdownState()) {
-        final var start = System.currentTimeMillis();
-        scheduler.tick();
-        // @todo #1:15m Add more tick operations.
-        final var end = System.currentTimeMillis();
-        final var elapsed = end - start;
-        final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;
-        if (waitTime < 0) {
-          Loggers.debug("Server running behind %sms, skipped %s ticks",
-            -waitTime, -waitTime / ShirukaTick.TICK_MILLIS);
-          continue;
-        }
-        try {
-          Thread.sleep(waitTime);
-        } catch (final InterruptedException e) {
-          break;
-        } catch (final Exception e) {
-          JiraExceptionCatcher.serverException(e);
-          break;
-        }
+      final var start = System.currentTimeMillis();
+      scheduler.tick();
+      // @todo #1:15m Add more tick operations.
+      final var end = System.currentTimeMillis();
+      final var elapsed = end - start;
+      final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;
+      if (waitTime < 0) {
+        Loggers.debug("Server running behind %sms, skipped %s ticks",
+          -waitTime, -waitTime / ShirukaTick.TICK_MILLIS);
+        continue;
+      }
+      try {
+        Thread.sleep(waitTime);
+      } catch (final InterruptedException e) {
+        break;
+      } catch (final Exception e) {
+        JiraExceptionCatcher.serverException(e);
+        break;
       }
     }
   }

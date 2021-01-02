@@ -39,7 +39,6 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -50,18 +49,12 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   /**
    * the pool.
    */
-  private static final ServerThreadPool MAIN = ServerThreadPool.forSpec(PoolSpec.MAIN);
-
-  /**
-   * the pool.
-   */
   private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
 
   /**
    * the task list.
    */
   private final Queue<ScheduledTask> tasks = new ConcurrentLinkedQueue<>();
-
   @NotNull
   @Override
   public ScheduledTask later(@NotNull final Plugin plugin, final boolean async, final long delay,
@@ -93,7 +86,9 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
    */
   @Override
   public void tick() {
-    this.tasks.forEach(Runnable::run);
+    for (final var task : this.tasks) {
+      task.run();
+    }
   }
 
   @Override
@@ -114,28 +109,7 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   @NotNull
   private ScheduledTask createTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
                                    @NotNull final TaskType taskType, final long interval) {
-    final Executor executor;
-    if (taskType.name().toLowerCase(Locale.ROOT).contains("async")) {
-      executor = SimpleScheduler.POOL;
-    } else {
-      executor = Runnable::run;
-    }
-    final Consumer<ScheduledTask> runner;
-    if (taskType.name().toLowerCase(Locale.ROOT).contains("repeat")) {
-      runner = task -> {
-        runnable.beforeRun();
-        runnable.run();
-        runnable.afterRun();
-      };
-    } else {
-      runner = task -> {
-        runnable.beforeRun();
-        runnable.run();
-        runnable.afterRun();
-        task.cancel();
-      };
-    }
-    final var task = new SimpleScheduledTask(executor, plugin, runnable, runner, taskType, interval);
+    final var task = new SimpleScheduledTask(plugin, runnable, taskType, interval);
     while (true) {
       if (this.tasks.add(task)) {
         task.runnable().markSchedule(task);
@@ -171,7 +145,7 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
      * the runner.
      */
     @NotNull
-    private final Consumer<ScheduledTask> runner;
+    private final Runnable runner;
 
     /**
      * the task type.
@@ -192,23 +166,36 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
     /**
      * ctor.
      *
-     * @param executor the executor.
      * @param plugin the plugin.
      * @param runnable the runnable.
-     * @param runner the runner.
      * @param taskType the task type.
      * @param interval the step.
      */
-    SimpleScheduledTask(@NotNull final Executor executor, @NotNull final Plugin plugin,
-                        @NotNull final ScheduledRunnable runnable,
-                        @NotNull final Consumer<ScheduledTask> runner,
+    SimpleScheduledTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
                         @NotNull final TaskType taskType, final long interval) {
-      this.executor = executor;
       this.plugin = plugin;
       this.runnable = runnable;
       this.taskType = taskType;
       this.interval = interval;
-      this.runner = runner;
+      if (taskType.name().toLowerCase(Locale.ROOT).contains("async")) {
+        this.executor = SimpleScheduler.POOL;
+      } else {
+        this.executor = Runnable::run;
+      }
+      if (taskType.name().toLowerCase(Locale.ROOT).contains("repeat")) {
+        this.runner = () -> {
+          runnable.beforeRun();
+          runnable.run();
+          runnable.afterRun();
+        };
+      } else {
+        this.runner = () -> {
+          runnable.beforeRun();
+          runnable.run();
+          runnable.afterRun();
+          this.cancel();
+        };
+      }
     }
 
     @Override
@@ -249,18 +236,18 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
       switch (this.taskType) {
         case ASYNC_RUN:
         case SYNC_RUN:
-          this.executor.execute(() -> this.runner.accept(this));
+          this.executor.execute(this.runner);
           break;
         case ASYNC_LATER:
         case SYNC_LATER:
           if (++this.run >= this.interval) {
-            this.executor.execute(() -> this.runner.accept(this));
+            this.executor.execute(this.runner);
           }
           break;
         case ASYNC_REPEAT:
         case SYNC_REPEAT:
           if (++this.run >= this.interval) {
-            this.executor.execute(() -> this.runner.accept(this));
+            this.executor.execute(this.runner);
             this.run = 0;
           }
           break;

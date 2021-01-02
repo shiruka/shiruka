@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that represents sync tasks.
  */
-public final class SyncTask implements Tick {
+final class SyncTask implements Tick {
 
   /**
    * the singleton.
@@ -51,7 +51,7 @@ public final class SyncTask implements Tick {
    * @return a singleton instance of {@code this}.
    */
   @NotNull
-  public static SyncTask getInstance() {
+  static SyncTask getInstance() {
     return SyncTask.SINGLETON;
   }
 
@@ -60,7 +60,7 @@ public final class SyncTask implements Tick {
    *
    * @param task the task to add.
    */
-  public void add(@NotNull final Runnable task) {
+  void add(@NotNull final Runnable task) {
     synchronized (this.tasks) {
       this.tasks.add(task);
     }
@@ -71,7 +71,7 @@ public final class SyncTask implements Tick {
    *
    * @param task the task to remove.
    */
-  public void remove(@NotNull final Runnable task) {
+  void remove(@NotNull final Runnable task) {
     synchronized (this.tasks) {
       this.tasks.remove(task);
     }

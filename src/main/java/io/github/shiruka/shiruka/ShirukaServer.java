@@ -44,12 +44,16 @@ import io.github.shiruka.shiruka.event.SimpleEventFactory;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import io.github.shiruka.shiruka.network.util.Misc;
 import io.github.shiruka.shiruka.pack.SimplePackManager;
 import io.github.shiruka.shiruka.pack.loader.RplDirectory;
 import io.github.shiruka.shiruka.pack.loader.RplZip;
 import io.github.shiruka.shiruka.pack.pack.ResourcePack;
 import io.github.shiruka.shiruka.plugin.InternalPlugin;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,6 +75,11 @@ public final class ShirukaServer implements Server {
    * obtains the Shiru ka server's version
    */
   public static final String VERSION = "1.0.0";
+
+  /**
+   * the packs path.
+   */
+  private static final Path PACKS_PATH = Misc.HOME_PATH.resolve("packs");
 
   /**
    * the console.
@@ -128,6 +137,25 @@ public final class ShirukaServer implements Server {
     this.console = console.apply(this);
   }
 
+  /**
+   * reloads packs.
+   */
+  private static void reloadPacks() {
+    final var manager = Shiruka.getPackManager();
+    manager.registerLoader(RplZip.class, RplZip.FACTORY);
+    manager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
+    manager.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);
+    if (Files.notExists(ShirukaServer.PACKS_PATH)) {
+      try {
+        Files.createDirectory(ShirukaServer.PACKS_PATH);
+      } catch (final IOException e) {
+        throw new IllegalStateException("Unable to create packs directory");
+      }
+    }
+    manager.loadPacks(ShirukaServer.PACKS_PATH);
+    manager.closeRegistration();
+  }
+
   @NotNull
   @Override
   public <I> I getInterface(@NotNull final Class<I> cls) {
@@ -173,9 +201,8 @@ public final class ShirukaServer implements Server {
   @Override
   public void startServer(final long startTime) {
     this.registerImplementations();
+    ShirukaServer.reloadPacks();
     this.running.set(true);
-    this.tick.start();
-    this.reloadPacks();
     Loggers.log("Loading plugins.");
     // @todo #1:60m Load plugins here.
     Loggers.log("Enabling startup plugins before the loading worlds.");
@@ -187,6 +214,7 @@ public final class ShirukaServer implements Server {
     final var end = System.currentTimeMillis() - startTime;
     Loggers.log("Done, took %sms.", end);
     this.console.start();
+    this.tick.start();
   }
 
   @Override
@@ -210,26 +238,10 @@ public final class ShirukaServer implements Server {
    * registers the implementation of the interfaces which are singleton.
    */
   private void registerImplementations() {
-    this.unregisterInterface(CommandManager.class);
-    this.unregisterInterface(ConsoleCommandSender.class);
-    this.unregisterInterface(EventFactory.class);
-    this.unregisterInterface(Scheduler.class);
-    this.unregisterInterface(PackManager.class);
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventFactory.class, new SimpleEventFactory());
     this.registerInterface(Scheduler.class, new SimpleScheduler());
     this.registerInterface(PackManager.class, new SimplePackManager());
-  }
-
-  /**
-   * reloads packs.
-   */
-  private void reloadPacks() {
-    final var manager = Shiruka.getPackManager();
-    manager.registerLoader(RplZip.class, RplZip.FACTORY);
-    manager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
-    manager.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);
-    manager.closeRegistration();
   }
 }

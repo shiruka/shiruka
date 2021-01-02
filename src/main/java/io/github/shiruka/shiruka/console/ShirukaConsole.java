@@ -42,7 +42,7 @@ import org.jline.terminal.TerminalBuilder;
 /**
  * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
-public final class ShirukaConsole {
+public final class ShirukaConsole extends Thread {
 
   /**
    * the parser.
@@ -79,6 +79,7 @@ public final class ShirukaConsole {
    * @param completer the completer.
    */
   public ShirukaConsole(@NotNull final Completer completer, @NotNull final Server server) {
+    super("Shiru ka - Console");
     this.completer = completer;
     this.server = server;
   }
@@ -106,6 +107,7 @@ public final class ShirukaConsole {
   /**
    * starts the reading inputs.
    */
+  @Override
   public void start() {
     ShirukaLoggers.setConsole(this);
     final var appName = "Shiru ka";

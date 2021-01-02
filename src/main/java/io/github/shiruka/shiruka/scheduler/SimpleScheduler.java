@@ -35,10 +35,11 @@ import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -47,9 +48,9 @@ import org.jetbrains.annotations.NotNull;
 public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> implements Scheduler {
 
   /**
-   * the async pool.
+   * the pool.
    */
-  private static final ServerThreadPool ASYNC_POOL = ServerThreadPool.forSpec(PoolSpec.ASYNC_SCHEDULER);
+  private static final ServerThreadPool MAIN = ServerThreadPool.forSpec(PoolSpec.MAIN);
 
   /**
    * the pool.
@@ -114,20 +115,20 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
   private ScheduledTask createTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
                                    @NotNull final TaskType taskType, final long interval) {
     final Executor executor;
-    if (taskType.name().contains("ASYNC")) {
-      executor = SimpleScheduler.ASYNC_POOL;
+    if (taskType.name().toLowerCase(Locale.ROOT).contains("async")) {
+      executor = Runnable::run;
     } else {
       executor = SimpleScheduler.POOL;
     }
-    final Function<ScheduledTask, Runnable> runner;
-    if (taskType.name().contains("REPEAT")) {
-      runner = task -> () -> {
+    final Consumer<ScheduledTask> runner;
+    if (taskType.name().toLowerCase(Locale.ROOT).contains("repeat")) {
+      runner = task -> {
         runnable.beforeRun();
         runnable.run();
         runnable.afterRun();
       };
     } else {
-      runner = task -> () -> {
+      runner = task -> {
         runnable.beforeRun();
         runnable.run();
         runnable.afterRun();
@@ -170,7 +171,7 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
      * the runner.
      */
     @NotNull
-    private final Runnable runner;
+    private final Consumer<ScheduledTask> runner;
 
     /**
      * the task type.
@@ -200,14 +201,14 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
      */
     SimpleScheduledTask(@NotNull final Executor executor, @NotNull final Plugin plugin,
                         @NotNull final ScheduledRunnable runnable,
-                        @NotNull final Function<ScheduledTask, Runnable> runner,
+                        @NotNull final Consumer<ScheduledTask> runner,
                         @NotNull final TaskType taskType, final long interval) {
       this.executor = executor;
       this.plugin = plugin;
       this.runnable = runnable;
       this.taskType = taskType;
       this.interval = interval;
-      this.runner = runner.apply(this);
+      this.runner = runner;
     }
 
     @Override
@@ -248,18 +249,18 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
       switch (this.taskType) {
         case ASYNC_RUN:
         case SYNC_RUN:
-          this.executor.execute(this.runner);
+          this.executor.execute(() -> this.runner.accept(this));
           break;
         case ASYNC_LATER:
         case SYNC_LATER:
           if (++this.run >= this.interval) {
-            this.executor.execute(this.runner);
+            this.executor.execute(() -> this.runner.accept(this));
           }
           break;
         case ASYNC_REPEAT:
         case SYNC_REPEAT:
           if (++this.run >= this.interval) {
-            this.executor.execute(this.runner);
+            this.executor.execute(() -> this.runner.accept(this));
             this.run = 0;
           }
           break;

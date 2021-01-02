@@ -111,7 +111,7 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   }
 
   @Override
-  public void loginResult(@NotNull final LoginResult loginResult) {
-    this.loginResult = loginResult;
+  public void loginResult(@NotNull final LoginResult result) {
+    this.loginResult = result;
   }
 }

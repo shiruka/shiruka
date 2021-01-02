@@ -33,9 +33,9 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * packs info packet.
+ * a class that represents pack info packets.
  */
-public final class PacketOutPacksInfo extends PacketOut {
+public final class PacketOutPackInfo extends PacketOut {
 
   /**
    * the behavior pack infos.
@@ -67,9 +67,9 @@ public final class PacketOutPacksInfo extends PacketOut {
    * @param resourcePackInfos the resource pack infos.
    * @param scriptingEnabled the scripting enabled.
    */
-  public PacketOutPacksInfo(@NotNull final List<Entry> behaviorPackInfos, final boolean forcedToAccept,
-                            @NotNull final List<Entry> resourcePackInfos, final boolean scriptingEnabled) {
-    super(PacketOutPacksInfo.class);
+  public PacketOutPackInfo(@NotNull final List<Entry> behaviorPackInfos, final boolean forcedToAccept,
+                           @NotNull final List<Entry> resourcePackInfos, final boolean scriptingEnabled) {
+    super(PacketOutPackInfo.class);
     this.behaviorPackInfos = Collections.unmodifiableList(behaviorPackInfos);
     this.forcedToAccept = forcedToAccept;
     this.resourcePackInfos = Collections.unmodifiableList(resourcePackInfos);

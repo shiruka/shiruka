@@ -27,9 +27,7 @@ package io.github.shiruka.shiruka.network.packet;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
-import io.github.shiruka.shiruka.network.packets.PacketInLogin;
-import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
-import io.github.shiruka.shiruka.network.packets.PacketOutPlayStatus;
+import io.github.shiruka.shiruka.network.packets.*;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import java.lang.reflect.Constructor;
@@ -64,6 +62,8 @@ public final class PacketRegistry {
   static {
     PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.HANDSHAKE, PacketBound.SERVER, 1);
     PacketRegistry.put(PacketOutPlayStatus.class, PlayerConnection.State.HANDSHAKE, PacketBound.CLIENT, 2);
+    PacketRegistry.put(PacketOutPackInfo.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 6);
+    PacketRegistry.put(PacketOutPackStack.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 7);
     PacketRegistry.put(PacketOutDisconnect.class, PlayerConnection.State.ANY, PacketBound.CLIENT, 5);
     PacketRegistry.PACKETS.trim();
     PacketRegistry.PACKET_IDS.trim();

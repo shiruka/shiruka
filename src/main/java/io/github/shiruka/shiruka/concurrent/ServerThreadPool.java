@@ -91,7 +91,7 @@ public final class ServerThreadPool implements ExecutorService {
     ServerThreadPool.forSpec(PoolSpec.PLAYERS);
     ServerThreadPool.forSpec(PoolSpec.PLUGINS);
     ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
-    ServerThreadPool.forSpec(PoolSpec.ASYNC_SCHEDULER);
+    ServerThreadPool.forSpec(PoolSpec.MAIN);
   }
 
   /**
@@ -106,6 +106,16 @@ public final class ServerThreadPool implements ExecutorService {
   @Override
   public void execute(@NotNull final Runnable command) {
     this.service.execute(command);
+  }
+
+  /**
+   * obtains the executor service.
+   *
+   * @return executor service.
+   */
+  @NotNull
+  public ExecutorService getService() {
+    return this.service;
   }
 
   @Override

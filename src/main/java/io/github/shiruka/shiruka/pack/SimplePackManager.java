@@ -31,8 +31,8 @@ import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.pack.*;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
+import io.github.shiruka.shiruka.network.packets.PacketOutPackInfo;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackStack;
-import io.github.shiruka.shiruka.network.packets.PacketOutPacksInfo;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,10 +64,16 @@ public final class SimplePackManager implements PackManager {
   private final EnumMap<PackManifest.PackType, Pack.Factory> packFactories = new EnumMap<>(PackManifest.PackType.class);
 
   /**
+   * the packs info packet.
+   */
+  private final AtomicReference<PacketOutPackInfo> packInfo = new AtomicReference<>(new PacketOutPackInfo(
+    new ObjectArrayList<>(), false, new ObjectArrayList<>(), false));
+
+  /**
    * the pack stack packet.
    */
   private final AtomicReference<PacketOutPackStack> packStack = new AtomicReference<>(new PacketOutPackStack(
-    Collections.emptyList(), Collections.emptyList(), false, false, "", Collections.emptyList()));
+    new ObjectArrayList<>(), new ObjectArrayList<>(), false, false, "", new ObjectArrayList<>()));
 
   /**
    * the packs.
@@ -78,12 +84,6 @@ public final class SimplePackManager implements PackManager {
    * the packs by id.
    */
   private final Map<UUID, Pack> packsById = new HashMap<>();
-
-  /**
-   * the packs info packet.
-   */
-  private final AtomicReference<PacketOutPacksInfo> packsInfos = new AtomicReference<>(new PacketOutPacksInfo(
-    Collections.emptyList(), false, Collections.emptyList(), false));
 
   /**
    * the closed.
@@ -99,15 +99,15 @@ public final class SimplePackManager implements PackManager {
 
   @Override
   public void closeRegistration() {
-    this.checkRegistrationClosed();
+    this.checkClosed();
     final var mustAccept = (boolean) ServerConfig.FORCE_RESOURCES.getValue()
       .orElse(false);
-    this.packsInfos.set(new PacketOutPacksInfo(Collections.emptyList(),
+    this.packInfo.set(new PacketOutPackInfo(Collections.emptyList(),
       mustAccept,
       new ObjectArrayList<>(this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PacketOutPacksInfo.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
+          new PacketOutPackInfo.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
             false, false, ""))
         .collect(Collectors.toList())),
       false));
@@ -153,7 +153,7 @@ public final class SimplePackManager implements PackManager {
 
   @Override
   public void loadPack(@NotNull final Path path) {
-    this.checkRegistrationClosed();
+    this.checkClosed();
     final var loaderOptional = this.getLoader(path);
     Preconditions.checkState(loaderOptional.isPresent(), "No suitable loader found for pack!");
     final var loader = loaderOptional.get();
@@ -172,7 +172,7 @@ public final class SimplePackManager implements PackManager {
 
   @Override
   public void loadPacks(@NotNull final Path directory) {
-    this.checkRegistrationClosed();
+    this.checkClosed();
     Preconditions.checkArgument(Files.isDirectory(directory), "%s is not a directory", directory);
     final var loaders = new ArrayList<PackLoader>();
     try (final var stream = Files.newDirectoryStream(directory)) {
@@ -257,11 +257,11 @@ public final class SimplePackManager implements PackManager {
   }
 
   @Override
-  public void sendPackInfos(@NotNull final Player player) {
+  public void sendPackInfo(@NotNull final Player player) {
     if (!(player instanceof ShirukaPlayer)) {
       return;
     }
-    Optional.ofNullable(this.packsInfos.get())
+    Optional.ofNullable(this.packInfo.get())
       .ifPresent(((ShirukaPlayer) player).getPlayerConnection()::sendPacket);
   }
 
@@ -270,7 +270,7 @@ public final class SimplePackManager implements PackManager {
    *
    * @throws IllegalStateException if {@link #closed} is true.
    */
-  private void checkRegistrationClosed() {
+  private void checkClosed() {
     Preconditions.checkState(!this.closed, "PackManager registration is closed!");
   }
 }

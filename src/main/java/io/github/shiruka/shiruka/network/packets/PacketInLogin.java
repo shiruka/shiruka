@@ -70,7 +70,9 @@ public final class PacketInLogin extends PacketIn {
     if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD);
       connection.sendPacket(packet);
-    } else if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
+      return;
+    }
+    if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
       final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD);
       connection.sendPacket(packet);
       return;
@@ -78,8 +80,10 @@ public final class PacketInLogin extends PacketIn {
     final var plugin = ShirukaServer.INTERNAL_PLUGIN;
     final var scheduler = Shiruka.getScheduler();
     scheduler.run(plugin, true, () -> {
+      System.out.println("1: " + Thread.currentThread());
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
       scheduler.run(plugin, () -> {
+        System.out.println("2: " + Thread.currentThread());
         if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
           player.disconnect("disconnectionScreen.notAuthenticated");
           return;
@@ -107,7 +111,6 @@ public final class PacketInLogin extends PacketIn {
         connection.setState(PlayerConnection.State.STATUS);
         final var event = eventFactory.playerAsyncLogin(loginData);
         scheduler.run(plugin, true, new ScheduledRunnable() {
-
           @Override
           public void afterRun() {
             scheduler.run(plugin, () -> {
@@ -132,9 +135,9 @@ public final class PacketInLogin extends PacketIn {
             event.callEvent();
           }
         });
+        connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
+        Shiruka.getPackManager().sendPackInfo(player);
       });
     });
-    connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
-    Shiruka.getPackManager().sendPackInfos(player);
   }
 }

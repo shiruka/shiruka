@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
  * a class that represents the server heartbeat pulse called
  * "tick" which occurs every 1/20th of a second.
  */
-public final class ShirukaTick extends Thread {
+public final class ShirukaTick {
 
   /**
    * The amount of time taken by a single tick
@@ -55,32 +55,35 @@ public final class ShirukaTick extends Thread {
    * @param server the server.
    */
   public ShirukaTick(@NotNull final Server server) {
-    super("Shiruka - Tick");
     this.server = server;
   }
 
-  @Override
-  public void run() {
-    final var scheduler = Shiruka.getScheduler();
-    while (!this.server.isInShutdownState()) {
-      final var start = System.currentTimeMillis();
-      scheduler.tick();
-      // @todo #1:15m Add more tick operations.
-      final var end = System.currentTimeMillis();
-      final var elapsed = end - start;
-      final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;
-      if (waitTime < 0) {
-        Loggers.debug("Server running behind %sms, skipped %s ticks",
-          -waitTime, -waitTime / ShirukaTick.TICK_MILLIS);
-        continue;
-      }
-      try {
-        Thread.sleep(waitTime);
-      } catch (final InterruptedException e) {
-        break;
-      } catch (final Exception e) {
-        JiraExceptionCatcher.serverException(e);
-        break;
+  /**
+   * starts the ticking.
+   */
+  public void start() {
+    while (server.isRunning()) {
+      final var scheduler = Shiruka.getScheduler();
+      while (!this.server.isInShutdownState()) {
+        final var start = System.currentTimeMillis();
+        scheduler.tick();
+        // @todo #1:15m Add more tick operations.
+        final var end = System.currentTimeMillis();
+        final var elapsed = end - start;
+        final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;
+        if (waitTime < 0) {
+          Loggers.debug("Server running behind %sms, skipped %s ticks",
+            -waitTime, -waitTime / ShirukaTick.TICK_MILLIS);
+          continue;
+        }
+        try {
+          Thread.sleep(waitTime);
+        } catch (final InterruptedException e) {
+          break;
+        } catch (final Exception e) {
+          JiraExceptionCatcher.serverException(e);
+          break;
+        }
       }
     }
   }

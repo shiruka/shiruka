@@ -30,8 +30,8 @@ import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.Socket;
 import io.github.shiruka.shiruka.network.*;
+import io.github.shiruka.shiruka.network.packets.PacketOutPackInfo;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackStack;
-import io.github.shiruka.shiruka.network.packets.PacketOutPacksInfo;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -361,7 +361,7 @@ public final class Packets {
    * @param buffer the buffer to write.
    * @param entry the entry to write.
    */
-  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PacketOutPacksInfo.Entry entry) {
+  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PacketOutPackInfo.Entry entry) {
     VarInts.writeString(buffer, entry.getPackId());
     VarInts.writeString(buffer, entry.getPackVersion());
     buffer.writeLongLE(entry.getPackSize());
@@ -393,7 +393,7 @@ public final class Packets {
    * @param entry the entry to write.
    */
   public static void writeResourcePackEntry(@NotNull final ByteBuf buffer,
-                                            @NotNull final PacketOutPacksInfo.Entry entry) {
+                                            @NotNull final PacketOutPackInfo.Entry entry) {
     Packets.writeEntry(buffer, entry);
     buffer.writeBoolean(entry.isRaytracingCapable());
   }

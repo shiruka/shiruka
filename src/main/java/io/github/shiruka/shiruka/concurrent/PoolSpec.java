@@ -39,11 +39,6 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   Thread.UncaughtExceptionHandler {
 
   /**
-   * the thread for async schedulers.
-   */
-  public static final PoolSpec ASYNC_SCHEDULER = new PoolSpec(false, 3, "Shiru ka - Async Scheduler");
-
-  /**
    * the thread for worlds.
    */
   public static final PoolSpec CHUNKS = new PoolSpec(true, 4, "Shiru ka - Chunks");
@@ -52,6 +47,11 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
    * the thread for entities.
    */
   public static final PoolSpec ENTITIES = new PoolSpec(false, 3, "Shiru ka - Entities");
+
+  /**
+   * the thread for worlds.
+   */
+  public static final PoolSpec MAIN = new PoolSpec(true, 1, "Shiru ka - Main");
 
   /**
    * the thread for players.
@@ -71,7 +71,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * a thread factory that does handling for exceptions, piping exception output to the loggers.
    */
-  public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec(false, 0, "Shiru ka - Net");
+  public static final PoolSpec UNCAUGHT_FACTORY = new PoolSpec(false, 0, "Shiru ka - Net");
 
   /**
    * the thread for worlds.

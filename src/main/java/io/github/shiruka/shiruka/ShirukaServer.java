@@ -215,7 +215,6 @@ public final class ShirukaServer implements Server {
     Loggers.log("Done, took %sms.", end);
     this.console.start();
     this.tick.start();
-    System.out.println("stop");
   }
 
   @Override

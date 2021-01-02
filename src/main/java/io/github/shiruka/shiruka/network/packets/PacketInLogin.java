@@ -111,7 +111,7 @@ public final class PacketInLogin extends PacketIn {
           connection.setState(PlayerConnection.State.STATUS);
           final var event = eventFactory.playerAsyncLogin(loginData);
           CompletableFuture.runAsync(event::callEvent, PacketInLogin.POOL)
-            .whenComplete((unused, throwable) ->
+            .whenComplete((unused, throwable1) ->
               scheduler.run(plugin, () -> {
                 if (connection.getConnection().isClosed()) {
                   return;

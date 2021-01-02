@@ -31,25 +31,16 @@ import io.github.shiruka.api.scheduler.ScheduledRunnable;
 import io.github.shiruka.api.scheduler.ScheduledTask;
 import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.scheduler.TaskType;
-import io.github.shiruka.shiruka.concurrent.PoolSpec;
-import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link Scheduler}.
  */
 public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> implements Scheduler {
-
-  /**
-   * the pool.
-   */
-  private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
 
   /**
    * the task list.
@@ -87,6 +78,7 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
    */
   @Override
   public void tick() {
+    SyncTask.getInstance().tick();
     for (final var task : this.tasks) {
       task.run();
     }
@@ -102,158 +94,22 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
    *
    * @param plugin the plugin to create.
    * @param runnable the runnable to create.
-   * @param taskType the task type to create.
+   * @param type the task type to create.
    * @param interval the interval to create.
    *
    * @return a new instance of scheduled task.
    */
   @NotNull
   private ScheduledTask createTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
-                                   @NotNull final TaskType taskType, final long interval) {
-    final var task = new SimpleScheduledTask(plugin, runnable, taskType, interval);
+                                   @NotNull final TaskType type, final long interval) {
+    final var task = new SimpleScheduledTask(internal -> {
+      this.tasks.remove(internal);
+      SyncTask.getInstance().remove(internal.getRunner());
+    }, plugin, runnable, type, interval);
     while (true) {
       if (this.tasks.add(task)) {
         task.runnable().markSchedule(task);
         return task;
-      }
-    }
-  }
-
-  /**
-   * a simple implementation for {@link ScheduledTask}.
-   */
-  private final class SimpleScheduledTask implements ScheduledTask {
-
-    /**
-     * the executor.
-     */
-    @NotNull
-    private final Executor executor;
-
-    /**
-     * the plugin.
-     */
-    @NotNull
-    private final Plugin plugin;
-
-    /**
-     * the runnable.
-     */
-    @NotNull
-    private final ScheduledRunnable runnable;
-
-    /**
-     * the runner.
-     */
-    @NotNull
-    private final Runnable runner;
-
-    /**
-     * the task type.
-     */
-    @NotNull
-    private final TaskType taskType;
-
-    /**
-     * the interval.
-     */
-    private long interval;
-
-    /**
-     * the runç
-     */
-    private long run = 0L;
-
-    /**
-     * ctor.
-     *
-     * @param plugin the plugin.
-     * @param runnable the runnable.
-     * @param taskType the task type.
-     * @param interval the step.
-     */
-    SimpleScheduledTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
-                        @NotNull final TaskType taskType, final long interval) {
-      this.plugin = plugin;
-      this.runnable = runnable;
-      this.taskType = taskType;
-      this.interval = interval;
-      if (taskType.name().toLowerCase(Locale.ROOT).contains("async")) {
-        this.executor = SimpleScheduler.POOL;
-      } else {
-        this.executor = Runnable::run;
-      }
-      if (taskType.name().toLowerCase(Locale.ROOT).contains("repeat")) {
-        this.runner = () -> {
-          runnable.beforeRun();
-          runnable.run();
-          runnable.afterRun();
-        };
-      } else {
-        this.runner = () -> {
-          runnable.beforeRun();
-          runnable.run();
-          runnable.afterRun();
-          this.cancel();
-        };
-      }
-    }
-
-    @Override
-    public void cancel() {
-      SimpleScheduler.this.tasks.remove(this);
-    }
-
-    @Override
-    public long interval() {
-      return this.interval;
-    }
-
-    @NotNull
-    @Override
-    public Plugin owner() {
-      return this.plugin;
-    }
-
-    @NotNull
-    @Override
-    public ScheduledRunnable runnable() {
-      return this.runnable;
-    }
-
-    @Override
-    public void setInterval(final long interval) {
-      this.interval = interval;
-    }
-
-    @NotNull
-    @Override
-    public TaskType type() {
-      return this.taskType;
-    }
-
-    @Override
-    public void run() {
-      switch (this.taskType) {
-        case ASYNC_RUN:
-        case SYNC_RUN:
-          this.executor.execute(this.runner);
-          break;
-        case ASYNC_LATER:
-        case SYNC_LATER:
-          if (++this.run >= this.interval) {
-            this.executor.execute(this.runner);
-          }
-          break;
-        case ASYNC_REPEAT:
-        case SYNC_REPEAT:
-          if (++this.run >= this.interval) {
-            this.executor.execute(this.runner);
-            this.run = 0;
-          }
-          break;
-        default:
-          throw new IllegalStateException();
       }
     }
   }

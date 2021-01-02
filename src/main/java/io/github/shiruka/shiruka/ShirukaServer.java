@@ -214,7 +214,7 @@ public final class ShirukaServer implements Server {
     final var end = System.currentTimeMillis() - startTime;
     Loggers.log("Done, took %sms.", end);
     this.console.start();
-    this.tick.start();
+    this.tick.run();
   }
 
   @Override

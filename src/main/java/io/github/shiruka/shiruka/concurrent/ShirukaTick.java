@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
  * a class that represents the server heartbeat pulse called
  * "tick" which occurs every 1/20th of a second.
  */
-public final class ShirukaTick {
+public final class ShirukaTick implements Runnable {
 
   /**
    * The amount of time taken by a single tick
@@ -61,7 +61,8 @@ public final class ShirukaTick {
   /**
    * starts the ticking.
    */
-  public void start() {
+  @Override
+  public void run() {
     final var scheduler = Shiruka.getScheduler();
     while (this.server.isRunning()) {
       final var start = System.currentTimeMillis();
@@ -78,7 +79,7 @@ public final class ShirukaTick {
       try {
         Thread.sleep(waitTime);
       } catch (final InterruptedException e) {
-        break;
+        this.server.stopServer();
       } catch (final Exception e) {
         JiraExceptionCatcher.serverException(e);
         break;

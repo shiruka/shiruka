@@ -49,11 +49,6 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   public static final PoolSpec ENTITIES = new PoolSpec(false, 3, "Shiru ka - Entities");
 
   /**
-   * the thread for worlds.
-   */
-  public static final PoolSpec MAIN = new PoolSpec(true, 1, "Shiru ka - Main");
-
-  /**
    * the thread for players.
    */
   public static final PoolSpec PLAYERS = new PoolSpec(false, 3, "Shiru ka - Players");
@@ -66,7 +61,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * the thread for schedulers.
    */
-  public static final PoolSpec SCHEDULER = new PoolSpec(true, 3, "Shiru ka - Scheduler");
+  public static final PoolSpec SCHEDULER = new PoolSpec(false, 3, "Shiru ka - Scheduler");
 
   /**
    * a thread factory that does handling for exceptions, piping exception output to the loggers.

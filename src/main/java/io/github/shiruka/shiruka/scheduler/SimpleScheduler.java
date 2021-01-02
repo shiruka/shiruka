@@ -55,6 +55,7 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
    * the task list.
    */
   private final Queue<ScheduledTask> tasks = new ConcurrentLinkedQueue<>();
+
   @NotNull
   @Override
   public ScheduledTask later(@NotNull final Plugin plugin, final boolean async, final long delay,

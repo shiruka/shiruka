@@ -134,6 +134,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   public Thread newThread(@NotNull final Runnable r) {
     final var thread = new Thread(r, this.name);
     thread.setUncaughtExceptionHandler(this);
+    thread.setDaemon(true);
     return thread;
   }
 

@@ -45,16 +45,13 @@ public final class PacketInResourcePackResponse extends PacketIn {
   public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
     final byte ordinal = buf.readByte();
     final var status = Status.valueOf(ordinal);
-    System.out.println(status);
     final var length = buf.readShortLE();
-    System.out.println(length);
     for (var i = 0; i < length; i++) {
       final String id = VarInts.readString(buf);
       final String packName = VarInts.readString(buf);
-      System.out.println(id + "->" + packName);
     }
   }
-
+""
   /**
    * an enum class that represents resource pack response status.
    */

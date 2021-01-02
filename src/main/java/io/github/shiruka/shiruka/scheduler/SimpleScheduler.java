@@ -116,9 +116,9 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
                                    @NotNull final TaskType taskType, final long interval) {
     final Executor executor;
     if (taskType.name().toLowerCase(Locale.ROOT).contains("async")) {
-      executor = Runnable::run;
-    } else {
       executor = SimpleScheduler.POOL;
+    } else {
+      executor = Runnable::run;
     }
     final Consumer<ScheduledTask> runner;
     if (taskType.name().toLowerCase(Locale.ROOT).contains("repeat")) {

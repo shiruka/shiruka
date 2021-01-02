@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network.protocol;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
@@ -75,12 +76,8 @@ public final class Protocol {
           Loggers.debug("Incoming packet id -> %s", packetId);
           final var cls = PacketRegistry.byId(player.getPlayerConnection().getState(),
             PacketBound.SERVER, packetId);
-          if (cls == null) {
-            throw new RuntimeException(String.format("Packet with %s not found!", packetId));
-          }
+          Preconditions.checkArgument(cls != null, "Packet with %s not found!", packetId);
           final var packet = PacketRegistry.makeIn(cls);
-          packet.setSenderId(header >>> 10 & 3);
-          packet.setClientId(header >>> 12 & 3);
           packet.read(packetBuffer, player);
         } catch (final PacketSerializeException | InvocationTargetException | InstantiationException |
           IllegalAccessException e) {
@@ -107,8 +104,6 @@ public final class Protocol {
           final var id = packet.id();
           var header = 0;
           header |= id & 0x3ff;
-          header |= (packet.getSenderId() & 3) << 10;
-          header |= (packet.getClientId() & 3) << 12;
           VarInts.writeUnsignedInt(packetBuffer, header);
           packet.write(packetBuffer);
           VarInts.writeUnsignedInt(uncompressed, packetBuffer.readableBytes());

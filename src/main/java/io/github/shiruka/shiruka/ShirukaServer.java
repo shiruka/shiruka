@@ -141,6 +141,7 @@ public final class ShirukaServer implements Server {
    * reloads packs.
    */
   private static void reloadPacks() {
+    Loggers.debug("Reloading packs.");
     final var manager = Shiruka.getPackManager();
     manager.registerLoader(RplZip.class, RplZip.FACTORY);
     manager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);

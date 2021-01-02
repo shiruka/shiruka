@@ -60,10 +60,15 @@ public final class PacketRegistry {
     new Reference2IntOpenHashMap<>();
 
   static {
+    // handshake packets.
     PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.HANDSHAKE, PacketBound.SERVER, 1);
     PacketRegistry.put(PacketOutPlayStatus.class, PlayerConnection.State.HANDSHAKE, PacketBound.CLIENT, 2);
+    // status packets.
     PacketRegistry.put(PacketOutPackInfo.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 6);
     PacketRegistry.put(PacketOutPackStack.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 7);
+    PacketRegistry.put(PacketInResourcePackResponse.class, PlayerConnection.State.STATUS, PacketBound.SERVER, 8);
+    PacketRegistry.put(PacketInClientCacheStatus.class, PlayerConnection.State.STATUS, PacketBound.SERVER, 129);
+    // any state of packets.
     PacketRegistry.put(PacketOutDisconnect.class, PlayerConnection.State.ANY, PacketBound.CLIENT, 5);
     PacketRegistry.PACKETS.trim();
     PacketRegistry.PACKET_IDS.trim();

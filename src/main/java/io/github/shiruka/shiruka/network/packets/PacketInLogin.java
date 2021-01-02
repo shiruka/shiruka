@@ -64,6 +64,10 @@ public final class PacketInLogin extends PacketIn {
     super(PacketInLogin.class);
   }
 
+  /**
+   * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key from the
+   *  client.
+   */
   @Override
   public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
     final var protocolVersion = buf.readInt();

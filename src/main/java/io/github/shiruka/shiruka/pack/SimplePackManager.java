@@ -258,11 +258,10 @@ public final class SimplePackManager implements PackManager {
 
   @Override
   public void sendPackInfo(@NotNull final Player player) {
-    if (!(player instanceof ShirukaPlayer)) {
-      return;
+    if (player instanceof ShirukaPlayer) {
+      Optional.ofNullable(this.packInfo.get())
+        .ifPresent(((ShirukaPlayer) player).getPlayerConnection()::sendPacket);
     }
-    Optional.ofNullable(this.packInfo.get())
-      .ifPresent(((ShirukaPlayer) player).getPlayerConnection()::sendPacket);
   }
 
   /**

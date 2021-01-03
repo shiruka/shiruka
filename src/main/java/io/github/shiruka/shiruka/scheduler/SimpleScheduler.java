@@ -33,6 +33,7 @@ import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.scheduler.TaskType;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.jetbrains.annotations.NotNull;
@@ -104,7 +105,9 @@ public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> i
                                    @NotNull final TaskType type, final long interval) {
     final var task = new SimpleScheduledTask(internal -> {
       this.tasks.remove(internal);
-      SyncTask.getInstance().remove(internal.getRunner());
+      if (!type.isAsync()) {
+        SyncTask.getInstance().remove(internal.getRunner());
+      }
     }, plugin, runnable, type, interval);
     while (true) {
       if (this.tasks.add(task)) {

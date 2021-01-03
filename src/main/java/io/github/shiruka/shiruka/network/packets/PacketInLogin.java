@@ -27,7 +27,6 @@ package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.chat.ChatColor;
-import io.github.shiruka.api.events.LoginResultEvent;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
@@ -66,7 +65,7 @@ public final class PacketInLogin extends PacketIn {
 
   /**
    * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key from the
-   *  client.
+   *   client.
    */
   @Override
   public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
@@ -105,6 +104,7 @@ public final class PacketInLogin extends PacketIn {
             return;
           }
           final var loginData = new SimpleLoginData(chainData, player, ChatColor.clean(username));
+          player.setLatestLoginData(loginData);
           final var eventFactory = Shiruka.getEventFactory();
           final var preLogin = eventFactory.playerPreLogin(loginData, "Some reason.");
           eventFactory.call(preLogin);
@@ -113,24 +113,11 @@ public final class PacketInLogin extends PacketIn {
             return;
           }
           connection.setState(PlayerConnection.State.STATUS);
-          final var event = eventFactory.playerAsyncLogin(loginData);
-          CompletableFuture.runAsync(event::callEvent, PacketInLogin.POOL)
+          final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
+          loginData.setAsyncLogin(asyncLogin);
+          CompletableFuture.runAsync(asyncLogin::callEvent, PacketInLogin.POOL)
             .whenComplete((unused, throwable1) ->
-              scheduler.run(plugin, () -> {
-                if (connection.getConnection().isClosed()) {
-                  return;
-                }
-                if (event.loginResult() == LoginResultEvent.LoginResult.KICK) {
-                  player.disconnect(event.kickMessage());
-                  return;
-                }
-                if (!loginData.shouldLogin()) {
-                  return;
-                }
-                loginData.initializePlayer();
-                event.objects().forEach(action ->
-                  action.accept(player));
-              }));
+              scheduler.run(plugin, loginData::initializePlayer));
           connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
           Shiruka.getPackManager().sendPackInfo(player);
         }));

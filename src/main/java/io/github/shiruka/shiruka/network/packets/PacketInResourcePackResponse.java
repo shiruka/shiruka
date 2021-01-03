@@ -30,7 +30,7 @@ import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.netty.buffer.ByteBuf;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,12 +49,11 @@ public final class PacketInResourcePackResponse extends PacketIn {
     final byte ordinal = buf.readByte();
     final var status = Status.valueOf(ordinal);
     final var length = buf.readShortLE();
-    final var packs = new HashMap<UUID, String>();
+    final var packs = new ArrayList<Entry>();
     for (var i = 0; i < length; i++) {
-      final var id = VarInts.readString(buf);
-      final var packName = VarInts.readString(buf);
+      final var uniqueIdVersion = VarInts.readString(buf).split("_");
       try {
-        packs.put(UUID.fromString(id), packName);
+        packs.add(new Entry(UUID.fromString(uniqueIdVersion[0]), uniqueIdVersion[1]));
       } catch (final Exception e) {
       }
     }
@@ -68,6 +67,10 @@ public final class PacketInResourcePackResponse extends PacketIn {
         }
         break;
       case COMPLETED:
+        final var data = player.getLatestLoginData();
+        if (data != null) {
+          data.initializePlayer();
+        }
         break;
       case SEND_PACKS:
         break;
@@ -111,6 +114,55 @@ public final class PacketInResourcePackResponse extends PacketIn {
         default:
           return null;
       }
+    }
+  }
+
+  /**
+   * a class that represents entries of the response packets.
+   */
+  public static final class Entry {
+
+    /**
+     * the unique id.
+     */
+    @NotNull
+    public final UUID uniqueId;
+
+    /**
+     * the version.
+     */
+    @NotNull
+    public final String version;
+
+    /**
+     * ctor.
+     *
+     * @param uniqueId the unique id.
+     * @param version the version.
+     */
+    public Entry(@NotNull final UUID uniqueId, @NotNull final String version) {
+      this.uniqueId = uniqueId;
+      this.version = version;
+    }
+
+    /**
+     * obtains the unique id.
+     *
+     * @return unique id.
+     */
+    @NotNull
+    public UUID getUniqueId() {
+      return this.uniqueId;
+    }
+
+    /**
+     * obtains the version.
+     *
+     * @return version.
+     */
+    @NotNull
+    public String getVersion() {
+      return this.version;
     }
   }
 }

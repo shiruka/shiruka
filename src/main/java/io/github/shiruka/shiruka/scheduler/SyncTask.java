@@ -55,6 +55,16 @@ final class SyncTask implements Tick {
     return SyncTask.SINGLETON;
   }
 
+  @Override
+  public void tick() {
+    synchronized (this.tasks) {
+      Runnable next;
+      while ((next = this.tasks.poll()) != null) {
+        next.run();
+      }
+    }
+  }
+
   /**
    * adds the given task to the list.
    *
@@ -74,16 +84,6 @@ final class SyncTask implements Tick {
   void remove(@NotNull final Runnable task) {
     synchronized (this.tasks) {
       this.tasks.remove(task);
-    }
-  }
-
-  @Override
-  public void tick() {
-    synchronized (this.tasks) {
-      Runnable next;
-      while ((next = this.tasks.poll()) != null) {
-        next.run();
-      }
     }
   }
 }

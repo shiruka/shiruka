@@ -29,6 +29,7 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
+import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +46,12 @@ public final class ShirukaPlayer implements Player {
    */
   @NotNull
   private final ShirukaPlayerConnection connection;
+
+  /**
+   * the login data.
+   */
+  @Nullable
+  private SimpleLoginData loginData;
 
   /**
    * ctor.
@@ -74,6 +81,25 @@ public final class ShirukaPlayer implements Player {
   @Override
   public Server getServer() {
     return this.connection.getServer();
+  }
+
+  /**
+   * obtains the latest login data.
+   *
+   * @return latest login data.
+   */
+  @Nullable
+  public SimpleLoginData getLatestLoginData() {
+    return this.loginData;
+  }
+
+  /**
+   * sets the latest login data of the player.
+   *
+   * @param loginData the login data to set.
+   */
+  public void setLatestLoginData(@NotNull final SimpleLoginData loginData) {
+    this.loginData = loginData;
   }
 
   @NotNull

@@ -31,7 +31,6 @@ import io.github.shiruka.api.scheduler.ScheduledTask;
 import io.github.shiruka.api.scheduler.TaskType;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
-import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
@@ -98,26 +97,32 @@ public final class SimpleScheduledTask implements ScheduledTask {
    * @param onClose the on close.
    * @param plugin the plugin.
    * @param runnable the runnable.
-   * @param taskType the task type.
+   * @param type the task type.
    * @param interval the step.
    */
   SimpleScheduledTask(@NotNull final Consumer<SimpleScheduledTask> onClose, @NotNull final Plugin plugin,
-                      @NotNull final ScheduledRunnable runnable, @NotNull final TaskType taskType,
+                      @NotNull final ScheduledRunnable runnable, @NotNull final TaskType type,
                       final long interval) {
     this.onClose = onClose;
     this.plugin = plugin;
     this.runnable = runnable;
-    this.taskType = taskType;
+    this.taskType = type;
     this.interval = interval;
-    if (taskType.name().toLowerCase(Locale.ROOT).contains("repeat")) {
-      this.runner = runnable;
+    if (type.isRepeat()) {
+      this.runner = () -> {
+        runnable.beforeRun();
+        runnable.run();
+        runnable.afterRun();
+      };
     } else {
       this.runner = () -> {
+        runnable.beforeRun();
         runnable.run();
+        runnable.afterRun();
         this.cancel();
       };
     }
-    if (taskType.name().toLowerCase(Locale.ROOT).contains("async")) {
+    if (type.isAsync()) {
       this.executor = SimpleScheduledTask.POOL;
     } else {
       this.executor = SyncTask.getInstance()::add;

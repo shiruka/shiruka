@@ -31,6 +31,9 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * an abstract implementation for {@link Packet} that determines incoming packets.
+ *
+ * @todo #1:30m Add a simple singleton field for packets which extend PacketIn class.
+ *  And don't create packets over and over again to improve performance.
  */
 public abstract class PacketIn extends Packet {
 

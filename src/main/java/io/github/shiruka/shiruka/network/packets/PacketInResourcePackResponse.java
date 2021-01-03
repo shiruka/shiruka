@@ -25,10 +25,13 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
+import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.netty.buffer.ByteBuf;
+import java.util.HashMap;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,9 +49,30 @@ public final class PacketInResourcePackResponse extends PacketIn {
     final byte ordinal = buf.readByte();
     final var status = Status.valueOf(ordinal);
     final var length = buf.readShortLE();
+    final var packs = new HashMap<UUID, String>();
     for (var i = 0; i < length; i++) {
-      final String id = VarInts.readString(buf);
-      final String packName = VarInts.readString(buf);
+      final var id = VarInts.readString(buf);
+      final var packName = VarInts.readString(buf);
+      try {
+        packs.put(UUID.fromString(id), packName);
+      } catch (final Exception e) {
+      }
+    }
+    if (status == null) {
+      return;
+    }
+    switch (status) {
+      case REFUSED:
+        if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
+          player.disconnect("disconnectionScreen.noReason");
+        }
+        break;
+      case COMPLETED:
+        break;
+      case SEND_PACKS:
+        break;
+      case HAVE_ALL_PACKS:
+        break;
     }
   }
 
@@ -56,7 +80,6 @@ public final class PacketInResourcePackResponse extends PacketIn {
    * an enum class that represents resource pack response status.
    */
   public enum Status {
-
     /**
      * the refused.
      */

@@ -152,7 +152,7 @@ public final class ShirukaServer implements Server {
    * reloads packs.
    */
   private static void reloadPacks() {
-    ShirukaServer.LOGGER.debug("Reloading packs.");
+    ShirukaServer.LOGGER.debug("§7Reloading packs.");
     final var manager = Shiruka.getPackManager();
     manager.registerLoader(RplZip.class, RplZip.FACTORY);
     manager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
@@ -215,16 +215,16 @@ public final class ShirukaServer implements Server {
     this.registerImplementations();
     ShirukaServer.reloadPacks();
     this.running.set(true);
-    ShirukaServer.LOGGER.info("Loading plugins.");
+    ShirukaServer.LOGGER.info("§eLoading plugins.");
     // @todo #1:60m Load plugins here.
-    ShirukaServer.LOGGER.info("Enabling startup plugins before the loading worlds.");
+    ShirukaServer.LOGGER.info("§eEnabling startup plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
-    ShirukaServer.LOGGER.info("Loading worlds.");
+    ShirukaServer.LOGGER.info("§eLoading worlds.");
     this.loader.loadAll();
-    ShirukaServer.LOGGER.info("Enabling plugins after the loading worlds.");
+    ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
-    ShirukaServer.LOGGER.info("Done, took {}ms.", end);
+    ShirukaServer.LOGGER.info("§aDone, took {}ms.", end);
     this.console.start();
     this.tick.run();
   }

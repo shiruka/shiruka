@@ -45,11 +45,6 @@ import org.slf4j.LoggerFactory;
 public final class ShirukaConnectionListener implements ConnectionListener {
 
   /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaConnectionListener");
-
-  /**
    * the connection.
    */
   @NotNull

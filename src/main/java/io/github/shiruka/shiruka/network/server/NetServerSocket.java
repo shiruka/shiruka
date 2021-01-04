@@ -110,10 +110,10 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   public static ServerSocket init(@NotNull final InetSocketAddress address,
                                   @NotNull final ServerListener serverListener, final int maxConnections) {
-    NetServerSocket.LOGGER.debug("Initiating the server socket.");
+    NetServerSocket.LOGGER.debug("§7Initiating the server socket.");
     final var socket = new NetServerSocket(address, serverListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
-      NetServerSocket.LOGGER.error("An exception occurred in Network system", t));
+      NetServerSocket.LOGGER.error("§4An exception occurred in Network system", t));
     socket.bind();
     return socket;
   }
@@ -219,18 +219,18 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   @Override
   public CompletableFuture<Void> exec() {
-    NetServerSocket.LOGGER.debug("Binding the server.");
+    NetServerSocket.LOGGER.debug("§7Binding the server.");
     final var completableFuture = new CompletableFuture<>();
     this.getBootstrap()
       .handler(new NetServerDatagramHandler(this))
       .bind(this.getAddress())
       .addListener((ChannelFutureListener) future -> {
         if (future.cause() != null) {
-          NetServerSocket.LOGGER.error("An error occurs");
+          NetServerSocket.LOGGER.error("§4An error occurs");
           NetServerSocket.LOGGER.error(future.cause().getMessage());
           completableFuture.completeExceptionally(future.cause());
         }
-        NetServerSocket.LOGGER.debug("The server bound.");
+        NetServerSocket.LOGGER.debug("§7The server bound.");
         completableFuture.complete(future.channel());
       });
     return CompletableFuture.allOf(completableFuture);

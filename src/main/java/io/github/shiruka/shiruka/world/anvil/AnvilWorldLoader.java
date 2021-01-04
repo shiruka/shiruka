@@ -57,11 +57,11 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   public final World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
     return this.worlds.compute(name, (k, v) -> {
       Preconditions.checkArgument(v == null, "World \"%s\" already exists!", name);
-      AnvilWorldLoader.LOGGER.info("Creating world \"{}\".", name);
+      AnvilWorldLoader.LOGGER.info("§eCreating world \"{}\".", name);
       final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
       world.loadSpawnChunks();
       world.save();
-      AnvilWorldLoader.LOGGER.info("Finished creating \"{}\".", name);
+      AnvilWorldLoader.LOGGER.info("§eFinished creating \"{}\".", name);
       return world;
     });
   }
@@ -97,11 +97,11 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   @NotNull
   @Override
   public World load(@NotNull final String name, @NotNull final Path directory, @NotNull final Dimension dimension) {
-    AnvilWorldLoader.LOGGER.info("Loading world \"{}\".", name);
+    AnvilWorldLoader.LOGGER.info("§eLoading world \"{}\".", name);
     final var world = new AnvilWorld(name, directory, dimension);
     world.loadSpawnChunks();
     this.worlds.put(name, world);
-    AnvilWorldLoader.LOGGER.info("Finished loading \"{}\".", name);
+    AnvilWorldLoader.LOGGER.info("§eFinished loading \"{}\".", name);
     return world;
   }
 

@@ -101,11 +101,10 @@ public final class ShirukaMain {
         .setLevel(Level.DEBUG);
       context.updateLoggers();
     }
-    AnsiConsole.systemInstall();
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
-      ShirukaMain.LOGGER.warn("Cannot run server in a directory with ! or + in the pathname.");
-      ShirukaMain.LOGGER.warn("Please rename the affected folders and try again.");
+      ShirukaMain.LOGGER.warn("§cCannot run server in a directory with ! or + in the pathname.");
+      ShirukaMain.LOGGER.warn("§cPlease rename the affected folders and try again.");
       return;
     }
     System.setProperty("library.jansi.version", "Shiru ka");
@@ -126,15 +125,15 @@ public final class ShirukaMain {
   @NotNull
   private static File createsServerFile(@NotNull final File file, final boolean directory) throws IOException {
     if (directory) {
-      ShirukaMain.LOGGER.debug("Checking for {} directory.", file.getName());
+      ShirukaMain.LOGGER.debug("§7Checking for {} directory.", file.getName());
       if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("Directory {} not present, creating one for you.", file.getName());
+        ShirukaMain.LOGGER.debug("§7Directory {} not present, creating one for you.", file.getName());
         Files.createDirectory(file.toPath());
       }
     } else {
-      ShirukaMain.LOGGER.debug("Checking for {} file.", file.getName());
+      ShirukaMain.LOGGER.debug("§7Checking for {} file.", file.getName());
       if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", file.getName());
+        ShirukaMain.LOGGER.debug("§7File {} not present, creating one for you.", file.getName());
         Files.createFile(file.toPath());
       }
     }
@@ -178,7 +177,7 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
-    ShirukaMain.LOGGER.info("Shiru ka is starting.");
+    ShirukaMain.LOGGER.info("§eShiru ka is starting.");
     final var start = System.currentTimeMillis();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);

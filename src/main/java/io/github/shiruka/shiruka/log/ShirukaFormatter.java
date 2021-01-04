@@ -39,10 +39,10 @@ import org.jetbrains.annotations.Nullable;
 /**
  * replaces Minecraft formatting codes in the result of a pattern with appropriate ANSI escape codes.
  */
-@Plugin(name = "minecraftFormatting", category = PatternConverter.CATEGORY)
-@ConverterKeys({"minecraftFormatting"})
+@Plugin(name = "shirukaFormatting", category = PatternConverter.CATEGORY)
+@ConverterKeys({"shirukaFormatting"})
 @PerformanceSensitive("allocation")
-public final class PcMinecraft extends LogEventPatternConverter {
+public final class ShirukaFormatter extends LogEventPatternConverter {
 
   /**
    * the ansi reset code.
@@ -74,7 +74,7 @@ public final class PcMinecraft extends LogEventPatternConverter {
     "\u001B[9m",
     "\u001B[4m",
     "\u001B[3m",
-    PcMinecraft.ANSI_RESET,
+    ShirukaFormatter.ANSI_RESET,
   };
 
   /**
@@ -104,8 +104,8 @@ public final class PcMinecraft extends LogEventPatternConverter {
    * @param formatters The pattern formatters to generate the text to manipulate
    * @param strip If true, the converter will strip all formatting codes
    */
-  private PcMinecraft(@NotNull final List<PatternFormatter> formatters, final boolean strip) {
-    super("minecraftFormatting", null);
+  private ShirukaFormatter(@NotNull final List<PatternFormatter> formatters, final boolean strip) {
+    super("shirukaFormatting", null);
     this.formatters = Collections.unmodifiableList(formatters);
     this.ansi = !strip;
   }
@@ -119,20 +119,20 @@ public final class PcMinecraft extends LogEventPatternConverter {
    * @return a new instance of {@code this}.
    */
   @Nullable
-  public static PcMinecraft newInstance(final Configuration config, final String[] options) {
+  public static ShirukaFormatter newInstance(final Configuration config, final String[] options) {
     if (options.length < 1 || options.length > 2) {
-      AbstractPatternConverter.LOGGER.error("Incorrect number of options on minecraftFormatting.");
+      AbstractPatternConverter.LOGGER.error("Incorrect number of options on shirukaFormatting.");
       AbstractPatternConverter.LOGGER.error("Expected at least 1, max 2 received {}", options.length);
       return null;
     }
     if (options[0] == null) {
-      AbstractPatternConverter.LOGGER.error("No pattern supplied on minecraftFormatting");
+      AbstractPatternConverter.LOGGER.error("No pattern supplied on shirukaFormatting");
       return null;
     }
     final var parser = PatternLayout.createPatternParser(config);
     final var formatters = parser.parse(options[0]);
     final var strip = options.length > 1 && "strip".equals(options[1]);
-    return new PcMinecraft(formatters, strip);
+    return new ShirukaFormatter(formatters, strip);
   }
 
   /**
@@ -145,7 +145,7 @@ public final class PcMinecraft extends LogEventPatternConverter {
    */
   private static void format(@NotNull final String message, @NotNull final StringBuilder result, final int start,
                              final boolean ansi) {
-    var next = message.indexOf(PcMinecraft.COLOR_CHAR);
+    var next = message.indexOf(ShirukaFormatter.COLOR_CHAR);
     final var last = message.length() - 1;
     if (next == -1 || next == last) {
       return;
@@ -157,20 +157,20 @@ public final class PcMinecraft extends LogEventPatternConverter {
       if (pos != next) {
         result.append(message, pos, next);
       }
-      format = PcMinecraft.LOOKUP.indexOf(message.charAt(next + 1));
+      format = ShirukaFormatter.LOOKUP.indexOf(message.charAt(next + 1));
       if (format != -1) {
         if (ansi) {
-          result.append(PcMinecraft.ANSI_CODES[format]);
+          result.append(ShirukaFormatter.ANSI_CODES[format]);
         }
         pos = next += 2;
       } else {
         next++;
       }
-      next = message.indexOf(PcMinecraft.COLOR_CHAR, next);
+      next = message.indexOf(ShirukaFormatter.COLOR_CHAR, next);
     } while (next != -1 && next < last);
     result.append(message, pos, message.length());
     if (ansi) {
-      result.append(PcMinecraft.ANSI_RESET);
+      result.append(ShirukaFormatter.ANSI_RESET);
     }
   }
 
@@ -181,6 +181,6 @@ public final class PcMinecraft extends LogEventPatternConverter {
     if (toAppendTo.length() == start) {
       return;
     }
-    PcMinecraft.format(toAppendTo.substring(start), toAppendTo, start, this.ansi);
+    ShirukaFormatter.format(toAppendTo.substring(start), toAppendTo, start, this.ansi);
   }
 }

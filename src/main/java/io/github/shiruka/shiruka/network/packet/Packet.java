@@ -38,16 +38,6 @@ public abstract class Packet {
   private final int id;
 
   /**
-   * the client id.
-   */
-  private int clientId = -1;
-
-  /**
-   * the sender id.
-   */
-  private int senderId = -1;
-
-  /**
    * ctor.
    *
    * @param cls the packet class.
@@ -63,41 +53,5 @@ public abstract class Packet {
    */
   public final int id() {
     return this.id;
-  }
-
-  /**
-   * obtain the client id.
-   *
-   * @return client id.
-   */
-  public int getClientId() {
-    return this.clientId;
-  }
-
-  /**
-   * sets the client id.
-   *
-   * @param id the id to set.
-   */
-  public final void setClientId(final int id) {
-    this.clientId = id;
-  }
-
-  /**
-   * obtain the sender id.
-   *
-   * @return sender id.
-   */
-  public int getSenderId() {
-    return this.senderId;
-  }
-
-  /**
-   * sets the sender id.
-   *
-   * @param id the id to set.
-   */
-  public final void setSenderId(final int id) {
-    this.senderId = id;
   }
 }

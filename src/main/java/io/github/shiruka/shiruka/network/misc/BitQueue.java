@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.misc;
 
 import io.github.shiruka.shiruka.network.util.Misc;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * implementation of a queue that compresses multiple single bits (booleans) into single bytes.
@@ -41,7 +40,6 @@ public final class BitQueue {
   /**
    * the queue.
    */
-  @NotNull
   private byte[] queue;
 
   /**
@@ -52,10 +50,10 @@ public final class BitQueue {
   /**
    * ctor.
    *
-   * @param capacity the capacity
+   * @param cap the capacity.
    */
-  public BitQueue(int capacity) {
-    capacity = Misc.powerOfTwoCeiling(capacity);
+  public BitQueue(final int cap) {
+    var capacity = Misc.powerOfTwoCeiling(cap);
     if (capacity <= 0) {
       capacity = 8;
     }

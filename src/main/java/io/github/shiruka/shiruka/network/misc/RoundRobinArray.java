@@ -53,12 +53,13 @@ public final class RoundRobinArray<E> {
   /**
    * ctor.
    *
-   * @param fixedCapacity the fixed capacity.
+   * @param cap the fixed capacity.
    */
-  public RoundRobinArray(int fixedCapacity) {
-    fixedCapacity = Misc.powerOfTwoCeiling(fixedCapacity);
-    this.elements = new AtomicReferenceArray<>(fixedCapacity);
-    this.mask = fixedCapacity - 1;
+  public RoundRobinArray(final int cap) {
+    var capacity = cap;
+    capacity = Misc.powerOfTwoCeiling(cap);
+    this.elements = new AtomicReferenceArray<>(capacity);
+    this.mask = cap - 1;
   }
 
   /**
@@ -93,8 +94,7 @@ public final class RoundRobinArray<E> {
    * @return returns true if the expected element removed successfully.
    */
   public boolean remove(final int index, @NotNull final E expected) {
-    final var idx = index & this.mask;
-    return this.elements.compareAndSet(idx, expected, null);
+    return this.elements.compareAndSet(index & this.mask, expected, null);
   }
 
   /**
@@ -104,8 +104,6 @@ public final class RoundRobinArray<E> {
    * @param value the value to set.
    */
   public void set(final int index, @NotNull final E value) {
-    final var idx = index & this.mask;
-    final var element = this.elements.getAndSet(idx, value);
-    ReferenceCountUtil.release(element);
+    ReferenceCountUtil.release(this.elements.getAndSet(index & this.mask, value));
   }
 }

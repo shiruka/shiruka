@@ -40,6 +40,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PacketInResourcePackResponse extends PacketIn {
 
+  /**
+   * ctor.
+   */
   public PacketInResourcePackResponse() {
     super(PacketInResourcePackResponse.class);
   }

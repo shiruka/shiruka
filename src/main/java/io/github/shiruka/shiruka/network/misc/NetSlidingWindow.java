@@ -172,15 +172,16 @@ public final class NetSlidingWindow {
    * @param curSequenceIndex the current sequence index to resend.
    */
   public void onResend(final long curSequenceIndex) {
-    if (!this.backoffThisBlock && this.congestionWindow > this.mtu * 2) {
-      this.ssThresh = this.congestionWindow / 2;
-      if (this.ssThresh < this.mtu) {
-        this.ssThresh = this.mtu;
-      }
-      this.congestionWindow = this.mtu;
-      this.nextCongestionControlBlock = curSequenceIndex;
-      this.backoffThisBlock = true;
+    if (this.backoffThisBlock || !(this.congestionWindow > this.mtu * 2)) {
+      return;
     }
+    this.ssThresh = this.congestionWindow / 2;
+    if (this.ssThresh < this.mtu) {
+      this.ssThresh = this.mtu;
+    }
+    this.congestionWindow = this.mtu;
+    this.nextCongestionControlBlock = curSequenceIndex;
+    this.backoffThisBlock = true;
   }
 
   /**
@@ -210,9 +211,8 @@ public final class NetSlidingWindow {
   private long getSenderRtoForAck() {
     if (this.lastRTT == -1) {
       return -1;
-    } else {
-      return (long) (this.lastRTT + Constants.CC_SYN);
     }
+    return (long) (this.lastRTT + Constants.CC_SYN);
   }
 
   /**

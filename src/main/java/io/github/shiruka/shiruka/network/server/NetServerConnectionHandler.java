@@ -38,6 +38,7 @@ import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -151,18 +152,18 @@ public final class NetServerConnectionHandler implements ConnectionHandler {
   private void onACKnowledge(@NotNull final ByteBuf packet, @NotNull final Consumer<IntRange> consumer) {
     this.connection.checkForClosed();
     final var size = packet.readUnsignedShort();
-    for (var i = 0; i < size; i++) {
+    IntStream.range(0, size).forEach(i -> {
       final var singleton = packet.readBoolean();
       final var start = packet.readUnsignedMediumLE();
       final var end = singleton ? start : packet.readMediumLE();
       if (start <= end) {
         consumer.accept(new IntRange(start, end));
-        continue;
+        return;
       }
       NetServerConnectionHandler.LOGGER.error("{} sent an IntRange with a start value {} greater than an end value of {}",
         this.connection.getAddress(), start, end);
       this.connection.disconnect(DisconnectReason.BAD_PACKET);
-    }
+    });
   }
 
   /**
@@ -183,10 +184,11 @@ public final class NetServerConnectionHandler implements ConnectionHandler {
   private void onConnectedPong(@NotNull final ByteBuf packet) {
     final var pingTime = packet.readLong();
     final var currentPingTime = this.connection.getCurrentPingTime().get();
-    if (currentPingTime == pingTime) {
-      this.connection.getLastPingTime().set(currentPingTime);
-      this.connection.getLastPongTime().set(System.currentTimeMillis());
+    if (currentPingTime != pingTime) {
+      return;
     }
+    this.connection.getLastPingTime().set(currentPingTime);
+    this.connection.getLastPongTime().set(System.currentTimeMillis());
   }
 
   /**

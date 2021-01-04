@@ -53,7 +53,6 @@ public final class FastBinaryMinHeap<E> {
   /**
    * the weights.
    */
-  @NotNull
   private long[] weights;
 
   /**
@@ -66,11 +65,12 @@ public final class FastBinaryMinHeap<E> {
   /**
    * ctor.
    *
-   * @param initialCapacity the initial capacity.
+   * @param initial the initial capacity.
    */
-  public FastBinaryMinHeap(int initialCapacity) {
-    this.heap = new Object[++initialCapacity];
-    this.weights = new long[initialCapacity];
+  public FastBinaryMinHeap(final int initial) {
+    var cap = initial;
+    this.heap = new Object[++cap];
+    this.weights = new long[cap];
     Arrays.fill(this.weights, Long.MAX_VALUE);
     this.weights[0] = Long.MIN_VALUE;
   }
@@ -107,18 +107,18 @@ public final class FastBinaryMinHeap<E> {
         }
       }
     }
-    if (optimized) {
-      Arrays.stream(elements).forEach(element -> {
-        Objects.requireNonNull(element, "element");
-        this.heap[++this.size] = element;
-        this.weights[this.size] = weight;
-      });
-    } else {
+    if (!optimized) {
       Arrays.stream(elements).forEach(element -> {
         Objects.requireNonNull(element, "element");
         this.insert0(weight, element);
       });
+      return;
     }
+    Arrays.stream(elements).forEach(element -> {
+      Objects.requireNonNull(element, "element");
+      this.heap[++this.size] = element;
+      this.weights[this.size] = weight;
+    });
   }
 
   /**
@@ -128,15 +128,6 @@ public final class FastBinaryMinHeap<E> {
    */
   public boolean isEmpty() {
     return this.size == 0;
-  }
-
-  /**
-   * checks if binary not empty.
-   *
-   * @return true if binary not empty.
-   */
-  public boolean isNotEmpty() {
-    return !this.isEmpty();
   }
 
   /**
@@ -157,12 +148,12 @@ public final class FastBinaryMinHeap<E> {
    */
   @Nullable
   public E poll() {
-    if (this.size > 0) {
-      final var e = this.peek();
-      this.remove();
-      return e;
+    if (this.size <= 0) {
+      return null;
     }
-    return null;
+    final var e = this.peek();
+    this.remove();
+    return e;
   }
 
   /**

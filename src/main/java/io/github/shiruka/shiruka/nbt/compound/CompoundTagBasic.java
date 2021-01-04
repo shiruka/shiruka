@@ -31,11 +31,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.cactoos.map.MapEnvelope;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link CompoundTag} and {@link MapEnvelope}.
+ * an implementation for {@link CompoundTag}.
  */
 public final class CompoundTagBasic implements CompoundTag {
 

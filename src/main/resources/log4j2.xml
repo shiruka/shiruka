@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO" packages="net.minecrell.terminalconsole">
+<Configuration status="INFO">
   <Appenders>
     <TerminalConsole name="TerminalConsole">
-      <PatternLayout
-        pattern="%highlight{[%d{HH:mm:ss} %level] [%logger]: %minecraftFormatting{%msg}%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=normal, DEBUG=teal}"/>
+      <PatternLayout pattern="%highlight{[%d{HH:mm:ss} %level]: %minecraftFormatting{%msg}%n%xEx}"/>
     </TerminalConsole>
     <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
       <PatternLayout pattern="[%d{yyy-MM-dd HH:mm:ss} %level] [%logger] %msg%n"/>

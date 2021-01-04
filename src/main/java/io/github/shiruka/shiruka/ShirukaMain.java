@@ -84,6 +84,9 @@ public final class ShirukaMain {
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
+    System.setProperty("terminal.keepMinecraftFormatting", "true");
+    System.setProperty("terminal.ansi", "true");
+    System.setProperty("terminal.jline", "true");
     final var parsed = ShirukaConsoleParser.parse(args);
     if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
       ShirukaConsoleParser.printHelpOn();
@@ -101,7 +104,6 @@ public final class ShirukaMain {
         .setLevel(Level.DEBUG);
       context.updateLoggers();
     }
-    AnsiConsole.systemInstall();
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
       ShirukaMain.LOGGER.warn("Cannot run server in a directory with ! or + in the pathname.");

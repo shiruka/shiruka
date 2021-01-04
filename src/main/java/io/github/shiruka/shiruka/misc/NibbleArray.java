@@ -38,7 +38,7 @@ public final class NibbleArray {
   /**
    * 8 bytes compressed into one long to represent 16 nibbles.
    */
-  public static final int BYTES_PER_LONG = 8;
+  private static final int BYTES_PER_LONG = 8;
 
   /**
    * the array of nibbles.
@@ -164,7 +164,7 @@ public final class NibbleArray {
     final var nibblePosition = position / 2;
     final var spliceIndex = nibblePosition >> 3;
     final var shift = nibblePosition % NibbleArray.BYTES_PER_LONG << 3;
-    long oldSpice; // easter egg (play Old Spice theme)
+    long oldSpice;
     long newSplice;
     if ((position & 1) == 0) {
       do {
@@ -191,14 +191,14 @@ public final class NibbleArray {
    */
   public void write(@NotNull final ByteBuf buf) {
     final var len = this.nibbles.length();
-    for (var i = 0; i < len; i++) {
-      final var l = this.nibbles.get(i);
-      for (var shift = 0; shift < 64; shift += 8) {
-        final var shifted = l >> shift;
-        final var b = (byte) (shifted & 0xFF);
-        buf.writeByte(b);
-      }
-    }
+    IntStream.range(0, len)
+      .mapToLong(this.nibbles::get)
+      .forEach(l -> IntStream.iterate(0, shift -> shift < 64, shift -> shift + 8)
+        .mapToLong(shift -> l >> shift)
+        .forEach(shifted -> {
+          final var b = (byte) (shifted & 0xFF);
+          buf.writeByte(b);
+        }));
   }
 
   /**
@@ -209,7 +209,7 @@ public final class NibbleArray {
   public byte[] write() {
     final var bytes = new byte[this.nibbles.length() * NibbleArray.BYTES_PER_LONG];
     final var len = this.nibbles.length();
-    for (int i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       final var l = this.nibbles.get(i);
       var offset = 0;
       for (var shift = 0; shift < 64; shift += 8, offset++) {

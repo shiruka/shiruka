@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,9 +42,7 @@ public interface ArrayTag<T> extends PrimitiveTag<T> {
    * @param length the length to check.
    */
   static void checkIndex(final int index, final int length) {
-    if (index < 0 || index >= length) {
-      throw new IndexOutOfBoundsException("Index out of bounds: " + index);
-    }
+    Preconditions.checkElementIndex(index, length, String.format("Index out of bounds: %s", index));
   }
 
   @Override

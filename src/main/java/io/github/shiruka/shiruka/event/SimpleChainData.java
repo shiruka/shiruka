@@ -406,9 +406,7 @@ public final class SimpleChainData implements LoginDataEvent.ChainData {
       }
       final var payload = jws.getPayload().toJSONObject();
       final var base64key = payload.get(SimpleChainData.IDENTITY_PUBLIC_KEY);
-      if (!(base64key instanceof String)) {
-        throw new IllegalStateException("No key found");
-      }
+      Preconditions.checkState(base64key instanceof String, "No key found");
       lastKey = SimpleChainData.generateKey((String) base64key);
     }
     return mojangKeyVerified;

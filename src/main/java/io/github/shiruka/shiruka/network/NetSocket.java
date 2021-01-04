@@ -24,6 +24,7 @@
  */
 package io.github.shiruka.shiruka.network;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -124,9 +125,7 @@ public abstract class NetSocket implements Socket {
   @NotNull
   @Override
   public final CompletableFuture<Void> bind() {
-    if (!this.running.compareAndSet(false, true)) {
-      throw new IllegalStateException("NetSocket has already been started");
-    }
+    Preconditions.checkState(this.running.compareAndSet(false, true), "NetSocket has already been started");
     return this.exec()
       .whenComplete((unused, throwable) -> {
         if (throwable != null) {

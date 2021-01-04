@@ -25,9 +25,9 @@
 
 package io.github.shiruka.shiruka.network.misc;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.util.Misc;
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -169,9 +169,7 @@ public final class FastBinaryMinHeap<E> {
    * removes the next object.
    */
   public void remove() {
-    if (this.size == 0) {
-      throw new NoSuchElementException("Heap is empty");
-    }
+    Preconditions.checkState(this.size != 0, "Heap is empty");
     var hole = 1;
     var success = 2;
     final var sz = this.size;

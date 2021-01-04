@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt.list;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.nbt.ListTag;
 import io.github.shiruka.shiruka.nbt.Tag;
 import java.util.*;
@@ -74,9 +75,7 @@ public final class ListTagBasic implements ListTag {
    * @throws IllegalArgumentException if the given tag's id not equals to the given id.
    */
   private static void mustBeSameType(@NotNull final Tag tag, final byte id) {
-    if (tag.id() != id) {
-      throw new IllegalArgumentException(String.format("Trying to add tag of type %s to list of %s", tag.id(), id));
-    }
+    Preconditions.checkArgument(tag.id() == id, "Trying to add tag of type %s to list of %s", tag.id(), id);
   }
 
   /**
@@ -87,9 +86,7 @@ public final class ListTagBasic implements ListTag {
    * @throws IllegalArgumentException if the given tag's id equals to the end id.
    */
   private static void noAddEnd(@NotNull final Tag tag) {
-    if (tag.id() == Tag.END.id()) {
-      throw new IllegalArgumentException(String.format("Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id()));
-    }
+    Preconditions.checkArgument(tag.id() != Tag.END.id(), "Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id());
   }
 
   @Override

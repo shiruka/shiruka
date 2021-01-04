@@ -66,9 +66,9 @@
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>org/apache/logging/**</exclude>
-                  </excludes>
+                  <includes>
+                    <include>org/apache/logging/**</include>
+                  </includes>
                 </filter>
               </filters>
               <createDependencyReducedPom>false</createDependencyReducedPom>

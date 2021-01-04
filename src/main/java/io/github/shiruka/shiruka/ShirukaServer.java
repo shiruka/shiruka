@@ -224,13 +224,6 @@ public final class ShirukaServer implements Server {
     ShirukaServer.reloadPacks();
     this.running.set(true);
     ShirukaServer.LOGGER.info("§eLoading plugins.");
-    Shiruka.getScheduler().schedule(() -> {
-      final var atom = new AtomicLong();
-      for (var index = 0; index < 10000; index++) {
-        atom.incrementAndGet();
-      }
-      ShirukaServer.LOGGER.info(String.valueOf(atom.get()));
-    }, 1, TimeUnit.SECONDS);
     // @todo #1:60m Load plugins here.
     ShirukaServer.LOGGER.info("§eEnabling plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.

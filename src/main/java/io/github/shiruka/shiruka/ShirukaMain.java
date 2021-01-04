@@ -177,7 +177,7 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
-    ShirukaMain.LOGGER.info("Shiru ka is starting.");
+    ShirukaMain.LOGGER.error("Shiru ka is starting.");
     final var start = System.currentTimeMillis();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);

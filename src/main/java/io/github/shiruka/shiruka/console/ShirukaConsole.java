@@ -27,27 +27,23 @@ package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.shiruka.log.AaTerminalConsole;
-import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import java.nio.file.Paths;
+import net.minecrell.terminalconsole.SimpleTerminalConsole;
 import org.jetbrains.annotations.NotNull;
-import org.jline.reader.*;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.DefaultParser;
 
 /**
  * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
-public final class ShirukaConsole extends Thread {
+public final class ShirukaConsole extends SimpleTerminalConsole {
 
   /**
    * the parser.
    */
   private static final DefaultParser PARSER = new DefaultParser();
-
-  /**
-   * the prompt.
-   */
-  private static final String PROMPT = ">";
 
   /**
    * the console command completer;
@@ -68,7 +64,6 @@ public final class ShirukaConsole extends Thread {
    * @param completer the completer.
    */
   public ShirukaConsole(@NotNull final Completer completer, @NotNull final Server server) {
-    super("Console");
     this.completer = completer;
     this.server = server;
   }
@@ -82,39 +77,29 @@ public final class ShirukaConsole extends Thread {
     this(new ConsoleCommandCompleter(server), server);
   }
 
-  /**
-   * starts the reading inputs.
-   */
   @Override
-  public void run() {
-    try {
-      final var reader = LineReaderBuilder.builder()
-        .appName("Shiru ka")
-        .terminal(AaTerminalConsole.getTerminal())
-        .completer(this.completer)
-        .parser(ShirukaConsole.PARSER)
-        .variable(LineReader.LIST_MAX, 50)
-        .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
-        .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
-        .option(LineReader.Option.INSERT_TAB, false)
-        .option(LineReader.Option.BRACKETED_PASTE, false)
-        .build();
-      String line;
-      while (!this.server.isInShutdownState()) {
-        try {
-          line = reader.readLine(ShirukaConsole.PROMPT);
-        } catch (final EndOfFileException ignored) {
-          continue;
-        }
-        if (line == null) {
-          break;
-        }
-        Shiruka.getCommandManager().execute(line);
-      }
-    } catch (final UserInterruptException e) {
-      this.server.stopServer();
-    } catch (final Exception e) {
-      JiraExceptionCatcher.serverException(e);
-    }
+  protected boolean isRunning() {
+    return this.server.isRunning();
+  }
+
+  @Override
+  protected void runCommand(@NotNull final String command) {
+    Shiruka.getCommandManager().execute(command);
+  }
+
+  @Override
+  protected void shutdown() {
+    this.server.stopServer();
+  }
+
+  @Override
+  protected LineReader buildReader(final LineReaderBuilder builder) {
+    return super.buildReader(builder
+      .appName("Shiru ka")
+      .completer(this.completer)
+      .parser(ShirukaConsole.PARSER)
+      .variable(LineReader.LIST_MAX, 50)
+      .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
+      .option(LineReader.Option.BRACKETED_PASTE, false));
   }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO" packages="io.github.shiruka.shiruka.log">
+<Configuration status="INFO" packages="net.minecrell.terminalconsole">
   <Appenders>
     <TerminalConsole name="Console">
       <PatternLayout

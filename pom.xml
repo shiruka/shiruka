@@ -65,9 +65,9 @@
               <minimizeJar>true</minimizeJar>
               <filters>
                 <filter>
-                  <artifact>*:*</artifact>
+                  <artifact>org.apache.logging.log4j:*</artifact>
                   <includes>
-                    <include>org/apache/logging/**</include>
+                    <include>**</include>
                   </includes>
                 </filter>
               </filters>

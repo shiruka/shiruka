@@ -31,11 +31,10 @@ import io.github.shiruka.shiruka.nbt.Tag;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import org.cactoos.list.ListEnvelope;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link ListTag} and {@link ListEnvelope}.
+ * an implementation for {@link ListTag}.
  */
 public final class ListTagBasic implements ListTag {
 

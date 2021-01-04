@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.OpsConfig;
 import io.github.shiruka.shiruka.config.ServerConfig;
@@ -35,7 +34,7 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
-import io.github.shiruka.shiruka.world.anvil.AnvilWorldLoader;
+import io.github.shiruka.shiruka.world.WorldType;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -115,24 +114,6 @@ public final class ShirukaMain {
   }
 
   /**
-   * creates a new instance of {@link WorldLoader} from the given world type string.
-   *
-   * @param worldType the world type to create.
-   *
-   * @return a new {@link WorldLoader} instance.
-   *
-   * @todo #1:15m create a WorldType class to move this method.
-   */
-  @NotNull
-  private static WorldLoader createWorldType(@NotNull final String worldType) {
-    if (worldType.equalsIgnoreCase("anvil")) {
-      return new AnvilWorldLoader();
-    }
-    throw new IllegalStateException(String.format("The given world type called %s is not supported!",
-      worldType));
-  }
-
-  /**
    * creates and returns the server file/d.
    *
    * @param file the file to create.
@@ -209,7 +190,7 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
     final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
     final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
-    final var server = new ShirukaServer(description, ShirukaMain.createWorldType(worldType),
+    final var server = new ShirukaServer(description, WorldType.fromType(worldType).create(),
       listener -> NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer),
       ShirukaConsole::new);
     Shiruka.setServer(server);

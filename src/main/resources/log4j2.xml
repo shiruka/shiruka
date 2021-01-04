@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO" packages="net.minecrell.terminalconsole">
   <Appenders>
-    <TerminalConsole name="Console">
+    <TerminalConsole name="TerminalConsole">
       <PatternLayout
-        pattern="%highlight{%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %minecraftFormatting{%msg}%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=normal, DEBUG=teal}"/>
+        pattern="%highlight{%d{HH:mm:ss} %level [%logger]: %minecraftFormatting{%msg}%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=normal, DEBUG=teal}"/>
     </TerminalConsole>
     <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
-      <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+      <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss} %level [%logger] %msg%n"/>
       <Policies>
         <TimeBasedTriggeringPolicy/>
         <OnStartupTriggeringPolicy/>
@@ -17,7 +17,7 @@
     <logger name="io.netty" level="ERROR"/>
     <Root level="INFO">
       <AppenderRef ref="File"/>
-      <AppenderRef ref="Console"/>
+      <AppenderRef ref="TerminalConsole"/>
     </Root>
   </Loggers>
 </Configuration>

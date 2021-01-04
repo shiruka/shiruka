@@ -232,9 +232,9 @@ public final class ShirukaServer implements Server {
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
-    ShirukaServer.LOGGER.info("§aDone, took {}ms.", end);
     new Thread(this.console::start).start();
-    this.tick.start();
+    ShirukaServer.LOGGER.info("§aDone, took {}ms.", end);
+    this.tick.run();
   }
 
   @Override

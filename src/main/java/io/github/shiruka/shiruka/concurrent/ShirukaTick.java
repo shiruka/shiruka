@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * a class that represents the server heartbeat pulse called "tick" which occurs every 1/20th of a second.
  */
-public final class ShirukaTick extends Thread {
+public final class ShirukaTick implements Runnable {
 
   /**
    * the logger.
@@ -60,7 +60,6 @@ public final class ShirukaTick extends Thread {
    * @param server the server.
    */
   public ShirukaTick(@NotNull final Server server) {
-    super("Tick");
     this.server = server;
   }
 

@@ -196,5 +196,10 @@
       <artifactId>terminalconsoleappender</artifactId>
       <version>1.2.0</version>
     </dependency>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+      <version>3.4.2</version>
+    </dependency>
   </dependencies>
 </project>

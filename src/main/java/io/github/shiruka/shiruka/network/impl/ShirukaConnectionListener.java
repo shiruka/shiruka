@@ -30,7 +30,6 @@ import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.DisconnectReason;
-import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.protocol.Protocol;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
@@ -102,11 +101,7 @@ public final class ShirukaConnectionListener implements ConnectionListener {
    * @param buf the buf to handle.
    */
   private void onWrappedPacket(@NotNull final ByteBuf buf) {
-    try {
-      buf.markReaderIndex();
-      Protocol.deserialize(buf, this.player);
-    } catch (final PacketSerializeException e) {
-      ShirukaConnectionListener.LOGGER.warn("Error whilst decoding packets", e);
-    }
+    buf.markReaderIndex();
+    Protocol.deserialize(buf, this.player);
   }
 }

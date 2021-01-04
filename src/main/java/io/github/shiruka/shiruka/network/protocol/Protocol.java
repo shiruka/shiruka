@@ -28,7 +28,6 @@ package io.github.shiruka.shiruka.network.protocol;
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
-import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.packet.PacketRegistry;
@@ -85,7 +84,7 @@ public final class Protocol {
           Preconditions.checkArgument(cls != null, "Packet with %s not found!", packetId);
           final var packet = PacketRegistry.makeIn(cls);
           packet.read(packetBuffer, player);
-        } catch (final PacketSerializeException | InvocationTargetException | InstantiationException |
+        } catch (final InvocationTargetException | InstantiationException |
           IllegalAccessException e) {
           Protocol.LOGGER.debug("Error occurred whilst decoding packet", e);
           Protocol.LOGGER.debug("Packet contents\n{}", ByteBufUtil.prettyHexDump(packetBuffer.readerIndex(0)));
@@ -114,8 +113,6 @@ public final class Protocol {
           packet.write(packetBuffer);
           VarInts.writeUnsignedInt(uncompressed, packetBuffer.readableBytes());
           uncompressed.writeBytes(packetBuffer);
-        } catch (final PacketSerializeException e) {
-          Protocol.LOGGER.debug("Error occurred whilst encoding " + packet.getClass().getSimpleName(), e);
         } finally {
           packetBuffer.release();
         }

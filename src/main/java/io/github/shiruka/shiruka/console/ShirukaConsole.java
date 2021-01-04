@@ -84,7 +84,8 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
 
   @Override
   protected void runCommand(@NotNull final String command) {
-    Shiruka.getCommandManager().execute(command);
+    Shiruka.getScheduler().schedule(() ->
+      Shiruka.getCommandManager().execute(command));
   }
 
   @Override

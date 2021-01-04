@@ -111,6 +111,12 @@ public final class ShirukaServer implements Server {
   private final WorldLoader loader;
 
   /**
+   * the main thread.
+   */
+  @NotNull
+  private final Thread mainThread;
+
+  /**
    * if the server is running.
    */
   private final AtomicBoolean running = new AtomicBoolean(true);
@@ -147,6 +153,7 @@ public final class ShirukaServer implements Server {
     this.loader = loader;
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.console = console.apply(this);
+    this.mainThread = Thread.currentThread();
   }
 
   /**
@@ -216,17 +223,16 @@ public final class ShirukaServer implements Server {
     this.registerImplementations();
     ShirukaServer.reloadPacks();
     this.running.set(true);
-    this.tick.start();
     ShirukaServer.LOGGER.info("§eLoading plugins.");
     Shiruka.getScheduler().schedule(() -> {
       final var atom = new AtomicLong();
       for (var index = 0; index < 10000; index++) {
         atom.incrementAndGet();
       }
-      System.out.println(atom.get());
-    });
+      ShirukaServer.LOGGER.info(String.valueOf(atom.get()));
+    }, 1, TimeUnit.SECONDS);
     // @todo #1:60m Load plugins here.
-    ShirukaServer.LOGGER.info("§eEnabling startup plugins before the loading worlds.");
+    ShirukaServer.LOGGER.info("§eEnabling plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     ShirukaServer.LOGGER.info("§eLoading worlds.");
     this.loader.loadAll();
@@ -234,7 +240,8 @@ public final class ShirukaServer implements Server {
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
     ShirukaServer.LOGGER.info("§aDone, took {}ms.", end);
-    this.console.start();
+    new Thread(this.console::start).start();
+    this.tick.start();
   }
 
   @Override

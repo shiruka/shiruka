@@ -119,6 +119,17 @@
       <groupId>org.jline</groupId>
       <artifactId>jline-console</artifactId>
       <version>3.18.0</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jline-reader</artifactId>
+          <groupId>org.jline</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jline</groupId>
+      <artifactId>jline-reader</artifactId>
+      <version>3.18.0</version>
     </dependency>
     <dependency>
       <groupId>org.jline</groupId>
@@ -195,6 +206,20 @@
       <groupId>net.minecrell</groupId>
       <artifactId>terminalconsoleappender</artifactId>
       <version>1.2.0</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jline-terminal</artifactId>
+          <groupId>org.jline</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>log4j-core</artifactId>
+          <groupId>org.apache.logging.log4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jline-reader</artifactId>
+          <groupId>org.jline</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.lmax</groupId>

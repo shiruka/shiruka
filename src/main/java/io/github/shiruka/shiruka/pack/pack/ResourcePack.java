@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.pack.pack;
 
-import com.google.errorprone.annotations.concurrent.LazyInit;
 import io.github.shiruka.api.pack.Pack;
 import io.github.shiruka.api.pack.PackLoader;
 import io.github.shiruka.api.pack.PackManifest;
@@ -59,7 +58,6 @@ public final class ResourcePack implements Pack {
   /**
    * the hash.
    */
-  @LazyInit
   private byte[] hash;
 
   /**

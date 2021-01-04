@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.world.anvil;
 
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.api.world.options.WorldCreateSpec;
@@ -39,11 +38,18 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a class that loads Shiru ka's worlds.
  */
 public final class AnvilWorldLoader extends ShirukaWorldLoader {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("AnvilWorldLoader");
 
   @NotNull
   @Override
@@ -52,11 +58,11 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
       if (v != null) {
         throw new IllegalArgumentException("World \"" + name + "\" already exists!");
       }
-      Loggers.log("Creating world \"%s\".", name);
+      AnvilWorldLoader.LOGGER.info("Creating world \"{}\".", name);
       final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
       world.loadSpawnChunks();
       world.save();
-      Loggers.log("Finished creating \"%s\".", name);
+      AnvilWorldLoader.LOGGER.info("Finished creating \"{}\".", name);
       return world;
     });
   }
@@ -95,11 +101,11 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   @NotNull
   @Override
   public World load(@NotNull final String name, @NotNull final Path directory, @NotNull final Dimension dimension) {
-    Loggers.log("Loading world \"%s\".", name);
+    AnvilWorldLoader.LOGGER.info("Loading world \"{}\".", name);
     final var world = new AnvilWorld(name, directory, dimension);
     world.loadSpawnChunks();
     this.worlds.put(name, world);
-    Loggers.log("Finished loading \"%s\".", name);
+    AnvilWorldLoader.LOGGER.info("Finished loading \"{}\".", name);
     return world;
   }
 

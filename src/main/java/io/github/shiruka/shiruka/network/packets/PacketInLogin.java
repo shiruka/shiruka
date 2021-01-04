@@ -27,9 +27,6 @@ package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.chat.ChatColor;
-import io.github.shiruka.shiruka.ShirukaServer;
-import io.github.shiruka.shiruka.concurrent.PoolSpec;
-import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.event.SimpleChainData;
@@ -40,7 +37,6 @@ import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,8 +44,6 @@ import org.jetbrains.annotations.NotNull;
  * a packet that sends by clients to request a login process.
  */
 public final class PacketInLogin extends PacketIn {
-
-  public static final @NotNull ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
 
   /**
    * the name pattern to check client's usernames.
@@ -82,44 +76,42 @@ public final class PacketInLogin extends PacketIn {
       connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD));
       return;
     }
-    final var plugin = ShirukaServer.INTERNAL_PLUGIN;
     final var scheduler = Shiruka.getScheduler();
-    CompletableFuture.supplyAsync(() -> SimpleChainData.create(encodedChainData, encodedSkinData), PacketInLogin.POOL)
-      .whenComplete((chainData, throwable) ->
-        scheduler.run(plugin, () -> {
-          if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
-            player.disconnect("disconnectionScreen.notAuthenticated");
-            return;
-          }
-          final var username = chainData.username();
-          final var matcher = PacketInLogin.NAME_PATTERN.matcher(username);
-          if (!matcher.matches() ||
-            username.equalsIgnoreCase("rcon") ||
-            username.equalsIgnoreCase("console")) {
-            player.disconnect("disconnectionScreen.invalidName");
-            return;
-          }
-          if (!chainData.skin().isValid()) {
-            player.disconnect("disconnectionScreen.invalidSkin");
-            return;
-          }
-          final var loginData = new SimpleLoginData(chainData, player, ChatColor.clean(username));
-          player.setLatestLoginData(loginData);
-          final var eventFactory = Shiruka.getEventFactory();
-          final var preLogin = eventFactory.playerPreLogin(loginData, "Some reason.");
-          eventFactory.call(preLogin);
-          if (preLogin.cancelled()) {
-            player.disconnect(preLogin.kickMessage());
-            return;
-          }
-          connection.setState(PlayerConnection.State.STATUS);
-          final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
-          loginData.setAsyncLogin(asyncLogin);
-          CompletableFuture.runAsync(asyncLogin::callEvent, PacketInLogin.POOL)
-            .whenComplete((unused, throwable1) ->
-              scheduler.run(plugin, loginData::initializePlayer));
-          connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
-          Shiruka.getPackManager().sendPackInfo(player);
-        }));
+    player.getServer().getSchedulerService().execute(() -> {
+      final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
+      scheduler.schedule(() -> {
+        if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
+          player.disconnect("disconnectionScreen.notAuthenticated");
+          return;
+        }
+        final var username = chainData.username();
+        final var matcher = PacketInLogin.NAME_PATTERN.matcher(username);
+        if (!matcher.matches() ||
+          username.equalsIgnoreCase("rcon") ||
+          username.equalsIgnoreCase("console")) {
+          player.disconnect("disconnectionScreen.invalidName");
+          return;
+        }
+        if (!chainData.skin().isValid()) {
+          player.disconnect("disconnectionScreen.invalidSkin");
+          return;
+        }
+        final var loginData = new SimpleLoginData(chainData, player, ChatColor.clean(username));
+        player.setLatestLoginData(loginData);
+        final var eventFactory = Shiruka.getEventFactory();
+        final var preLogin = eventFactory.playerPreLogin(loginData, "Some reason.");
+        eventFactory.call(preLogin);
+        if (preLogin.cancelled()) {
+          player.disconnect(preLogin.kickMessage());
+          return;
+        }
+        connection.setState(PlayerConnection.State.STATUS);
+        final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
+        loginData.setAsyncLogin(asyncLogin);
+        player.getServer().getSchedulerService().execute(asyncLogin::callEvent);
+        connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
+        Shiruka.getPackManager().sendPackInfo(player);
+      });
+    });
   }
 }

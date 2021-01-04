@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.pack.loader;
 
-import com.google.errorprone.annotations.concurrent.LazyInit;
 import io.github.shiruka.api.pack.PackLoader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,7 +67,6 @@ public final class RplDirectory implements PackLoader {
    * the prepared file.
    */
   @Nullable
-  @LazyInit
   private CompletableFuture<Path> preparedFile;
 
   /**

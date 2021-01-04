@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.misc.IntRange;
 import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
@@ -57,11 +56,18 @@ import java.util.stream.IntStream;
 import java.util.zip.Deflater;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a class that provides you to manage the connection.
  */
 public abstract class NetConnection<S extends Socket> implements Connection<S> {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("NetConnection");
 
   /**
    * connection's address.
@@ -253,7 +259,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
     this.eventLoop.execute(() -> {
       this.setState(ConnectionState.UNCONNECTED);
       this.connectionHandler.onClose();
-      Loggers.debug("Connection (%s => %s) closed: %s", this.socket.getAddress(), this.address, reason);
+      NetConnection.LOGGER.debug("Connection ({} => {}) closed: {}", this.socket.getAddress(), this.address, reason);
       this.reset();
       this.getConnectionListener().ifPresent(listener ->
         listener.onDisconnect(reason));
@@ -689,7 +695,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
       Protocol.serialize(compressed, packets, this.getCompressionLevel());
       this.sendWrapped(compressed);
     } catch (final Exception e) {
-      Loggers.error("Unable to compress packets", e);
+      NetConnection.LOGGER.error("Unable to compress packets", e);
     } finally {
       if (compressed != null) {
         compressed.release();
@@ -753,7 +759,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
           if (datagram == null) {
             continue;
           }
-          Loggers.error("NACKed datagram %s from %s", datagram.getSequenceIndex(), this.address);
+          NetConnection.LOGGER.error("NACKed datagram {} from {}", datagram.getSequenceIndex(), this.address);
           this.sendDatagram(datagram, now);
         }
       }
@@ -793,7 +799,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
         if (!hasResent) {
           hasResent = true;
         }
-        Loggers.error("Stale datagram %s from %s", datagram.getSequenceIndex(), this.address);
+        NetConnection.LOGGER.error("Stale datagram {} from {}", datagram.getSequenceIndex(), this.address);
         this.sendDatagram(datagram, now);
       }
       if (hasResent) {

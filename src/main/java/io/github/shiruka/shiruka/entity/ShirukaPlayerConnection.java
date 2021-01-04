@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.entity;
 
-import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
@@ -76,7 +75,7 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
 
   @NotNull
   @Override
-  public Server getServer() {
+  public ShirukaServer getServer() {
     return this.server;
   }
 

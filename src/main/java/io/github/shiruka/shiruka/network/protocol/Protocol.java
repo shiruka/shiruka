@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
@@ -41,6 +40,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.zip.DataFormatException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a class that serializes and deserializes packets.
@@ -48,6 +49,11 @@ import org.jetbrains.annotations.NotNull;
  * @todo #1:5m Add JavaDocs.
  */
 public final class Protocol {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("Protocol");
 
   /**
    * the zlib.
@@ -73,7 +79,7 @@ public final class Protocol {
         try {
           final var header = VarInts.readUnsignedVarInt(packetBuffer);
           final var packetId = header & 0x3ff;
-          Loggers.debug("Incoming packet id -> %s", packetId);
+          Protocol.LOGGER.debug("Incoming packet id -> {}", packetId);
           final var cls = PacketRegistry.byId(player.getPlayerConnection().getState(),
             PacketBound.SERVER, packetId);
           Preconditions.checkArgument(cls != null, "Packet with %s not found!", packetId);
@@ -81,8 +87,8 @@ public final class Protocol {
           packet.read(packetBuffer, player);
         } catch (final PacketSerializeException | InvocationTargetException | InstantiationException |
           IllegalAccessException e) {
-          Loggers.debug("Error occurred whilst decoding packet", e);
-          Loggers.debug("Packet contents\n{}", ByteBufUtil.prettyHexDump(packetBuffer.readerIndex(0)));
+          Protocol.LOGGER.debug("Error occurred whilst decoding packet", e);
+          Protocol.LOGGER.debug("Packet contents\n{}", ByteBufUtil.prettyHexDump(packetBuffer.readerIndex(0)));
         }
       }
     } catch (final DataFormatException e) {
@@ -109,7 +115,7 @@ public final class Protocol {
           VarInts.writeUnsignedInt(uncompressed, packetBuffer.readableBytes());
           uncompressed.writeBytes(packetBuffer);
         } catch (final PacketSerializeException e) {
-          Loggers.debug("Error occurred whilst encoding " + packet.getClass().getSimpleName(), e);
+          Protocol.LOGGER.debug("Error occurred whilst encoding " + packet.getClass().getSimpleName(), e);
         } finally {
           packetBuffer.release();
         }

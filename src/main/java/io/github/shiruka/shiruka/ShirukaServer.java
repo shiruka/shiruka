@@ -25,17 +25,19 @@
 
 package io.github.shiruka.shiruka;
 
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.console.ConsoleCommandSender;
 import io.github.shiruka.api.events.EventFactory;
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.pack.PackManager;
 import io.github.shiruka.api.pack.PackManifest;
 import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
+import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
@@ -49,7 +51,6 @@ import io.github.shiruka.shiruka.pack.SimplePackManager;
 import io.github.shiruka.shiruka.pack.loader.RplDirectory;
 import io.github.shiruka.shiruka.pack.loader.RplZip;
 import io.github.shiruka.shiruka.pack.pack.ResourcePack;
-import io.github.shiruka.shiruka.plugin.InternalPlugin;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,10 +58,13 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * an implementation for {@link Server}.
@@ -68,14 +72,14 @@ import org.jetbrains.annotations.NotNull;
 public final class ShirukaServer implements Server {
 
   /**
-   * the internal plugin.
-   */
-  public static final InternalPlugin INTERNAL_PLUGIN = new InternalPlugin();
-
-  /**
    * obtains the Shiru ka server's version
    */
   public static final String VERSION = "1.0.0";
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaServer");
 
   /**
    * the packs path.
@@ -111,6 +115,12 @@ public final class ShirukaServer implements Server {
   private final AtomicBoolean running = new AtomicBoolean(true);
 
   /**
+   * the scheduler service.
+   */
+  private final ListeningScheduledExecutorService schedulerService = MoreExecutors.listeningDecorator(
+    Executors.newScheduledThreadPool(4, PoolSpec.SCHEDULER));
+
+  /**
    * the socket.
    */
   @NotNull
@@ -142,7 +152,7 @@ public final class ShirukaServer implements Server {
    * reloads packs.
    */
   private static void reloadPacks() {
-    Loggers.debug("Reloading packs.");
+    ShirukaServer.LOGGER.debug("Reloading packs.");
     final var manager = Shiruka.getPackManager();
     manager.registerLoader(RplZip.class, RplZip.FACTORY);
     manager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
@@ -205,16 +215,16 @@ public final class ShirukaServer implements Server {
     this.registerImplementations();
     ShirukaServer.reloadPacks();
     this.running.set(true);
-    Loggers.log("Loading plugins.");
+    ShirukaServer.LOGGER.info("Loading plugins.");
     // @todo #1:60m Load plugins here.
-    Loggers.log("Enabling startup plugins before the loading worlds.");
+    ShirukaServer.LOGGER.info("Enabling startup plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
-    Loggers.log("Loading worlds.");
+    ShirukaServer.LOGGER.info("Loading worlds.");
     this.loader.loadAll();
-    Loggers.log("Enabling plugins after the loading worlds.");
+    ShirukaServer.LOGGER.info("Enabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
-    Loggers.log("Done, took %sms.", end);
+    ShirukaServer.LOGGER.info("Done, took {}ms.", end);
     this.console.start();
     this.tick.run();
   }
@@ -228,6 +238,19 @@ public final class ShirukaServer implements Server {
       e.printStackTrace();
     }
     ServerThreadPool.shutdownAll();
+    var wait = 50;
+    this.schedulerService.shutdown();
+    while (!this.schedulerService.isTerminated() && wait-- > 0) {
+      try {
+        this.schedulerService.awaitTermination(100, TimeUnit.MILLISECONDS);
+      } catch (final InterruptedException ignored) {
+      }
+    }
+    if (wait <= 0) {
+      final var remainRunning = this.schedulerService.shutdownNow();
+      remainRunning.forEach(runnable ->
+        ShirukaServer.LOGGER.warn("Runnable {} has been terminated due to shutdown", runnable.getClass().getName()));
+    }
     System.exit(0);
   }
 
@@ -237,13 +260,23 @@ public final class ShirukaServer implements Server {
   }
 
   /**
+   * obtains the scheduler service.
+   *
+   * @return scheduler service.
+   */
+  @NotNull
+  public ListeningScheduledExecutorService getSchedulerService() {
+    return this.schedulerService;
+  }
+
+  /**
    * registers the implementation of the interfaces which are singleton.
    */
   private void registerImplementations() {
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventFactory.class, new SimpleEventFactory());
-    this.registerInterface(Scheduler.class, new SimpleScheduler());
+    this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
     this.registerInterface(PackManager.class, new SimplePackManager());
   }
 }

@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.util;
 
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.Socket;
@@ -44,6 +43,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a class that contains packet constants and utility methods..
@@ -91,6 +92,11 @@ public final class Packets {
   public static final short USER_PACKET_ENUM = 0x80;
 
   private static final byte AF_INET6 = 23;
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("Packets");
 
   /**
    * ctor.
@@ -453,11 +459,11 @@ public final class Packets {
                                                    @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(16)) {
-      Loggers.error("Invalid packet content for unconnected ping.");
+      Packets.LOGGER.error("Invalid packet content for unconnected ping.");
       return;
     }
     if (!Packets.verifyUnconnectedMagic(content)) {
-      Loggers.error("Invalid magic number for unconnected ping.");
+      Packets.LOGGER.error("Invalid magic number for unconnected ping.");
       return;
     }
     final var protocolVersion = content.readUnsignedByte();
@@ -466,26 +472,26 @@ public final class Packets {
     final var recipient = packet.sender();
     final var connection = server.getConnectionsByAddress().get(recipient);
     if (connection != null && connection.getState() == ConnectionState.CONNECTED) {
-      Loggers.error("%s is already connected!", recipient);
-      Loggers.debug("Sending already connected packet.");
+      Packets.LOGGER.error("{} is already connected!", recipient);
+      Packets.LOGGER.debug("Sending already connected packet.");
       Packets.sendAlreadyConnected(ctx, server, recipient);
       return;
     }
     if (Constants.MOJANG_PROTOCOL_VERSION != protocolVersion) {
-      Loggers.error("Incompatible protocol version from %s!", recipient);
-      Loggers.debug("Sending incompatible protocol version packet.");
+      Packets.LOGGER.error("Incompatible protocol version from {}!", recipient);
+      Packets.LOGGER.debug("Sending incompatible protocol version packet.");
       Packets.sendIncompatibleProtocolVersion(ctx, server, recipient);
       return;
     }
     if (server.getMaxConnections() >= 0 && server.getMaxConnections() <= server.getConnectionsByAddress().size()) {
-      Loggers.error("Reached Maximum connection size!");
-      Loggers.debug("Sending maximum connection packet.");
+      Packets.LOGGER.error("Reached Maximum connection size!");
+      Packets.LOGGER.debug("Sending maximum connection packet.");
       Packets.sendMaximumConnection(ctx, server, recipient);
       return;
     }
     if (!server.getServerListener().onConnect(recipient)) {
-      Loggers.error("%s can't connect to the server!", recipient);
-      Loggers.debug("Sending connection banned packet.");
+      Packets.LOGGER.error("{} can't connect to the server!", recipient);
+      Packets.LOGGER.debug("Sending connection banned packet.");
       Packets.sendConnectedBanned(ctx, server, recipient);
       return;
     }
@@ -508,12 +514,12 @@ public final class Packets {
                                             @NotNull final DatagramPacket packet) {
     final var content = packet.content();
     if (!content.isReadable(24)) {
-      Loggers.error("Invalid packet content for unconnected ping.");
+      Packets.LOGGER.error("Invalid packet content for unconnected ping.");
       return;
     }
     final var pingTime = content.readLong();
     if (!Packets.verifyUnconnectedMagic(content)) {
-      Loggers.error("Invalid magic number for unconnected ping.");
+      Packets.LOGGER.error("Invalid magic number for unconnected ping.");
       return;
     }
     Packets.sendUnconnectedPongPacket(ctx, server, packet.sender(), pingTime);

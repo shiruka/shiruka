@@ -25,10 +25,10 @@
 
 package io.github.shiruka.shiruka.entity;
 
-import io.github.shiruka.api.Server;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
+import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import java.util.Collections;
@@ -79,7 +79,7 @@ public final class ShirukaPlayer implements Player {
 
   @NotNull
   @Override
-  public Server getServer() {
+  public ShirukaServer getServer() {
     return this.connection.getServer();
   }
 

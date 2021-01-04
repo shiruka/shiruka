@@ -25,8 +25,6 @@
 
 package io.github.shiruka.shiruka.pack.loader;
 
-import com.google.errorprone.annotations.concurrent.LazyInit;
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.pack.PackLoader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +39,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a simple zip implementation for {@link PackLoader}.
@@ -68,7 +68,6 @@ public final class RplZip implements PackLoader {
    * the prepared file.
    */
   @Nullable
-  @LazyInit
   private CompletableFuture<Path> preparedFile;
 
   /**
@@ -173,6 +172,11 @@ public final class RplZip implements PackLoader {
   private static final class ZipFactory implements PackLoader.Factory {
 
     /**
+     * the logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger("ZipFactory");
+
+    /**
      * zip pack loader name matcher.
      */
     private static final PathMatcher MATCHER = FileSystems.getDefault().getPathMatcher("glob:**.{zip,mcpack}");
@@ -188,7 +192,7 @@ public final class RplZip implements PackLoader {
       try {
         return new RplZip(path);
       } catch (final IOException e) {
-        Loggers.error("The path is not a zip file!", e);
+        ZipFactory.LOGGER.error("The path is not a zip file!", e);
       }
       return null;
     }

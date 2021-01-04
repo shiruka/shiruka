@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
@@ -38,11 +37,18 @@ import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * an implementation for {@link ConnectionListener}.
  */
 public final class ShirukaConnectionListener implements ConnectionListener {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaConnectionListener");
 
   /**
    * the connection.
@@ -100,7 +106,7 @@ public final class ShirukaConnectionListener implements ConnectionListener {
       buf.markReaderIndex();
       Protocol.deserialize(buf, this.player);
     } catch (final PacketSerializeException e) {
-      Loggers.warn("Error whilst decoding packets", e);
+      ShirukaConnectionListener.LOGGER.warn("Error whilst decoding packets", e);
     }
   }
 }

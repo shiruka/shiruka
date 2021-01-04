@@ -32,9 +32,7 @@ import java.util.concurrent.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * managed set of threads that can be constrained
- * in CPU resources and performs work stealing when
- * necessary.
+ * managed set of threads that can be constrained in CPU resources and performs work stealing when necessary.
  */
 public final class ServerThreadPool implements ExecutorService {
 
@@ -44,26 +42,24 @@ public final class ServerThreadPool implements ExecutorService {
   private static final Map<PoolSpec, ServerThreadPool> POOLS = new ConcurrentHashMap<>();
 
   /**
-   * delegate executor service that is determined via
-   * spec in the {@link #forSpec(PoolSpec)} method.
+   * delegate executor service that is determined via spec in the {@link #forSpec(PoolSpec)} method.
    */
   @NotNull
-  private final ExecutorService service;
+  private final ExecutorService delegate;
 
   /**
    * ctor.
    *
-   * @param service the service.
+   * @param delegate the delegate.
    */
-  private ServerThreadPool(@NotNull final ExecutorService service) {
-    this.service = service;
+  private ServerThreadPool(@NotNull final ExecutorService delegate) {
+    this.delegate = delegate;
   }
 
   /**
    * creates a new thread pool for the given spec.
    *
-   * @param spec the specification for the new thread
-   *   pool.
+   * @param spec the specification for the new thread pool.
    *
    * @return the thread pool that is based on the spec.
    */
@@ -75,7 +71,8 @@ public final class ServerThreadPool implements ExecutorService {
       if (spec.isDoStealing()) {
         service = new ForkJoinPool(maxThreads, spec, null, true);
       } else {
-        service = new ThreadPoolExecutor(1, maxThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), spec);
+        service = new ThreadPoolExecutor(maxThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+          new LinkedBlockingQueue<>(), spec);
       }
       return new ServerThreadPool(service);
     });
@@ -90,12 +87,10 @@ public final class ServerThreadPool implements ExecutorService {
     ServerThreadPool.forSpec(PoolSpec.ENTITIES);
     ServerThreadPool.forSpec(PoolSpec.PLAYERS);
     ServerThreadPool.forSpec(PoolSpec.PLUGINS);
-    ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
   }
 
   /**
-   * attempts to shutdown every thread pool that has been
-   * registered through a spec in the server.
+   * attempts to shutdown every thread pool that has been registered through a spec in the server.
    */
   public static void shutdownAll() {
     ServerThreadPool.POOLS.values()
@@ -104,82 +99,72 @@ public final class ServerThreadPool implements ExecutorService {
 
   @Override
   public void execute(@NotNull final Runnable command) {
-    this.service.execute(command);
-  }
-
-  /**
-   * obtains the executor service.
-   *
-   * @return executor service.
-   */
-  @NotNull
-  public ExecutorService getService() {
-    return this.service;
+    this.delegate.execute(command);
   }
 
   @Override
   public void shutdown() {
-    this.service.shutdown();
+    this.delegate.shutdown();
   }
 
   @NotNull
   @Override
   public List<Runnable> shutdownNow() {
-    return this.service.shutdownNow();
+    return this.delegate.shutdownNow();
   }
 
   @Override
   public boolean isShutdown() {
-    return this.service.isShutdown();
+    return this.delegate.isShutdown();
   }
 
   @Override
   public boolean isTerminated() {
-    return this.service.isTerminated();
+    return this.delegate.isTerminated();
   }
 
   @Override
   public boolean awaitTermination(final long timeout, @NotNull final TimeUnit unit) throws InterruptedException {
-    return this.service.awaitTermination(timeout, unit);
+    return this.delegate.awaitTermination(timeout, unit);
   }
 
   @NotNull
   @Override
   public <T> Future<T> submit(@NotNull final Callable<T> task) {
-    return this.service.submit(task);
+    return this.delegate.submit(task);
   }
 
   @NotNull
   @Override
   public <T> Future<T> submit(@NotNull final Runnable task, @NotNull final T result) {
-    return this.service.submit(task, result);
+    return this.delegate.submit(task, result);
   }
 
   @NotNull
   @Override
   public Future<?> submit(@NotNull final Runnable task) {
-    return this.service.submit(task);
+    return this.delegate.submit(task);
   }
 
   @NotNull
   @Override
   public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks)
     throws InterruptedException {
-    return this.service.invokeAll(tasks);
+    return this.delegate.invokeAll(tasks);
   }
 
   @NotNull
   @Override
   public <T> List<Future<T>> invokeAll(@NotNull final Collection<? extends Callable<T>> tasks, final long timeout,
                                        @NotNull final TimeUnit unit) throws InterruptedException {
-    return this.service.invokeAll(tasks, timeout, unit);
+    return this.delegate.invokeAll(tasks, timeout, unit);
   }
 
   @NotNull
   @Override
   public <T> T invokeAny(@NotNull final Collection<? extends Callable<T>> tasks) throws InterruptedException,
     ExecutionException {
-    return this.service.invokeAny(tasks);
+    return this.delegate.invokeAny(tasks);
   }
 
   @NotNull
@@ -187,6 +172,6 @@ public final class ServerThreadPool implements ExecutorService {
   public <T> T invokeAny(@NotNull final Collection<? extends Callable<T>> tasks, final long timeout,
                          @NotNull final TimeUnit unit) throws InterruptedException, ExecutionException,
     TimeoutException {
-    return this.service.invokeAny(tasks, timeout, unit);
+    return this.delegate.invokeAny(tasks, timeout, unit);
   }
 }

@@ -23,6 +23,6 @@
  *
  */
 /**
- * the main package that contains all interface classes.
+ * the package that contains log4j implementation for terminal.
  */
 package io.github.shiruka.shiruka.log;

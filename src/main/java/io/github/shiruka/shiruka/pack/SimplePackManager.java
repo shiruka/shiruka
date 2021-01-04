@@ -27,7 +27,6 @@ package io.github.shiruka.shiruka.pack;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.api.entity.Player;
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.pack.*;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
@@ -42,11 +41,18 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a simple implementation for {@link PackManager}.
  */
 public final class SimplePackManager implements PackManager {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("SimplePackManager");
 
   /**
    * the manifest path.
@@ -146,7 +152,7 @@ public final class SimplePackManager implements PackManager {
         return Optional.of(PackManifest.load(asset.get()));
       }
     } catch (final IllegalStateException | IOException e) {
-      Loggers.error("Failed to load " + loader.getLocation(), e);
+      SimplePackManager.LOGGER.error("Failed to load " + loader.getLocation(), e);
     }
     return Optional.empty();
   }
@@ -184,7 +190,7 @@ public final class SimplePackManager implements PackManager {
         loaders.add(loader.get());
       }
     } catch (final IOException e) {
-      Loggers.error("", e);
+      SimplePackManager.LOGGER.error("", e);
     }
     final var manifestMap = new HashMap<UUID, PackManifest>();
     final var loaderMap = new HashMap<UUID, PackLoader>();
@@ -224,14 +230,14 @@ public final class SimplePackManager implements PackManager {
       missingDependencies.stream()
         .map(pack -> pack.getHeader().getName() + ":" + pack.getHeader().getVersion())
         .forEach(joiner::add);
-      Loggers.error("Could not load packs due to missing dependencies %s", joiner.toString());
+      SimplePackManager.LOGGER.error("Could not load packs due to missing dependencies {}", joiner);
     }
     for (final var manifest : manifestMap.values()) {
       final var loader = loaderMap.get(manifest.getHeader().getUuid());
       final var module = manifest.getModules().get(0);
       final var factory = this.packFactories.get(module.getType());
       if (factory == null) {
-        Loggers.warn("Unsupported pack type %s", module.getType());
+        SimplePackManager.LOGGER.warn("Unsupported pack type {}", module.getType());
         continue;
       }
       final var uuid = manifest.getHeader().getUuid();

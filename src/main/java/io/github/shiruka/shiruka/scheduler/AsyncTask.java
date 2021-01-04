@@ -28,7 +28,8 @@ package io.github.shiruka.shiruka.scheduler;
 import io.github.shiruka.api.scheduler.Task;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,14 +37,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * a class that represents sync tasks.
+ * a class that represents async scheduled tasks.
  */
-public final class SyncTask implements Task, Runnable {
+public final class AsyncTask implements Task, Runnable {
 
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("SyncTask");
+  private static final Logger LOGGER = LoggerFactory.getLogger("AsyncTask");
 
   /**
    * the task.
@@ -52,7 +53,7 @@ public final class SyncTask implements Task, Runnable {
   private final Runnable task;
 
   /**
-   * the complete handler list.
+   * the complete handlers.
    */
   @Nullable
   private List<Runnable> completeHandlers;
@@ -64,36 +65,24 @@ public final class SyncTask implements Task, Runnable {
   private Predicate<Exception> exceptionHandler;
 
   /**
-   * the next execution.
+   * the future.
    */
-  private long nextExecution;
-
-  /**
-   * the period.
-   */
-  private long period;
+  @Nullable
+  private Future<?> future;
 
   /**
    * ctor.
    *
    * @param task the task.
-   * @param delay the delay.
-   * @param period the period.
-   * @param unit the unit.
    */
-  public SyncTask(@NotNull final Runnable task, final long delay,
-                  final long period, @NotNull final TimeUnit unit) {
+  public AsyncTask(@NotNull final Runnable task) {
     this.task = task;
-    this.period = period >= 0 ? unit.toMillis(period) : -1;
-    this.nextExecution = delay >= 0 ? System.currentTimeMillis() + unit.toMillis(delay) : -1;
   }
 
   @Override
   public void cancel() {
-    this.period = -1;
-    this.nextExecution = -1;
-    this.fireCompleteHandlers();
-    SyncTaskManager.removeTask(this);
+    Optional.ofNullable(this.future)
+      .ifPresent(fut -> fut.cancel(true));
   }
 
   @Override
@@ -109,20 +98,6 @@ public final class SyncTask implements Task, Runnable {
     this.exceptionHandler = command;
   }
 
-  /**
-   * obtains the next execution.
-   *
-   * @return next execution.
-   */
-  public long getNextExecution() {
-    return this.nextExecution;
-  }
-
-  /**
-   * obtains the task.
-   *
-   * @return task.
-   */
   @NotNull
   public Runnable getTask() {
     return this.task;
@@ -133,19 +108,25 @@ public final class SyncTask implements Task, Runnable {
     try {
       this.task.run();
     } catch (final Exception e) {
-      if (this.exceptionHandler != null) {
-        if (!this.exceptionHandler.test(e)) {
-          this.cancel();
-        }
-      } else {
-        SyncTask.LOGGER.warn("Error in executing task: ", e);
+      if (this.exceptionHandler == null) {
+        AsyncTask.LOGGER.error("No exception handler given!", e);
+        return;
       }
-    }
-    if (this.period > 0) {
-      this.nextExecution = System.currentTimeMillis() + this.period;
-    } else {
+      if (this.exceptionHandler.test(e)) {
+        return;
+      }
+      this.fireCompleteHandlers();
       this.cancel();
     }
+  }
+
+  /**
+   * sets the future of this task.
+   *
+   * @param future the future to set.
+   */
+  void setFuture(@NotNull final Future<?> future) {
+    this.future = future;
   }
 
   /**

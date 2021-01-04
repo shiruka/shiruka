@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
@@ -35,7 +34,6 @@ import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -80,21 +78,5 @@ public final class ShirukaServerListener implements ServerListener {
   @Override
   public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx,
                                   @NotNull final DatagramPacket packet) {
-    final var buffer = packet.content();
-    try {
-      if (!buffer.isReadable(3)) {
-        return;
-      }
-      final var prefix = new byte[2];
-      buffer.readBytes(prefix);
-      if (!Arrays.equals(prefix, new byte[]{(byte) 0xfe, (byte) 0xfd})) {
-        return;
-      }
-      final var packetId = buffer.readUnsignedByte();
-      final var sessionId = buffer.readInt();
-      System.out.println("onUnhandledDatagram -> " + packetId);
-    } catch (final Exception e) {
-      Loggers.error("Error whilst handling packet ", e);
-    }
   }
 }

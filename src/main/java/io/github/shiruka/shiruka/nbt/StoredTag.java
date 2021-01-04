@@ -276,7 +276,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setByteArray(@NotNull final K key, final byte @NotNull [] value) {
+  default void setByteArray(@NotNull final K key, final byte[] value) {
     this.set(key, Tag.createByteArray(value));
   }
 
@@ -306,7 +306,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setIntArray(@NotNull final K key, final int @NotNull [] value) {
+  default void setIntArray(@NotNull final K key, final int[] value) {
     this.set(key, Tag.createIntArray(value));
   }
 
@@ -346,7 +346,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value set.
    */
-  default void setLongArray(@NotNull final K key, final long @NotNull [] value) {
+  default void setLongArray(@NotNull final K key, final long[] value) {
     this.set(key, Tag.createLongArray(value));
   }
 

@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that provides you to manage the connection.
  */
-final class NetServerConnection extends NetConnection<ServerSocket> {
+public final class NetServerConnection extends NetConnection<ServerSocket> {
 
   /**
    * ctor.

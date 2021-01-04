@@ -25,247 +25,160 @@
 
 package io.github.shiruka.shiruka.scheduler;
 
-import com.google.common.collect.ForwardingCollection;
-import io.github.shiruka.api.plugin.Plugin;
-import io.github.shiruka.api.scheduler.ScheduledRunnable;
-import io.github.shiruka.api.scheduler.ScheduledTask;
 import io.github.shiruka.api.scheduler.Scheduler;
-import io.github.shiruka.api.scheduler.TaskType;
-import io.github.shiruka.shiruka.concurrent.PoolSpec;
-import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
+import io.github.shiruka.api.scheduler.Task;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import java.lang.management.ManagementFactory;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a simple implementation for {@link Scheduler}.
  */
-public final class SimpleScheduler extends ForwardingCollection<ScheduledTask> implements Scheduler {
+public final class SimpleScheduler implements Scheduler {
 
   /**
-   * the pool.
+   * the logger.
    */
-  private static final ServerThreadPool ASYNC_POOL = ServerThreadPool.forSpec(PoolSpec.ASYNC_SCHEDULER);
+  private static final Logger LOGGER = LoggerFactory.getLogger("SimpleScheduler");
 
   /**
-   * the pool.
+   * the already alerted.
    */
-  private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
+  private final Set<Thread> alreadyAlerted = new HashSet<>();
 
   /**
-   * the task list.
+   * the executor service.
    */
-  private final Queue<ScheduledTask> tasks = new ConcurrentLinkedQueue<>();
-
   @NotNull
-  @Override
-  public ScheduledTask later(@NotNull final Plugin plugin, final boolean async, final long delay,
-                             @NotNull final ScheduledRunnable runnable) {
-    final var taskType = async ? TaskType.ASYNC_LATER : TaskType.SYNC_LATER;
-    return this.createTask(plugin, runnable, taskType, delay);
-  }
-
-  @NotNull
-  @Override
-  public ScheduledTask repeat(@NotNull final Plugin plugin, final boolean async, final long delay,
-                              final long initialInterval, @NotNull final ScheduledRunnable runnable) {
-    return this.later(plugin, async, delay, () -> {
-      final var taskType = async ? TaskType.ASYNC_REPEAT : TaskType.SYNC_REPEAT;
-      SimpleScheduler.this.createTask(plugin, runnable, taskType, initialInterval);
-    });
-  }
-
-  @NotNull
-  @Override
-  public ScheduledTask run(@NotNull final Plugin plugin, final boolean async,
-                           @NotNull final ScheduledRunnable runnable) {
-    final var taskType = async ? TaskType.ASYNC_RUN : TaskType.SYNC_RUN;
-    return this.createTask(plugin, runnable, taskType, -1);
-  }
+  private final ScheduledExecutorService executorService;
 
   /**
-   * ticks the tasks.
+   * the running threads.
    */
-  @Override
-  public void tick() {
-    this.tasks.forEach(Runnable::run);
-  }
-
-  @Override
-  protected Collection<ScheduledTask> delegate() {
-    return Collections.unmodifiableCollection(this.tasks);
-  }
+  private final Map<Thread, Runnable> threadRunnableMap = new HashMap<>();
 
   /**
-   * creates a new instance of {@link SimpleScheduledTask}.
+   * the threads.
+   */
+  private final Object2LongMap<Thread> threads = new Object2LongOpenHashMap<>();
+
+  /**
+   * ctor.
    *
-   * @param plugin the plugin to create.
-   * @param runnable the runnable to create.
-   * @param taskType the task type to create.
-   * @param interval the interval to create.
-   *
-   * @return a new instance of scheduled task.
+   * @param executorService the executor service.
    */
-  @NotNull
-  private ScheduledTask createTask(@NotNull final Plugin plugin, @NotNull final ScheduledRunnable runnable,
-                                   @NotNull final TaskType taskType, final long interval) {
-    final Executor executor;
-    if (taskType.name().contains("ASYNC")) {
-      executor = SimpleScheduler.ASYNC_POOL;
-    } else {
-      executor = SimpleScheduler.POOL;
-    }
-    final Function<ScheduledTask, Runnable> runner;
-    if (taskType.name().contains("REPEAT")) {
-      runner = task -> () -> {
-        runnable.beforeRun();
-        runnable.run();
-        runnable.afterAsyncRun();
-      };
-    } else {
-      runner = task -> () -> {
-        runnable.beforeRun();
-        runnable.run();
-        runnable.afterAsyncRun();
-        task.cancel();
-      };
-    }
-    final var task = new SimpleScheduledTask(executor, plugin, runnable, runner, taskType, interval);
-    while (true) {
-      if (this.tasks.add(task)) {
-        task.runnable().markSchedule(task);
-        return task;
+  public SimpleScheduler(@NotNull final ScheduledExecutorService executorService) {
+    this.executorService = executorService;
+    final var mxBean = ManagementFactory.getThreadMXBean();
+    this.executorService.scheduleWithFixedDelay(() -> {
+      final var current = System.currentTimeMillis();
+      synchronized (this.threads) {
+        final var threadSet = (Object2LongMap.FastEntrySet<Thread>) this.threads.object2LongEntrySet();
+        final var threadIterator = threadSet.fastIterator();
+        while (threadIterator.hasNext()) {
+          final var entry = threadIterator.next();
+          final var diff = current - entry.getLongValue();
+          if (diff <= TimeUnit.SECONDS.toMillis(10)) {
+            continue;
+          }
+          final var key = entry.getKey();
+          var threadInfo = mxBean.getThreadInfo(key.getId());
+          final var state = threadInfo.getThreadState();
+          if (this.alreadyAlerted.contains(key) ||
+            state != Thread.State.WAITING &&
+              state != Thread.State.TIMED_WAITING &&
+              state != Thread.State.BLOCKED) {
+            continue;
+          }
+          SimpleScheduler.LOGGER.warn("Following runnable is blocking the scheduler loops: {}",
+            this.threadRunnableMap.get(key).getClass().getName());
+          threadInfo = mxBean.getThreadInfo(key.getId(), Integer.MAX_VALUE);
+          Arrays.stream(threadInfo.getStackTrace())
+            .forEach(element -> SimpleScheduler.LOGGER.warn("  {}", element));
+          this.alreadyAlerted.add(key);
+        }
       }
+    }, 10, 10, TimeUnit.MILLISECONDS);
+  }
+
+  @NotNull
+  @Override
+  public Task schedule(@NotNull final Runnable runnable) {
+    return this.schedule(runnable, 0, TimeUnit.MILLISECONDS);
+  }
+
+  @NotNull
+  @Override
+  public Task schedule(@NotNull final Runnable runnable, final long delay, @NotNull final TimeUnit timeUnit) {
+    return this.schedule(runnable, delay, -1, timeUnit);
+  }
+
+  @NotNull
+  @Override
+  public Task schedule(@NotNull final Runnable runnable, final long delay, final long period,
+                       @NotNull final TimeUnit timeUnit) {
+    final var task = new SyncTask(runnable, delay, period, timeUnit);
+    SyncTaskManager.addTask(task);
+    return task;
+  }
+
+  @NotNull
+  @Override
+  public Task scheduleAsync(@NotNull final Runnable runnable) {
+    return this.scheduleAsync(runnable, 0, TimeUnit.MILLISECONDS);
+  }
+
+  @NotNull
+  @Override
+  public Task scheduleAsync(@NotNull final Runnable runnable, final long delay, final long period,
+                            @NotNull final TimeUnit timeUnit) {
+    final var task = new AsyncTask(runnable);
+    final Future<?> future;
+    if (period > 0) {
+      future = this.executorService.scheduleAtFixedRate(this.wrapRunnable(task), delay, period, timeUnit);
+    } else if (delay > 0) {
+      future = this.executorService.schedule(this.wrapRunnable(task), delay, timeUnit);
+    } else {
+      future = this.executorService.submit(this.wrapRunnable(task));
     }
+    task.setFuture(future);
+    return task;
+  }
+
+  @NotNull
+  @Override
+  public Task scheduleAsync(@NotNull final Runnable runnable, final long delay, @NotNull final TimeUnit timeUnit) {
+    return this.scheduleAsync(runnable, delay, -1, timeUnit);
   }
 
   /**
-   * a simple implementation for {@link ScheduledTask}.
+   * wraps the given task into a runnable.
+   *
+   * @param task the task to wrap.
+   *
+   * @return wrapped runnable.
    */
-  private final class SimpleScheduledTask implements ScheduledTask {
-
-    /**
-     * the executor.
-     */
-    @NotNull
-    private final Executor executor;
-
-    /**
-     * the plugin.
-     */
-    @NotNull
-    private final Plugin plugin;
-
-    /**
-     * the runnable.
-     */
-    @NotNull
-    private final ScheduledRunnable runnable;
-
-    /**
-     * the runner.
-     */
-    @NotNull
-    private final Runnable runner;
-
-    /**
-     * the task type.
-     */
-    @NotNull
-    private final TaskType taskType;
-
-    /**
-     * the interval.
-     */
-    private long interval;
-
-    /**
-     * the runç
-     */
-    private long run = 0L;
-
-    /**
-     * ctor.
-     *
-     * @param executor the executor.
-     * @param plugin the plugin.
-     * @param runnable the runnable.
-     * @param runner the runner.
-     * @param taskType the task type.
-     * @param interval the step.
-     */
-    public SimpleScheduledTask(@NotNull final Executor executor, @NotNull final Plugin plugin,
-                               @NotNull final ScheduledRunnable runnable,
-                               @NotNull final Function<ScheduledTask, Runnable> runner,
-                               @NotNull final TaskType taskType, final long interval) {
-      this.executor = executor;
-      this.plugin = plugin;
-      this.runnable = runnable;
-      this.taskType = taskType;
-      this.interval = interval;
-      this.runner = runner.apply(this);
-    }
-
-    @Override
-    public void cancel() {
-      SimpleScheduler.this.tasks.remove(this);
-    }
-
-    @Override
-    public long interval() {
-      return this.interval;
-    }
-
-    @NotNull
-    @Override
-    public Plugin owner() {
-      return this.plugin;
-    }
-
-    @NotNull
-    @Override
-    public ScheduledRunnable runnable() {
-      return this.runnable;
-    }
-
-    @Override
-    public void setInterval(final long interval) {
-      this.interval = interval;
-    }
-
-    @NotNull
-    @Override
-    public TaskType type() {
-      return this.taskType;
-    }
-
-    @Override
-    public void run() {
-      switch (this.taskType) {
-        case ASYNC_RUN:
-        case SYNC_RUN:
-          this.executor.execute(this.runner);
-          break;
-        case ASYNC_LATER:
-        case SYNC_LATER:
-          if (++this.run >= this.interval) {
-            this.executor.execute(this.runner);
-          }
-          break;
-        case ASYNC_REPEAT:
-        case SYNC_REPEAT:
-          if (++this.run >= this.interval) {
-            this.executor.execute(this.runner);
-            this.run = 0;
-          }
-          break;
-        default:
-          throw new IllegalStateException();
+  @NotNull
+  private Runnable wrapRunnable(@NotNull final AsyncTask task) {
+    return () -> {
+      final var val = System.currentTimeMillis();
+      synchronized (this.threads) {
+        this.threadRunnableMap.put(Thread.currentThread(), task.getTask());
+        this.threads.put(Thread.currentThread(), val);
       }
-    }
+      task.run();
+      synchronized (this.threads) {
+        this.threads.remove(Thread.currentThread(), val);
+        this.threadRunnableMap.remove(Thread.currentThread(), task.getTask());
+        this.alreadyAlerted.remove(Thread.currentThread());
+      }
+    };
   }
 }

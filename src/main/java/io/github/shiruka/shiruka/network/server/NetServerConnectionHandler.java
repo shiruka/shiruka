@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionHandler;
@@ -41,11 +40,18 @@ import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * server connection handler implementation class.
  */
 public final class NetServerConnectionHandler implements ConnectionHandler {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("NetServerConnectionHandler");
 
   /**
    * the server connection instance.
@@ -153,7 +159,7 @@ public final class NetServerConnectionHandler implements ConnectionHandler {
         consumer.accept(new IntRange(start, end));
         continue;
       }
-      Loggers.error("%s sent an IntRange with a start value %s greater than an end value of %s",
+      NetServerConnectionHandler.LOGGER.error("{} sent an IntRange with a start value {} greater than an end value of {}",
         this.connection.getAddress(), start, end);
       this.connection.disconnect(DisconnectReason.BAD_PACKET);
     }

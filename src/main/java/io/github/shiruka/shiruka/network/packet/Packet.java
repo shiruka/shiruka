@@ -66,12 +66,30 @@ public abstract class Packet {
   }
 
   /**
+   * obtain the client id.
+   *
+   * @return client id.
+   */
+  public int getClientId() {
+    return this.clientId;
+  }
+
+  /**
    * sets the client id.
    *
    * @param id the id to set.
    */
   public final void setClientId(final int id) {
     this.clientId = id;
+  }
+
+  /**
+   * obtain the sender id.
+   *
+   * @return sender id.
+   */
+  public int getSenderId() {
+    return this.senderId;
   }
 
   /**

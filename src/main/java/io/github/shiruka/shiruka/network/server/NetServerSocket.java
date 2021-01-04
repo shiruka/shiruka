@@ -24,7 +24,6 @@
  */
 package io.github.shiruka.shiruka.network.server;
 
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.DisconnectReason;
@@ -40,11 +39,18 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * the main server class to bind a server using Netty.
  */
 public final class NetServerSocket extends NetSocket implements ServerSocket {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("NetServerSocket");
 
   /**
    * blocked addresses and their unblock times.
@@ -104,10 +110,10 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   public static ServerSocket init(@NotNull final InetSocketAddress address,
                                   @NotNull final ServerListener serverListener, final int maxConnections) {
-    Loggers.debug("Initiating the server socket.");
+    NetServerSocket.LOGGER.debug("Initiating the server socket.");
     final var socket = new NetServerSocket(address, serverListener, maxConnections);
     socket.addExceptionHandler("DEFAULT", t ->
-      Loggers.error("An exception occurred in Network system", t));
+      NetServerSocket.LOGGER.error("An exception occurred in Network system", t));
     socket.bind();
     return socket;
   }
@@ -213,18 +219,18 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   @NotNull
   @Override
   public CompletableFuture<Void> exec() {
-    Loggers.debug("Binding the server.");
+    NetServerSocket.LOGGER.debug("Binding the server.");
     final var completableFuture = new CompletableFuture<>();
     this.getBootstrap()
       .handler(new NetServerDatagramHandler(this))
       .bind(this.getAddress())
       .addListener((ChannelFutureListener) future -> {
         if (future.cause() != null) {
-          Loggers.error("An error occurs");
-          Loggers.error(future.cause().getMessage());
+          NetServerSocket.LOGGER.error("An error occurs");
+          NetServerSocket.LOGGER.error(future.cause().getMessage());
           completableFuture.completeExceptionally(future.cause());
         }
-        Loggers.debug("The server bound.");
+        NetServerSocket.LOGGER.debug("The server bound.");
         completableFuture.complete(future.channel());
       });
     return CompletableFuture.allOf(completableFuture);

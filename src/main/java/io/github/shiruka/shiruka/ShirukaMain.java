@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.OpsConfig;
@@ -34,7 +33,6 @@ import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.config.UserCacheConfig;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
-import io.github.shiruka.shiruka.log.ShirukaLoggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import io.github.shiruka.shiruka.world.anvil.AnvilWorldLoader;
@@ -45,13 +43,23 @@ import java.nio.file.Files;
 import java.util.Objects;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a Java main class to start the Shiru ka's server.
  */
 public final class ShirukaMain {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaMain");
 
   /**
    * the parsed arguments.
@@ -72,10 +80,8 @@ public final class ShirukaMain {
    * runs the Java program.
    *
    * @param args the args to run.
-   *
-   * @throws Exception if something went wrong.
    */
-  public static void main(final String[] args) throws Exception {
+  public static void main(final String[] args) {
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
@@ -88,13 +94,19 @@ public final class ShirukaMain {
       ShirukaConsoleParser.printVersion();
       return;
     }
+    if (parsed.has(ShirukaConsoleParser.DEBUG) &&
+      parsed.valueOf(ShirukaConsoleParser.DEBUG)) {
+      final var context = (LoggerContext) LogManager.getContext(false);
+      context.getConfiguration()
+        .getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
+        .setLevel(Level.DEBUG);
+      context.updateLoggers();
+    }
     AnsiConsole.systemInstall();
-    ShirukaLoggers.init("Shiru ka",
-      parsed.has(ShirukaConsoleParser.DEBUG) && parsed.valueOf(ShirukaConsoleParser.DEBUG));
     final var here = new File(".").getAbsolutePath();
     if (here.contains("!") || here.contains("+")) {
-      Loggers.warn("Cannot run server in a directory with ! or + in the pathname.");
-      Loggers.warn("Please rename the affected folders and try again.");
+      ShirukaMain.LOGGER.warn("Cannot run server in a directory with ! or + in the pathname.");
+      ShirukaMain.LOGGER.warn("Please rename the affected folders and try again.");
       return;
     }
     System.setProperty("library.jansi.version", "Shiru ka");
@@ -133,15 +145,15 @@ public final class ShirukaMain {
   @NotNull
   private static File createsServerFile(@NotNull final File file, final boolean directory) throws IOException {
     if (directory) {
-      Loggers.debug("Checking for %s directory.", file.getName());
+      ShirukaMain.LOGGER.debug("Checking for {} directory.", file.getName());
       if (!Files.exists(file.toPath())) {
-        Loggers.debug("Directory %s not present, creating one for you.", file.getName());
+        ShirukaMain.LOGGER.debug("Directory {} not present, creating one for you.", file.getName());
         Files.createDirectory(file.toPath());
       }
     } else {
-      Loggers.debug("Checking for %s file.", file.getName());
+      ShirukaMain.LOGGER.debug("Checking for {} file.", file.getName());
       if (!Files.exists(file.toPath())) {
-        Loggers.debug("File %s not present, creating one for you.", file.getName());
+        ShirukaMain.LOGGER.debug("File {} not present, creating one for you.", file.getName());
         Files.createFile(file.toPath());
       }
     }
@@ -185,7 +197,7 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
-    Loggers.log("Shiru ka is starting.");
+    ShirukaMain.LOGGER.info("Shiru ka is starting.");
     final var start = System.currentTimeMillis();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);

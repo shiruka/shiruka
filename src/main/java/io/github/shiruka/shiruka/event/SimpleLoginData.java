@@ -25,10 +25,13 @@
 
 package io.github.shiruka.shiruka.event;
 
-import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.events.LoginDataEvent;
+import io.github.shiruka.api.events.LoginResultEvent;
+import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple implementation of {@link PlayerPreLoginEvent.LoginData}.
@@ -41,11 +44,23 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
   @NotNull
   private final LoginDataEvent.ChainData chainData;
 
+  /**
+   * the player.
+   */
   @NotNull
-  private final Player player;
+  private final ShirukaPlayer player;
 
+  /**
+   * the username.
+   */
   @NotNull
   private final String username;
+
+  /**
+   * the async login event.
+   */
+  @Nullable
+  private PlayerAsyncLoginEvent asyncLogin;
 
   /**
    * the should login.
@@ -59,7 +74,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * @param player the player.
    * @param username the username.
    */
-  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final Player player,
+  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final ShirukaPlayer player,
                          @NotNull final String username) {
     this.chainData = chainData;
     this.username = username;
@@ -74,10 +89,41 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
 
   /**
    * initializes the player.
-   *
-   * @todo #1:30m Implement it.
    */
   public void initializePlayer() {
+    if (this.asyncLogin == null) {
+      return;
+    }
+    if (this.player.getPlayerConnection().getConnection().isClosed()) {
+      return;
+    }
+    if (this.asyncLogin.loginResult() == LoginResultEvent.LoginResult.KICK) {
+      this.player.disconnect(this.asyncLogin.kickMessage());
+      return;
+    }
+    if (!this.shouldLogin()) {
+      return;
+    }
+    this.asyncLogin.objects().forEach(action ->
+      action.accept(this.player));
+  }
+
+  /**
+   * sets the async login event.
+   *
+   * @param asyncLogin async login event to set.
+   */
+  public void setAsyncLogin(@NotNull final PlayerAsyncLoginEvent asyncLogin) {
+    this.asyncLogin = asyncLogin;
+  }
+
+  /**
+   * sets the should login.
+   *
+   * @param shouldLogin the should login to set.
+   */
+  public void setShouldLogin(final boolean shouldLogin) {
+    this.shouldLogin = shouldLogin;
   }
 
   /**

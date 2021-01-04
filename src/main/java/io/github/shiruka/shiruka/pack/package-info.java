@@ -22,24 +22,7 @@
  * SOFTWARE.
  *
  */
-package io.github.shiruka.shiruka.log;
-
 /**
- * logger level constants.
+ * the package that contains pack classes.
  */
-public final class Levels {
-
-  public static final String DEBUG = "DEBUG";
-
-  public static final String ERROR = "ERROR";
-
-  public static final String INFO = "INFO";
-
-  public static final String WARN = "WARN";
-
-  /**
-   * ctor.
-   */
-  private Levels() {
-  }
-}
+package io.github.shiruka.shiruka.pack;

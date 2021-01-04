@@ -26,20 +26,25 @@
 package io.github.shiruka.shiruka.concurrent;
 
 import io.github.shiruka.api.Server;
-import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.log.Loggers;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import io.github.shiruka.shiruka.scheduler.SyncTaskManager;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * a class that represents the server heartbeat pulse called
- * "tick" which occurs every 1/20th of a second.
+ * a class that represents the server heartbeat pulse called "tick" which occurs every 1/20th of a second.
  */
-public final class ShirukaTick extends Thread {
+public final class ShirukaTick implements Runnable {
 
   /**
-   * The amount of time taken by a single tick
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaTick");
+
+  /**
+   * the amount of time taken by a single tick
    */
   private static final long TICK_MILLIS = TimeUnit.SECONDS.toMillis(1) / 20;
 
@@ -55,29 +60,30 @@ public final class ShirukaTick extends Thread {
    * @param server the server.
    */
   public ShirukaTick(@NotNull final Server server) {
-    super("Shiruka - Tick");
     this.server = server;
   }
 
+  /**
+   * starts the heartbeat.
+   */
   @Override
   public void run() {
-    final var scheduler = Shiruka.getScheduler();
-    while (!this.server.isInShutdownState()) {
+    while (this.server.isRunning()) {
       final var start = System.currentTimeMillis();
-      scheduler.tick();
+      SyncTaskManager.update(start);
       // @todo #1:15m Add more tick operations.
       final var end = System.currentTimeMillis();
       final var elapsed = end - start;
       final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;
       if (waitTime < 0) {
-        Loggers.debug("Server running behind %sms, skipped %s ticks",
+        ShirukaTick.LOGGER.debug("Server running behind {}ms, skipped {} ticks",
           -waitTime, -waitTime / ShirukaTick.TICK_MILLIS);
         continue;
       }
       try {
         Thread.sleep(waitTime);
       } catch (final InterruptedException e) {
-        break;
+        this.server.stopServer();
       } catch (final Exception e) {
         JiraExceptionCatcher.serverException(e);
         break;

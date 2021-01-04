@@ -25,12 +25,11 @@
 
 package io.github.shiruka.shiruka.entity;
 
-import io.github.shiruka.api.Server;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
-import io.github.shiruka.shiruka.network.PacketPriority;
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
+import io.github.shiruka.shiruka.ShirukaServer;
+import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import java.util.Collections;
 import java.util.List;
@@ -46,14 +45,20 @@ public final class ShirukaPlayer implements Player {
    * the connection.
    */
   @NotNull
-  private final PlayerConnection connection;
+  private final ShirukaPlayerConnection connection;
+
+  /**
+   * the login data.
+   */
+  @Nullable
+  private SimpleLoginData loginData;
 
   /**
    * ctor.
    *
    * @param connection the connection.
    */
-  public ShirukaPlayer(@NotNull final PlayerConnection connection) {
+  public ShirukaPlayer(@NotNull final ShirukaPlayerConnection connection) {
     this.connection = connection;
   }
 
@@ -69,13 +74,32 @@ public final class ShirukaPlayer implements Player {
       finalReason = reason;
       messageSkipped = false;
     }
-    this.connection.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped), PacketPriority.IMMEDIATE);
+    this.connection.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped));
   }
 
   @NotNull
   @Override
-  public Server getServer() {
+  public ShirukaServer getServer() {
     return this.connection.getServer();
+  }
+
+  /**
+   * obtains the latest login data.
+   *
+   * @return latest login data.
+   */
+  @Nullable
+  public SimpleLoginData getLatestLoginData() {
+    return this.loginData;
+  }
+
+  /**
+   * sets the latest login data of the player.
+   *
+   * @param loginData the login data to set.
+   */
+  public void setLatestLoginData(@NotNull final SimpleLoginData loginData) {
+    this.loginData = loginData;
   }
 
   @NotNull
@@ -91,18 +115,21 @@ public final class ShirukaPlayer implements Player {
 
   @Override
   public void removeAllMetadata(@NotNull final String key) {
+    // @todo #1:15m Implement it.
   }
 
   @Override
   public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
+    // @todo #1:15m Implement it.
   }
 
   @Override
   public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
+    // @todo #1:15m Implement it.
   }
 
   @NotNull
-  public PlayerConnection getPlayerConnection() {
+  public ShirukaPlayerConnection getPlayerConnection() {
     return this.connection;
   }
 
@@ -113,7 +140,8 @@ public final class ShirukaPlayer implements Player {
   }
 
   @Override
-  public void sendMessage(@NotNull final String s) {
-    System.out.println(s);
+  public void sendMessage(@NotNull final String message) {
+    // @todo #1:15m Implement it.
+    System.out.println(message);
   }
 }

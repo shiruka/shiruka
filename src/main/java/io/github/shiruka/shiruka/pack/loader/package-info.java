@@ -22,49 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.log;
-
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * a simple {@link PrintStream} implementation that helps to cover {@link System#out} and {@link System#err}.
+ * the package that contains implementations of {@link io.github.shiruka.api.pack.PackLoader}.
  */
-public final class LogPrintStream extends PrintStream {
-
-  /**
-   * ctor.
-   *
-   * @param message the message.
-   */
-  public LogPrintStream(@NotNull final Consumer<String> message) {
-    super(new OutputStream() {
-
-      /**
-       * the memory.
-       */
-      @NotNull
-      private String memory = "";
-
-      @Override
-      public void write(final int b) {
-        final var bytes = new byte[1];
-        bytes[0] = (byte) (b & 0xff);
-        this.memory = this.memory + new String(bytes);
-        if (this.memory.endsWith("\n")) {
-          this.memory = this.memory.substring(0, this.memory.length() - 1);
-          this.flush();
-        }
-      }
-
-      @Override
-      public void flush() {
-        message.accept(this.memory);
-        this.memory = "";
-      }
-    });
-  }
-}
+package io.github.shiruka.shiruka.pack.loader;

@@ -61,35 +61,35 @@ public final class PacketOutPlayStatus extends PacketOut {
   public enum Status {
 
     /**
-     * sent after Login has been successfully decoded and the player has logged in
+     * sent after Login has been successfully decoded and the player has logged in.
      */
     LOGIN_SUCCESS,
     /**
-     * displays "Could not connect: Outdated client!"
+     * displays "Could not connect: Outdated client!".
      */
     LOGIN_FAILED_CLIENT_OLD,
     /**
-     * displays "Could not connect: Outdated server!"
+     * displays "Could not connect: Outdated server!".
      */
     LOGIN_FAILED_SERVER_OLD,
     /**
-     * sent after world data to spawn the player
+     * sent after world data to spawn the player.
      */
     PLAYER_SPAWN,
     /**
-     * displays "Unable to connect to world. Your school does not have access to this server."
+     * displays "Unable to connect to world. Your school does not have access to this server.".
      */
     LOGIN_FAILED_INVALID_TENANT,
     /**
-     * displays "The server is not running Minecraft: Education Edition. Failed to connect."
+     * displays "The server is not running Minecraft: Education Edition. Failed to connect.".
      */
     LOGIN_FAILED_EDITION_MISMATCH_EDU_TO_VANILLA,
     /**
-     * displays "The server is running an incompatible edition of Minecraft. Failed to connect."
+     * displays "The server is running an incompatible edition of Minecraft. Failed to connect.".
      */
     LOGIN_FAILED_EDITION_MISMATCH_VANILLA_TO_EDU,
     /**
-     * displays "Wow this server is popular! Check back later to see if space opens up. Server Full"
+     * displays "Wow this server is popular! Check back later to see if space opens up. Server Full".
      */
     FAILED_SERVER_FULL_SUB_CLIENT
   }

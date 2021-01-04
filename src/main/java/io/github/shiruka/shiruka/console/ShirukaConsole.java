@@ -27,22 +27,17 @@ package io.github.shiruka.shiruka.console;
 
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.shiruka.log.ShirukaLoggers;
+import io.github.shiruka.shiruka.log.AaTerminalConsole;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
-import org.jline.terminal.TerminalBuilder;
 
 /**
  * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
-public final class ShirukaConsole {
+public final class ShirukaConsole extends Thread {
 
   /**
    * the parser.
@@ -67,18 +62,13 @@ public final class ShirukaConsole {
   private final Server server;
 
   /**
-   * the reader.
-   */
-  @Nullable
-  private LineReader reader;
-
-  /**
    * ctor.
    *
    * @param server the server.
    * @param completer the completer.
    */
   public ShirukaConsole(@NotNull final Completer completer, @NotNull final Server server) {
+    super("Console");
     this.completer = completer;
     this.server = server;
   }
@@ -93,30 +83,14 @@ public final class ShirukaConsole {
   }
 
   /**
-   * obtains the reader.
-   *
-   * @return the reader.
-   */
-  @NotNull
-  public LineReader getReader() {
-    return Objects.requireNonNull(this.reader,
-      "You have to use #start() first to use #getReader() method.");
-  }
-
-  /**
    * starts the reading inputs.
    */
-  public void start() {
-    ShirukaLoggers.setConsole(this);
-    final var appName = "Shiru ka";
-    try (final var terminal = TerminalBuilder.builder()
-      .name(appName)
-      .jansi(true)
-      .encoding(StandardCharsets.UTF_8)
-      .build()) {
-      final var inlineReader = LineReaderBuilder.builder()
-        .appName(appName)
-        .terminal(terminal)
+  @Override
+  public void run() {
+    try {
+      final var reader = LineReaderBuilder.builder()
+        .appName("Shiru ka")
+        .terminal(AaTerminalConsole.getTerminal())
         .completer(this.completer)
         .parser(ShirukaConsole.PARSER)
         .variable(LineReader.LIST_MAX, 50)
@@ -125,11 +99,10 @@ public final class ShirukaConsole {
         .option(LineReader.Option.INSERT_TAB, false)
         .option(LineReader.Option.BRACKETED_PASTE, false)
         .build();
-      this.reader = inlineReader;
       String line;
       while (!this.server.isInShutdownState()) {
         try {
-          line = inlineReader.readLine(ShirukaConsole.PROMPT);
+          line = reader.readLine(ShirukaConsole.PROMPT);
         } catch (final EndOfFileException ignored) {
           continue;
         }
@@ -140,7 +113,7 @@ public final class ShirukaConsole {
       }
     } catch (final UserInterruptException e) {
       this.server.stopServer();
-    } catch (final IOException e) {
+    } catch (final Exception e) {
       JiraExceptionCatcher.serverException(e);
     }
   }

@@ -22,33 +22,7 @@
  * SOFTWARE.
  *
  */
-package io.github.shiruka.shiruka.log.pipeline;
-
-import io.github.shiruka.shiruka.log.LogMessage;
-import io.github.shiruka.shiruka.log.PipelineLogger;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * creates a new logger that handles debug messages without printing it.
+ * the package that contains plugin implementations.
  */
-public final class NoDebugLogger extends PipelineLoggerBase {
-
-  /**
-   * ctor.
-   *
-   * @param next the next logger in the pipeline
-   */
-  public NoDebugLogger(@NotNull final PipelineLogger next) {
-    super(next);
-  }
-
-  @Override
-  public void debug(@NotNull final LogMessage msg) {
-  }
-
-  @NotNull
-  @Override
-  public LogMessage handle(@NotNull final LogMessage msg) {
-    return msg;
-  }
-}
+package io.github.shiruka.shiruka.plugin;

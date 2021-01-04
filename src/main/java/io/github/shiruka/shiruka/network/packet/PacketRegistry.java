@@ -27,9 +27,7 @@ package io.github.shiruka.shiruka.network.packet;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
-import io.github.shiruka.shiruka.network.packets.PacketInLogin;
-import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
-import io.github.shiruka.shiruka.network.packets.PacketOutPlayStatus;
+import io.github.shiruka.shiruka.network.packets.*;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import java.lang.reflect.Constructor;
@@ -62,8 +60,15 @@ public final class PacketRegistry {
     new Reference2IntOpenHashMap<>();
 
   static {
+    // handshake packets.
     PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.HANDSHAKE, PacketBound.SERVER, 1);
     PacketRegistry.put(PacketOutPlayStatus.class, PlayerConnection.State.HANDSHAKE, PacketBound.CLIENT, 2);
+    // status packets.
+    PacketRegistry.put(PacketOutPackInfo.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 6);
+    PacketRegistry.put(PacketOutPackStack.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 7);
+    PacketRegistry.put(PacketInResourcePackResponse.class, PlayerConnection.State.STATUS, PacketBound.SERVER, 8);
+    PacketRegistry.put(PacketInClientCacheStatus.class, PlayerConnection.State.STATUS, PacketBound.SERVER, 129);
+    // any state of packets.
     PacketRegistry.put(PacketOutDisconnect.class, PlayerConnection.State.ANY, PacketBound.CLIENT, 5);
     PacketRegistry.PACKETS.trim();
     PacketRegistry.PACKET_IDS.trim();
@@ -124,6 +129,44 @@ public final class PacketRegistry {
     InvocationTargetException, InstantiationException {
     //noinspection unchecked
     return (T) PacketRegistry.CONSTRUCTORS.get(cls).newInstance();
+  }
+
+  /**
+   * creates a new instance of the given packet class.
+   *
+   * @param cls the packet class to instantiate.
+   *
+   * @return the instantiated packet.
+   *
+   * @throws IllegalAccessException if this {@code Constructor} object is enforcing Java language access control and
+   *   the underlying constructor is inaccessible.
+   * @throws InstantiationException if the class that declares the underlying constructor represents an abstract
+   *   class.
+   * @throws InvocationTargetException if the underlying constructor throws an exception.
+   */
+  @NotNull
+  public static PacketIn makeIn(@NotNull final Class<? extends Packet> cls) throws IllegalAccessException,
+    InvocationTargetException, InstantiationException {
+    return PacketRegistry.make(cls);
+  }
+
+  /**
+   * creates a new instance of the given packet class.
+   *
+   * @param cls the packet class to instantiate.
+   *
+   * @return the instantiated packet.
+   *
+   * @throws IllegalAccessException if this {@code Constructor} object is enforcing Java language access control and
+   *   the underlying constructor is inaccessible.
+   * @throws InstantiationException if the class that declares the underlying constructor represents an abstract
+   *   class.
+   * @throws InvocationTargetException if the underlying constructor throws an exception.
+   */
+  @NotNull
+  public static PacketOut makeOut(@NotNull final Class<? extends Packet> cls) throws IllegalAccessException,
+    InvocationTargetException, InstantiationException {
+    return PacketRegistry.make(cls);
   }
 
   /**

@@ -22,30 +22,28 @@
  * SOFTWARE.
  *
  */
-package io.github.shiruka.shiruka.log.pipeline;
 
-import io.github.shiruka.shiruka.log.LogMessage;
-import io.github.shiruka.shiruka.log.PipelineLogger;
+package io.github.shiruka.shiruka.network.packets;
+
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
+import io.github.shiruka.shiruka.network.packet.PacketIn;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a debug filter logger which allows debug messages to be
- * passed along the pipeline, useful for verbose mode.
+ * sends by the client at the start of the game.
+ * it is sent to let the server know if it supports the client-side blob cache.
+ * clients such as Nintendo Switch do not support the cache, and attempting to use it anyway will fail.
  */
-public final class DebugLogger extends PipelineLoggerBase {
+public final class PacketInClientCacheStatus extends PacketIn {
 
-  /**
-   * ctor.
-   *
-   * @param next the next logger in the pipeline.
-   */
-  public DebugLogger(@NotNull final PipelineLogger next) {
-    super(next);
+  public PacketInClientCacheStatus() {
+    super(PacketInClientCacheStatus.class);
   }
 
-  @NotNull
   @Override
-  public LogMessage handle(@NotNull final LogMessage msg) {
-    return msg;
+  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
+    final var blobCacheSupport = buf.readBoolean();
+    // @todo #1:15m Add blobCacheSupport field for ShirukaPlayer to set/get blob cache support.
   }
 }

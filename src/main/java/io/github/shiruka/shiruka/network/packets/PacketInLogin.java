@@ -27,22 +27,16 @@ package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.chat.ChatColor;
-import io.github.shiruka.api.events.LoginResultEvent;
-import io.github.shiruka.api.misc.Optionals;
-import io.github.shiruka.shiruka.concurrent.PoolSpec;
-import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.event.SimpleChainData;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.misc.VarInts;
-import io.github.shiruka.shiruka.network.PacketPriority;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,65 +57,61 @@ public final class PacketInLogin extends PacketIn {
     super(PacketInLogin.class);
   }
 
+  /**
+   * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key from the
+   *   client.
+   */
   @Override
   public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
     final var protocolVersion = buf.readInt();
     final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
     final var encodedChainData = Packets.readLEAsciiString(jwt).toString();
     final var encodedSkinData = Packets.readLEAsciiString(jwt).toString();
+    final var connection = player.getPlayerConnection();
     if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
-      final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD);
-      player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
-    } else if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
-      final var packet = new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD);
-      player.getPlayerConnection().sendPacket(packet, PacketPriority.IMMEDIATE);
+      connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD));
       return;
     }
-    final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
-    if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
-      player.disconnect("disconnectionScreen.notAuthenticated");
+    if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
+      connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD));
       return;
     }
-    final var username = chainData.username();
-    final var matcher = PacketInLogin.NAME_PATTERN.matcher(username);
-    if (!matcher.matches() ||
-      username.equalsIgnoreCase("rcon") ||
-      username.equalsIgnoreCase("console")) {
-      player.disconnect("disconnectionScreen.invalidName");
-      return;
-    }
-    if (!chainData.skin().isValid()) {
-      player.disconnect("disconnectionScreen.invalidSkin");
-      return;
-    }
-    final var loginData = new SimpleLoginData(chainData, player, ChatColor.clean(username));
-    final var eventFactory = Shiruka.getEventFactory();
-    final var preLogin = eventFactory.playerPreLogin(loginData, "Some reason.");
-    eventFactory.call(preLogin);
-    if (preLogin.cancelled()) {
-      player.disconnect(preLogin.kickMessage());
-      return;
-    }
-    player.getPlayerConnection().setState(PlayerConnection.State.STATUS);
-    final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
-    CompletableFuture.supplyAsync(() ->
-      Optionals.useAndGet(asyncLogin, eventFactory::call), ServerThreadPool.forSpec(PoolSpec.PLAYERS)
-    ).thenAccept(event -> {
-      if (player.getPlayerConnection().getConnection().isClosed()) {
-        return;
-      }
-      if (event.loginResult() == LoginResultEvent.LoginResult.KICK) {
-        player.disconnect(event.kickMessage());
-        return;
-      }
-      if (!loginData.shouldLogin()) {
-        return;
-      }
-      loginData.initializePlayer();
-      event.objects().forEach(action ->
-        action.accept(player));
+    final var scheduler = Shiruka.getScheduler();
+    player.getServer().getSchedulerService().execute(() -> {
+      final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
+      scheduler.schedule(() -> {
+        if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
+          player.disconnect("disconnectionScreen.notAuthenticated");
+          return;
+        }
+        final var username = chainData.username();
+        final var matcher = PacketInLogin.NAME_PATTERN.matcher(username);
+        if (!matcher.matches() ||
+          username.equalsIgnoreCase("rcon") ||
+          username.equalsIgnoreCase("console")) {
+          player.disconnect("disconnectionScreen.invalidName");
+          return;
+        }
+        if (!chainData.skin().isValid()) {
+          player.disconnect("disconnectionScreen.invalidSkin");
+          return;
+        }
+        final var loginData = new SimpleLoginData(chainData, player, ChatColor.clean(username));
+        player.setLatestLoginData(loginData);
+        final var eventFactory = Shiruka.getEventFactory();
+        final var preLogin = eventFactory.playerPreLogin(loginData, "Some reason.");
+        eventFactory.call(preLogin);
+        if (preLogin.cancelled()) {
+          player.disconnect(preLogin.kickMessage());
+          return;
+        }
+        connection.setState(PlayerConnection.State.STATUS);
+        final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
+        loginData.setAsyncLogin(asyncLogin);
+        player.getServer().getSchedulerService().execute(asyncLogin::callEvent);
+        connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
+        Shiruka.getPackManager().sendPackInfo(player);
+      });
     });
-    player.getPlayerConnection().sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
-    // @todo #1:60m player.getPlayerConnection().sendPacket(Shiruka.getResourcePackManager().getPacksInfos());
   }
 }

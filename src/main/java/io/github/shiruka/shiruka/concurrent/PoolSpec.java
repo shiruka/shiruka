@@ -24,59 +24,65 @@
  */
 package io.github.shiruka.shiruka.concurrent;
 
-import io.github.shiruka.api.log.Loggers;
 import java.io.PrintStream;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * specifier for creating a block of threads used for
- * managing the server thread pool.
+ * specifier for creating a block of threads used for managing the server thread pool.
  */
 public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorkerThreadFactory,
   Thread.UncaughtExceptionHandler {
 
   /**
-   * the thread for async schedulers.
-   */
-  public static final PoolSpec ASYNC_SCHEDULER = new PoolSpec(false, 3, "Shiru ka - Async Scheduler");
-
-  /**
    * the thread for worlds.
    */
-  public static final PoolSpec CHUNKS = new PoolSpec(true, 4, "Shiru ka - Chunks");
+  public static final PoolSpec CHUNKS = new PoolSpec(true, 4, "Chunks");
 
   /**
    * the thread for entities.
    */
-  public static final PoolSpec ENTITIES = new PoolSpec(false, 3, "Shiru ka - Entities");
+  public static final PoolSpec ENTITIES = new PoolSpec(false, 3, "Entities");
 
   /**
    * the thread for players.
    */
-  public static final PoolSpec PLAYERS = new PoolSpec(false, 3, "Shiru ka - Players");
+  public static final PoolSpec PLAYERS = new PoolSpec(false, 3, "Players");
 
   /**
    * the thread for plugins.
    */
-  public static final PoolSpec PLUGINS = new PoolSpec(false, 1, "Shiru ka - Plugins");
+  public static final PoolSpec PLUGINS = new PoolSpec(false, 1, "Plugins");
 
   /**
-   * the thread for schedulers.
+   * the thread factory for schedulers.
    */
-  public static final PoolSpec SCHEDULER = new PoolSpec(false, 3, "Shiru ka - Scheduler");
+  public static final ThreadFactory SCHEDULER = new PoolSpec(false, -1, "Scheduler");
 
   /**
    * a thread factory that does handling for exceptions, piping exception output to the loggers.
    */
-  public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec(false, 0, "Shiru ka - Net");
+  public static final PoolSpec UNCAUGHT_FACTORY = new PoolSpec(false, 0, "Network");
 
   /**
    * the thread for worlds.
    */
-  public static final PoolSpec WORLDS = new PoolSpec(true, 4, "Shiru ka - Worlds");
+  public static final PoolSpec WORLDS = new PoolSpec(true, 4, "Worlds");
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("PoolSpec");
+
+  /**
+   * the thread counter.
+   */
+  private final AtomicInteger counter = new AtomicInteger();
 
   /**
    * whether or not the task order is relevant.
@@ -95,11 +101,11 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   private final String name;
 
   /**
-   * Creates a new thread pool spec.
+   * ctor.
    *
-   * @param doStealing whether or not the pool performs work steals
-   * @param maxThreads the max thread limit
-   * @param name the name of the pool
+   * @param doStealing the do stealing.
+   * @param maxThreads the max threads.
+   * @param name the name.
    */
   private PoolSpec(final boolean doStealing, final int maxThreads, @NotNull final String name) {
     this.doStealing = doStealing;
@@ -137,7 +143,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
 
   @Override
   public Thread newThread(@NotNull final Runnable r) {
-    final var thread = new Thread(r, this.name);
+    final var thread = new Thread(r, String.format("%s #%s", this.name, this.counter.incrementAndGet()));
     thread.setUncaughtExceptionHandler(this);
     return thread;
   }
@@ -155,7 +161,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
     e.printStackTrace(new PrintStream(System.out) {
       @Override
       public void println(final Object x) {
-        Loggers.error(String.valueOf(x));
+        PoolSpec.LOGGER.error(String.valueOf(x));
       }
     });
   }

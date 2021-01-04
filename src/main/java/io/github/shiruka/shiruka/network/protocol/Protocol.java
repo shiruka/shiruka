@@ -25,24 +25,35 @@
 
 package io.github.shiruka.shiruka.network.protocol;
 
-import io.github.shiruka.api.log.Loggers;
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.exceptions.PacketSerializeException;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
-import io.github.shiruka.shiruka.network.packet.PacketIn;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.packet.PacketRegistry;
 import io.github.shiruka.shiruka.network.util.Zlib;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.zip.DataFormatException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a class that serializes and deserializes packets.
+ *
+ * @todo #1:5m Add JavaDocs.
  */
 public final class Protocol {
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger("Protocol");
 
   /**
    * the zlib.
@@ -68,20 +79,16 @@ public final class Protocol {
         try {
           final var header = VarInts.readUnsignedVarInt(packetBuffer);
           final var packetId = header & 0x3ff;
-          Loggers.debug("Incoming packet id -> %s", packetId);
+          Protocol.LOGGER.debug("Incoming packet id -> {}", packetId);
           final var cls = PacketRegistry.byId(player.getPlayerConnection().getState(),
             PacketBound.SERVER, packetId);
-          if (cls == null) {
-            throw new RuntimeException(String.format("Packet with %s not found!", packetId));
-          }
-          final PacketIn packet = PacketRegistry.make(cls);
-          packet.setSenderId(header >>> 10 & 3);
-          packet.setClientId(header >>> 12 & 3);
+          Preconditions.checkArgument(cls != null, "Packet with %s not found!", packetId);
+          final var packet = PacketRegistry.makeIn(cls);
           packet.read(packetBuffer, player);
         } catch (final PacketSerializeException | InvocationTargetException | InstantiationException |
           IllegalAccessException e) {
-          Loggers.debug("Error occurred whilst decoding packet", e);
-          Loggers.debug("Packet contents\n{}", ByteBufUtil.prettyHexDump(packetBuffer.readerIndex(0)));
+          Protocol.LOGGER.debug("Error occurred whilst decoding packet", e);
+          Protocol.LOGGER.debug("Packet contents\n{}", ByteBufUtil.prettyHexDump(packetBuffer.readerIndex(0)));
         }
       }
     } catch (final DataFormatException e) {
@@ -90,6 +97,32 @@ public final class Protocol {
       if (decompressed != null) {
         decompressed.release();
       }
+    }
+  }
+
+  public static void serialize(@NotNull final ByteBuf buffer, @NotNull final Collection<PacketOut> packets,
+                               final int level) {
+    final var uncompressed = ByteBufAllocator.DEFAULT.ioBuffer(packets.size() << 3);
+    try {
+      for (final var packet : packets) {
+        final var packetBuffer = ByteBufAllocator.DEFAULT.ioBuffer();
+        try {
+          final var id = packet.id();
+          var header = 0;
+          header |= id & 0x3ff;
+          VarInts.writeUnsignedInt(packetBuffer, header);
+          packet.write(packetBuffer);
+          VarInts.writeUnsignedInt(uncompressed, packetBuffer.readableBytes());
+          uncompressed.writeBytes(packetBuffer);
+        } catch (final PacketSerializeException e) {
+          Protocol.LOGGER.debug("Error occurred whilst encoding " + packet.getClass().getSimpleName(), e);
+        } finally {
+          packetBuffer.release();
+        }
+      }
+      Protocol.ZLIB.deflate(uncompressed, buffer, level);
+    } finally {
+      uncompressed.release();
     }
   }
 }

@@ -32,18 +32,26 @@ import io.github.shiruka.api.plugin.Plugin;
 import java.util.Collections;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a simple implementation for {@link CommandManager}.
  */
 public final class SimpleCommandManager implements CommandManager {
 
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCommandManager.class);
+
   @Override
-  public void execute(@NotNull final String s, @NotNull final CommandSender commandSender) {
+  public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
+    SimpleCommandManager.LOGGER.info(String.format("%s: %s", sender.name(), command));
   }
 
   @Override
-  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commandNodes) {
+  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commands) {
   }
 
   @NotNull
@@ -53,6 +61,6 @@ public final class SimpleCommandManager implements CommandManager {
   }
 
   @Override
-  public void unregister(@NotNull final String... strings) {
+  public void unregister(@NotNull final String... commands) {
   }
 }

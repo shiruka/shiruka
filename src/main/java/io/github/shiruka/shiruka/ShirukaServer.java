@@ -61,6 +61,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -110,6 +111,12 @@ public final class ShirukaServer implements Server {
   private final WorldLoader loader;
 
   /**
+   * the main thread.
+   */
+  @NotNull
+  private final Thread mainThread;
+
+  /**
    * if the server is running.
    */
   private final AtomicBoolean running = new AtomicBoolean(true);
@@ -146,6 +153,7 @@ public final class ShirukaServer implements Server {
     this.loader = loader;
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.console = console.apply(this);
+    this.mainThread = Thread.currentThread();
   }
 
   /**
@@ -217,15 +225,15 @@ public final class ShirukaServer implements Server {
     this.running.set(true);
     ShirukaServer.LOGGER.info("§eLoading plugins.");
     // @todo #1:60m Load plugins here.
-    ShirukaServer.LOGGER.info("§eEnabling startup plugins before the loading worlds.");
+    ShirukaServer.LOGGER.info("§eEnabling plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     ShirukaServer.LOGGER.info("§eLoading worlds.");
     this.loader.loadAll();
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
+    new Thread(this.console::start).start();
     ShirukaServer.LOGGER.info("§aDone, took {}ms.", end);
-    this.console.start();
     this.tick.run();
   }
 

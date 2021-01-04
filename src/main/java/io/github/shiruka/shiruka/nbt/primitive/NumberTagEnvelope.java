@@ -73,7 +73,7 @@ public abstract class NumberTagEnvelope implements NumberTag {
   }
 
   @Override
-  public String toString() {
+  public final String toString() {
     return this.number.toString();
   }
 }

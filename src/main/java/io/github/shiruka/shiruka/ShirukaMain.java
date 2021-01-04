@@ -84,9 +84,6 @@ public final class ShirukaMain {
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
-    System.setProperty("terminal.keepMinecraftFormatting", "true");
-    System.setProperty("terminal.ansi", "true");
-    System.setProperty("terminal.jline", "true");
     final var parsed = ShirukaConsoleParser.parse(args);
     if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
       ShirukaConsoleParser.printHelpOn();

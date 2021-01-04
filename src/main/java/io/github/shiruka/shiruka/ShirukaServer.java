@@ -61,6 +61,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -215,7 +216,15 @@ public final class ShirukaServer implements Server {
     this.registerImplementations();
     ShirukaServer.reloadPacks();
     this.running.set(true);
+    this.tick.start();
     ShirukaServer.LOGGER.info("§eLoading plugins.");
+    Shiruka.getScheduler().schedule(() -> {
+      final var atom = new AtomicLong();
+      for (var index = 0; index < 10000; index++) {
+        atom.incrementAndGet();
+      }
+      System.out.println(atom.get());
+    });
     // @todo #1:60m Load plugins here.
     ShirukaServer.LOGGER.info("§eEnabling startup plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
@@ -226,7 +235,6 @@ public final class ShirukaServer implements Server {
     final var end = System.currentTimeMillis() - startTime;
     ShirukaServer.LOGGER.info("§aDone, took {}ms.", end);
     this.console.start();
-    this.tick.run();
   }
 
   @Override

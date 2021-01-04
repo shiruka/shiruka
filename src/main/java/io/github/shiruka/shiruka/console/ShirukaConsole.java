@@ -98,8 +98,6 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
       .appName("Shiru ka")
       .completer(this.completer)
       .parser(ShirukaConsole.PARSER)
-      .variable(LineReader.LIST_MAX, 50)
-      .variable(LineReader.HISTORY_FILE, Paths.get(".console_history"))
-      .option(LineReader.Option.BRACKETED_PASTE, false));
+      .variable(LineReader.HISTORY_FILE, Paths.get(".console_history")));
   }
 }

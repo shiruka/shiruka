@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt.stream;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.nbt.CompoundTag;
 import io.github.shiruka.shiruka.nbt.ListTag;
 import io.github.shiruka.shiruka.nbt.Tag;
@@ -81,9 +82,7 @@ public final class NBTOutputStream implements Closeable {
    * @throws IOException if something went wrong when reading the given input.
    */
   public void write(@NotNull final Tag value) throws IOException {
-    if (this.closed) {
-      throw new IllegalStateException("Trying to read from a closed reader!");
-    }
+    Preconditions.checkState(!this.closed, "Trying to read from a closed reader!");
     final var id = value.id();
     if (value.isByte()) {
       this.writeByte(value.asByte());
@@ -110,7 +109,7 @@ public final class NBTOutputStream implements Closeable {
     } else if (value.isLongArray()) {
       this.writeLongArray(value.asLongArray());
     } else {
-      throw new IllegalArgumentException("Unknown type " + id);
+      throw new IllegalArgumentException(String.format("Unknown type %s", id));
     }
   }
 

@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.world.anvil;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.misc.NibbleArray;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.nbt.CompoundTag;
@@ -196,9 +197,7 @@ public final class AnvilChunkSection {
                 data = palette.size() + 1;
               } else {
                 data = palette.indexOf(shortData);
-                if (data == -1) {
-                  throw new IllegalStateException("Failed to lock");
-                }
+                Preconditions.checkState(data != -1, "Failed to lock");
               }
             }
             final var shift = realIdx * bitsPerBlock % 64;

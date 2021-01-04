@@ -408,7 +408,8 @@ public interface Tag {
    */
   @NotNull
   default ArrayTag<?> asArray() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a ArrayTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a ArrayTag!",
+      this.getClass()));
   }
 
   /**
@@ -420,7 +421,8 @@ public interface Tag {
    */
   @NotNull
   default ByteTag asByte() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a ByteTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a ByteTag!",
+      this.getClass()));
   }
 
   /**
@@ -432,7 +434,8 @@ public interface Tag {
    */
   @NotNull
   default ByteArrayTag asByteArray() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a ByteArrayTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a ByteArrayTag!",
+      this.getClass()));
   }
 
   /**
@@ -444,7 +447,8 @@ public interface Tag {
    */
   @NotNull
   default CompoundTag asCompound() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a CompoundTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a CompoundTag!",
+      this.getClass()));
   }
 
   /**
@@ -456,7 +460,8 @@ public interface Tag {
    */
   @NotNull
   default DoubleTag asDouble() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a DoubleTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a DoubleTag!",
+      this.getClass()));
   }
 
   /**
@@ -468,7 +473,8 @@ public interface Tag {
    */
   @NotNull
   default FloatTag asFloat() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a FloatTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a FloatTag!",
+      this.getClass()));
   }
 
   /**
@@ -480,7 +486,8 @@ public interface Tag {
    */
   @NotNull
   default IntTag asInt() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a IntTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a IntTag!",
+      this.getClass()));
   }
 
   /**
@@ -492,7 +499,8 @@ public interface Tag {
    */
   @NotNull
   default IntArrayTag asIntArray() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a IntArrayTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a IntArrayTag!",
+      this.getClass()));
   }
 
   /**
@@ -504,7 +512,8 @@ public interface Tag {
    */
   @NotNull
   default ListTag asList() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a ListTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a ListTag!",
+      this.getClass()));
   }
 
   /**
@@ -516,7 +525,8 @@ public interface Tag {
    */
   @NotNull
   default LongTag asLong() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a LongTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a LongTag!",
+      this.getClass()));
   }
 
   /**
@@ -528,7 +538,8 @@ public interface Tag {
    */
   @NotNull
   default LongArrayTag asLongArray() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a LongArrayTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a LongArrayTag!",
+      this.getClass()));
   }
 
   /**
@@ -540,7 +551,8 @@ public interface Tag {
    */
   @NotNull
   default NumberTag asNumber() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a NumberTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a NumberTag!",
+      this.getClass()));
   }
 
   /**
@@ -552,7 +564,8 @@ public interface Tag {
    */
   @NotNull
   default PrimitiveTag<?> asPrimitive() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a PrimitiveTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a PrimitiveTag!",
+      this.getClass()));
   }
 
   /**
@@ -564,7 +577,8 @@ public interface Tag {
    */
   @NotNull
   default ShortTag asShort() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a ShortTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a ShortTag!",
+      this.getClass()));
   }
 
   /**
@@ -576,7 +590,8 @@ public interface Tag {
    */
   @NotNull
   default StringTag asString() {
-    throw new IllegalStateException(this.getClass() + " cannot cast as a StringTag!");
+    throw new IllegalStateException(String.format("%s cannot cast as a StringTag!",
+      this.getClass()));
   }
 
   /**

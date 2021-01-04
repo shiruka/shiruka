@@ -59,7 +59,7 @@ public final class PacketInLogin extends PacketIn {
 
   /**
    * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key from the
-   *  client.
+   *   client.
    */
   @Override
   public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {

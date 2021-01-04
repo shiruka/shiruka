@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.world.anvil;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.api.world.options.WorldCreateSpec;
@@ -55,9 +56,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   @Override
   public final World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
     return this.worlds.compute(name, (k, v) -> {
-      if (v != null) {
-        throw new IllegalArgumentException("World \"" + name + "\" already exists!");
-      }
+      Preconditions.checkArgument(v == null, "World \"%s\" already exists!", name);
       AnvilWorldLoader.LOGGER.info("Creating world \"{}\".", name);
       final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
       world.loadSpawnChunks();
@@ -89,13 +88,10 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
       return world;
     }
     final var path = Misc.HOME_PATH.resolve(name);
-    if (Files.isDirectory(path)) {
-      final var levelDat = path.resolve("level.dat");
-      if (Files.exists(levelDat)) {
-        return this.load(name, path, Dimension.OVER_WORLD);
-      }
-    }
-    throw new IllegalArgumentException(name + " has no world!");
+    Preconditions.checkArgument(Files.isDirectory(path), "%s has no world!", name);
+    final var levelDat = path.resolve("level.dat");
+    Preconditions.checkArgument(Files.exists(levelDat), "%s has no world!", name);
+    return this.load(name, path, Dimension.OVER_WORLD);
   }
 
   @NotNull

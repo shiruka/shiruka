@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network.misc;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.Connection;
 import io.netty.util.AbstractReferenceCounted;
 import io.netty.util.ReferenceCountUtil;
@@ -56,20 +57,14 @@ public final class SplitPacketHelper extends AbstractReferenceCounted {
    * @param expectedLength the expected length.
    */
   public SplitPacketHelper(final long expectedLength) {
-    if (expectedLength < 1) {
-      throw new IllegalStateException("expectedLength is less than 1 (" + expectedLength + ")");
-    }
+    Preconditions.checkState(expectedLength >= 1, "expectedLength is less than 1 (%s)", expectedLength);
     this.packets = new EncapsulatedPacket[(int) expectedLength];
   }
 
   @Nullable
   public EncapsulatedPacket add(@NotNull final EncapsulatedPacket packet, @NotNull final Connection<?> connection) {
-    if (!packet.split) {
-      throw new IllegalStateException("packet is not split");
-    }
-    if (this.refCnt() <= 0) {
-      throw new IllegalStateException("packet has been released");
-    }
+    Preconditions.checkState(packet.split, "packet is not split");
+    Preconditions.checkState(this.refCnt() > 0, "packet has been released");
     Objects.checkIndex(packet.partIndex, this.packets.length);
     final var partIndex = packet.partIndex;
     //noinspection ConstantConditions
@@ -93,9 +88,7 @@ public final class SplitPacketHelper extends AbstractReferenceCounted {
   }
 
   public boolean expired() {
-    if (this.refCnt() <= 0) {
-      throw new IllegalStateException("packet has been released");
-    }
+    Preconditions.checkState(this.refCnt() > 0, "packet has been released");
     return System.currentTimeMillis() - this.created >= 30000;
   }
 

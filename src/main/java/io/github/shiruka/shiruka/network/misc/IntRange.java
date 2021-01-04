@@ -25,6 +25,8 @@
 
 package io.github.shiruka.shiruka.network.misc;
 
+import com.google.common.base.Preconditions;
+
 /**
  * a class that contains minimum and maximum integers.
  */
@@ -47,9 +49,7 @@ public final class IntRange {
    * @param maximum the maximum point.
    */
   public IntRange(final int minimum, final int maximum) {
-    if (minimum > maximum) {
-      throw new IllegalStateException("The maximum number must bigger or equal to the minimum number!");
-    }
+    Preconditions.checkState(minimum <= maximum, "The maximum number must bigger or equal to the minimum number!");
     this.minimum = minimum;
     this.maximum = maximum;
   }

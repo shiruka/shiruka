@@ -545,9 +545,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
       buffers = new ByteBuf[split];
       IntStream.range(0, split)
         .forEach(i -> buffers[i] = packet.readSlice(Math.min(maxLength, packet.readableBytes())));
-      if (packet.isReadable()) {
-        throw new IllegalStateException("Buffer still has bytes to read!");
-      }
+      Preconditions.checkState(!packet.isReadable(), "Buffer still has bytes to read!");
       splitId = this.splitIndex.getAndIncrement();
     } else {
       buffers = new ByteBuf[]{packet.readRetainedSlice(packet.readableBytes())};

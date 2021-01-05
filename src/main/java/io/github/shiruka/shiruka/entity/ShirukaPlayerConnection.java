@@ -26,11 +26,14 @@
 package io.github.shiruka.shiruka.entity;
 
 import io.github.shiruka.shiruka.ShirukaServer;
+import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link PlayerConnection}.
@@ -50,6 +53,12 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
   private final ShirukaServer server;
 
   /**
+   * the login data.
+   */
+  @Nullable
+  private SimpleLoginData loginData;
+
+  /**
    * the state.
    */
   @NotNull
@@ -65,6 +74,21 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
                                  @NotNull final ShirukaServer server) {
     this.connection = connection;
     this.server = server;
+  }
+
+  @Override
+  public void disconnect(@Nullable final String reason) {
+    this.connection.checkForClosed();
+    final String finalReason;
+    final boolean messageSkipped;
+    if (reason == null) {
+      finalReason = "disconnect.disconnected";
+      messageSkipped = true;
+    } else {
+      finalReason = reason;
+      messageSkipped = false;
+    }
+    this.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped));
   }
 
   @NotNull
@@ -94,5 +118,24 @@ public final class ShirukaPlayerConnection implements PlayerConnection {
   public void sendPacket(@NotNull final PacketOut packet) {
     this.connection.checkForClosed();
     this.connection.addQueuedPacket(packet);
+  }
+
+  /**
+   * obtains the latest login data.
+   *
+   * @return latest login data.
+   */
+  @Nullable
+  public SimpleLoginData getLatestLoginData() {
+    return this.loginData;
+  }
+
+  /**
+   * sets the latest login data of the player.
+   *
+   * @param loginData the login data to set.
+   */
+  public void setLatestLoginData(@NotNull final SimpleLoginData loginData) {
+    this.loginData = loginData;
   }
 }

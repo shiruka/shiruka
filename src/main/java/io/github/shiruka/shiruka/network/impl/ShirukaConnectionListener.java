@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
-import io.github.shiruka.shiruka.entity.ShirukaPlayer;
+import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
@@ -36,8 +36,6 @@ import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * an implementation for {@link ConnectionListener}.
@@ -54,16 +52,16 @@ public final class ShirukaConnectionListener implements ConnectionListener {
    * the player.
    */
   @NotNull
-  private final ShirukaPlayer player;
+  private final ShirukaPlayerConnection playerConnection;
 
   /**
    * ctor.
    *
-   * @param player the connection.
+   * @param playerConnection the connection.
    */
-  ShirukaConnectionListener(@NotNull final ShirukaPlayer player) {
-    this.player = player;
-    this.connection = this.player.getPlayerConnection().getConnection();
+  ShirukaConnectionListener(@NotNull final ShirukaPlayerConnection playerConnection) {
+    this.playerConnection = playerConnection;
+    this.connection = this.playerConnection.getConnection();
   }
 
   @Override
@@ -97,6 +95,6 @@ public final class ShirukaConnectionListener implements ConnectionListener {
    */
   private void onWrappedPacket(@NotNull final ByteBuf buf) {
     buf.markReaderIndex();
-    Protocol.deserialize(buf, this.player);
+    Protocol.deserialize(buf, this.playerConnection);
   }
 }

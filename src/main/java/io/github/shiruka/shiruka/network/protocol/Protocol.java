@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
+import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
@@ -65,7 +66,7 @@ public final class Protocol {
   private Protocol() {
   }
 
-  public static void deserialize(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
+  public static void deserialize(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
     ByteBuf decompressed = null;
     try {
       decompressed = Protocol.ZLIB.inflate(buf, 12 * 1024 * 1024);
@@ -79,11 +80,11 @@ public final class Protocol {
           final var header = VarInts.readUnsignedVarInt(packetBuffer);
           final var packetId = header & 0x3ff;
           Protocol.LOGGER.debug("Incoming packet id -> {}", packetId);
-          final var cls = PacketRegistry.byId(player.getPlayerConnection().getState(),
+          final var cls = PacketRegistry.byId(connection.getState(),
             PacketBound.SERVER, packetId);
           Preconditions.checkArgument(cls != null, "Packet with %s not found!", packetId);
           final var packet = PacketRegistry.makeIn(cls);
-          packet.read(packetBuffer, player);
+          packet.read(packetBuffer, connection);
         } catch (final InvocationTargetException | InstantiationException |
           IllegalAccessException e) {
           Protocol.LOGGER.debug("Error occurred whilst decoding packet", e);

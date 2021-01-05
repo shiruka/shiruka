@@ -30,6 +30,9 @@ import io.github.shiruka.api.events.LoginResultEvent;
 import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
+import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.misc.GameProfile;
+import io.github.shiruka.shiruka.scheduler.AsyncTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +51,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * the player.
    */
   @NotNull
-  private final ShirukaPlayer player;
+  private final ShirukaPlayerConnection connection;
 
   /**
    * the username.
@@ -63,6 +66,12 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
   private PlayerAsyncLoginEvent asyncLogin;
 
   /**
+   * the process.
+   */
+  @Nullable
+  private AsyncTask process;
+
+  /**
    * the should login.
    */
   private boolean shouldLogin;
@@ -71,14 +80,14 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * ctor.
    *
    * @param chainData the chain data.
-   * @param player the player.
+   * @param connection the connection.
    * @param username the username.
    */
-  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final ShirukaPlayer player,
-                         @NotNull final String username) {
+  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData,
+                         @NotNull final ShirukaPlayerConnection connection, @NotNull final String username) {
     this.chainData = chainData;
     this.username = username;
-    this.player = player;
+    this.connection = connection;
   }
 
   @NotNull
@@ -88,24 +97,36 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
   }
 
   /**
+   * obtains the process.
+   *
+   * @return process.
+   */
+  @Nullable
+  public AsyncTask getProcess() {
+    return this.process;
+  }
+
+  /**
    * initializes the player.
    */
   public void initializePlayer() {
     if (this.asyncLogin == null) {
       return;
     }
-    if (this.player.getPlayerConnection().getConnection().isClosed()) {
+    if (this.connection.getConnection().isClosed()) {
       return;
     }
     if (this.asyncLogin.loginResult() == LoginResultEvent.LoginResult.KICK) {
-      this.player.disconnect(this.asyncLogin.kickMessage());
+      this.connection.disconnect(this.asyncLogin.kickMessage());
       return;
     }
     if (!this.shouldLogin) {
       return;
     }
-    this.asyncLogin.objects().forEach(action ->
-      action.accept(this.player));
+    final var profile = new GameProfile(this.username, this.chainData.uniqueId(), this.chainData.xuid());
+    final var player = new ShirukaPlayer(this.connection, profile);
+    System.out.println(profile);
+    this.asyncLogin.objects().forEach(action -> action.accept(player));
   }
 
   /**
@@ -115,6 +136,15 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    */
   public void setAsyncLogin(@NotNull final PlayerAsyncLoginEvent asyncLogin) {
     this.asyncLogin = asyncLogin;
+  }
+
+  /**
+   * sets the process.
+   *
+   * @param process the process to set.
+   */
+  public void setAsyncProcess(@NotNull final AsyncTask process) {
+    this.process = process;
   }
 
   /**

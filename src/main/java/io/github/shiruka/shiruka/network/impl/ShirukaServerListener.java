@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.impl;
 
 import io.github.shiruka.shiruka.ShirukaServer;
-import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.server.ServerListener;
@@ -64,8 +63,7 @@ public final class ShirukaServerListener implements ServerListener {
   @Override
   public void onConnectionCreation(@NotNull final Connection<ServerSocket> connection) {
     final var playerConnection = new ShirukaPlayerConnection(connection, this.server);
-    final var player = new ShirukaPlayer(playerConnection);
-    final var connectionListener = new ShirukaConnectionListener(player);
+    final var connectionListener = new ShirukaConnectionListener(playerConnection);
     connection.setConnectionListener(connectionListener);
   }
 

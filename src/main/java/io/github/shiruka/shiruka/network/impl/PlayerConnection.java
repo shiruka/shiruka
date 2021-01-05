@@ -30,11 +30,19 @@ import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * an interface to determine player's connection.
  */
 public interface PlayerConnection {
+
+  /**
+   * runs when the player disconnected.
+   *
+   * @param reason the reason to disconnect.
+   */
+  void disconnect(@Nullable String reason);
 
   /**
    * obtains the original connection.

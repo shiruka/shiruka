@@ -56,20 +56,22 @@ public final class PacketRegistry {
   /**
    * packet registry.
    */
-  private static final Reference2IntOpenHashMap<Class<? extends Packet>> PACKET_IDS =
-    new Reference2IntOpenHashMap<>();
+  private static final Reference2IntOpenHashMap<Class<? extends Packet>> PACKET_IDS = new Reference2IntOpenHashMap<>();
 
   static {
-    // handshake packets.
-    PacketRegistry.put(PacketInLogin.class, PlayerConnection.State.HANDSHAKE, PacketBound.SERVER, 1);
-    PacketRegistry.put(PacketOutPlayStatus.class, PlayerConnection.State.HANDSHAKE, PacketBound.CLIENT, 2);
-    // status packets.
-    PacketRegistry.put(PacketOutPackInfo.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 6);
-    PacketRegistry.put(PacketOutPackStack.class, PlayerConnection.State.STATUS, PacketBound.CLIENT, 7);
-    PacketRegistry.put(PacketInResourcePackResponse.class, PlayerConnection.State.STATUS, PacketBound.SERVER, 8);
-    PacketRegistry.put(PacketInClientCacheStatus.class, PlayerConnection.State.STATUS, PacketBound.SERVER, 129);
-    // any state of packets.
-    PacketRegistry.put(PacketOutDisconnect.class, PlayerConnection.State.ANY, PacketBound.CLIENT, 5);
+    // packets of handshake state.
+    PacketRegistry.putIn(PacketInLogin.class, PlayerConnection.State.HANDSHAKE, 1);
+    PacketRegistry.putOut(PacketOutPlayStatus.class, PlayerConnection.State.HANDSHAKE, 2);
+    // packets of status state.
+    PacketRegistry.putOut(PacketOutPackInfo.class, PlayerConnection.State.STATUS, 6);
+    PacketRegistry.putOut(PacketOutPackStack.class, PlayerConnection.State.STATUS, 7);
+    PacketRegistry.putIn(PacketInResourcePackResponse.class, PlayerConnection.State.STATUS, 8);
+    PacketRegistry.putOut(PacketOutResourcePackDataInfo.class, PlayerConnection.State.STATUS, 82);
+    PacketRegistry.putOut(PacketOutResourcePackChunkData.class, PlayerConnection.State.STATUS, 83);
+    PacketRegistry.putIn(PacketInResourcePackChunkRequest.class, PlayerConnection.State.STATUS, 84);
+    PacketRegistry.putIn(PacketInClientCacheStatus.class, PlayerConnection.State.STATUS, 129);
+    // packets of any state.
+    PacketRegistry.putOut(PacketOutDisconnect.class, PlayerConnection.State.ANY, 5);
     PacketRegistry.PACKETS.trim();
     PacketRegistry.PACKET_IDS.trim();
   }
@@ -201,6 +203,28 @@ public final class PacketRegistry {
     } catch (final NoSuchMethodException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * puts the given packet class into the map with the given ID, and also inserts the constructor into the CTOR cache.
+   *
+   * @param cls the class.
+   * @param id the ID.
+   */
+  private static void putIn(@NotNull final Class<? extends PacketIn> cls, @NotNull final PlayerConnection.State state,
+                            final int id) {
+    PacketRegistry.put(cls, state, PacketBound.SERVER, id);
+  }
+
+  /**
+   * puts the given packet class into the map with the given ID, and also inserts the constructor into the CTOR cache.
+   *
+   * @param cls the class.
+   * @param id the ID.
+   */
+  private static void putOut(@NotNull final Class<? extends PacketOut> cls, @NotNull final PlayerConnection.State state,
+                             final int id) {
+    PacketRegistry.put(cls, state, PacketBound.CLIENT, id);
   }
 
   /**

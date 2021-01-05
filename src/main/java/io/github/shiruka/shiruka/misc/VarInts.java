@@ -43,7 +43,7 @@ public final class VarInts {
   /**
    * The default character encoding for protocol Strings.
    */
-  public static final Charset NET_CHARSET = StandardCharsets.UTF_8;
+  private static final Charset NET_CHARSET = StandardCharsets.UTF_8;
 
   /**
    * ctor.
@@ -213,6 +213,17 @@ public final class VarInts {
   public static Vector readVector(@NotNull final ByteBuf buf) {
     final var pos = buf.readLong();
     return Vector.create(pos >> 38, pos >> 26 & 0xFFF, pos << 38 >> 38);
+  }
+
+  /**
+   * writes the given bytes into the given buffer.
+   *
+   * @param buffer the buffer to write.
+   * @param bytes the bytes to write.
+   */
+  public static void writeByteArray(@NotNull final ByteBuf buffer, final byte[] bytes) {
+    VarInts.writeUnsignedInt(buffer, bytes.length);
+    buffer.writeBytes(bytes);
   }
 
   /**

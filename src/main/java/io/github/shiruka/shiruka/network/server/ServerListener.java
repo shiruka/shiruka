@@ -50,8 +50,8 @@ public interface ServerListener {
    *
    * @return a server data's byte array.
    */
-  static byte[] createOne(@NotNull final ServerSocket server, @NotNull final String serverDescription, final int connectionCount,
-                          final int maximumConnectionCount) {
+  static byte[] createOne(@NotNull final ServerSocket server, @NotNull final String serverDescription,
+                          final int connectionCount, final int maximumConnectionCount) {
     return new StringJoiner(";")
       // server's edition
       .add("MCPE")

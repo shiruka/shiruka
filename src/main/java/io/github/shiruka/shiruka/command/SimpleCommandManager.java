@@ -47,7 +47,8 @@ public final class SimpleCommandManager implements CommandManager {
 
   @Override
   public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
-    SimpleCommandManager.LOGGER.info(String.format("%s: %s", sender.name(), command));
+    final var name = sender.name();
+    SimpleCommandManager.LOGGER.info("{} -> {}", name, command);
   }
 
   @Override

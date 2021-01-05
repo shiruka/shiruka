@@ -29,8 +29,7 @@ import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.shiruka.ShirukaServer;
-import io.github.shiruka.shiruka.event.SimpleLoginData;
-import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
+import io.github.shiruka.shiruka.misc.GameProfile;
 import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
@@ -48,58 +47,31 @@ public final class ShirukaPlayer implements Player {
   private final ShirukaPlayerConnection connection;
 
   /**
-   * the login data.
+   * the profile.
    */
-  @Nullable
-  private SimpleLoginData loginData;
+  @NotNull
+  private final GameProfile profile;
 
   /**
    * ctor.
    *
    * @param connection the connection.
+   * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final ShirukaPlayerConnection connection) {
+  public ShirukaPlayer(@NotNull final ShirukaPlayerConnection connection, @NotNull final GameProfile profile) {
     this.connection = connection;
+    this.profile = profile;
   }
 
   @Override
   public void disconnect(@Nullable final String reason) {
-    this.connection.getConnection().checkForClosed();
-    final String finalReason;
-    final boolean messageSkipped;
-    if (reason == null) {
-      finalReason = "disconnect.disconnected";
-      messageSkipped = true;
-    } else {
-      finalReason = reason;
-      messageSkipped = false;
-    }
-    this.connection.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped));
+    this.connection.disconnect(reason);
   }
 
   @NotNull
   @Override
   public ShirukaServer getServer() {
     return this.connection.getServer();
-  }
-
-  /**
-   * obtains the latest login data.
-   *
-   * @return latest login data.
-   */
-  @Nullable
-  public SimpleLoginData getLatestLoginData() {
-    return this.loginData;
-  }
-
-  /**
-   * sets the latest login data of the player.
-   *
-   * @param loginData the login data to set.
-   */
-  public void setLatestLoginData(@NotNull final SimpleLoginData loginData) {
-    this.loginData = loginData;
   }
 
   @NotNull

@@ -23,33 +23,47 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.network.packets;
 
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.api.pack.Pack;
+import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract implementation for {@link Packet} that determines incoming packets.
- *
- * @todo #1:30m Add a simple singleton field for packets which extend PacketIn class.
+ * a class that represents resource pack data info packets.
  */
-public abstract class PacketIn extends Packet {
+public final class PacketOutResourcePackDataInfo extends PacketOut {
+
+  /**
+   * the maximum chunk size.
+   */
+  private static final int MAX_CHUNK_SIZE = 1048576;
+
+  @NotNull
+  private final Pack pack;
 
   /**
    * ctor.
    *
-   * @param cls the packet class.
+   * @param pack the pack.
    */
-  protected PacketIn(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  public PacketOutResourcePackDataInfo(@NotNull final Pack pack) {
+    super(PacketOutResourcePackDataInfo.class);
+    this.pack = pack;
   }
 
-  /**
-   * reads the buf that was sent by the injected player.
-   *
-   * @param buf the buf to read.
-   * @param connection the connection to read.
-   */
-  public abstract void read(@NotNull ByteBuf buf, @NotNull ShirukaPlayerConnection connection);
+  @Override
+  public void write(@NotNull final ByteBuf buf) {
+    VarInts.writeString(buf, this.pack.getId().toString() + '_' + this.pack.getVersion());
+    buf.writeIntLE(PacketOutResourcePackDataInfo.MAX_CHUNK_SIZE);
+    buf.writeIntLE((int) (this.pack.getSize() / PacketOutResourcePackDataInfo.MAX_CHUNK_SIZE));
+    buf.writeLongLE(this.pack.getSize());
+    final var hash = this.pack.getHash();
+    VarInts.writeUnsignedInt(buf, hash.length);
+    buf.writeBytes(hash);
+    buf.writeBoolean(false);
+    buf.writeByte(this.pack.getType().getId());
+  }
 }

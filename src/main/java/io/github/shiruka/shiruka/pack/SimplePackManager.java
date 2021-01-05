@@ -26,10 +26,8 @@
 package io.github.shiruka.shiruka.pack;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.pack.*;
 import io.github.shiruka.shiruka.config.ServerConfig;
-import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackInfo;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -152,9 +150,33 @@ public final class SimplePackManager implements PackManager {
         return Optional.of(PackManifest.load(asset.get()));
       }
     } catch (final IllegalStateException | IOException e) {
-      SimplePackManager.LOGGER.error("Failed to load " + loader.getLocation(), e);
+      SimplePackManager.LOGGER.error(String.format("Failed to load %s", loader.getLocation()), e);
     }
     return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Optional<Pack> getPack(@NotNull final String s) {
+    return Optional.ofNullable(this.packs.get(s));
+  }
+
+  @NotNull
+  @Override
+  public Optional<Pack> getPackByUniqueId(@NotNull final UUID uuid) {
+    return Optional.ofNullable(this.packsById.get(uuid));
+  }
+
+  @NotNull
+  @Override
+  public Object getPackInfo() {
+    return this.packInfo.get();
+  }
+
+  @NotNull
+  @Override
+  public Object getPackStack() {
+    return this.packStack.get();
   }
 
   @Override
@@ -260,14 +282,6 @@ public final class SimplePackManager implements PackManager {
   public void registerPack(@NotNull final PackManifest.PackType type, @NotNull final Pack.Factory factory) {
     Preconditions.checkArgument(this.packFactories.putIfAbsent(type, factory) == null,
       "The pack factory is already registered!");
-  }
-
-  @Override
-  public void sendPackInfo(@NotNull final Player player) {
-    if (player instanceof ShirukaPlayer) {
-      Optional.ofNullable(this.packInfo.get())
-        .ifPresent(((ShirukaPlayer) player).getPlayerConnection()::sendPacket);
-    }
   }
 
   /**

@@ -25,20 +25,27 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.shiruka.config.ServerConfig;
-import io.github.shiruka.shiruka.entity.ShirukaPlayer;
+import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
+import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a class that represents resource pack response packets.
  */
 public final class PacketInResourcePackResponse extends PacketIn {
+
+  public static final Logger LOGGER = LoggerFactory.getLogger(PacketInResourcePackResponse.class);
 
   /**
    * ctor.
@@ -48,36 +55,54 @@ public final class PacketInResourcePackResponse extends PacketIn {
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayer player) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
     final byte ordinal = buf.readByte();
     final var status = Status.valueOf(ordinal);
     final var length = buf.readShortLE();
     final var packs = new ArrayList<Entry>();
-    for (var i = 0; i < length; i++) {
-      final var uniqueIdVersion = VarInts.readString(buf).split("_");
-      try {
-        packs.add(new Entry(UUID.fromString(uniqueIdVersion[0]), uniqueIdVersion[1]));
-      } catch (final Exception e) {
-      }
-    }
+    IntStream.range(0, length).mapToObj(i -> VarInts.readString(buf).split("_"))
+      .forEach(uniqueIdVersion -> {
+        try {
+          packs.add(new Entry(UUID.fromString(uniqueIdVersion[0]), uniqueIdVersion[1]));
+        } catch (final Exception ignored) {
+        }
+      });
     if (status == null) {
       return;
     }
     switch (status) {
       case REFUSED:
         if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
-          player.disconnect("disconnectionScreen.noReason");
+          connection.disconnect("disconnectionScreen.noReason");
         }
         break;
       case COMPLETED:
-        final var data = player.getLatestLoginData();
-        if (data != null) {
+        final var data = connection.getLatestLoginData();
+        if (data == null) {
+          return;
+        }
+        if (data.getProcess() != null && data.getProcess().isDone()) {
           data.initializePlayer();
+        } else {
+          data.setShouldLogin(true);
         }
         break;
       case SEND_PACKS:
+        packs.forEach(pack -> {
+          final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
+          if (optional.isEmpty()) {
+            connection.disconnect("disconnectionScreen.resourcePack");
+            return;
+          }
+          final var loaded = optional.get();
+          connection.sendPacket(new PacketOutResourcePackDataInfo(loaded));
+        });
         break;
       case HAVE_ALL_PACKS:
+        final var packStack = Shiruka.getPackManager().getPackStack();
+        if (packStack instanceof PacketOut) {
+          connection.sendPacket((PacketOut) packStack);
+        }
         break;
     }
   }

@@ -103,6 +103,15 @@ public final class AsyncTask implements Task, Runnable {
     return this.task;
   }
 
+  /**
+   * checks if the task is done.
+   *
+   * @return {@code true} if the task is done.
+   */
+  public boolean isDone() {
+    return this.future != null && this.future.isDone();
+  }
+
   @Override
   public void run() {
     try {

@@ -25,25 +25,46 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.netty.buffer.ByteBuf;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * sends by the client at the start of the game.
- * it is sent to let the server know if it supports the client-side blob cache.
- * clients such as Nintendo Switch do not support the cache, and attempting to use it anyway will fail.
+ * a class that represents resource pack chunk request packets.
  */
-public final class PacketInClientCacheStatus extends PacketIn {
+public final class PacketInResourcePackChunkRequest extends PacketIn {
 
-  public PacketInClientCacheStatus() {
-    super(PacketInClientCacheStatus.class);
+  /**
+   * ctor.
+   */
+  public PacketInResourcePackChunkRequest() {
+    super(PacketInResourcePackChunkRequest.class);
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, final @NotNull ShirukaPlayerConnection player) {
-    final var blobCacheSupport = buf.readBoolean();
-    // @todo #1:15m Add blobCacheSupport field for ShirukaPlayer to set/get blob cache support.
+  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+    final var packInfo = VarInts.readString(buf).split("_");
+    final var packId = UUID.fromString(packInfo[0]);
+    @Nullable final String version;
+    if (packInfo.length > 1) {
+      version = packInfo[1];
+    } else {
+      version = null;
+    }
+    final var chunkSize = buf.readIntLE();
+    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
+    if (resourcePack.isEmpty()) {
+      connection.disconnect("disconnectionScreen.resourcePack");
+      return;
+    }
+    final var pack = resourcePack.get();
+    final var packet = new PacketOutResourcePackChunkData(chunkSize, pack.getChunk(1048576 * chunkSize, 1048576),
+      packId, version, 1048576L * chunkSize);
+    connection.sendPacket(packet);
   }
 }

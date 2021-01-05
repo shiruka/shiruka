@@ -79,7 +79,7 @@ public final class Protocol {
         try {
           final var header = VarInts.readUnsignedVarInt(packetBuffer);
           final var packetId = header & 0x3ff;
-          Protocol.LOGGER.debug("Incoming packet id -> {}", packetId);
+          Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
           final var cls = PacketRegistry.byId(connection.getState(),
             PacketBound.SERVER, packetId);
           Preconditions.checkArgument(cls != null, "Packet with %s not found!", packetId);

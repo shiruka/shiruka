@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketBound;

@@ -169,6 +169,12 @@ public final class SimplePackManager implements PackManager {
 
   @NotNull
   @Override
+  public Object getPackInfo() {
+    return this.packInfo.get();
+  }
+
+  @NotNull
+  @Override
   public Object getPackStack() {
     return this.packStack.get();
   }
@@ -276,12 +282,6 @@ public final class SimplePackManager implements PackManager {
   public void registerPack(@NotNull final PackManifest.PackType type, @NotNull final Pack.Factory factory) {
     Preconditions.checkArgument(this.packFactories.putIfAbsent(type, factory) == null,
       "The pack factory is already registered!");
-  }
-
-  @NotNull
-  @Override
-  public Object getPackInfo() {
-    return this.packInfo.get();
   }
 
   /**

@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.packet;
 
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +47,8 @@ public abstract class PacketIn extends Packet {
 
   /**
    * reads the buf that was sent by the injected player.
-   *  @param buf the buf to read.
+   *
+   * @param buf the buf to read.
    * @param connection the connection to read.
    */
   public abstract void read(@NotNull ByteBuf buf, @NotNull ShirukaPlayerConnection connection);

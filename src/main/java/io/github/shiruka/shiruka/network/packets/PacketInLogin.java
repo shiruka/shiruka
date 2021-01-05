@@ -75,10 +75,9 @@ public final class PacketInLogin extends PacketIn {
       connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD));
       return;
     }
-    final var scheduler = Shiruka.getScheduler();
     player.getServer().getSchedulerService().execute(() -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
-      scheduler.schedule(() -> {
+      Shiruka.getScheduler().schedule(() -> {
         if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
           player.disconnect("disconnectionScreen.notAuthenticated");
           return;
@@ -97,15 +96,14 @@ public final class PacketInLogin extends PacketIn {
         }
         final var loginData = new SimpleLoginData(chainData, player, ChatColor.clean(username));
         player.setLatestLoginData(loginData);
-        final var eventFactory = Shiruka.getEventFactory();
-        final var preLogin = eventFactory.playerPreLogin(loginData, "Some reason.");
-        eventFactory.call(preLogin);
+        final var preLogin = Shiruka.getEventFactory().playerPreLogin(loginData, "Some reason.");
+        preLogin.callEvent();
         if (preLogin.cancelled()) {
           player.disconnect(preLogin.kickMessage());
           return;
         }
         connection.setState(PlayerConnection.State.STATUS);
-        final var asyncLogin = eventFactory.playerAsyncLogin(loginData);
+        final var asyncLogin = Shiruka.getEventFactory().playerAsyncLogin(loginData);
         loginData.setAsyncLogin(asyncLogin);
         player.getServer().getSchedulerService().execute(asyncLogin::callEvent);
         connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));

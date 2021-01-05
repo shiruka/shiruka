@@ -609,7 +609,7 @@ public final class Packets {
                                                 @NotNull final InetSocketAddress recipient,
                                                 final long pingTime) {
     final var serverData = server.getServerListener().onRequestServerData(server, recipient);
-    final int serverDataLength = serverData.length;
+    final var serverDataLength = serverData.length;
     final var packetLength = 35 + serverDataLength;
     Packets.createPacket(ctx, packetLength, packet -> {
       packet.writeByte(Packets.UNCONNECTED_PONG);

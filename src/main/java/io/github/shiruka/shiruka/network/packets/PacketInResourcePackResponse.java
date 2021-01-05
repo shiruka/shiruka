@@ -32,6 +32,7 @@ import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,13 +54,13 @@ public final class PacketInResourcePackResponse extends PacketIn {
     final var status = Status.valueOf(ordinal);
     final var length = buf.readShortLE();
     final var packs = new ArrayList<Entry>();
-    for (var i = 0; i < length; i++) {
-      final var uniqueIdVersion = VarInts.readString(buf).split("_");
-      try {
-        packs.add(new Entry(UUID.fromString(uniqueIdVersion[0]), uniqueIdVersion[1]));
-      } catch (final Exception e) {
-      }
-    }
+    IntStream.range(0, length).mapToObj(i -> VarInts.readString(buf).split("_"))
+      .forEach(uniqueIdVersion -> {
+        try {
+          packs.add(new Entry(UUID.fromString(uniqueIdVersion[0]), uniqueIdVersion[1]));
+        } catch (final Exception e) {
+        }
+      });
     if (status == null) {
       return;
     }

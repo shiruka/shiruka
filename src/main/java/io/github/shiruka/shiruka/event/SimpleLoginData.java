@@ -101,7 +101,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
       this.player.disconnect(this.asyncLogin.kickMessage());
       return;
     }
-    if (!this.shouldLogin()) {
+    if (!this.shouldLogin) {
       return;
     }
     this.asyncLogin.objects().forEach(action ->
@@ -124,14 +124,5 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    */
   public void setShouldLogin(final boolean shouldLogin) {
     this.shouldLogin = shouldLogin;
-  }
-
-  /**
-   * obtains the should login.
-   *
-   * @return should login.
-   */
-  public boolean shouldLogin() {
-    return this.shouldLogin;
   }
 }

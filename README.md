@@ -19,4 +19,4 @@
 | -O, --ops <File: Ops file>                     | Ops file to use (default: ops.hjson)                    |
 | -P, --plugins <File: Plugin directory>         | Plugin directory to use (default: plugins)              |
 | -U, --usercache <File: User cache file>        | User cache file to use (default: usercache.hjson)       |
-| -v, --version                                  | Show the Shiru ka's version                             |
+| -V, --version                                  | Show the Shiru ka's version                             |

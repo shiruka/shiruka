@@ -1,4 +1,4 @@
-<img src="img/SHIRUKA.png" width="92px" alt=""/>
+<img src="img/SHIRUKA.png" width="92px"/>
 
 [![idea](https://www.elegantobjects.org/intellij-idea.svg)](https://www.jetbrains.com/idea/)
 

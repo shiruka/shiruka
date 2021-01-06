@@ -107,7 +107,11 @@ public final class PacketInLogin extends PacketIn {
         final var asyncLogin = Shiruka.getEventFactory().playerAsyncLogin(loginData);
         loginData.setAsyncLogin(asyncLogin);
         final var process = (AsyncTask) Shiruka.getScheduler().scheduleAsync(asyncLogin::callEvent);
-        process.onComplete(loginData::initializePlayer);
+        process.onComplete(() -> {
+          if (loginData.shouldLogin()) {
+            loginData.initializePlayer();
+          }
+        });
         loginData.setAsyncProcess(process);
         connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
         final var packInfo = Shiruka.getPackManager().getPackInfo();

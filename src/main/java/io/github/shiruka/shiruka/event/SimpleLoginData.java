@@ -32,6 +32,7 @@ import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.misc.GameProfile;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.scheduler.AsyncTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,12 +121,10 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
       this.connection.disconnect(this.asyncLogin.kickMessage());
       return;
     }
-    if (!this.shouldLogin) {
-      return;
-    }
     final var profile = new GameProfile(this.username, this.chainData.uniqueId(), this.chainData.xuid());
-    final var player = new ShirukaPlayer(this.connection, profile);
-    System.out.println(profile);
+    final var player = new ShirukaPlayer(this.chainData, this.connection, profile);
+    this.connection.setState(PlayerConnection.State.LOGIN);
+    player.getPlayerConnection().getServer().addPlayer(player);
     this.asyncLogin.objects().forEach(action -> action.accept(player));
   }
 
@@ -154,5 +153,14 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    */
   public void setShouldLogin(final boolean shouldLogin) {
     this.shouldLogin = shouldLogin;
+  }
+
+  /**
+   * obtains the should login.
+   *
+   * @return should login.
+   */
+  public boolean shouldLogin() {
+    return this.shouldLogin;
   }
 }

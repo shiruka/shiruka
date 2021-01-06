@@ -11,8 +11,9 @@
 
 #### Options:
 
-| -?, --help                                     | Show the help                                           |
+| Commands                                       | Descriptions                                            |
 |------------------------------------------------|---------------------------------------------------------|
+| -?, --help                                     | Show the help                                           |
 | -C, --config <File: Server configuration file> | Server configuration file to use (default: shiruka.yml) |
 | -D, --debug [Boolean: Debug mode]              | Debug mode to use (default: true)                       |
 | -O, --ops <File: Ops file>                     | Ops file to use (default: ops.hjson)                    |

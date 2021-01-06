@@ -128,7 +128,7 @@ public final class ShirukaConsoleParser {
       .defaultsTo(new File("usercache.hjson"))
       .describedAs("User cache file");
     VERSION = ShirukaConsoleParser.PARSER
-      .acceptsAll(Arrays.asList("v", "version"), "Show the Shiru ka's version");
+      .acceptsAll(Arrays.asList("V", "version"), "Show the Shiru ka's version");
     DEBUG = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("D", "debug"), "Debug mode to use")
       .withOptionalArg()

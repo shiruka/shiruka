@@ -1,4 +1,4 @@
-[<img src="img/SHIRUKA.png" width="92px"/>](https://github.com/shiruka)
+[<img src="logo/SHIRUKA.png" width="92px"/>](https://github.com/shiruka)
 
 [![idea](https://www.elegantobjects.org/intellij-idea.svg)](https://www.jetbrains.com/idea/)
 

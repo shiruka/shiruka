@@ -32,13 +32,37 @@ import org.jetbrains.annotations.NotNull;
  * reliability of the packets.
  */
 public enum PacketReliability {
+  /**
+   * the unreliable.
+   */
   UNRELIABLE(false, false, false, false),
+  /**
+   * the unreliable sequenced.
+   */
   UNRELIABLE_SEQUENCED(false, false, true, false),
-  RELIABLE(true, false, false, false),
-  RELIABLE_ORDERED(true, true, false, false),
-  RELIABLE_SEQUENCED(true, false, true, false),
+  /**
+   * the unreliable with ack receipt.
+   */
   UNRELIABLE_WITH_ACK_RECEIPT(false, false, false, true),
+  /**
+   * the reliable.
+   */
+  RELIABLE(true, false, false, false),
+  /**
+   * the reliable ordered.
+   */
+  RELIABLE_ORDERED(true, true, false, false),
+  /**
+   * the reliable sequenced.
+   */
+  RELIABLE_SEQUENCED(true, false, true, false),
+  /**
+   * the reliable with ack receipt.
+   */
   RELIABLE_WITH_ACK_RECEIPT(true, false, false, true),
+  /**
+   * the reliable ordered with ack receipt.
+   */
   RELIABLE_ORDERED_WITH_ACK_RECEIPT(true, true, false, true);
 
   /**

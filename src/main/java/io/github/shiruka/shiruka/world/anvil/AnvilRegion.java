@@ -159,11 +159,24 @@ public final class AnvilRegion {
     return AnvilRegion.CACHE.computeIfAbsent(path, AnvilRegion::new);
   }
 
+  /**
+   * closes the region file.
+   *
+   * @throws IOException if something went wrong when closing the file.
+   */
   public void close() throws IOException {
     AnvilRegion.CACHE.remove(this.path);
     this.file.close();
   }
 
+  /**
+   * obtains the chunk data input stream.
+   *
+   * @param x the x to get.
+   * @param z the z to get.
+   *
+   * @return obtained chunk data input stream.
+   */
   @Nullable
   public synchronized DataInputStream getChunkDataInputStream(final int x, final int z) {
     if (this.outOfBounds(x, z)) {
@@ -201,6 +214,14 @@ public final class AnvilRegion {
     }
   }
 
+  /**
+   * obtains the chunk data output stream at {@code x} and {@code z}.
+   *
+   * @param x the x to get.
+   * @param z the z to get.
+   *
+   * @return obtained chunk data out put stream.
+   */
   @NotNull
   public DataOutputStream getChunkDataOutputStream(final int x, final int z) {
     if (this.outOfBounds(x, z)) {
@@ -227,10 +248,26 @@ public final class AnvilRegion {
     return this.regionZ;
   }
 
+  /**
+   * checks if the region has chunk at {@code x} and {@code z}.
+   *
+   * @param x the x to check.
+   * @param z the z to check.
+   *
+   * @return {@code true} if region has the chunk at specified x and z coordinates.
+   */
   public boolean hasChunk(final int x, final int z) {
     return this.getOffset(x, z) != 0;
   }
 
+  /**
+   * writes the given {@code data} into the file.
+   *
+   * @param x the x to write.
+   * @param z the z to write.
+   * @param data the data to write.
+   * @param length the length to write.
+   */
   public synchronized void write(final int x, final int z, final byte[] data, final int length) {
     try {
       final var offset = this.getOffset(x, z);

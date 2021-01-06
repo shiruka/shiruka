@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class LittleEndianDataOutputStream implements DataOutput, Closeable {
 
+  /**
+   * the stream.
+   */
   @NotNull
   protected final DataOutputStream stream;
 

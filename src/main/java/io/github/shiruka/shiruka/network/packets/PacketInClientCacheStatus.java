@@ -37,6 +37,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class PacketInClientCacheStatus extends PacketIn {
 
+  /**
+   * ctor.
+   */
   public PacketInClientCacheStatus() {
     super(PacketInClientCacheStatus.class);
   }

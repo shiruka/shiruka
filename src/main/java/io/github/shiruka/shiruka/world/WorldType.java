@@ -35,6 +35,9 @@ import org.jetbrains.annotations.NotNull;
  * an enum class to determine world types.
  */
 public enum WorldType {
+  /**
+   * the anvil world type.
+   */
   ANVIL(AnvilWorldLoader::new, "anvil");
 
   /**

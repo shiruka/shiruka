@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package to cover classes which are misc.
+ * the package that contains packet and cache objects.
  */
-package io.github.shiruka.shiruka.network.misc;
+package io.github.shiruka.shiruka.network.objects;

@@ -33,19 +33,16 @@ import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a class that represents resource pack response packets.
  */
 public final class PacketInResourcePackResponse extends PacketIn {
-
-  public static final Logger LOGGER = LoggerFactory.getLogger(PacketInResourcePackResponse.class);
 
   /**
    * ctor.
@@ -114,34 +111,52 @@ public final class PacketInResourcePackResponse extends PacketIn {
     /**
      * the refused.
      */
-    REFUSED,
+    REFUSED(1),
     /**
      * the send packs.
      */
-    SEND_PACKS,
+    SEND_PACKS(2),
     /**
      * the have all packs.
      */
-    HAVE_ALL_PACKS,
+    HAVE_ALL_PACKS(3),
     /**
      * the completed.
      */
-    COMPLETED;
+    COMPLETED(4);
 
+    /**
+     * the value cache.
+     */
+    private static final Status[] VALUES = Status.values();
+
+    /**
+     * the id.
+     */
+    private final byte id;
+
+    /**
+     * ctor.
+     *
+     * @param id the id.
+     */
+    Status(final int id) {
+      this.id = (byte) id;
+    }
+
+    /**
+     * obtains the status from the status id.
+     *
+     * @param statusId the status id to get.
+     *
+     * @return status value.
+     */
     @Nullable
     public static Status valueOf(final byte statusId) {
-      switch (statusId) {
-        case 1:
-          return Status.REFUSED;
-        case 2:
-          return Status.SEND_PACKS;
-        case 3:
-          return Status.HAVE_ALL_PACKS;
-        case 4:
-          return Status.COMPLETED;
-        default:
-          return null;
-      }
+      return Arrays.stream(Status.VALUES)
+        .filter(status -> status.id == statusId)
+        .findFirst()
+        .orElse(null);
     }
   }
 

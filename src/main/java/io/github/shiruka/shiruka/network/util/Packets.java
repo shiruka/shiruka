@@ -51,52 +51,52 @@ import org.slf4j.LoggerFactory;
  */
 public final class Packets {
 
-  public static final byte ALREADY_CONNECTED = 0x12;
-
   public static final byte CONNECTED_PING = 0x00;
 
   public static final byte CONNECTED_PONG = 0x03;
 
-  public static final byte CONNECTION_BANNED = 0x17;
-
   public static final byte CONNECTION_REQUEST = 0x09;
-
-  public static final byte CONNECTION_REQUEST_ACCEPTED = 0x10;
-
-  public static final byte CONNECTION_REQUEST_FAILED = 0x11;
 
   public static final byte DETECT_LOST_CONNECTION = 0x04;
 
   public static final byte DISCONNECTION_NOTIFICATION = 0x15;
 
-  public static final byte INCOMPATIBLE_PROTOCOL_VERSION = 0x19;
-
-  public static final byte MAXIMUM_CONNECTION = 0x14;
-
   public static final byte NEW_INCOMING_CONNECTION = 0x13;
-
-  public static final byte OPEN_CONNECTION_REPLY_1 = 0x06;
-
-  public static final byte OPEN_CONNECTION_REPLY_2 = 0x08;
-
-  public static final byte OPEN_CONNECTION_REQUEST_1 = 0x05;
 
   public static final byte OPEN_CONNECTION_REQUEST_2 = 0x07;
 
-  public static final byte UNCONNECTED_PING = 0x01;
-
   public static final byte UNCONNECTED_PING_OPEN_CONNECTION = 0x02;
-
-  public static final byte UNCONNECTED_PONG = 0x1C;
 
   public static final short USER_PACKET_ENUM = 0x80;
 
   private static final byte AF_INET6 = 23;
 
+  private static final byte ALREADY_CONNECTED = 0x12;
+
+  private static final byte CONNECTION_BANNED = 0x17;
+
+  private static final byte CONNECTION_REQUEST_ACCEPTED = 0x10;
+
+  private static final byte CONNECTION_REQUEST_FAILED = 0x11;
+
+  private static final byte INCOMPATIBLE_PROTOCOL_VERSION = 0x19;
+
   /**
    * the logger.
    */
   private static final Logger LOGGER = LoggerFactory.getLogger("Packets");
+
+  private static final byte MAXIMUM_CONNECTION = 0x14;
+
+  private static final byte OPEN_CONNECTION_REPLY_1 = 0x06;
+
+  private static final byte OPEN_CONNECTION_REPLY_2 = 0x08;
+
+  private static final byte OPEN_CONNECTION_REQUEST_1 = 0x05;
+
+  private static final byte UNCONNECTED_PING = 0x01;
+
+  private static final byte UNCONNECTED_PONG = 0x1C;
 
   /**
    * ctor.
@@ -305,30 +305,13 @@ public final class Packets {
   }
 
   /**
-   * writes the given address into the given buffer.
+   * writes the give {@code buffer} from the give {@code array}.
    *
    * @param buffer the buffer to write.
-   * @param address the address to write.
+   * @param array the array to write.
+   * @param biConsumer the bi consumer to write.
+   * @param <T> type of the value.
    */
-  public static void writeAddress(@NotNull final ByteBuf buffer, @NotNull final InetSocketAddress address) {
-    final var addressBytes = address.getAddress().getAddress();
-    if (address.getAddress() instanceof Inet4Address) {
-      buffer.writeByte(4);
-      Misc.flip(addressBytes);
-      buffer.writeBytes(addressBytes);
-      buffer.writeShort(address.getPort());
-    } else if (address.getAddress() instanceof Inet6Address) {
-      buffer.writeByte(6);
-      buffer.writeShortLE(Packets.AF_INET6);
-      buffer.writeShort(address.getPort());
-      buffer.writeInt(0);
-      buffer.writeBytes(addressBytes);
-      buffer.writeInt(((Inet6Address) address.getAddress()).getScopeId());
-    } else {
-      throw new UnsupportedOperationException("Unknown InetAddress instance");
-    }
-  }
-
   public static <T> void writeArray(@NotNull final ByteBuf buffer, @NotNull final Collection<T> array,
                                     @NotNull final BiConsumer<ByteBuf, T> biConsumer) {
     VarInts.writeUnsignedInt(buffer, array.size());
@@ -402,15 +385,6 @@ public final class Packets {
                                             @NotNull final PacketOutPackInfo.Entry entry) {
     Packets.writeEntry(buffer, entry);
     buffer.writeBoolean(entry.isRaytracingCapable());
-  }
-
-  /**
-   * writes {@link Constants#UNCONNECTED_MAGIC} into the given array.
-   *
-   * @param buffer the buffer to write.
-   */
-  public static void writeUnconnectedMagic(@NotNull final ByteBuf buffer) {
-    buffer.writeBytes(Constants.UNCONNECTED_MAGIC);
   }
 
   /**
@@ -620,5 +594,39 @@ public final class Packets {
       packet.writeBytes(serverData);
       Socket.sendWithPromise(ctx, packet, recipient);
     });
+  }
+
+  /**
+   * writes the given address into the given buffer.
+   *
+   * @param buffer the buffer to write.
+   * @param address the address to write.
+   */
+  private static void writeAddress(@NotNull final ByteBuf buffer, @NotNull final InetSocketAddress address) {
+    final var addressBytes = address.getAddress().getAddress();
+    if (address.getAddress() instanceof Inet4Address) {
+      buffer.writeByte(4);
+      Misc.flip(addressBytes);
+      buffer.writeBytes(addressBytes);
+      buffer.writeShort(address.getPort());
+    } else if (address.getAddress() instanceof Inet6Address) {
+      buffer.writeByte(6);
+      buffer.writeShortLE(Packets.AF_INET6);
+      buffer.writeShort(address.getPort());
+      buffer.writeInt(0);
+      buffer.writeBytes(addressBytes);
+      buffer.writeInt(((Inet6Address) address.getAddress()).getScopeId());
+    } else {
+      throw new UnsupportedOperationException("Unknown InetAddress instance");
+    }
+  }
+
+  /**
+   * writes {@link Constants#UNCONNECTED_MAGIC} into the given array.
+   *
+   * @param buffer the buffer to write.
+   */
+  private static void writeUnconnectedMagic(@NotNull final ByteBuf buffer) {
+    buffer.writeBytes(Constants.UNCONNECTED_MAGIC);
   }
 }

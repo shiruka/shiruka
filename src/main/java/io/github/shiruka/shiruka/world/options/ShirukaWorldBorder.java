@@ -193,6 +193,11 @@ public final class ShirukaWorldBorder implements WorldBorder {
     }
   }
 
+  /**
+   * reads the given {@code compound}.
+   *
+   * @param compound the compound to read.
+   */
   public void read(@NotNull final CompoundTag compound) {
     this.center.set(new DoubleXZ(compound.getDouble("BorderCenterX").orElseThrow(),
       compound.getDouble("BorderCenterZ").orElseThrow()));
@@ -232,6 +237,11 @@ public final class ShirukaWorldBorder implements WorldBorder {
     while (!this.sizeTime.compareAndSet(prevTime, nextTime) || !this.size.compareAndSet(oldSize, Double.doubleToLongBits(newSize)));
   }
 
+  /**
+   * writes the given {@code compound}.
+   *
+   * @param compound the compound to write.
+   */
   public void write(@NotNull final CompoundTag compound) {
     compound.setDouble("BorderCenterX", this.center.get().getX());
     compound.setDouble("BorderCenterZ", this.center.get().getZ());

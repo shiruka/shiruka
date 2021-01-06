@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.misc;
+package io.github.shiruka.shiruka.network.objects;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.network.Connection;
@@ -48,7 +48,7 @@ public final class SplitPacketHelper extends AbstractReferenceCounted {
   /**
    * the packets.
    */
-  @NotNull
+  @Nullable
   private final EncapsulatedPacket[] packets;
 
   /**
@@ -61,13 +61,20 @@ public final class SplitPacketHelper extends AbstractReferenceCounted {
     this.packets = new EncapsulatedPacket[(int) expectedLength];
   }
 
+  /**
+   * adds the given encapsulated packet into {@link #packets}.
+   *
+   * @param packet the packet to add.
+   * @param connection the connection to add.
+   *
+   * @return splited packet.
+   */
   @Nullable
   public EncapsulatedPacket add(@NotNull final EncapsulatedPacket packet, @NotNull final Connection<?> connection) {
     Preconditions.checkState(packet.split, "packet is not split");
     Preconditions.checkState(this.refCnt() > 0, "packet has been released");
     Objects.checkIndex(packet.partIndex, this.packets.length);
     final var partIndex = packet.partIndex;
-    //noinspection ConstantConditions
     if (this.packets[partIndex] != null) {
       return null;
     }
@@ -82,11 +89,17 @@ public final class SplitPacketHelper extends AbstractReferenceCounted {
     }
     final var reassembled = connection.allocateBuffer(sz);
     Arrays.stream(this.packets)
+      .filter(Objects::nonNull)
       .map(EncapsulatedPacket::getBuffer)
       .forEach(buf -> reassembled.writeBytes(buf, buf.readerIndex(), buf.readableBytes()));
     return packet.fromSplit(reassembled);
   }
 
+  /**
+   * checks if the packet is expired.
+   *
+   * @return {@code true} if the packet is expired.
+   */
   public boolean expired() {
     Preconditions.checkState(this.refCnt() > 0, "packet has been released");
     return System.currentTimeMillis() - this.created >= 30000;

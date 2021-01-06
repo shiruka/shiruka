@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> type of arrays.
  */
-public interface ArrayTag<T> extends PrimitiveTag<T> {
+public interface ArrayTag<T> extends PrimitiveTag<T[]> {
 
   /**
    * checks indexes of the array tag.
@@ -55,6 +55,16 @@ public interface ArrayTag<T> extends PrimitiveTag<T> {
   default boolean isArray() {
     return true;
   }
+
+  /**
+   * gets the value.
+   *
+   * @param index the index to get.
+   *
+   * @return value at {@code index}.
+   */
+  @NotNull
+  T get(final int index);
 
   /**
    * gets the size of the array.

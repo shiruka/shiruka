@@ -49,6 +49,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * an abstract implementation for {@link Socket}.
+ */
 public abstract class NetSocket implements Socket {
 
   /**

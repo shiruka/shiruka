@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.misc;
+package io.github.shiruka.shiruka.network.objects;
 
 import com.google.common.base.Preconditions;
 

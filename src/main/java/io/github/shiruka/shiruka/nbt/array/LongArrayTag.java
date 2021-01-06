@@ -29,40 +29,32 @@ import io.github.shiruka.shiruka.nbt.ArrayTag;
 import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
-public final class LongArrayTag implements ArrayTag<long[]> {
+/**
+ * a class that represents long arrays.
+ */
+public final class LongArrayTag implements ArrayTag<Long> {
 
   /**
    * the original.
    */
-  private final long[] original;
+  @NotNull
+  private final Long[] original;
+
+  /**
+   * the primitive original.
+   */
+  private final long @NotNull [] primitiveOriginal;
 
   /**
    * ctor.
    *
    * @param original the original.
    */
-  public LongArrayTag(final long @NotNull [] original) {
-    this.original = original.clone();
-  }
-
-  public final long get(final int index) {
-    ArrayTag.checkIndex(index, this.original.length);
-    return this.original[index];
-  }
-
-  @Override
-  public final int size() {
-    return this.original.length;
-  }
-
-  @Override
-  public final String toString() {
-    return Arrays.toString(this.original);
-  }
-
-  @Override
-  public final long @NotNull [] value() {
-    return this.original.clone();
+  public LongArrayTag(final long... original) {
+    this.primitiveOriginal = original.clone();
+    this.original = Arrays.stream(original)
+      .boxed()
+      .toArray(Long[]::new);
   }
 
   @NotNull
@@ -79,5 +71,37 @@ public final class LongArrayTag implements ArrayTag<long[]> {
   @Override
   public boolean isLongArray() {
     return true;
+  }
+
+  @NotNull
+  @Override
+  public Long get(final int index) {
+    ArrayTag.checkIndex(index, this.original.length);
+    return this.original[index];
+  }
+
+  @Override
+  public int size() {
+    return this.original.length;
+  }
+
+  /**
+   * obtains the primitive original value.
+   *
+   * @return primitive value.
+   */
+  public long @NotNull [] primitiveValue() {
+    return this.primitiveOriginal.clone();
+  }
+
+  @Override
+  public String toString() {
+    return Arrays.toString(this.original);
+  }
+
+  @NotNull
+  @Override
+  public Long @NotNull [] value() {
+    return this.original.clone();
   }
 }

@@ -42,7 +42,9 @@ import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.SimpleConsoleCommandSender;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.event.SimpleEventFactory;
+import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
@@ -53,6 +55,7 @@ import io.github.shiruka.shiruka.pack.loader.RplZip;
 import io.github.shiruka.shiruka.pack.pack.ResourcePack;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -116,6 +119,11 @@ public final class ShirukaServer implements Server {
   private final Thread mainThread;
 
   /**
+   * the player list.
+   */
+  private final Map<InetSocketAddress, ShirukaPlayer> players = new ConcurrentHashMap<>();
+
+  /**
    * if the server is running.
    */
   private final AtomicBoolean running = new AtomicBoolean(true);
@@ -175,6 +183,15 @@ public final class ShirukaServer implements Server {
     manager.closeRegistration();
   }
 
+  /**
+   * adds the given address and player into {@link #players}.
+   *
+   * @param player the player to add.
+   */
+  public void addPlayer(@NotNull final ShirukaPlayer player) {
+    this.players.put(player.getPlayerConnection().getConnection().getAddress(), player);
+  }
+
   @NotNull
   @Override
   public <I> I getInterface(@NotNull final Class<I> cls) {
@@ -190,7 +207,7 @@ public final class ShirukaServer implements Server {
 
   @Override
   public int getPlayerCount() {
-    return this.socket.getConnectionsByAddress().size();
+    return this.players.size();
   }
 
   @NotNull
@@ -250,7 +267,8 @@ public final class ShirukaServer implements Server {
     while (!this.schedulerService.isTerminated() && wait-- > 0) {
       try {
         this.schedulerService.awaitTermination(100, TimeUnit.MILLISECONDS);
-      } catch (final InterruptedException ignored) {
+      } catch (final InterruptedException e) {
+        JiraExceptionCatcher.serverException(e);
       }
     }
     if (wait <= 0) {
@@ -274,6 +292,15 @@ public final class ShirukaServer implements Server {
   @NotNull
   public ListeningScheduledExecutorService getSchedulerService() {
     return this.schedulerService;
+  }
+
+  /**
+   * removes the given player from {@link #players}.
+   *
+   * @param player the player to remove.
+   */
+  public void removePlayer(@NotNull final ShirukaPlayer player) {
+    this.players.remove(player.getPlayerConnection().getConnection().getAddress());
   }
 
   /**

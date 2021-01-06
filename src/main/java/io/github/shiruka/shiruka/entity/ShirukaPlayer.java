@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.entity;
 
 import io.github.shiruka.api.entity.Player;
+import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.shiruka.ShirukaServer;
@@ -39,6 +40,12 @@ import org.jetbrains.annotations.Nullable;
  * an implementation for {@link Player}.
  */
 public final class ShirukaPlayer implements Player {
+
+  /**
+   * the chain data.
+   */
+  @NotNull
+  private final LoginDataEvent.ChainData chainData;
 
   /**
    * the connection.
@@ -55,10 +62,13 @@ public final class ShirukaPlayer implements Player {
   /**
    * ctor.
    *
+   * @param chainData the chain data.
    * @param connection the connection.
    * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final ShirukaPlayerConnection connection, @NotNull final GameProfile profile) {
+  public ShirukaPlayer(@NotNull final LoginDataEvent.ChainData chainData,
+                       @NotNull final ShirukaPlayerConnection connection, @NotNull final GameProfile profile) {
+    this.chainData = chainData;
     this.connection = connection;
     this.profile = profile;
   }
@@ -66,6 +76,7 @@ public final class ShirukaPlayer implements Player {
   @Override
   public void disconnect(@Nullable final String reason) {
     this.connection.disconnect(reason);
+    this.getServer().removePlayer(this);
   }
 
   @NotNull

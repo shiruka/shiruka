@@ -42,7 +42,7 @@ public final class PacketInClientCacheStatus extends PacketIn {
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, final @NotNull ShirukaPlayerConnection player) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
     final var blobCacheSupport = buf.readBoolean();
     // @todo #1:15m Add blobCacheSupport field for ShirukaPlayer to set/get blob cache support.
   }

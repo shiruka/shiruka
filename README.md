@@ -5,11 +5,11 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/39cc4c7bce400a705913/maintainability)](https://codeclimate.com/github/shiruka/shiruka/maintainability)
 [![Hits-of-Code](https://hitsofcode.com/github/shiruka/shiruka)](https://hitsofcode.com/github/shiruka/shiruka/view)
 
-### Starting command:
+### Run command
 
 `java -jar shiruka.jar [options]`
 
-#### Options:
+#### Commands
 
 | Commands                                       | Descriptions                                            |
 |------------------------------------------------|---------------------------------------------------------|

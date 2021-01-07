@@ -36,6 +36,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,7 +67,13 @@ public abstract class ShirukaWorldLoader implements WorldLoader {
    * the worlds map.
    */
   @NotNull
-  protected final Map<String, World> worlds = new ConcurrentHashMap<>();
+  protected final Map<String, World> worldsByName = new ConcurrentHashMap<>();
+
+  /**
+   * the worlds map.
+   */
+  @NotNull
+  protected final Map<UUID, World> worldsByUniqueId = new ConcurrentHashMap<>();
 
   /**
    * ctor.
@@ -77,12 +84,18 @@ public abstract class ShirukaWorldLoader implements WorldLoader {
   @NotNull
   @Override
   public final World getDefaultWorld() {
-    return this.worlds.get(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElseThrow());
+    return this.worldsByName.get(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElseThrow());
   }
 
   @NotNull
   @Override
-  public final Map<String, World> getWorlds() {
-    return Collections.unmodifiableMap(this.worlds);
+  public final Map<String, World> getWorldsByName() {
+    return Collections.unmodifiableMap(this.worldsByName);
+  }
+
+  @NotNull
+  @Override
+  public final Map<UUID, World> getWorldsByUniqueId() {
+    return Collections.unmodifiableMap(this.worldsByUniqueId);
   }
 }

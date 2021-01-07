@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.entity;
 
+import io.github.shiruka.api.base.Location;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.metadata.MetadataValue;
@@ -33,11 +34,15 @@ import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.misc.GameProfile;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link Player}.
+ *
+ * @todo #1:60m Implement methods of shiruka player.
  */
 public final class ShirukaPlayer implements Player {
 
@@ -73,16 +78,55 @@ public final class ShirukaPlayer implements Player {
     this.profile = profile;
   }
 
+  @Nullable
   @Override
-  public void disconnect(@Nullable final String reason) {
-    this.connection.disconnect(reason);
-    this.getServer().removePlayer(this);
+  public Location getBedSpawnLocation() {
+    return null;
+  }
+
+  @Override
+  public long getFirstPlayed() {
+    return 0;
+  }
+
+  @Override
+  public long getLastLogin() {
+    return 0;
+  }
+
+  @Override
+  public long getLastSeen() {
+    return 0;
   }
 
   @NotNull
   @Override
-  public ShirukaServer getServer() {
-    return this.connection.getServer();
+  public Optional<Player> getPlayer() {
+    return Optional.empty();
+  }
+
+  @Override
+  public boolean hasPlayedBefore() {
+    return false;
+  }
+
+  @Override
+  public boolean isBanned() {
+    return false;
+  }
+
+  @Override
+  public boolean isOnline() {
+    return false;
+  }
+
+  @Override
+  public boolean isWhitelisted() {
+    return false;
+  }
+
+  @Override
+  public void setWhitelisted(final boolean value) {
   }
 
   @NotNull
@@ -111,6 +155,12 @@ public final class ShirukaPlayer implements Player {
     // @todo #1:15m Implement setMetadata method.
   }
 
+  @NotNull
+  @Override
+  public String getName() {
+    return "null";
+  }
+
   /**
    * obtains the player connection.
    *
@@ -123,8 +173,20 @@ public final class ShirukaPlayer implements Player {
 
   @NotNull
   @Override
-  public String name() {
-    return "null";
+  public ShirukaServer getServer() {
+    return this.connection.getServer();
+  }
+
+  @Override
+  public void kick(@Nullable final String reason) {
+    this.connection.disconnect(reason);
+    this.getServer().removePlayer(this);
+  }
+
+  @NotNull
+  @Override
+  public UUID getUniqueId() {
+    return this.profile.getUniqueId();
   }
 
   @Override
@@ -135,5 +197,6 @@ public final class ShirukaPlayer implements Player {
 
   @Override
   public void tick() {
+    // @todo #1:30m Implement tick method of shiruka player.
   }
 }

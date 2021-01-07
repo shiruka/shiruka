@@ -31,9 +31,9 @@ import io.github.shiruka.api.command.CommandSender;
 import io.github.shiruka.api.plugin.Plugin;
 import java.util.Collections;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a simple implementation for {@link CommandManager}.
@@ -43,12 +43,11 @@ public final class SimpleCommandManager implements CommandManager {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCommandManager.class);
+  private static final Logger LOGGER = LogManager.getLogger(SimpleCommandManager.class);
 
   @Override
   public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
-    final var name = sender.name();
-    SimpleCommandManager.LOGGER.info("{} -> {}", name, command);
+    SimpleCommandManager.LOGGER.info("{} -> {}", sender.getName(), command);
   }
 
   @Override

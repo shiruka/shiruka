@@ -29,9 +29,9 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * specifier for creating a block of threads used for managing the server thread pool.
@@ -77,7 +77,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("PoolSpec");
+  private static final Logger LOGGER = LogManager.getLogger("PoolSpec");
 
   /**
    * the thread counter.

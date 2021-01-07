@@ -29,11 +29,13 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.api.base.BanList;
 import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.console.ConsoleCommandSender;
 import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.pack.PackManager;
 import io.github.shiruka.api.pack.PackManifest;
+import io.github.shiruka.api.permission.PermissionManager;
 import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
@@ -53,6 +55,7 @@ import io.github.shiruka.shiruka.pack.SimplePackManager;
 import io.github.shiruka.shiruka.pack.loader.RplDirectory;
 import io.github.shiruka.shiruka.pack.loader.RplZip;
 import io.github.shiruka.shiruka.pack.pack.ResourcePack;
+import io.github.shiruka.shiruka.permission.SimplePermissionManager;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -65,9 +68,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * an implementation for {@link Server}.
@@ -82,7 +85,7 @@ public final class ShirukaServer implements Server {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaServer");
+  private static final Logger LOGGER = LogManager.getLogger("ShirukaServer");
 
   /**
    * the packs path.
@@ -153,9 +156,9 @@ public final class ShirukaServer implements Server {
    * @param socket the socket.
    * @param console the console.
    */
-  public ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
-                       @NotNull final Function<ServerListener, ServerSocket> socket,
-                       @NotNull final Function<Server, ShirukaConsole> console) {
+  ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
+                @NotNull final Function<ServerListener, ServerSocket> socket,
+                @NotNull final Function<Server, ShirukaConsole> console) {
     this.description = description;
     this.loader = loader;
     this.socket = socket.apply(new ShirukaServerListener(this));
@@ -194,10 +197,23 @@ public final class ShirukaServer implements Server {
 
   @NotNull
   @Override
+  public BanList getBanList(final BanList.@NotNull Type type) {
+    // @todo 1#:15m create implementations for ip and profile(name) ban list.
+    return null;
+  }
+
+  @NotNull
+  @Override
   public <I> I getInterface(@NotNull final Class<I> cls) {
     //noinspection unchecked
     return (I) Objects.requireNonNull(this.interfaces.get(cls),
       String.format("Implementation not found for %s!", cls.toString()));
+  }
+
+  @NotNull
+  @Override
+  public Logger getLogger() {
+    return ShirukaServer.LOGGER;
   }
 
   @Override
@@ -310,7 +326,9 @@ public final class ShirukaServer implements Server {
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventFactory.class, new SimpleEventFactory());
-    this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
     this.registerInterface(PackManager.class, new SimplePackManager());
+    this.registerInterface(PermissionManager.class, new SimplePermissionManager());
+    this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
+    this.registerInterface(WorldLoader.class, this.loader);
   }
 }

@@ -54,10 +54,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.zip.Deflater;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a class that provides you to manage the connection.
@@ -67,7 +67,7 @@ public abstract class NetConnection<S extends Socket> implements Connection<S> {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("NetConnection");
+  private static final Logger LOGGER = LogManager.getLogger("NetConnection");
 
   /**
    * connection's address.

@@ -25,6 +25,9 @@
 
 package io.github.shiruka.shiruka.world.anvil;
 
+import io.github.shiruka.api.base.HeightMap;
+import io.github.shiruka.api.base.Location;
+import io.github.shiruka.api.block.Block;
 import io.github.shiruka.api.world.Chunk;
 import io.github.shiruka.api.world.World;
 import io.github.shiruka.api.world.options.Dimension;
@@ -43,12 +46,15 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link World}.
+ *
+ * @todo #1:60m Implement methods of anvil world.
  */
 public final class AnvilWorld implements World {
 
@@ -91,6 +97,11 @@ public final class AnvilWorld implements World {
    * the current world time, in ticks.
    */
   private final AtomicInteger time = new AtomicInteger();
+
+  /**
+   * the unique id.
+   */
+  private final UUID uniqueId = UUID.randomUUID();
 
   /**
    * the implementation of the world's current weather.
@@ -148,8 +159,8 @@ public final class AnvilWorld implements World {
     this.name = name;
     this.directory = directory;
     this.dimension = dimension;
-    try (final var stream =
-           Tag.createGZIPReader(new FileInputStream(this.directory.resolve("level.dat").toFile()))) {
+    try (final var stream = Tag.createGZIPReader(
+      new FileInputStream(this.directory.resolve("level.dat").toFile()))) {
       final var root = stream.readCompoundTag();
       final var compound = root.get("Data").orElseThrow().asCompound();
       this.generatorOptions = new ShirukaGeneratorOptions(compound);
@@ -159,6 +170,30 @@ public final class AnvilWorld implements World {
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @NotNull
+  @Override
+  public final String getName() {
+    return this.name;
+  }
+
+  @NotNull
+  @Override
+  public Block getBlockAt(final int x, final int y, final int z) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public Block getBlockAt(@NotNull final Location location) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public Chunk getChunkAt(@NotNull final Location location) {
+    return null;
   }
 
   @NotNull
@@ -191,6 +226,28 @@ public final class AnvilWorld implements World {
     return this.generatorOptions;
   }
 
+  @NotNull
+  @Override
+  public Block getHighestBlockAt(final int x, final int z, @NotNull final HeightMap heightMap) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public Block getHighestBlockAt(@NotNull final Location location, @NotNull final HeightMap heightMap) {
+    return null;
+  }
+
+  @Override
+  public int getHighestBlockYAt(final int x, final int z, @NotNull final HeightMap heightMap) {
+    return 0;
+  }
+
+  @Override
+  public int getHighestBlockYAt(@NotNull final Location location, @NotNull final HeightMap heightMap) {
+    return 0;
+  }
+
   @Override
   public final int getHighestY(final int x, final int z) {
     return this.getChunkAt(x >> 4, z >> 4).getHighestY(x & 15, z & 15);
@@ -201,15 +258,19 @@ public final class AnvilWorld implements World {
     return Collections.unmodifiableCollection(this.chunks.values());
   }
 
-  @NotNull
-  @Override
-  public final String getName() {
-    return this.name;
-  }
-
   @Override
   public int getTime() {
     return this.time.get();
+  }
+
+  @Override
+  public boolean isChunkGenerated(final int x, final int z) {
+    return false;
+  }
+
+  @Override
+  public boolean isChunkLoaded(final int x, final int z) {
+    return false;
   }
 
   @Override
@@ -274,6 +335,12 @@ public final class AnvilWorld implements World {
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @NotNull
+  @Override
+  public UUID getUniqueId() {
+    return this.uniqueId;
   }
 
   /**

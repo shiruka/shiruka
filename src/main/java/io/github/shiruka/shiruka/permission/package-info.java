@@ -22,39 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.console;
-
-import io.github.shiruka.api.console.ConsoleCommandSender;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * a simple console implementation for {@link ConsoleCommandSender}.
+ * the package that contains implementation for {@link io.github.shiruka.api.permission.PermissionManager}.
  */
-public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
-
-  /**
-   * the console.
-   */
-  @NotNull
-  private final ShirukaConsole console;
-
-  /**
-   * ctor.
-   *
-   * @param console the console.
-   */
-  public SimpleConsoleCommandSender(@NotNull final ShirukaConsole console) {
-    this.console = console;
-  }
-
-  @NotNull
-  @Override
-  public String getName() {
-    return "CONSOLE";
-  }
-
-  @Override
-  public void sendMessage(@NotNull final String message) {
-  }
-}
+package io.github.shiruka.shiruka.permission;

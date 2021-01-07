@@ -98,6 +98,11 @@ public final class AsyncTask implements Task, Runnable {
     this.exceptionHandler = command;
   }
 
+  /**
+   * obtains the task.
+   *
+   * @return task.
+   */
   @NotNull
   public Runnable getTask() {
     return this.task;

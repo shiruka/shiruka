@@ -27,6 +27,8 @@ package io.github.shiruka.shiruka.network.util;
 
 /**
  * a class that contains magic numbers.
+ *
+ * @todo #1:5m Add more JavaDocs.
  */
 public final class Constants {
 
@@ -95,11 +97,6 @@ public final class Constants {
 
   public static final short MINIMUM_MTU_SIZE = 576;
 
-  /**
-   * the protocol version from the Mojang.
-   */
-  public static final byte MOJANG_PROTOCOL_VERSION = 10;
-
   public static final byte NUM_ORDERING_CHANNELS = 32;
 
   /**
@@ -108,9 +105,14 @@ public final class Constants {
   public static final byte UDP_HEADER_SIZE = 8;
 
   /**
+   * the protocol version from the Mojang.
+   */
+  static final byte MOJANG_PROTOCOL_VERSION = 10;
+
+  /**
    * magic number from the RakNet itself.
    */
-  public static final byte[] UNCONNECTED_MAGIC = new byte[]{
+  static final byte[] UNCONNECTED_MAGIC = new byte[]{
     0, -1, -1, 0, -2, -2, -2, -2, -3, -3, -3, -3, 18, 52, 86, 120
   };
 

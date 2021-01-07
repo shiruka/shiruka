@@ -29,40 +29,32 @@ import io.github.shiruka.shiruka.nbt.ArrayTag;
 import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
-public final class IntArrayTag implements ArrayTag<int[]> {
+/**
+ * a class that represents int arrays.
+ */
+public final class IntArrayTag implements ArrayTag<Integer> {
 
   /**
    * the original.
    */
-  private final int[] original;
+  @NotNull
+  private final Integer @NotNull [] original;
+
+  /**
+   * the primitive original.
+   */
+  private final int @NotNull [] primitiveOriginal;
 
   /**
    * ctor.
    *
    * @param original the original.
    */
-  public IntArrayTag(final int @NotNull [] original) {
-    this.original = original.clone();
-  }
-
-  public final int get(final int index) {
-    ArrayTag.checkIndex(index, this.original.length);
-    return this.original[index];
-  }
-
-  @Override
-  public final int size() {
-    return this.original.length;
-  }
-
-  @Override
-  public final String toString() {
-    return Arrays.toString(this.original);
-  }
-
-  @Override
-  public final int @NotNull [] value() {
-    return this.original.clone();
+  public IntArrayTag(final int... original) {
+    this.primitiveOriginal = original.clone();
+    this.original = Arrays.stream(original)
+      .boxed()
+      .toArray(Integer[]::new);
   }
 
   @NotNull
@@ -79,5 +71,37 @@ public final class IntArrayTag implements ArrayTag<int[]> {
   @Override
   public boolean isIntArray() {
     return true;
+  }
+
+  @NotNull
+  @Override
+  public Integer get(final int index) {
+    ArrayTag.checkIndex(index, this.original.length);
+    return this.original[index];
+  }
+
+  @Override
+  public int size() {
+    return this.original.length;
+  }
+
+  /**
+   * obtains the primitive original value.
+   *
+   * @return primitive value.
+   */
+  public int @NotNull [] primitiveValue() {
+    return this.primitiveOriginal.clone();
+  }
+
+  @Override
+  public String toString() {
+    return Arrays.toString(this.original);
+  }
+
+  @NotNull
+  @Override
+  public Integer @NotNull [] value() {
+    return this.original.clone();
   }
 }

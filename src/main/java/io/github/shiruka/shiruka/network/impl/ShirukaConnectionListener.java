@@ -30,7 +30,7 @@ import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
 import io.github.shiruka.shiruka.network.DisconnectReason;
-import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
+import io.github.shiruka.shiruka.network.objects.EncapsulatedPacket;
 import io.github.shiruka.shiruka.network.protocol.Protocol;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
 import io.github.shiruka.shiruka.network.util.Constants;

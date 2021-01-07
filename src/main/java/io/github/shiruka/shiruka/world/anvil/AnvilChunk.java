@@ -263,11 +263,17 @@ public final class AnvilChunk implements Chunk {
     }
   }
 
+  /**
+   * writes the given {@code buf} byte buf.
+   *
+   * @param buf the buf to write.
+   * @param continuous the continous to write.
+   */
   public void write(@NotNull final ByteBuf buf, final boolean continuous) {
     final var len = this.sections.length();
     var mask = 0;
     final var anvilChunkSections = new AnvilChunkSection[16];
-    for (int i = 0; i < 16; i++) {
+    for (var i = 0; i < 16; i++) {
       final var sec = this.sections.get(i);
       anvilChunkSections[i] = sec;
       if (sec != null) {

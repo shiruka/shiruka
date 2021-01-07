@@ -27,8 +27,10 @@ package io.github.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
+import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.packet.PacketRegistry;
 import io.github.shiruka.shiruka.network.util.Zlib;
@@ -44,8 +46,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * a class that serializes and deserializes packets.
- *
- * @todo #1:5m Add JavaDocs.
  */
 public final class Protocol {
 
@@ -65,10 +65,18 @@ public final class Protocol {
   private Protocol() {
   }
 
-  public static void deserialize(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+  /**
+   * deserializes the given {@code buffer}.
+   * <p>
+   * if a packet found runs {@link PacketIn#read(ByteBuf, ShirukaPlayerConnection)} method.
+   *
+   * @param buffer the buffer to deserialize.
+   * @param connection the connection to deserialize.
+   */
+  public static void deserialize(@NotNull final ByteBuf buffer, @NotNull final ShirukaPlayerConnection connection) {
     ByteBuf decompressed = null;
     try {
-      decompressed = Protocol.ZLIB.inflate(buf, 12 * 1024 * 1024);
+      decompressed = Protocol.ZLIB.inflate(buffer, 12 * 1024 * 1024);
       while (decompressed.isReadable()) {
         final var length = VarInts.readUnsignedVarInt(decompressed);
         final var packetBuffer = decompressed.readSlice(length);
@@ -91,7 +99,7 @@ public final class Protocol {
         }
       }
     } catch (final DataFormatException e) {
-      throw new RuntimeException("Unable to inflate buffer data", e);
+      JiraExceptionCatcher.serverException(e);
     } finally {
       if (decompressed != null) {
         decompressed.release();
@@ -99,6 +107,15 @@ public final class Protocol {
     }
   }
 
+  /**
+   * serializes the given {@code buf}.
+   * <p>
+   * if a packet found runs {@link PacketOut#write(ByteBuf)} method.
+   *
+   * @param buffer the buf to serialize.
+   * @param packets the packets to serialize.
+   * @param level the level to serialize.
+   */
   public static void serialize(@NotNull final ByteBuf buffer, @NotNull final Collection<PacketOut> packets,
                                final int level) {
     final var uncompressed = ByteBufAllocator.DEFAULT.ioBuffer(packets.size() << 3);

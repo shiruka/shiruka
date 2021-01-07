@@ -153,6 +153,11 @@ public final class ShirukaWeather implements Weather {
     this.weatherState.compareAndSet(WeatherState.RAINING_THUNDERING, WeatherState.RAINING);
   }
 
+  /**
+   * reads the given {@code compound}.
+   *
+   * @param compound the compound to read.
+   */
   public void read(@NotNull final CompoundTag compound) {
     this.rainTime.set(compound.getInteger("rainTime").orElseThrow());
     this.thunderTime.set(compound.getInteger("thunderTime").orElseThrow());
@@ -170,6 +175,11 @@ public final class ShirukaWeather implements Weather {
     // @todo #1:15m tick operations.
   }
 
+  /**
+   * writes the given {@code compound}.
+   *
+   * @param compound the compound to write.
+   */
   public void write(@NotNull final CompoundTag compound) {
     final var state = this.weatherState.get();
     final var rainTime = this.rainTime.get();

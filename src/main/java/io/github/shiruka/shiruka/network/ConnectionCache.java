@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.shiruka.network.misc.*;
+import io.github.shiruka.shiruka.network.objects.*;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;

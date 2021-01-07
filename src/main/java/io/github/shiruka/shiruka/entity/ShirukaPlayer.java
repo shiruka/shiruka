@@ -111,6 +111,11 @@ public final class ShirukaPlayer implements Player {
     // @todo #1:15m Implement setMetadata method.
   }
 
+  /**
+   * obtains the player connection.
+   *
+   * @return player connection.
+   */
   @NotNull
   public ShirukaPlayerConnection getPlayerConnection() {
     return this.connection;

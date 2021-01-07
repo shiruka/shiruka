@@ -26,9 +26,9 @@
 package io.github.shiruka.shiruka.network;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
-import io.github.shiruka.shiruka.network.misc.IntRange;
-import io.github.shiruka.shiruka.network.misc.NetDatagramPacket;
+import io.github.shiruka.shiruka.network.objects.EncapsulatedPacket;
+import io.github.shiruka.shiruka.network.objects.IntRange;
+import io.github.shiruka.shiruka.network.objects.NetDatagramPacket;
 import io.github.shiruka.shiruka.network.packet.NoEncryption;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.protocol.Protocol;

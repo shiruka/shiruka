@@ -27,42 +27,35 @@ package io.github.shiruka.shiruka.nbt.array;
 
 import io.github.shiruka.shiruka.nbt.ArrayTag;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 
-public final class ByteArrayTag implements ArrayTag<byte[]> {
+/**
+ * a class that represents byte arrays.
+ */
+public final class ByteArrayTag implements ArrayTag<Byte> {
 
   /**
    * the original.
    */
-  private final byte[] original;
+  @NotNull
+  private final Byte[] original;
+
+  /**
+   * the primitive original.
+   */
+  private final byte @NotNull [] primitiveOriginal;
 
   /**
    * ctor.
    *
    * @param original the original.
    */
-  public ByteArrayTag(final byte[] original) {
-    this.original = original.clone();
-  }
-
-  public final byte get(final int index) {
-    ArrayTag.checkIndex(index, this.original.length);
-    return this.original[index];
-  }
-
-  @Override
-  public final int size() {
-    return this.original.length;
-  }
-
-  @Override
-  public final String toString() {
-    return Arrays.toString(this.original);
-  }
-
-  @Override
-  public final byte @NotNull [] value() {
-    return this.original.clone();
+  public ByteArrayTag(final byte... original) {
+    this.primitiveOriginal = original.clone();
+    this.original = IntStream.range(0, original.length)
+      .mapToObj(i -> original[i])
+      .toArray(Byte[]::new);
   }
 
   @NotNull
@@ -79,5 +72,37 @@ public final class ByteArrayTag implements ArrayTag<byte[]> {
   @Override
   public boolean isByteArray() {
     return true;
+  }
+
+  @NotNull
+  @Override
+  public Byte get(final int index) {
+    ArrayTag.checkIndex(index, this.original.length);
+    return this.original[index];
+  }
+
+  @Override
+  public int size() {
+    return this.original.length;
+  }
+
+  /**
+   * obtains the primitive original value.
+   *
+   * @return primitive value.
+   */
+  public byte @NotNull [] primitiveValue() {
+    return this.primitiveOriginal.clone();
+  }
+
+  @Override
+  public String toString() {
+    return Arrays.toString(this.original);
+  }
+
+  @NotNull
+  @Override
+  public Byte @NotNull [] value() {
+    return this.original.clone();
   }
 }

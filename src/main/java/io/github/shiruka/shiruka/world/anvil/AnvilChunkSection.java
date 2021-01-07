@@ -36,6 +36,9 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * a class that represents anvil chunk sections.
+ */
 public final class AnvilChunkSection {
 
   /**
@@ -108,9 +111,9 @@ public final class AnvilChunkSection {
   public void read(@NotNull final CompoundTag section) {
     final var blocks = section.getByteArray("Blocks").orElseThrow();
     final var add = section.get("Add");
-    final var data = section.getByteArray("Data").orElseThrow();
-    final var skylight = section.getByteArray("SkyLight").orElseThrow();
-    final var blocklight = section.getByteArray("BlockLight").orElseThrow();
+    final var data = section.getPrimitiveByteArray("Data").orElseThrow();
+    final var skylight = section.getPrimitiveByteArray("SkyLight").orElseThrow();
+    final var blocklight = section.getPrimitiveByteArray("BlockLight").orElseThrow();
     this.skyLight.read(skylight);
     this.blockLight.read(blocklight);
     for (var y = 0; y < 16; y++) {
@@ -120,7 +123,7 @@ public final class AnvilChunkSection {
           final var block = blocks[realIdx];
           final var blockData = NibbleArray.getNibble(data, realIdx);
           if (add.isPresent()) {
-            final var blockId = block + ((int) NibbleArray.getNibble(add.get().asByteArray().value(), realIdx) << 8);
+            final var blockId = block + ((int) NibbleArray.getNibble(add.get().asByteArray().primitiveValue(), realIdx) << 8);
             final var state = (short) (blockId << 4 | blockData);
             this.set(realIdx, state);
           } else {

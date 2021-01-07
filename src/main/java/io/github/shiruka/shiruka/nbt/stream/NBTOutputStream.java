@@ -132,7 +132,7 @@ public final class NBTOutputStream implements Closeable {
    * @throws IOException if something went wrong when reading the given input.
    */
   public void writeByteArray(@NotNull final ByteArrayTag value) throws IOException {
-    final var bytes = value.value();
+    final var bytes = value.primitiveValue();
     this.output.writeInt(bytes.length);
     this.output.write(bytes);
   }

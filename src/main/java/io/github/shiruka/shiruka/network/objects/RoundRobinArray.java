@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.misc;
+package io.github.shiruka.shiruka.network.objects;
 
 import io.github.shiruka.shiruka.network.util.Misc;
 import io.netty.util.ReferenceCountUtil;

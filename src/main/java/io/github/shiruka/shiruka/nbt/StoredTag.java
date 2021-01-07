@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt;
 
+import io.github.shiruka.shiruka.nbt.array.ByteArrayTag;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,7 +89,7 @@ public interface StoredTag<K> {
    * @return a byte array instance from the tag store.
    */
   @NotNull
-  default Optional<byte[]> getByteArray(@NotNull final K key) {
+  default Optional<Byte[]> getByteArray(@NotNull final K key) {
     return this.get(key)
       .filter(Tag::isByteArray)
       .map(Tag::asByteArray)
@@ -133,7 +134,7 @@ public interface StoredTag<K> {
    * @return a int array instance from the tag store.
    */
   @NotNull
-  default Optional<int[]> getIntArray(@NotNull final K key) {
+  default Optional<Integer[]> getIntArray(@NotNull final K key) {
     return this.get(key)
       .filter(Tag::isIntArray)
       .map(Tag::asIntArray)
@@ -193,7 +194,7 @@ public interface StoredTag<K> {
    * @return a long array instance from the tag store.
    */
   @NotNull
-  default Optional<long[]> getLongArray(@NotNull final K key) {
+  default Optional<Long[]> getLongArray(@NotNull final K key) {
     return this.get(key)
       .filter(Tag::isLongArray)
       .map(Tag::asLongArray)
@@ -213,6 +214,21 @@ public interface StoredTag<K> {
       .filter(Tag::isCompound)
       .map(Tag::asCompound)
       .map(CompoundTag::all);
+  }
+
+  /**
+   * gets the primitive byte array from the tag store.
+   *
+   * @param key the key to get.
+   *
+   * @return a primitive byte array instance from the tag store.
+   */
+  @NotNull
+  default Optional<byte[]> getPrimitiveByteArray(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isByteArray)
+      .map(Tag::asByteArray)
+      .map(ByteArrayTag::primitiveValue);
   }
 
   /**
@@ -276,7 +292,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setByteArray(@NotNull final K key, final byte @NotNull [] value) {
+  default void setByteArray(@NotNull final K key, final byte... value) {
     this.set(key, Tag.createByteArray(value));
   }
 
@@ -306,7 +322,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setIntArray(@NotNull final K key, final int @NotNull [] value) {
+  default void setIntArray(@NotNull final K key, final int... value) {
     this.set(key, Tag.createIntArray(value));
   }
 

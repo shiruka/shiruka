@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network.util;
 
-import io.github.shiruka.shiruka.network.misc.IntRange;
+import io.github.shiruka.shiruka.network.objects.IntRange;
 import io.netty.buffer.ByteBuf;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -42,23 +42,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class Misc {
 
+  static final InetSocketAddress[] LOCAL_IP_ADDRESSES_V4 = new InetSocketAddress[20];
+
+  static final InetSocketAddress[] LOCAL_IP_ADDRESSES_V6 = new InetSocketAddress[20];
+
   /**
    * the working directory as a string
    */
-  public static final String HOME = System.getProperty("user.dir");
+  private static final String HOME = System.getProperty("user.dir");
 
   /**
    * the Path directory to the working dir
    */
   public static final Path HOME_PATH = Paths.get(Misc.HOME);
 
-  public static final InetSocketAddress[] LOCAL_IP_ADDRESSES_V4 = new InetSocketAddress[20];
+  private static final InetSocketAddress LOOPBACK_V4 = new InetSocketAddress(Inet4Address.getLoopbackAddress(), 19132);
 
-  public static final InetSocketAddress[] LOCAL_IP_ADDRESSES_V6 = new InetSocketAddress[20];
-
-  public static final InetSocketAddress LOOPBACK_V4 = new InetSocketAddress(Inet4Address.getLoopbackAddress(), 19132);
-
-  public static final InetSocketAddress LOOPBACK_V6 = new InetSocketAddress(Inet6Address.getLoopbackAddress(), 19132);
+  private static final InetSocketAddress LOOPBACK_V6 = new InetSocketAddress(Inet6Address.getLoopbackAddress(), 19132);
 
   static {
     Misc.LOCAL_IP_ADDRESSES_V4[0] = Misc.LOOPBACK_V4;
@@ -73,33 +73,6 @@ public final class Misc {
    * ctor.
    */
   private Misc() {
-  }
-
-  /**
-   * flips the given byte array.
-   *
-   * @param bytes the bytes to flip.
-   */
-  public static void flip(final byte[] bytes) {
-    IntStream.range(0, bytes.length)
-      .forEach(i -> bytes[i] = (byte) (~bytes[i] & 0xFF));
-  }
-
-  /**
-   * obtains the given address's ip header.
-   *
-   * @param address the address to obtain header.
-   *
-   * @return ip header of the given address.
-   */
-  public static byte getIpHeader(@NotNull final InetAddress address) {
-    final byte ipHeader;
-    if (address instanceof Inet6Address) {
-      ipHeader = 40;
-    } else {
-      ipHeader = 20;
-    }
-    return ipHeader;
   }
 
   /**
@@ -173,5 +146,32 @@ public final class Misc {
     buffer.writerIndex(lengthIndex);
     buffer.writeShort(count);
     buffer.writerIndex(finalIndex);
+  }
+
+  /**
+   * flips the given byte array.
+   *
+   * @param bytes the bytes to flip.
+   */
+  static void flip(final byte[] bytes) {
+    IntStream.range(0, bytes.length)
+      .forEach(i -> bytes[i] = (byte) (~bytes[i] & 0xFF));
+  }
+
+  /**
+   * obtains the given address's ip header.
+   *
+   * @param address the address to obtain header.
+   *
+   * @return ip header of the given address.
+   */
+  private static byte getIpHeader(@NotNull final InetAddress address) {
+    final byte ipHeader;
+    if (address instanceof Inet6Address) {
+      ipHeader = 40;
+    } else {
+      ipHeader = 20;
+    }
+    return ipHeader;
   }
 }

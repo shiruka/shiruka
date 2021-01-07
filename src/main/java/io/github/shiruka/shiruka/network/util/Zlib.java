@@ -75,6 +75,13 @@ public final class Zlib {
     this.deflaterLocal = ThreadLocal.withInitial(() -> Natives.ZLIB.get().create(7, raw));
   }
 
+  /**
+   * deflates the given {@code uncompressed} byte byf.
+   *
+   * @param uncompressed the uncompressed to deflate.
+   * @param compressed the compressed to deflate.
+   * @param level the level to deflate.
+   */
   public void deflate(@NotNull final ByteBuf uncompressed, @NotNull final ByteBuf compressed, final int level) {
     ByteBuf destination = null;
     ByteBuf source = null;
@@ -113,6 +120,16 @@ public final class Zlib {
     }
   }
 
+  /**
+   * inflates the given {@code buffer} byte byf.
+   *
+   * @param buffer the buffer to inflate.
+   * @param maxSize the maximum size to inflate.
+   *
+   * @return inflated byte buf instance.
+   *
+   * @throws DataFormatException if inflated data exceeds maximum size.
+   */
   @NotNull
   public ByteBuf inflate(@NotNull final ByteBuf buffer, final int maxSize) throws DataFormatException {
     ByteBuf source = null;
@@ -135,7 +152,7 @@ public final class Zlib {
         final var written = inflater.inflate(decompressed.internalNioBuffer(index, Zlib.CHUNK));
         decompressed.writerIndex(index + written);
         if (maxSize > 0 && decompressed.writerIndex() >= maxSize) {
-          throw new DataFormatException("Inflated data exceeds maximum size");
+          throw new DataFormatException("Inflated data exceeds maximum size!");
         }
       }
       return decompressed;

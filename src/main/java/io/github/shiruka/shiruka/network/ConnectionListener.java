@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network;
 
-import io.github.shiruka.shiruka.network.misc.EncapsulatedPacket;
+import io.github.shiruka.shiruka.network.objects.EncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 

@@ -53,7 +53,7 @@ public interface Tag {
   /**
    * an empty {@link ByteArrayTag} instance.
    */
-  ByteArrayTag BYTE_ARRAY = Tag.createByteArray(new byte[0]);
+  ByteArrayTag BYTE_ARRAY = Tag.createByteArray();
 
   /**
    * an empty {@link CompoundTag} instance.
@@ -83,7 +83,7 @@ public interface Tag {
   /**
    * an empty {@link IntArrayTag} instance.
    */
-  IntArrayTag INT_ARRAY = Tag.createIntArray(new int[0]);
+  IntArrayTag INT_ARRAY = Tag.createIntArray();
 
   /**
    * an empty {@link ListTag} instance.
@@ -130,7 +130,7 @@ public interface Tag {
    * @return an instance of {@link ByteArrayTag}.
    */
   @NotNull
-  static ByteArrayTag createByteArray(final byte @NotNull [] original) {
+  static ByteArrayTag createByteArray(final byte... original) {
     return new ByteArrayTag(original);
   }
 
@@ -228,7 +228,7 @@ public interface Tag {
    * @return an instance of {@link IntArrayTag}.
    */
   @NotNull
-  static IntArrayTag createIntArray(final int @NotNull [] original) {
+  static IntArrayTag createIntArray(final int... original) {
     return new IntArrayTag(original);
   }
 

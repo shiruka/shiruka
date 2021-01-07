@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 /**
  * a class that contains packet constants and utility methods.
  *
- * @todo #1:5m Add more JavaDocs.
+ * @todo #1:5m Add more JavaDocs packet id constants and others.
  */
 public final class Packets {
 

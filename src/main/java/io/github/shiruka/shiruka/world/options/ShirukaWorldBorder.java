@@ -34,8 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * the implementation of a world border which can be enabled on a world.
- *
- * @todo #1:5m Add more JavaDoc here.
  */
 public final class ShirukaWorldBorder implements WorldBorder {
 

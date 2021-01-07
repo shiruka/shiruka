@@ -42,8 +42,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * represents a region file stored on file which maps out the data in a chunk to be saved.
- *
- * @todo #1:5m Fill Javadocs.
  */
 public final class AnvilRegion {
 

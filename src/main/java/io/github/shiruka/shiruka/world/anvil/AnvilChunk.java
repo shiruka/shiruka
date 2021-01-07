@@ -32,6 +32,7 @@ import io.github.shiruka.api.world.generators.GeneratorContainer;
 import io.github.shiruka.api.world.options.Dimension;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.misc.CdlUnchecked;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.nbt.CompoundTag;
@@ -39,13 +40,13 @@ import io.github.shiruka.shiruka.nbt.Tag;
 import io.github.shiruka.shiruka.world.generators.ShirukaGeneratorContext;
 import io.netty.buffer.ByteBuf;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.*;
 import java.util.stream.IntStream;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -93,6 +94,12 @@ public final class AnvilChunk implements Chunk {
    * the height map for this chunk, 16x16 indexed by x across then adding z (x << 4 | z & 0xF)
    */
   private final AtomicIntegerArray heights = new AtomicIntegerArray(256);
+
+  /**
+   * the players that have this chunk loaded.
+   */
+  @Getter
+  private final Set<ShirukaPlayer> holders = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
   /**
    * the number of ticks that all players have spent in this chunk.
@@ -146,6 +153,15 @@ public final class AnvilChunk implements Chunk {
     } else {
       this.emptyPlaceholder = AnvilChunkSection.EMPTY_WITHOUT_SKYLIGHT;
     }
+  }
+
+  /**
+   * adds the given player to {@link #holders}.
+   *
+   * @param player the player to add.
+   */
+  public void addHolder(@NotNull final ShirukaPlayer player) {
+    this.holders.add(player);
   }
 
   @Override
@@ -222,7 +238,7 @@ public final class AnvilChunk implements Chunk {
     this.useState.set(AnvilChunk.TRANSITION);
     final var centerX = this.world.getWorldOptions().getSpawn().getIntX() >> 4;
     final var centerZ = this.world.getWorldOptions().getSpawn().getIntZ() >> 4;
-    if (/* @todo #1:30m this.holders.isEmpty() &&*/ Math.abs(centerX - this.x) > 3 || Math.abs(centerZ - this.z) > 3) {
+    if (this.holders.isEmpty() && Math.abs(centerX - this.x) > 3 || Math.abs(centerZ - this.z) > 3) {
       this.useState.set(AnvilChunk.UNUSABLE);
       if (this.world.removeChunkAt(this.x, this.z) == null) {
         return;
@@ -261,6 +277,25 @@ public final class AnvilChunk implements Chunk {
     } else {
       this.useState.set(AnvilChunk.USABLE);
     }
+  }
+
+  /**
+   * obtains the holders.
+   *
+   * @return holders.
+   */
+  @NotNull
+  public Set<ShirukaPlayer> getHolders() {
+    return Collections.unmodifiableSet(this.holders);
+  }
+
+  /**
+   * removes the given player from {@link #holders}.
+   *
+   * @param player the player to remove.
+   */
+  public void removeHolder(@NotNull final ShirukaPlayer player) {
+    this.holders.remove(player);
   }
 
   /**

@@ -132,4 +132,8 @@ public final class ShirukaPlayer implements Player {
     // @todo #1:15m Implement sendMessage method.
     System.out.println(message);
   }
+
+  @Override
+  public void tick() {
+  }
 }

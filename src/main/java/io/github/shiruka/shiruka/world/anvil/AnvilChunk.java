@@ -273,7 +273,7 @@ public final class AnvilChunk implements Chunk {
     final var len = this.sections.length();
     var mask = 0;
     final var anvilChunkSections = new AnvilChunkSection[16];
-    for (int i = 0; i < 16; i++) {
+    for (var i = 0; i < 16; i++) {
       final var sec = this.sections.get(i);
       anvilChunkSections[i] = sec;
       if (sec != null) {

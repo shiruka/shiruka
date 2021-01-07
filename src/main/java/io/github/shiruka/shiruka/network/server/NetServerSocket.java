@@ -38,9 +38,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * the main server class to bind a server using Netty.
@@ -50,7 +50,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("NetServerSocket");
+  private static final Logger LOGGER = LogManager.getLogger("NetServerSocket");
 
   /**
    * blocked addresses and their unblock times.

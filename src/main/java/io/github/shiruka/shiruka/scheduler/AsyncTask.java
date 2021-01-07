@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a class that represents async scheduled tasks.
@@ -44,7 +44,7 @@ public final class AsyncTask implements Task, Runnable {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("AsyncTask");
+  private static final Logger LOGGER = LogManager.getLogger("AsyncTask");
 
   /**
    * the task.

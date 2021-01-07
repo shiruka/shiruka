@@ -99,11 +99,13 @@ public final class ShirukaGeneratorOptions implements GeneratorOptions {
    * @param compound the compound to read from.
    */
   public ShirukaGeneratorOptions(@NotNull final CompoundTag compound) {
-    final var providerClass = compound.get("TridentProvider");
+    final var providerClass = compound.get("ShirukaProvider");
     if (providerClass.isPresent() && providerClass.get().isString()) {
       try {
-        this.provider = (GeneratorProvider) Class.forName(providerClass.get().asString().value()).newInstance();
-      } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        this.provider = (GeneratorProvider) Class.forName(providerClass.get().asString().value())
+          .getField("INSTANCE")
+          .get(null);
+      } catch (final IllegalAccessException | ClassNotFoundException | NoSuchFieldException e) {
         throw new RuntimeException(e);
       }
     } else {
@@ -169,7 +171,7 @@ public final class ShirukaGeneratorOptions implements GeneratorOptions {
    */
   public void write(@NotNull final CompoundTag compound) {
     if (this.provider != FlatGeneratorProvider.INSTANCE) {
-      compound.setString("TridentProvider", this.provider.getClass().getName());
+      compound.setString("ShirukaProvider", this.provider.getClass().getName());
     }
     compound.setLong("RandomSeed", this.seed);
     compound.setString("generatorName", this.levelType.toString());

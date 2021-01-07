@@ -40,9 +40,9 @@ import io.netty.buffer.ByteBufUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.zip.DataFormatException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a class that serializes and deserializes packets.
@@ -52,7 +52,7 @@ public final class Protocol {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("Protocol");
+  private static final Logger LOGGER = LogManager.getLogger("Protocol");
 
   /**
    * the zlib.

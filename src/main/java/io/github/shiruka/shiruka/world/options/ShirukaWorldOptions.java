@@ -73,7 +73,7 @@ public final class ShirukaWorldOptions implements WorldOptions {
    */
   public ShirukaWorldOptions(@NotNull final World world, @NotNull final CompoundTag compound) {
     this.world = world;
-    this.spawn.set(Vector.create(
+    this.spawn.set(new Vector(
       compound.getInteger("SpawnX").orElseThrow(),
       compound.getInteger("SpawnY").orElseThrow(),
       compound.getInteger("SpawnZ").orElseThrow()));
@@ -111,6 +111,6 @@ public final class ShirukaWorldOptions implements WorldOptions {
     final var r = ThreadLocalRandom.current();
     final var x = r.nextInt() % 1000;
     final var z = r.nextInt() % 1000;
-    return Vector.create(x, this.world.getHighestY(x, z) + 1, z);
+    return new Vector(x, this.world.getHighestY(x, z) + 1, z);
   }
 }

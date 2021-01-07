@@ -33,6 +33,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * a generator provider that provides the proper generators for a flat world level type.
+ *
+ * @todo #1:60m Implement flat generator provider methods.
  */
 public final class FlatGeneratorProvider implements GeneratorProvider {
 

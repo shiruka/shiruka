@@ -34,9 +34,9 @@ import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a simple implementation for {@link Scheduler}.
@@ -46,7 +46,7 @@ public final class SimpleScheduler implements Scheduler {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("SimpleScheduler");
+  private static final Logger LOGGER = LogManager.getLogger("SimpleScheduler");
 
   /**
    * the already alerted.

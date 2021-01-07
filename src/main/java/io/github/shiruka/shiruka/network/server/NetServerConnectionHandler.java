@@ -39,10 +39,10 @@ import io.github.shiruka.shiruka.network.util.Packets;
 import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * server connection handler implementation class.
@@ -52,7 +52,7 @@ public final class NetServerConnectionHandler implements ConnectionHandler {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("NetServerConnectionHandler");
+  private static final Logger LOGGER = LogManager.getLogger("NetServerConnectionHandler");
 
   /**
    * the server connection instance.

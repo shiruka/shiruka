@@ -44,10 +44,9 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a Java main class to start the Shiru ka's server.
@@ -57,7 +56,7 @@ public final class ShirukaMain {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaMain");
+  private static final Logger LOGGER = LogManager.getLogger("ShirukaMain");
 
   /**
    * the parsed arguments.

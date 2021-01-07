@@ -30,10 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a class that represents sync tasks.
@@ -43,7 +43,7 @@ public final class SyncTask implements Task, Runnable {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("SyncTask");
+  private static final Logger LOGGER = LogManager.getLogger("SyncTask");
 
   /**
    * the task.

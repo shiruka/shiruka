@@ -37,10 +37,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a simple zip implementation for {@link PackLoader}.
@@ -174,7 +174,7 @@ public final class RplZip implements PackLoader {
     /**
      * the logger.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger("ZipFactory");
+    private static final Logger LOGGER = LogManager.getLogger("ZipFactory");
 
     /**
      * zip pack loader name matcher.

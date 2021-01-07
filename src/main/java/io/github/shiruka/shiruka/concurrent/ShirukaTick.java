@@ -29,9 +29,9 @@ import io.github.shiruka.api.Server;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.scheduler.SyncTaskManager;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a class that represents the server heartbeat pulse called "tick" which occurs every 1/20th of a second.
@@ -41,7 +41,7 @@ public final class ShirukaTick implements Runnable {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("ShirukaTick");
+  private static final Logger LOGGER = LogManager.getLogger("ShirukaTick");
 
   /**
    * the amount of time taken by a single tick

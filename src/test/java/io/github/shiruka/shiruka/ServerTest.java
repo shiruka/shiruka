@@ -23,44 +23,37 @@
  *
  */
 
-package io.github.shiruka.shiruka.command;
+package io.github.shiruka.shiruka;
 
-import io.github.shiruka.api.command.CommandManager;
-import io.github.shiruka.api.command.CommandNode;
-import io.github.shiruka.api.command.CommandSender;
-import io.github.shiruka.api.plugin.Plugin;
-import java.util.Collections;
-import java.util.Map;
+import io.github.shiruka.api.Shiruka;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
-/**
- * a simple implementation for {@link CommandManager}.
- */
-public final class SimpleCommandManager implements CommandManager {
+final class ServerTest {
 
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger(SimpleCommandManager.class);
+  private static final String[] ARGS = {"-D"};
 
-  @Override
-  public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
-    SimpleCommandManager.LOGGER.info("{} -> {}", sender.getName(), command);
+  private static final Logger LOGGER = LogManager.getLogger();
+
+  public static void main(final String[] args) {
+    new ServerTest().startServer();
   }
 
-  @Override
-  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commands) {
+  private static void doJobs() {
   }
 
-  @NotNull
-  @Override
-  public Map<String, CommandNode> registered(@NotNull final Plugin plugin) {
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public void unregister(@NotNull final String... commands) {
+  void startServer() {
+    new Thread(() -> {
+      try {
+        Thread.sleep(1000L * 3L);
+        final var scheduler = Shiruka.getScheduler();
+        scheduler.schedule(ServerTest::doJobs);
+        Thread.sleep(1000L * 10L);
+        scheduler.schedule(Shiruka.getServer()::stopServer);
+      } catch (final InterruptedException e) {
+        e.printStackTrace();
+      }
+    }).start();
+    ShirukaMain.main(ServerTest.ARGS);
   }
 }

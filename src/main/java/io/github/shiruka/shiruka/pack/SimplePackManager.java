@@ -38,9 +38,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a simple implementation for {@link PackManager}.
@@ -50,7 +50,7 @@ public final class SimplePackManager implements PackManager {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("SimplePackManager");
+  private static final Logger LOGGER = LogManager.getLogger("SimplePackManager");
 
   /**
    * the manifest path.

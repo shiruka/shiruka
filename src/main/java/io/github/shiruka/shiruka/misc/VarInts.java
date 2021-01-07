@@ -212,7 +212,7 @@ public final class VarInts {
   @NotNull
   public static Vector readVector(@NotNull final ByteBuf buf) {
     final var pos = buf.readLong();
-    return Vector.create(pos >> 38, pos >> 26 & 0xFFF, pos << 38 >> 38);
+    return new Vector(pos >> 38, pos >> 26 & 0xFFF, pos << 38 >> 38);
   }
 
   /**

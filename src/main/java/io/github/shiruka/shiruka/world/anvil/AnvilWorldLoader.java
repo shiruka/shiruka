@@ -38,9 +38,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Optional;
+import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a class that loads Shiru ka's worlds.
@@ -50,12 +52,12 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger("AnvilWorldLoader");
+  private static final Logger LOGGER = LogManager.getLogger("AnvilWorldLoader");
 
   @NotNull
   @Override
   public final World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
-    return this.worlds.compute(name, (k, v) -> {
+    final var compute = this.worldsByName.compute(name, (k, v) -> {
       Preconditions.checkArgument(v == null, "World \"%s\" already exists!", name);
       AnvilWorldLoader.LOGGER.info("§eCreating world \"{}\".", name);
       final var world = new AnvilWorld(name, Misc.HOME_PATH.resolve(name), spec);
@@ -64,11 +66,15 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
       AnvilWorldLoader.LOGGER.info("§eFinished creating \"{}\".", name);
       return world;
     });
+    this.worldsByUniqueId.put(compute.getUniqueId(), compute);
+    return compute;
   }
 
   @Override
   public final boolean delete(@NotNull final World world) {
-    if (this.worlds.remove(world.getName()) == null) {
+    final var nameRemoved = this.worldsByName.remove(world.getName());
+    final var uniqueIdRemoved = this.worldsByUniqueId.remove(world.getUniqueId());
+    if (nameRemoved == null && uniqueIdRemoved == null) {
       return false;
     }
     final var path = world.getDirectory();
@@ -82,16 +88,26 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
 
   @NotNull
   @Override
-  public final World get(@NotNull final String name) {
-    final var world = this.worlds.get(name);
+  public final Optional<World> get(@NotNull final String name) {
+    final var world = this.worldsByName.get(name);
     if (world != null) {
-      return world;
+      return Optional.of(world);
     }
     final var path = Misc.HOME_PATH.resolve(name);
     Preconditions.checkArgument(Files.isDirectory(path), "%s has no world!", name);
     final var levelDat = path.resolve("level.dat");
     Preconditions.checkArgument(Files.exists(levelDat), "%s has no world!", name);
-    return this.load(name, path, Dimension.OVER_WORLD);
+    return Optional.of(this.load(name, path, Dimension.OVER_WORLD));
+  }
+
+  @NotNull
+  @Override
+  public Optional<World> get(@NotNull final UUID uniqueId) {
+    final var world = this.worldsByUniqueId.get(uniqueId);
+    if (world != null) {
+      return Optional.of(world);
+    }
+    return Optional.empty();
   }
 
   @NotNull
@@ -100,7 +116,8 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
     AnvilWorldLoader.LOGGER.info("§eLoading world \"{}\".", name);
     final var world = new AnvilWorld(name, directory, dimension);
     world.loadSpawnChunks();
-    this.worlds.put(name, world);
+    this.worldsByName.put(name, world);
+    this.worldsByUniqueId.put(world.getUniqueId(), world);
     AnvilWorldLoader.LOGGER.info("§eFinished loading \"{}\".", name);
     return world;
   }
@@ -124,7 +141,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
-    if (this.worlds.isEmpty() || !this.worlds.containsKey(defaultWorldName)) {
+    if (this.worldsByName.isEmpty() || !this.worldsByName.containsKey(defaultWorldName)) {
       this.create(defaultWorldName, WorldCreateSpec.getDefaultOptions());
     }
   }

@@ -79,9 +79,6 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
-    if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
-      System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
-    }
     final var parsed = ShirukaConsoleParser.parse(args);
     if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
       ShirukaConsoleParser.printHelpOn();
@@ -104,6 +101,9 @@ public final class ShirukaMain {
       ShirukaMain.LOGGER.warn("§cCannot run server in a directory with ! or + in the pathname.");
       ShirukaMain.LOGGER.warn("§cPlease rename the affected folders and try again.");
       return;
+    }
+    if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
+      System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
     System.setProperty("library.jansi.version", "Shiru ka");
     final var main = new ShirukaMain(parsed);

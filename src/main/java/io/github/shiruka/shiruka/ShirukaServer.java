@@ -197,8 +197,8 @@ public final class ShirukaServer implements Server {
 
   @NotNull
   @Override
-  public BanList getBanList(final BanList.@NotNull Type type) {
-    // @todo 1#:15m create implementations for ip and profile(name) ban list.
+  public BanList getBanList(@NotNull final BanList.Type type) {
+    // @todo #1:15m create implementations for ip and profile(name) ban list.
     return null;
   }
 

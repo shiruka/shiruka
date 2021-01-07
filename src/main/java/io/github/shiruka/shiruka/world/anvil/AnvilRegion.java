@@ -45,19 +45,40 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class AnvilRegion {
 
+  /**
+   * the cache.
+   */
   private static final Map<Path, AnvilRegion> CACHE = new ConcurrentHashMap<>();
 
+  /**
+   * the chunk header size.
+   */
   private static final int CHUNK_HEADER_SIZE = 5;
 
+  /**
+   * the empty sector.
+   */
+  private static final byte[] EMPTY_SECTOR = new byte[4096];
+
+  /**
+   * the sector bytes.
+   */
   private static final int SECTOR_BYTES = 4096;
 
+  /**
+   * the sector ints.
+   */
   private static final int SECTOR_INTS = AnvilRegion.SECTOR_BYTES / 4;
 
+  /**
+   * the version deflate.
+   */
   private static final int VERSION_DEFLATE = 2;
 
+  /**
+   * the version GZIP.
+   */
   private static final int VERSION_GZIP = 1;
-
-  private static final byte[] emptySector = new byte[4096];
 
   /**
    * the file.
@@ -311,7 +332,7 @@ public final class AnvilRegion {
           this.file.seek(this.file.length());
           sectorNumber = this.sectorFree.size();
           for (var i = 0; i < sectorsNeeded; ++i) {
-            this.file.write(AnvilRegion.emptySector);
+            this.file.write(AnvilRegion.EMPTY_SECTOR);
             this.sectorFree.add(false);
           }
           this.write(sectorNumber, data, length);
@@ -324,25 +345,68 @@ public final class AnvilRegion {
     }
   }
 
+  /**
+   * obtains the offset.
+   *
+   * @param x the x to get.
+   * @param z the z to get.
+   *
+   * @return offset.
+   */
   private int getOffset(final int x, final int z) {
     return this.offsets[x + (z << 5)];
   }
 
+  /**
+   * checks if the given {@code x} and {@code z} out of bounds.
+   *
+   * @param x the x to check.
+   * @param z the z to check.
+   *
+   * @return {@code true} if {@code x} and {@code z} out of bounds.
+   */
   private boolean outOfBounds(final int x, final int z) {
     return x < 0 || x >= 32 || z < 0 || z >= 32;
   }
 
+  /**
+   * sets the offset.
+   *
+   * @param x the x to set.
+   * @param z the z to set.
+   * @param offset the offset to set.
+   *
+   * @throws IOException if pos is less than 0 or if an I/O error occurs.
+   */
   private void setOffset(final int x, final int z, final int offset) throws IOException {
     this.offsets[x + (z << 5)] = offset;
     this.file.seek((long) x + ((long) z << 5) << 2);
     this.file.writeInt(offset);
   }
 
+  /**
+   * sets the timestamp.
+   *
+   * @param x the x to set.
+   * @param z the z to set.
+   * @param value the value to set.
+   *
+   * @throws IOException if pos is less than 0 or if an I/O error occurs.
+   */
   private void setTimestamp(final int x, final int z, final int value) throws IOException {
     this.file.seek(AnvilRegion.SECTOR_BYTES + ((long) x + ((long) z << 5) << 2));
     this.file.writeInt(value);
   }
 
+  /**
+   * writes the given {@code data} to sector number.
+   *
+   * @param sectorNumber the sector number to set.
+   * @param data the data to set.
+   * @param length the length to set.
+   *
+   * @throws IOException if pos is less than 0 or if an I/O error occurs.
+   */
   private void write(final int sectorNumber, final byte[] data, final int length) throws IOException {
     this.file.seek((long) sectorNumber << 12);
     this.file.writeInt(length + 1);
@@ -350,12 +414,27 @@ public final class AnvilRegion {
     this.file.write(data, 0, length);
   }
 
+  /**
+   * a class that represents chunk buffers.
+   */
   final class ChunkBuffer extends ByteArrayOutputStream {
 
+    /**
+     * the x.
+     */
     private final int x;
 
+    /**
+     * the z.
+     */
     private final int z;
 
+    /**
+     * ctor.
+     *
+     * @param x the x.
+     * @param z the z.
+     */
     public ChunkBuffer(final int x, final int z) {
       super(8096);
       this.x = x;

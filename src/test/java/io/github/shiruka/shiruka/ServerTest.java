@@ -39,7 +39,6 @@ final class ServerTest {
   private static void doJobs() {
   }
 
-  @Test
   void startServer() {
     new Thread(() -> {
       try {

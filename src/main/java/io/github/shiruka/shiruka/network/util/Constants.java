@@ -27,6 +27,8 @@ package io.github.shiruka.shiruka.network.util;
 
 /**
  * a class that contains magic numbers.
+ *
+ * @todo #1:5m Add more JavaDocs.
  */
 public final class Constants {
 

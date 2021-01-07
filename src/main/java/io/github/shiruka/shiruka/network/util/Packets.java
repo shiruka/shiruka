@@ -47,7 +47,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * a class that contains packet constants and utility methods..
+ * a class that contains packet constants and utility methods.
+ *
+ * @todo #1:5m Add more JavaDocs.
  */
 public final class Packets {
 

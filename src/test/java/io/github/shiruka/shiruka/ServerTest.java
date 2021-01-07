@@ -28,13 +28,16 @@ package io.github.shiruka.shiruka;
 import io.github.shiruka.api.Shiruka;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Test;
 
 final class ServerTest {
 
   private static final String[] ARGS = {"-D"};
 
   private static final Logger LOGGER = LogManager.getLogger();
+
+  public static void main(final String[] args) {
+    new ServerTest().startServer();
+  }
 
   private static void doJobs() {
   }

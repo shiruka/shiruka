@@ -118,7 +118,7 @@ public final class SimplePackManager implements PackManager {
     this.packStack.set(new PacketOutPackStack(
       Collections.emptyList(),
       Collections.emptyList(),
-      false,
+      true,
       mustAccept,
       "*",
       this.packs.values().stream()

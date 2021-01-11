@@ -36,6 +36,7 @@ import io.github.shiruka.api.events.EventFactory;
 import io.github.shiruka.api.pack.PackManager;
 import io.github.shiruka.api.pack.PackManifest;
 import io.github.shiruka.api.permission.PermissionManager;
+import io.github.shiruka.api.plugin.PluginManager;
 import io.github.shiruka.api.scheduler.Scheduler;
 import io.github.shiruka.api.world.WorldLoader;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
@@ -330,7 +331,7 @@ public final class ShirukaServer implements Server {
     this.registerInterface(EventFactory.class, new SimpleEventFactory());
     this.registerInterface(PackManager.class, new SimplePackManager());
     this.registerInterface(PermissionManager.class, new SimplePermissionManager());
-    this.registerInterface(Pluginmanager.class, new SimplePluginManager());
+    this.registerInterface(PluginManager.class, new SimplePluginManager());
     this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
     this.registerInterface(WorldLoader.class, this.loader);
   }

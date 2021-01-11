@@ -25,9 +25,68 @@
 
 package io.github.shiruka.shiruka.plugin;
 
+import io.github.shiruka.api.plugin.*;
+import java.io.File;
+import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * a simple implementation for {@link Pluginmanager}.
  */
-public final class SimplePluginManager implements PLuginManager {
+public final class SimplePluginManager implements PluginManager {
 
+  @Override
+  public void clearPlugins() {
+  }
+
+  @Override
+  public void disablePlugin(@NotNull final Plugin plugin) {
+  }
+
+  @Override
+  public void disablePlugin(@NotNull final Plugin plugin, final boolean b) {
+  }
+
+  @Override
+  public void disablePlugins() {
+  }
+
+  @Override
+  public void enablePlugin(@NotNull final Plugin plugin) {
+  }
+
+  @NotNull
+  @Override
+  public Optional<Plugin> getPlugin(@NotNull final String s) {
+    return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Plugin[] getPlugins() {
+    return new Plugin[0];
+  }
+
+  @Override
+  public boolean isPluginEnabled(@NotNull final String s) {
+    return false;
+  }
+
+  @Override
+  public boolean isPluginEnabled(@NotNull final Plugin plugin) {
+    return false;
+  }
+
+  @NotNull
+  @Override
+  public Optional<Plugin> loadPlugin(@NotNull final File file) throws InvalidPluginException,
+    InvalidDescriptionException, UnknownDependencyException {
+    return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Plugin[] loadPlugins(@NotNull final File file) {
+    return new Plugin[0];
+  }
 }

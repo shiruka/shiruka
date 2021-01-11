@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,6 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
-import io.github.shiruka.shiruka.world.WorldType;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;

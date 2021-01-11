@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -56,6 +56,7 @@ import io.github.shiruka.shiruka.pack.loader.RplDirectory;
 import io.github.shiruka.shiruka.pack.loader.RplZip;
 import io.github.shiruka.shiruka.pack.pack.ResourcePack;
 import io.github.shiruka.shiruka.permission.SimplePermissionManager;
+import io.github.shiruka.shiruka.plugin.SimplePluginManager;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -329,6 +330,7 @@ public final class ShirukaServer implements Server {
     this.registerInterface(EventFactory.class, new SimpleEventFactory());
     this.registerInterface(PackManager.class, new SimplePackManager());
     this.registerInterface(PermissionManager.class, new SimplePermissionManager());
+    this.registerInterface(Pluginmanager.class, new SimplePluginManager());
     this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
     this.registerInterface(WorldLoader.class, this.loader);
   }

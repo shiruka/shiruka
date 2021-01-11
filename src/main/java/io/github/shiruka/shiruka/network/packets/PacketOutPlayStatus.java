@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,6 @@ public final class PacketOutPlayStatus extends PacketOut {
    * an enum class to determine play status.
    */
   public enum Status {
-
     /**
      * sent after Login has been successfully decoded and the player has logged in.
      */

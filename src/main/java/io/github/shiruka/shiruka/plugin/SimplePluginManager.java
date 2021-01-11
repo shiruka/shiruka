@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,12 @@
  * SOFTWARE.
  *
  */
+
+package io.github.shiruka.shiruka.plugin;
+
 /**
- * the package that contains option classes of worlds.
+ * a simple implementation for {@link Pluginmanager}.
  */
-package io.github.shiruka.shiruka.world.options;
+public final class SimplePluginManager implements PLuginManager {
+
+}

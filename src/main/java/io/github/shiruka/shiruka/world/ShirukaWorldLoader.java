@@ -47,7 +47,6 @@ public abstract class ShirukaWorldLoader implements WorldLoader {
 
   /**
    * the file visitor which removes all files under the enclosing directory
-   * (including the enclosing directory and all subdirectories).
    */
   protected static final SimpleFileVisitor<Path> DELETE_FILES = new SimpleFileVisitor<>() {
     @Override

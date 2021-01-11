@@ -56,7 +56,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
 
   @NotNull
   @Override
-  public final World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
+  public World create(@NotNull final String name, @NotNull final WorldCreateSpec spec) {
     final var compute = this.worldsByName.compute(name, (k, v) -> {
       Preconditions.checkArgument(v == null, "World \"%s\" already exists!", name);
       AnvilWorldLoader.LOGGER.info("§eCreating world \"{}\".", name);
@@ -71,7 +71,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
   }
 
   @Override
-  public final boolean delete(@NotNull final World world) {
+  public boolean delete(@NotNull final World world) {
     final var nameRemoved = this.worldsByName.remove(world.getName());
     final var uniqueIdRemoved = this.worldsByUniqueId.remove(world.getUniqueId());
     if (nameRemoved == null && uniqueIdRemoved == null) {
@@ -88,7 +88,7 @@ public final class AnvilWorldLoader extends ShirukaWorldLoader {
 
   @NotNull
   @Override
-  public final Optional<World> get(@NotNull final String name) {
+  public Optional<World> get(@NotNull final String name) {
     final var world = this.worldsByName.get(name);
     if (world != null) {
       return Optional.of(world);

@@ -271,7 +271,7 @@ public final class ShirukaServer implements Server {
 
   @Override
   public void stopServer() {
-    LOGGER.info("§eStopping the server.");
+    ShirukaServer.LOGGER.info("§eStopping the server.");
     this.running.set(false);
     try {
       this.socket.close();

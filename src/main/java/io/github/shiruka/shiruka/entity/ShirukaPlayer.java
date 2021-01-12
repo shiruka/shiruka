@@ -32,6 +32,9 @@ import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.events.KickEvent;
 import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.metadata.MetadataValue;
+import io.github.shiruka.api.permission.Permission;
+import io.github.shiruka.api.permission.PermissionAttachment;
+import io.github.shiruka.api.permission.PermissionAttachmentInfo;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.text.Text;
 import io.github.shiruka.api.text.TranslatedText;
@@ -40,15 +43,16 @@ import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link Player}.
  *
- * @todo #1:60m Implement methods of shiruka player.
+ * @todo #1:60m Implement ShirukaPlayer's methods.
  */
-public final class ShirukaPlayer implements Player {
+public final class ShirukaPlayer extends ShirukaEntity implements Player {
 
   /**
    * the chain data.
@@ -90,6 +94,66 @@ public final class ShirukaPlayer implements Player {
   @NotNull
   private static TranslatedText getLeaveMessage() {
     return TranslatedText.get("multiplayer.player.left");
+  }
+
+  @NotNull
+  @Override
+  public PermissionAttachment addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
+                                            final boolean value) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public PermissionAttachment addAttachment(@NotNull final Plugin plugin) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
+                                                      final boolean value, final long ticks) {
+    return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, final long ticks) {
+    return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+    return null;
+  }
+
+  @Override
+  public boolean hasPermission(@NotNull final String name) {
+    return false;
+  }
+
+  @Override
+  public boolean hasPermission(@NotNull final Permission perm) {
+    return false;
+  }
+
+  @Override
+  public boolean isPermissionSet(@NotNull final String name) {
+    return false;
+  }
+
+  @Override
+  public boolean isPermissionSet(@NotNull final Permission perm) {
+    return false;
+  }
+
+  @Override
+  public void recalculatePermissions() {
+  }
+
+  @Override
+  public void removeAttachment(@NotNull final PermissionAttachment attachment) {
   }
 
   @Nullable
@@ -162,7 +226,7 @@ public final class ShirukaPlayer implements Player {
   }
 
   @Override
-  public boolean kick(@NotNull final KickEvent.Reason reason, @NotNull final String reasonString,
+  public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final String reasonString,
                       final boolean isAdmin) {
     final var event = Shiruka.getEventManager().playerKick(this, reason, ShirukaPlayer.getLeaveMessage());
     event.callEvent();
@@ -183,7 +247,7 @@ public final class ShirukaPlayer implements Player {
         message = reasonString;
       }
     }
-    this.connection.disconnect(event.kickMessage(), message);
+    this.connection.disconnect(event.kickMessage().orElse(null), message);
     return true;
   }
 
@@ -200,17 +264,18 @@ public final class ShirukaPlayer implements Player {
 
   @Override
   public void removeAllMetadata(@NotNull final String key) {
-    // @todo #1:15m Implement removeAllMetadata method.
   }
 
   @Override
   public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
-    // @todo #1:15m Implement removeMetadata method.
   }
 
   @Override
   public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
-    // @todo #1:15m Implement setMetadata method.
+  }
+
+  @Override
+  public void tick() {
   }
 
   /**
@@ -224,13 +289,15 @@ public final class ShirukaPlayer implements Player {
   }
 
   @Override
-  public void sendMessage(@NotNull final Text message, @NotNull final Object... params) {
-    // @todo #1:15m Implement sendMessage method.
-    System.out.println(message);
+  public boolean isOp() {
+    return false;
   }
 
   @Override
-  public void tick() {
-    // @todo #1:30m Implement tick method of shiruka player.
+  public void setOp(final boolean value) {
+  }
+
+  @Override
+  public void sendMessage(@NotNull final Text message, @NotNull final Object... params) {
   }
 }

@@ -25,7 +25,15 @@
 
 package io.github.shiruka.shiruka.console;
 
+import io.github.shiruka.api.Server;
 import io.github.shiruka.api.console.ConsoleCommandSender;
+import io.github.shiruka.api.permission.Permission;
+import io.github.shiruka.api.permission.PermissionAttachment;
+import io.github.shiruka.api.permission.PermissionAttachmentInfo;
+import io.github.shiruka.api.plugin.Plugin;
+import io.github.shiruka.api.text.Text;
+import java.util.Optional;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -50,11 +58,86 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
 
   @NotNull
   @Override
-  public String getName() {
-    return "CONSOLE";
+  public PermissionAttachment addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
+                                            final boolean value) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public PermissionAttachment addAttachment(@NotNull final Plugin plugin) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
+                                                      final boolean value, final long ticks) {
+    return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, final long ticks) {
+    return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+    return null;
   }
 
   @Override
-  public void sendMessage(@NotNull final String message) {
+  public boolean hasPermission(@NotNull final String name) {
+    return false;
+  }
+
+  @Override
+  public boolean hasPermission(@NotNull final Permission perm) {
+    return false;
+  }
+
+  @Override
+  public boolean isPermissionSet(@NotNull final String name) {
+    return false;
+  }
+
+  @Override
+  public boolean isPermissionSet(@NotNull final Permission perm) {
+    return false;
+  }
+
+  @Override
+  public void recalculatePermissions() {
+  }
+
+  @Override
+  public void removeAttachment(@NotNull final PermissionAttachment attachment) {
+  }
+
+  @NotNull
+  @Override
+  public Text getName() {
+    return () -> "CONSOLE";
+  }
+
+  @NotNull
+  @Override
+  public Server getServer() {
+    return null;
+  }
+
+  @Override
+  public void sendMessage(@NotNull final Text message, final @NotNull Object... params) {
+  }
+
+  @Override
+  public boolean isOp() {
+    return false;
+  }
+
+  @Override
+  public void setOp(final boolean value) {
   }
 }

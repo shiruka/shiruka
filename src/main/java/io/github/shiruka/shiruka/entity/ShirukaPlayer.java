@@ -177,12 +177,6 @@ public final class ShirukaPlayer implements Player {
     return this.connection.getServer();
   }
 
-  @Override
-  public void kick(@Nullable final String reason) {
-    this.connection.disconnect(reason);
-    this.getServer().removePlayer(this);
-  }
-
   @NotNull
   @Override
   public UUID getUniqueId() {

@@ -101,14 +101,14 @@ public final class GameProfile {
   }
 
   @Override
-  public boolean equals(final Object o) {
-    if (this == o) {
+  public boolean equals(final Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (o == null || this.getClass() != o.getClass()) {
+    if (obj == null || this.getClass() != obj.getClass()) {
       return false;
     }
-    final var that = (GameProfile) o;
+    final var that = (GameProfile) obj;
     return this.name.equals(that.name) &&
       this.uniqueId.equals(that.uniqueId) &&
       this.xboxId.equals(that.xboxId);

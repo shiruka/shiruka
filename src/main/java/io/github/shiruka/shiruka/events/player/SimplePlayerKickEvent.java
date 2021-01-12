@@ -27,8 +27,9 @@ package io.github.shiruka.shiruka.events.player;
 
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.events.player.PlayerKickEvent;
-import io.github.shiruka.api.text.TranslatedText;
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.shiruka.events.SimpleCancellableEvent;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,23 +54,23 @@ public final class SimplePlayerKickEvent extends SimpleCancellableEvent implemen
    * the kick message.
    */
   @Nullable
-  private TranslatedText kickMessage;
+  private Text kickMessage;
 
   public SimplePlayerKickEvent(@NotNull final Player player, @NotNull final Reason reason,
-                               @Nullable final TranslatedText kickMessage) {
+                               @Nullable final Text kickMessage) {
     this.player = player;
     this.reason = reason;
     this.kickMessage = kickMessage;
   }
 
-  @Nullable
+  @NotNull
   @Override
-  public String kickMessage() {
-    return this.kickMessage;
+  public Optional<Text> kickMessage() {
+    return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public void kickMessage(@Nullable final String message) {
+  public void kickMessage(@Nullable final Text message) {
     this.kickMessage = message;
   }
 }

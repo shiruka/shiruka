@@ -36,7 +36,7 @@ import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import io.github.shiruka.api.events.player.PlayerKickEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
-import io.github.shiruka.api.text.TranslatedText;
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.shiruka.events.player.SimplePlayerAsyncLoginEvent;
 import io.github.shiruka.shiruka.events.player.SimplePlayerKickEvent;
 import io.github.shiruka.shiruka.events.player.SimplePlayerPreLoginEvent;
@@ -67,15 +67,8 @@ public final class SimpleEventManager implements EventManager {
   @NotNull
   @Override
   public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final KickEvent.Reason reason,
-                                    @NotNull final TranslatedText text) {
-    return new SimplePlayerKickEvent(player, reason, text);
-  }
-
-  @NotNull
-  @Override
-  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.LoginData loginData,
-                                            @Nullable final String kickMessage) {
-    return new SimplePlayerPreLoginEvent(loginData, kickMessage);
+                                    @NotNull final Text kickMessage) {
+    return new SimplePlayerKickEvent(player, reason, kickMessage);
   }
 
   @Override
@@ -86,5 +79,12 @@ public final class SimpleEventManager implements EventManager {
   @Override
   public void unregister(@NotNull final Listener listener) {
     this.adapter.unregister(listener);
+  }
+
+  @NotNull
+  @Override
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.LoginData loginData,
+                                            @Nullable final Text kickMessage) {
+    return new SimplePlayerPreLoginEvent(loginData, kickMessage);
   }
 }

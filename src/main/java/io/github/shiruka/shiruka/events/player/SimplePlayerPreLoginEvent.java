@@ -26,13 +26,16 @@
 package io.github.shiruka.shiruka.events.player;
 
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.api.text.Text;
+import io.github.shiruka.shiruka.events.SimpleCancellableEvent;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple implementation for {@link PlayerPreLoginEvent}.
  */
-public final class SimplePlayerPreLoginEvent implements PlayerPreLoginEvent {
+public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent implements PlayerPreLoginEvent {
 
   /**
    * the login data.
@@ -41,15 +44,10 @@ public final class SimplePlayerPreLoginEvent implements PlayerPreLoginEvent {
   private final LoginData loginData;
 
   /**
-   * the cancelled.
-   */
-  private boolean cancelled;
-
-  /**
    * the kick message.
    */
   @Nullable
-  private String kickMessage;
+  private Text kickMessage;
 
   /**
    * ctor.
@@ -57,7 +55,7 @@ public final class SimplePlayerPreLoginEvent implements PlayerPreLoginEvent {
    * @param loginData the login data.
    * @param kickMessage the kick message.
    */
-  public SimplePlayerPreLoginEvent(@NotNull final LoginData loginData, @Nullable final String kickMessage) {
+  public SimplePlayerPreLoginEvent(@NotNull final LoginData loginData, @Nullable final Text kickMessage) {
     this.loginData = loginData;
     this.kickMessage = kickMessage;
   }
@@ -71,29 +69,14 @@ public final class SimplePlayerPreLoginEvent implements PlayerPreLoginEvent {
     this(loginData, null);
   }
 
+  @NotNull
   @Override
-  public void cancel() {
-    this.cancelled = true;
+  public Optional<Text> kickMessage() {
+    return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public boolean cancelled() {
-    return this.cancelled;
-  }
-
-  @Override
-  public void dontCancel() {
-    this.cancelled = false;
-  }
-
-  @Nullable
-  @Override
-  public String kickMessage() {
-    return this.kickMessage;
-  }
-
-  @Override
-  public void kickMessage(@Nullable final String message) {
+  public void kickMessage(@Nullable final Text message) {
     this.kickMessage = message;
   }
 

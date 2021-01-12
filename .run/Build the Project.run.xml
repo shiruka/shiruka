@@ -12,7 +12,6 @@
             <list>
               <option value="clean" />
               <option value="install" />
-              <option value="-Dgpg.skip=true" />
             </list>
           </option>
           <option name="pomFileName" />

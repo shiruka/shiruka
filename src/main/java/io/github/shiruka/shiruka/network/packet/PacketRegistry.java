@@ -26,6 +26,7 @@
 package io.github.shiruka.shiruka.network.packet;
 
 import com.google.common.base.Preconditions;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packets.*;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;

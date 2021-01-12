@@ -31,9 +31,9 @@ import io.github.shiruka.api.base.Location;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.events.KickEvent;
 import io.github.shiruka.api.events.LoginDataEvent;
-import io.github.shiruka.api.language.TranslatedText;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
@@ -224,7 +224,7 @@ public final class ShirukaPlayer implements Player {
   }
 
   @Override
-  public void sendMessage(@NotNull final String message) {
+  public void sendMessage(@NotNull final Text message, @NotNull final Object... params) {
     // @todo #1:15m Implement sendMessage method.
     System.out.println(message);
   }

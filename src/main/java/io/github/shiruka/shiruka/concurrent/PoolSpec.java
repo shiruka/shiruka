@@ -62,7 +62,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * the thread factory for schedulers.
    */
-  public static final ThreadFactory SCHEDULER = new PoolSpec(false, -1, "Scheduler");
+  public static final PoolSpec SCHEDULER = new PoolSpec(false, -1, "Scheduler");
 
   /**
    * a thread factory that does handling for exceptions, piping exception output to the loggers.

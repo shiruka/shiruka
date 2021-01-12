@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.misc;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.api.util.Vector;
+import io.github.shiruka.api.base.Vector;
 import io.netty.buffer.ByteBuf;
 import java.io.DataInput;
 import java.io.DataOutput;

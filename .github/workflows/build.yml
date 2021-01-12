@@ -20,7 +20,7 @@ jobs:
           java-version: 11
 
       - run: |
-          mvn clean install -Dgpg.skip=true -ntp -B
+          mvn clean install -ntp -B
           mvn test -Pcoverage jacoco:report -ntp -B
 
       - uses: codecov/codecov-action@v1.0.14

@@ -26,3 +26,7 @@
 | -P, --plugins <File: Plugin directory>         | Plugin directory to use (default: plugins)              |
 | -U, --usercache <File: User cache file>        | User cache file to use (default: usercache.hjson)       |
 | -V, --version                                  | Show the Shiru ka's version                             |
+
+### Translation
+
+[Crowdin](https://crowdin.com/project/shiru-ka)

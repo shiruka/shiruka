@@ -26,10 +26,28 @@
 package io.github.shiruka.shiruka.language;
 
 import io.github.shiruka.api.language.LanguageManager;
+import java.util.Locale;
+import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link LanguageManager}.
  */
 public final class SimpleLanguageManager implements LanguageManager {
 
+  @Override
+  public void check(@NotNull final String key) {
+  }
+
+  @NotNull
+  @Override
+  public Optional<Locale> getLanguage(@NotNull final String code) {
+    return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public String translate(@NotNull final Locale locale, @NotNull final String key, final @NotNull Object... params) {
+    return null;
+  }
 }

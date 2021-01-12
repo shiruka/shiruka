@@ -26,10 +26,12 @@
 package io.github.shiruka.shiruka.entity;
 
 import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.api.base.GameProfile;
 import io.github.shiruka.api.base.Location;
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.events.KickEvent;
 import io.github.shiruka.api.events.LoginDataEvent;
+import io.github.shiruka.api.language.TranslatedText;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.text.TranslatedText;
@@ -78,6 +80,16 @@ public final class ShirukaPlayer implements Player {
     this.chainData = chainData;
     this.connection = connection;
     this.profile = profile;
+  }
+
+  /**
+   * obtains the leave message.
+   *
+   * @return leave message.
+   */
+  @NotNull
+  private static TranslatedText getLeaveMessage() {
+    return TranslatedText.get("multiplayer.player.left");
   }
 
   @Nullable
@@ -133,6 +145,50 @@ public final class ShirukaPlayer implements Player {
 
   @NotNull
   @Override
+  public LoginDataEvent.ChainData getChainData() {
+    return this.chainData;
+  }
+
+  @NotNull
+  @Override
+  public GameProfile getProfile() {
+    return this.profile;
+  }
+
+  @NotNull
+  @Override
+  public ShirukaServer getServer() {
+    return this.connection.getServer();
+  }
+
+  @Override
+  public boolean kick(@NotNull final KickEvent.Reason reason, @NotNull final String reasonString,
+                      final boolean isAdmin) {
+    final var event = Shiruka.getEventManager().playerKick(this, reason, ShirukaPlayer.getLeaveMessage());
+    event.callEvent();
+    if (event.cancelled()) {
+      return false;
+    }
+    final String message;
+    if (isAdmin) {
+      if (this.isBanned()) {
+        message = reasonString;
+      } else {
+        message = "Kicked by admin." + (!reasonString.isEmpty() ? " Reason: " + reasonString : "");
+      }
+    } else {
+      if (reasonString.isEmpty()) {
+        message = "disconnectionScreen.noReason";
+      } else {
+        message = reasonString;
+      }
+    }
+    this.connection.disconnect(event.kickMessage(), message);
+    return true;
+  }
+
+  @NotNull
+  @Override
   public List<MetadataValue> getMetadata(@NotNull final String key) {
     return Collections.emptyList();
   }
@@ -167,38 +223,6 @@ public final class ShirukaPlayer implements Player {
     return this.connection;
   }
 
-  @NotNull
-  @Override
-  public ShirukaServer getServer() {
-    return this.connection.getServer();
-  }
-
-  @Override
-  public boolean kick(@NotNull final KickEvent.Reason reason, @NotNull final String reasonString,
-                      final boolean isAdmin) {
-    final var event = Shiruka.getEventManager().playerKick(this, reason, this.getLeaveMessage());
-    event.callEvent();
-    if (event.cancelled()) {
-      return false;
-    }
-    final String message;
-    if (isAdmin) {
-      if (!this.isBanned()) {
-        message = "Kicked by admin." + (!reasonString.isEmpty() ? " Reason: " + reasonString : "");
-      } else {
-        message = reasonString;
-      }
-    } else {
-      if (reasonString.isEmpty()) {
-        message = "disconnectionScreen.noReason";
-      } else {
-        message = reasonString;
-      }
-    }
-    this.connection.disconnect(event.kickMessage(), message);
-    return true;
-  }
-
   @Override
   public void sendMessage(@NotNull final String message) {
     // @todo #1:15m Implement sendMessage method.
@@ -208,10 +232,5 @@ public final class ShirukaPlayer implements Player {
   @Override
   public void tick() {
     // @todo #1:30m Implement tick method of shiruka player.
-  }
-
-  @NotNull
-  private TranslatedText getLeaveMessage() {
-    return new TranslatedText();
   }
 }

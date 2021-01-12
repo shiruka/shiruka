@@ -33,6 +33,7 @@ import io.github.shiruka.api.base.BanList;
 import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.console.ConsoleCommandSender;
 import io.github.shiruka.api.events.EventManager;
+import io.github.shiruka.api.language.LanguageManager;
 import io.github.shiruka.api.pack.PackManager;
 import io.github.shiruka.api.pack.PackManifest;
 import io.github.shiruka.api.permission.PermissionManager;
@@ -47,6 +48,7 @@ import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.SimpleConsoleCommandSender;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.event.SimpleEventManager;
+import io.github.shiruka.shiruka.language.SimpleLanguageManager;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
@@ -144,12 +146,6 @@ public final class ShirukaServer implements Server {
    * the tick.
    */
   private final ShirukaTick tick = new ShirukaTick(this);
-
-  /**
-   * the loader.
-   */
-  @NotNull
-  private final WorldManager worldManager = new SimpleWorldManager();
 
   /**
    * ctor.
@@ -327,10 +323,11 @@ public final class ShirukaServer implements Server {
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventManager.class, new SimpleEventManager());
+    this.registerInterface(LanguageManager.class, new SimpleLanguageManager());
     this.registerInterface(PackManager.class, new SimplePackManager());
     this.registerInterface(PermissionManager.class, new SimplePermissionManager());
     this.registerInterface(PluginManager.class, new SimplePluginManager());
     this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
-    this.registerInterface(WorldManager.class, this.worldManager);
+    this.registerInterface(WorldManager.class, new SimpleWorldManager());
   }
 }

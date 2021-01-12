@@ -25,10 +25,12 @@
 
 package io.github.shiruka.shiruka.event;
 
+import io.github.shiruka.api.base.GameProfile;
 import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.events.LoginResultEvent;
 import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.scheduler.AsyncTask;
@@ -56,7 +58,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * the username.
    */
   @NotNull
-  private final String username;
+  private final Text username;
 
   /**
    * the async login event.
@@ -83,7 +85,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * @param username the username.
    */
   public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData,
-                         @NotNull final PlayerConnection connection, @NotNull final String username) {
+                         @NotNull final PlayerConnection connection, @NotNull final Text username) {
     this.chainData = chainData;
     this.username = username;
     this.connection = connection;

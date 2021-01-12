@@ -94,7 +94,7 @@ public final class PacketInLogin extends PacketIn {
           connection.disconnect("disconnectionScreen.invalidSkin");
           return;
         }
-        final var loginData = new SimpleLoginData(chainData, connection, ChatColor.clean(username));
+        final var loginData = new SimpleLoginData(chainData, connection, () -> ChatColor.clean(username));
         connection.setLatestLoginData(loginData);
         final var preLogin = Shiruka.getEventManager().playerPreLogin(loginData, "Some reason.");
         preLogin.callEvent();

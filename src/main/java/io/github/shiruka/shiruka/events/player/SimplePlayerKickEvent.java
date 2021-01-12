@@ -23,30 +23,53 @@
  *
  */
 
-package io.github.shiruka.shiruka.misc;
+package io.github.shiruka.shiruka.events.player;
 
-import java.util.concurrent.CountDownLatch;
+import io.github.shiruka.api.entity.Player;
+import io.github.shiruka.api.events.player.PlayerKickEvent;
+import io.github.shiruka.api.text.TranslatedText;
+import io.github.shiruka.shiruka.events.SimpleCancellableEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * an implementation, that does not throw a checked exception, for {@link CountDownLatch}.
+ * a simple implementation for {@link PlayerKickEvent}.
  */
-public final class CdlUnchecked extends CountDownLatch {
+public final class SimplePlayerKickEvent extends SimpleCancellableEvent implements PlayerKickEvent {
 
   /**
-   * ctor.
-   *
-   * @param count the count.
+   * the player.
    */
-  public CdlUnchecked(final int count) {
-    super(count);
+  @NotNull
+  private final Player player;
+
+  /**
+   * the reason.
+   */
+  @NotNull
+  private final Reason reason;
+
+  /**
+   * the kick message.
+   */
+  @Nullable
+  private TranslatedText kickMessage;
+
+  public SimplePlayerKickEvent(@NotNull final Player player, @NotNull final Reason reason,
+                               @Nullable final TranslatedText kickMessage) {
+    this.player = player;
+    this.reason = reason;
+    this.kickMessage = kickMessage;
+  }
+
+  @Nullable
+  @Override
+  public String kickMessage() {
+    return this.kickMessage;
   }
 
   @Override
-  public void await() {
-    try {
-      super.await();
-    } catch (final InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+  public void kickMessage(@Nullable final String message) {
+    this.kickMessage = message;
   }
 }

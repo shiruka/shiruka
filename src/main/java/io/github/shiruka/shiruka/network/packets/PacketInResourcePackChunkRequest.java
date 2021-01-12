@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.netty.buffer.ByteBuf;
@@ -47,7 +47,7 @@ public final class PacketInResourcePackChunkRequest extends PacketIn {
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
     final var packInfo = VarInts.readString(buf).split("_");
     final var packId = UUID.fromString(packInfo[0]);
     @Nullable final String version;

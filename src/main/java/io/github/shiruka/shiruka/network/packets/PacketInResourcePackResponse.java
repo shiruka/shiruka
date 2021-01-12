@@ -27,7 +27,7 @@ package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.shiruka.config.ServerConfig;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
@@ -52,7 +52,7 @@ public final class PacketInResourcePackResponse extends PacketIn {
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
     final byte ordinal = buf.readByte();
     final var status = Status.valueOf(ordinal);
     final var length = buf.readShortLE();

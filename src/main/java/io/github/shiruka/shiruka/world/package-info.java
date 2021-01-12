@@ -22,34 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.network.packet;
-
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
-import io.netty.buffer.ByteBuf;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an abstract implementation for {@link Packet} that determines incoming packets.
- *
- * @todo #1:30m Add a simple singleton field for packets which extend PacketIn class.
+ * the package that contains implementations for {@link io.github.shiruka.api.world.World}.
  */
-public abstract class PacketIn extends Packet {
-
-  /**
-   * ctor.
-   *
-   * @param cls the packet class.
-   */
-  protected PacketIn(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
-  }
-
-  /**
-   * reads the buf that was sent by the injected player.
-   *
-   * @param buf the buf to read.
-   * @param connection the connection to read.
-   */
-  public abstract void read(@NotNull ByteBuf buf, @NotNull PlayerConnection connection);
-}
+package io.github.shiruka.shiruka.world;

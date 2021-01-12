@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +45,7 @@ public final class PacketInClientCacheStatus extends PacketIn {
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
     final var blobCacheSupport = buf.readBoolean();
     // @todo #1:15m Add blobCacheSupport field for ShirukaPlayer to set/get blob cache support.
   }

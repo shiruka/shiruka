@@ -23,33 +23,35 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.world;
 
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
-import io.netty.buffer.ByteBuf;
+import io.github.shiruka.api.world.ChunkData;
+import io.github.shiruka.api.world.World;
+import io.github.shiruka.api.world.WorldCreator;
+import io.github.shiruka.api.world.WorldManager;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract implementation for {@link Packet} that determines incoming packets.
- *
- * @todo #1:30m Add a simple singleton field for packets which extend PacketIn class.
+ * a simple implementation for {@link WorldManager}.
  */
-public abstract class PacketIn extends Packet {
+public final class SimpleWorldManager implements WorldManager {
 
-  /**
-   * ctor.
-   *
-   * @param cls the packet class.
-   */
-  protected PacketIn(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  @NotNull
+  @Override
+  public ChunkData createChunkData(@NotNull final World world) {
+    return null;
   }
 
-  /**
-   * reads the buf that was sent by the injected player.
-   *
-   * @param buf the buf to read.
-   * @param connection the connection to read.
-   */
-  public abstract void read(@NotNull ByteBuf buf, @NotNull PlayerConnection connection);
+  @NotNull
+  @Override
+  public ChunkData createNativeChunkData(@NotNull final World world, final int x, final int z) {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public Optional<World> createWorld(@NotNull final WorldCreator worldCreator) {
+    return Optional.empty();
+  }
 }

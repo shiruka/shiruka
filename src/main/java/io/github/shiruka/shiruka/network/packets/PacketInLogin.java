@@ -26,9 +26,8 @@
 package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.chat.ChatColor;
+import io.github.shiruka.api.text.ChatColor;
 import io.github.shiruka.shiruka.config.ServerConfig;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.event.SimpleChainData;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.misc.VarInts;
@@ -63,7 +62,7 @@ public final class PacketInLogin extends PacketIn {
    * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
    */
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
     final var protocolVersion = buf.readInt();
     final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
     final var encodedChainData = Packets.readLEAsciiString(jwt).toString();
@@ -97,14 +96,14 @@ public final class PacketInLogin extends PacketIn {
         }
         final var loginData = new SimpleLoginData(chainData, connection, ChatColor.clean(username));
         connection.setLatestLoginData(loginData);
-        final var preLogin = Shiruka.getEventFactory().playerPreLogin(loginData, "Some reason.");
+        final var preLogin = Shiruka.getEventManager().playerPreLogin(loginData, "Some reason.");
         preLogin.callEvent();
         if (preLogin.cancelled()) {
           connection.disconnect(preLogin.kickMessage());
           return;
         }
         connection.setState(PlayerConnection.State.STATUS);
-        final var asyncLogin = Shiruka.getEventFactory().playerAsyncLogin(loginData);
+        final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(loginData);
         loginData.setAsyncLogin(asyncLogin);
         final var process = (AsyncTask) Shiruka.getScheduler().scheduleAsync(asyncLogin::callEvent);
         process.onComplete(() -> {

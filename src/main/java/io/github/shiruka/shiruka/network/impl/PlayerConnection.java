@@ -25,67 +25,160 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
-import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.ShirukaServer;
+import io.github.shiruka.shiruka.entity.ShirukaPlayer;
+import io.github.shiruka.shiruka.event.SimpleLoginData;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
+import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * an interface to determine player's connection.
+ * a class that represents player connections.
  */
-public interface PlayerConnection {
+public final class PlayerConnection {
 
   /**
-   * runs when the player disconnected.
+   * the connection.
+   */
+  @NotNull
+  private final Connection<ServerSocket> connection;
+
+  /**
+   * the server.
+   */
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
+   * the login data.
+   */
+  @Nullable
+  private SimpleLoginData loginData;
+
+  /**
+   * the player.
+   */
+  @Nullable
+  private ShirukaPlayer player;
+
+  /**
+   * the state.
+   */
+  @NotNull
+  private State state = State.HANDSHAKE;
+
+  /**
+   * ctor.
+   *
+   * @param connection the connection.
+   * @param server the server.
+   */
+  public PlayerConnection(@NotNull final Connection<ServerSocket> connection,
+                          @NotNull final ShirukaServer server) {
+    this.connection = connection;
+    this.server = server;
+  }
+
+  /**
+   * disconnects the connection.
    *
    * @param reason the reason to disconnect.
    */
-  void disconnect(@Nullable String reason);
+  public void disconnect(@Nullable final String reason) {
+    this.connection.checkForClosed();
+    final String finalReason;
+    final boolean messageSkipped;
+    if (reason == null) {
+      finalReason = "disconnect.disconnected";
+      messageSkipped = true;
+    } else {
+      finalReason = reason;
+      messageSkipped = false;
+    }
+    this.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped));
+  }
 
   /**
-   * obtains the original connection.
+   * obtains the connection.
    *
-   * @return the original connection.
+   * @return connection.
    */
   @NotNull
-  Connection<ServerSocket> getConnection();
+  public Connection<ServerSocket> getConnection() {
+    return this.connection;
+  }
+
+  /**
+   * obtains the latest login data.
+   *
+   * @return latest login data.
+   */
+  @Nullable
+  public SimpleLoginData getLatestLoginData() {
+    return this.loginData;
+  }
+
+  /**
+   * sets the latest login data of the player.
+   *
+   * @param loginData the login data to set.
+   */
+  public void setLatestLoginData(@NotNull final SimpleLoginData loginData) {
+    this.loginData = loginData;
+  }
+
+  /**
+   * obtains the player.
+   *
+   * @return player.
+   */
+  @NotNull
+  public Optional<ShirukaPlayer> getPlayer() {
+    return Optional.ofNullable(this.player);
+  }
 
   /**
    * obtains the server.
    *
-   * @return the server.
+   * @return server.
    */
   @NotNull
-  Server getServer();
+  public ShirukaServer getServer() {
+    return this.server;
+  }
 
   /**
    * obtains the state.
    *
-   * @return the state.
+   * @return state.
    */
   @NotNull
-  State getState();
+  public State getState() {
+    return this.state;
+  }
 
   /**
    * sets the state.
    *
    * @param state the state to set.
    */
-  void setState(@NotNull State state);
+  public void setState(@NotNull final State state) {
+    this.state = state;
+  }
 
-  /**
-   * sends the given packet to the player's connection.
-   *
-   * @param packet the packet to send.
-   */
-  void sendPacket(@NotNull PacketOut packet);
+  public void sendPacket(@NotNull final PacketOut packet) {
+    this.connection.checkForClosed();
+    this.connection.addQueuedPacket(packet);
+  }
 
   /**
    * represents the current connection state that the client is in whilst connecting to the server.
    */
-  enum State {
+  public enum State {
     /**
      * handshake, attempting to connect to server.
      */

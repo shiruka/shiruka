@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionListener;
 import io.github.shiruka.shiruka.network.ConnectionState;
@@ -52,14 +51,14 @@ public final class ShirukaConnectionListener implements ConnectionListener {
    * the player.
    */
   @NotNull
-  private final ShirukaPlayerConnection playerConnection;
+  private final PlayerConnection playerConnection;
 
   /**
    * ctor.
    *
    * @param playerConnection the connection.
    */
-  ShirukaConnectionListener(@NotNull final ShirukaPlayerConnection playerConnection) {
+  ShirukaConnectionListener(@NotNull final PlayerConnection playerConnection) {
     this.playerConnection = playerConnection;
     this.connection = this.playerConnection.getConnection();
   }

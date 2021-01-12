@@ -25,15 +25,20 @@
 
 package io.github.shiruka.shiruka.event;
 
+import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.event.Listener;
 import io.github.shiruka.api.event.method.MethodAdapter;
 import io.github.shiruka.api.event.method.SimpleMethodAdapter;
 import io.github.shiruka.api.events.Event;
-import io.github.shiruka.api.events.EventFactory;
+import io.github.shiruka.api.events.EventManager;
+import io.github.shiruka.api.events.KickEvent;
 import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
+import io.github.shiruka.api.events.player.PlayerKickEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.events.player.SimplePlayerAsyncLoginEvent;
+import io.github.shiruka.shiruka.events.player.SimplePlayerKickEvent;
 import io.github.shiruka.shiruka.events.player.SimplePlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an utility class that helps to call/create {@link Event}.
  */
-public final class SimpleEventFactory implements EventFactory {
+public final class SimpleEventManager implements EventManager {
 
   /**
    * the adapter.
@@ -57,6 +62,13 @@ public final class SimpleEventFactory implements EventFactory {
   @Override
   public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final LoginDataEvent.LoginData loginData) {
     return new SimplePlayerAsyncLoginEvent(loginData);
+  }
+
+  @NotNull
+  @Override
+  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final KickEvent.Reason reason,
+                                    @NotNull final TranslatedText text) {
+    return new SimplePlayerKickEvent(player, reason, text);
   }
 
   @NotNull

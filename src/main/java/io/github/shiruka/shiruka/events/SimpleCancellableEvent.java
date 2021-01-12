@@ -23,33 +23,35 @@
  *
  */
 
-package io.github.shiruka.shiruka.network.packet;
+package io.github.shiruka.shiruka.events;
 
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
-import io.netty.buffer.ByteBuf;
-import org.jetbrains.annotations.NotNull;
+import io.github.shiruka.api.event.Cancellable;
 
-/**
- * an abstract implementation for {@link Packet} that determines incoming packets.
- *
- * @todo #1:30m Add a simple singleton field for packets which extend PacketIn class.
- */
-public abstract class PacketIn extends Packet {
+public abstract class SimpleCancellableEvent implements Cancellable {
+
+  /**
+   * the cancelled.
+   */
+  private boolean cancelled;
 
   /**
    * ctor.
-   *
-   * @param cls the packet class.
    */
-  protected PacketIn(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  protected SimpleCancellableEvent() {
   }
 
-  /**
-   * reads the buf that was sent by the injected player.
-   *
-   * @param buf the buf to read.
-   * @param connection the connection to read.
-   */
-  public abstract void read(@NotNull ByteBuf buf, @NotNull PlayerConnection connection);
+  @Override
+  public final void cancel() {
+    this.cancelled = true;
+  }
+
+  @Override
+  public final boolean cancelled() {
+    return this.cancelled;
+  }
+
+  @Override
+  public final void dontCancel() {
+    this.cancelled = false;
+  }
 }

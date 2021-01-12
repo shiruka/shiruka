@@ -25,17 +25,19 @@
 
 package io.github.shiruka.shiruka.entity;
 
+import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.base.Location;
 import io.github.shiruka.api.entity.Player;
+import io.github.shiruka.api.events.KickEvent;
 import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.metadata.MetadataValue;
 import io.github.shiruka.api.plugin.Plugin;
+import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.ShirukaServer;
-import io.github.shiruka.shiruka.misc.GameProfile;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +58,7 @@ public final class ShirukaPlayer implements Player {
    * the connection.
    */
   @NotNull
-  private final ShirukaPlayerConnection connection;
+  private final PlayerConnection connection;
 
   /**
    * the profile.
@@ -72,7 +74,7 @@ public final class ShirukaPlayer implements Player {
    * @param profile the profile.
    */
   public ShirukaPlayer(@NotNull final LoginDataEvent.ChainData chainData,
-                       @NotNull final ShirukaPlayerConnection connection, @NotNull final GameProfile profile) {
+                       @NotNull final PlayerConnection connection, @NotNull final GameProfile profile) {
     this.chainData = chainData;
     this.connection = connection;
     this.profile = profile;
@@ -155,19 +157,13 @@ public final class ShirukaPlayer implements Player {
     // @todo #1:15m Implement setMetadata method.
   }
 
-  @NotNull
-  @Override
-  public String getName() {
-    return "null";
-  }
-
   /**
    * obtains the player connection.
    *
    * @return player connection.
    */
   @NotNull
-  public ShirukaPlayerConnection getPlayerConnection() {
+  public PlayerConnection getPlayerConnection() {
     return this.connection;
   }
 
@@ -177,10 +173,30 @@ public final class ShirukaPlayer implements Player {
     return this.connection.getServer();
   }
 
-  @NotNull
   @Override
-  public UUID getUniqueId() {
-    return this.profile.getUniqueId();
+  public boolean kick(@NotNull final KickEvent.Reason reason, @NotNull final String reasonString,
+                      final boolean isAdmin) {
+    final var event = Shiruka.getEventManager().playerKick(this, reason, this.getLeaveMessage());
+    event.callEvent();
+    if (event.cancelled()) {
+      return false;
+    }
+    final String message;
+    if (isAdmin) {
+      if (!this.isBanned()) {
+        message = "Kicked by admin." + (!reasonString.isEmpty() ? " Reason: " + reasonString : "");
+      } else {
+        message = reasonString;
+      }
+    } else {
+      if (reasonString.isEmpty()) {
+        message = "disconnectionScreen.noReason";
+      } else {
+        message = reasonString;
+      }
+    }
+    this.connection.disconnect(event.kickMessage(), message);
+    return true;
   }
 
   @Override
@@ -192,5 +208,10 @@ public final class ShirukaPlayer implements Player {
   @Override
   public void tick() {
     // @todo #1:30m Implement tick method of shiruka player.
+  }
+
+  @NotNull
+  private TranslatedText getLeaveMessage() {
+    return new TranslatedText();
   }
 }

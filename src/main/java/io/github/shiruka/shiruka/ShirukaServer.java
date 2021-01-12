@@ -32,13 +32,13 @@ import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.base.BanList;
 import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.console.ConsoleCommandSender;
-import io.github.shiruka.api.events.EventFactory;
+import io.github.shiruka.api.events.EventManager;
 import io.github.shiruka.api.pack.PackManager;
 import io.github.shiruka.api.pack.PackManifest;
 import io.github.shiruka.api.permission.PermissionManager;
 import io.github.shiruka.api.plugin.PluginManager;
 import io.github.shiruka.api.scheduler.Scheduler;
-import io.github.shiruka.api.world.WorldLoader;
+import io.github.shiruka.api.world.WorldManager;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
@@ -46,7 +46,7 @@ import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.SimpleConsoleCommandSender;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
-import io.github.shiruka.shiruka.event.SimpleEventFactory;
+import io.github.shiruka.shiruka.event.SimpleEventManager;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
@@ -59,6 +59,7 @@ import io.github.shiruka.shiruka.pack.pack.ResourcePack;
 import io.github.shiruka.shiruka.permission.SimplePermissionManager;
 import io.github.shiruka.shiruka.plugin.SimplePluginManager;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
+import io.github.shiruka.shiruka.world.SimpleWorldManager;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
@@ -112,12 +113,6 @@ public final class ShirukaServer implements Server {
   private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
 
   /**
-   * the loader.
-   */
-  @NotNull
-  private final WorldLoader loader;
-
-  /**
    * the main thread.
    */
   @NotNull
@@ -151,18 +146,21 @@ public final class ShirukaServer implements Server {
   private final ShirukaTick tick = new ShirukaTick(this);
 
   /**
+   * the loader.
+   */
+  @NotNull
+  private final WorldManager worldManager = new SimpleWorldManager();
+
+  /**
    * ctor.
    *
    * @param description the server's description.
-   * @param loader the world loader.
    * @param socket the socket.
    * @param console the console.
    */
-  ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
-                @NotNull final Function<ServerListener, ServerSocket> socket,
+  ShirukaServer(@NotNull final String description, @NotNull final Function<ServerListener, ServerSocket> socket,
                 @NotNull final Function<Server, ShirukaConsole> console) {
     this.description = description;
-    this.loader = loader;
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.console = console.apply(this);
     this.mainThread = Thread.currentThread();
@@ -262,7 +260,7 @@ public final class ShirukaServer implements Server {
     ShirukaServer.LOGGER.info("§eEnabling plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     ShirukaServer.LOGGER.info("§eLoading worlds.");
-    this.loader.loadAll();
+//    this.worldManager.loadAll();
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
@@ -328,11 +326,11 @@ public final class ShirukaServer implements Server {
   private void registerImplementations() {
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
-    this.registerInterface(EventFactory.class, new SimpleEventFactory());
+    this.registerInterface(EventManager.class, new SimpleEventManager());
     this.registerInterface(PackManager.class, new SimplePackManager());
     this.registerInterface(PermissionManager.class, new SimplePermissionManager());
     this.registerInterface(PluginManager.class, new SimplePluginManager());
     this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
-    this.registerInterface(WorldLoader.class, this.loader);
+    this.registerInterface(WorldManager.class, this.worldManager);
   }
 }

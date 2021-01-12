@@ -26,7 +26,7 @@
 package io.github.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
@@ -68,12 +68,12 @@ public final class Protocol {
   /**
    * deserializes the given {@code buffer}.
    * <p>
-   * if a packet found runs {@link PacketIn#read(ByteBuf, ShirukaPlayerConnection)} method.
+   * if a packet found runs {@link PacketIn#read(ByteBuf, PlayerConnection)} method.
    *
    * @param buffer the buffer to deserialize.
    * @param connection the connection to deserialize.
    */
-  public static void deserialize(@NotNull final ByteBuf buffer, @NotNull final ShirukaPlayerConnection connection) {
+  public static void deserialize(@NotNull final ByteBuf buffer, @NotNull final PlayerConnection connection) {
     ByteBuf decompressed = null;
     try {
       decompressed = Protocol.ZLIB.inflate(buffer, 12 * 1024 * 1024);

@@ -1,0 +1,5 @@
+files:
+  - source: shiruka/texts/en_US.lang
+    translation: /shiruka/texts/%locale_with_underscore%.%file_extension%
+  - source: shiruka/configs/en_US.lang
+    translation: /shiruka/configs/%locale_with_underscore%.%file_extension%

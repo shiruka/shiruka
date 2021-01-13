@@ -102,7 +102,7 @@ public final class Languages {
     final var scanner = new Scanner(System.in);
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
-    if (split.length != 2) {
+    if (!Languages.AVAILABLE_LANGUAGES.contains(chosenLanguage) || split.length != 2) {
       Languages.LOGGER.error("§cPlease write a valid language!");
       return Languages.loop();
     }

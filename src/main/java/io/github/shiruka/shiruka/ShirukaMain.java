@@ -32,6 +32,7 @@ import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.config.UserCacheConfig;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
+import io.github.shiruka.shiruka.language.Languages;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import java.io.File;
@@ -163,8 +164,7 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when the creating the file.
    */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec)
-    throws IOException {
+  private File createsServerFile(@NotNull final OptionSpec<File> spec) throws IOException {
     return this.createsServerFile(spec, false);
   }
 
@@ -174,9 +174,8 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when creating files.
    */
   private void exec() throws IOException {
-    ShirukaMain.LOGGER.info("§eShiru ka is starting.");
-    final var start = System.currentTimeMillis();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
+    final var serverLocale = Languages.startSequence();
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
@@ -185,10 +184,9 @@ public final class ShirukaMain {
     final var port = ServerConfig.ADDRESS_PORT.getValue().orElseThrow();
     final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
     final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
-    final var worldType = ServerConfig.WORLD_TYPE.getValue().orElseThrow();
-    final var server = new ShirukaServer(description, WorldType.fromType(worldType).create(),
-      listener -> NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer),
-      ShirukaConsole::new);
+    final var start = System.currentTimeMillis();
+    final var server = new ShirukaServer(description, serverLocale, listener ->
+      NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer), ShirukaConsole::new);
     Shiruka.setServer(server);
     server.startServer(start);
   }

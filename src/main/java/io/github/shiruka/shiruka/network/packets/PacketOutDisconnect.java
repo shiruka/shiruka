@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
-import io.github.shiruka.api.text.Text;
 import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.netty.buffer.ByteBuf;
@@ -40,7 +39,7 @@ public final class PacketOutDisconnect extends PacketOut {
    * the kick message.
    */
   @NotNull
-  private final Text kickMessage;
+  private final String kickMessage;
 
   /**
    * the message skipped.
@@ -53,7 +52,7 @@ public final class PacketOutDisconnect extends PacketOut {
    * @param kickMessage the kick message.
    * @param messageSkipped the message skipped.
    */
-  public PacketOutDisconnect(@NotNull final Text kickMessage, final boolean messageSkipped) {
+  public PacketOutDisconnect(@NotNull final String kickMessage, final boolean messageSkipped) {
     super(PacketOutDisconnect.class);
     this.kickMessage = kickMessage;
     this.messageSkipped = messageSkipped;

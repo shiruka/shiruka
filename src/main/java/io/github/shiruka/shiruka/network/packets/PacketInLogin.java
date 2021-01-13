@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.text.ChatColor;
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.event.SimpleChainData;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
@@ -96,10 +97,10 @@ public final class PacketInLogin extends PacketIn {
         }
         final var loginData = new SimpleLoginData(chainData, connection, () -> ChatColor.clean(username));
         connection.setLatestLoginData(loginData);
-        final var preLogin = Shiruka.getEventManager().playerPreLogin(loginData, "Some reason.");
+        final var preLogin = Shiruka.getEventManager().playerPreLogin(loginData, () -> "Some reason.");
         preLogin.callEvent();
         if (preLogin.cancelled()) {
-          connection.disconnect(preLogin.kickMessage());
+          connection.disconnect(preLogin.kickMessage().map(Text::asString).orElse(null));
           return;
         }
         connection.setState(PlayerConnection.State.STATUS);

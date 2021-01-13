@@ -26,9 +26,10 @@
 package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.config.ServerConfig;
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.netty.buffer.ByteBuf;
@@ -70,7 +71,7 @@ public final class PacketInResourcePackResponse extends PacketIn {
     switch (status) {
       case REFUSED:
         if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
-          connection.disconnect("disconnectionScreen.noReason");
+          connection.disconnect(TranslatedText.get("disconnectionScreen.noReason").asString());
         }
         break;
       case COMPLETED:
@@ -88,7 +89,7 @@ public final class PacketInResourcePackResponse extends PacketIn {
         packs.forEach(pack -> {
           final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
           if (optional.isEmpty()) {
-            connection.disconnect("disconnectionScreen.resourcePack");
+            connection.disconnect(TranslatedText.get("disconnectionScreen.resourcePack").asString());
             return;
           }
           final var loaded = optional.get();

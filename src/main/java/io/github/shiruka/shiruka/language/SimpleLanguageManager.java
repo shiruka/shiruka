@@ -35,6 +35,21 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class SimpleLanguageManager implements LanguageManager {
 
+  /**
+   * the server language.
+   */
+  @NotNull
+  private final Locale serverLanguage;
+
+  /**
+   * ctor.
+   *
+   * @param serverLanguage the server language.
+   */
+  public SimpleLanguageManager(@NotNull final Locale serverLanguage) {
+    this.serverLanguage = serverLanguage;
+  }
+
   @Override
   public void check(@NotNull final String key) {
   }
@@ -43,6 +58,12 @@ public final class SimpleLanguageManager implements LanguageManager {
   @Override
   public Optional<Locale> getLanguage(@NotNull final String code) {
     return Optional.empty();
+  }
+
+  @NotNull
+  @Override
+  public Locale getServerLanguage() {
+    return null;
   }
 
   @NotNull

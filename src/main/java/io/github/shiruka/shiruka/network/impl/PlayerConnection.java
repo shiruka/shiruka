@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
-import io.github.shiruka.api.text.Text;
 import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
@@ -90,12 +89,12 @@ public final class PlayerConnection {
    *
    * @param reason the reason to disconnect.
    */
-  public void disconnect(@Nullable final Text reason) {
+  public void disconnect(@Nullable final String reason) {
     this.connection.checkForClosed();
-    final Text finalReason;
+    final String finalReason;
     final boolean messageSkipped;
     if (reason == null) {
-      finalReason = TranslatedText.get("disconnect.disconnected");
+      finalReason = TranslatedText.get("disconnect.disconnected").asString();
       messageSkipped = true;
     } else {
       finalReason = reason;

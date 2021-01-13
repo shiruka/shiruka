@@ -66,6 +66,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -137,6 +138,12 @@ public final class ShirukaServer implements Server {
     Executors.newScheduledThreadPool(4, PoolSpec.SCHEDULER));
 
   /**
+   * the server language.
+   */
+  @NotNull
+  private final Locale serverLanguage;
+
+  /**
    * the socket.
    */
   @NotNull
@@ -151,12 +158,15 @@ public final class ShirukaServer implements Server {
    * ctor.
    *
    * @param description the server's description.
+   * @param serverLanguage the server language.
    * @param socket the socket.
    * @param console the console.
    */
-  ShirukaServer(@NotNull final String description, @NotNull final Function<ServerListener, ServerSocket> socket,
+  ShirukaServer(@NotNull final String description, @NotNull final Locale serverLanguage,
+                @NotNull final Function<ServerListener, ServerSocket> socket,
                 @NotNull final Function<Server, ShirukaConsole> console) {
     this.description = description;
+    this.serverLanguage = serverLanguage;
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.console = console.apply(this);
     this.mainThread = Thread.currentThread();
@@ -249,6 +259,7 @@ public final class ShirukaServer implements Server {
   @Override
   public void startServer(final long startTime) {
     this.registerImplementations();
+    ShirukaServer.LOGGER.info("§eShiru ka is starting.");
     ShirukaServer.reloadPacks();
     this.running.set(true);
     ShirukaServer.LOGGER.info("§eLoading plugins.");
@@ -323,7 +334,7 @@ public final class ShirukaServer implements Server {
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventManager.class, new SimpleEventManager());
-    this.registerInterface(LanguageManager.class, new SimpleLanguageManager());
+    this.registerInterface(LanguageManager.class, new SimpleLanguageManager(this.serverLanguage));
     this.registerInterface(PackManager.class, new SimplePackManager());
     this.registerInterface(PermissionManager.class, new SimplePermissionManager());
     this.registerInterface(PluginManager.class, new SimplePluginManager());

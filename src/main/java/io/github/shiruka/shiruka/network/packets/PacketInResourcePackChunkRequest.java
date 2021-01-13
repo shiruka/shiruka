@@ -26,8 +26,9 @@
 package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.shiruka.network.impl.PlayerConnection;
+import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -59,7 +60,7 @@ public final class PacketInResourcePackChunkRequest extends PacketIn {
     final var chunkSize = buf.readIntLE();
     final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
     if (resourcePack.isEmpty()) {
-      connection.disconnect("disconnectionScreen.resourcePack");
+      connection.disconnect(TranslatedText.get("disconnectionScreen.resourcePack").asString());
       return;
     }
     final var pack = resourcePack.get();

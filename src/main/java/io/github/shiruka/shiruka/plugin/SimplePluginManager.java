@@ -31,7 +31,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a simple implementation for {@link Pluginmanager}.
+ * a simple implementation for {@link PluginManager}.
  */
 public final class SimplePluginManager implements PluginManager {
 

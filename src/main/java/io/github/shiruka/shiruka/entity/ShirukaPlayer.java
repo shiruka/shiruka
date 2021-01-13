@@ -226,29 +226,11 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   }
 
   @Override
-  public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final String reasonString,
+  public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
     final var event = Shiruka.getEventManager().playerKick(this, reason, ShirukaPlayer.getLeaveMessage());
     event.callEvent();
-    if (event.cancelled()) {
-      return false;
-    }
-    final String message;
-    if (isAdmin) {
-      if (this.isBanned()) {
-        message = reasonString;
-      } else {
-        message = "Kicked by admin." + (!reasonString.isEmpty() ? " Reason: " + reasonString : "");
-      }
-    } else {
-      if (reasonString.isEmpty()) {
-        message = "disconnectionScreen.noReason";
-      } else {
-        message = reasonString;
-      }
-    }
-    this.connection.disconnect(event.kickMessage().orElse(null), message);
-    return true;
+    return !event.cancelled();
   }
 
   @NotNull

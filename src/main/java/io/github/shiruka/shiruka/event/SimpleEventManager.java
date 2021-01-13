@@ -67,8 +67,15 @@ public final class SimpleEventManager implements EventManager {
   @NotNull
   @Override
   public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final KickEvent.Reason reason,
-                                    @NotNull final Text kickMessage) {
-    return new SimplePlayerKickEvent(player, reason, kickMessage);
+                                    @NotNull final Text text) {
+    return new SimplePlayerKickEvent(player, reason, text);
+  }
+
+  @NotNull
+  @Override
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.LoginData loginData,
+                                            @Nullable final Text text) {
+    return new SimplePlayerPreLoginEvent(loginData, text);
   }
 
   @Override
@@ -79,12 +86,5 @@ public final class SimpleEventManager implements EventManager {
   @Override
   public void unregister(@NotNull final Listener listener) {
     this.adapter.unregister(listener);
-  }
-
-  @NotNull
-  @Override
-  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.LoginData loginData,
-                                            @Nullable final Text kickMessage) {
-    return new SimplePlayerPreLoginEvent(loginData, kickMessage);
   }
 }

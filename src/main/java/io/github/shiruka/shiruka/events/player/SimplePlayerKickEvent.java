@@ -56,6 +56,13 @@ public final class SimplePlayerKickEvent extends SimpleCancellableEvent implemen
   @Nullable
   private Text kickMessage;
 
+  /**
+   * ctor.
+   *
+   * @param player the player.
+   * @param reason the reason.
+   * @param kickMessage the kick message.
+   */
   public SimplePlayerKickEvent(@NotNull final Player player, @NotNull final Reason reason,
                                @Nullable final Text kickMessage) {
     this.player = player;

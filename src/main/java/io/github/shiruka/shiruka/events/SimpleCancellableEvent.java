@@ -27,6 +27,9 @@ package io.github.shiruka.shiruka.events;
 
 import io.github.shiruka.api.event.Cancellable;
 
+/**
+ * an abstract implementation for {@link Cancellable}.
+ */
 public abstract class SimpleCancellableEvent implements Cancellable {
 
   /**

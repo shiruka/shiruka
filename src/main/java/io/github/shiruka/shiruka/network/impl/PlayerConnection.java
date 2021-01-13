@@ -171,6 +171,11 @@ public final class PlayerConnection {
     this.state = state;
   }
 
+  /**
+   * sends the given {@code packet} to the {@link #connection}.
+   *
+   * @param packet the packet to send.
+   */
   public void sendPacket(@NotNull final PacketOut packet) {
     this.connection.checkForClosed();
     this.connection.addQueuedPacket(packet);

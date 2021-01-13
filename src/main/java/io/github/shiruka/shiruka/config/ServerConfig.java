@@ -109,7 +109,7 @@ public final class ServerConfig extends PathableConfig {
    */
   public static final ConfigPath<Locale> SERVER_LANGUAGE = commented(localePath(
     "server-language", Locale.ROOT),
-    "the server language.");
+    "language of the Shiru ka.");
 
   /**
    * "true" to use linux natives when available.

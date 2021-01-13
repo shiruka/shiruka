@@ -63,7 +63,7 @@ public final class SimpleLanguageManager implements LanguageManager {
   @NotNull
   @Override
   public Locale getServerLanguage() {
-    return null;
+    return this.serverLanguage;
   }
 
   @NotNull

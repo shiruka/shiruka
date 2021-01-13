@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.language;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
+import io.github.shiruka.api.config.Config;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -76,17 +77,17 @@ public final class Languages {
     Languages.AVAILABLE_LANGUAGES.addAll(languages.values().stream()
       .map(JsonValue::asString)
       .collect(Collectors.toUnmodifiableSet()));
-    final var serverLanguage = ServerConfig.SERVER_LANGUAGE.getValue().orElseThrow();
+    final var serverLanguage = ServerConfig.SERVER_LANGUAGE.getValue();
     final Locale serverLocale;
-    if (serverLanguage == Locale.ROOT) {
-      Languages.LOGGER.info("§aAvailable languages");
+    if (serverLanguage.isEmpty() || serverLanguage.get() == Locale.ROOT) {
+      Languages.LOGGER.info("§aChoose one of the available languages");
       final var languageFormat = "§7{}";
       Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.LOGGER.info(languageFormat, s));
-      Languages.LOGGER.info("§aChoose one of them");
       serverLocale = Languages.loop();
       ServerConfig.SERVER_LANGUAGE.setValue(serverLocale);
+      ServerConfig.SERVER_LANGUAGE.getConfig().ifPresent(Config::save);
     } else {
-      serverLocale = ServerConfig.SERVER_LANGUAGE.getValue().orElseThrow();
+      serverLocale = serverLanguage.get();
     }
     return serverLocale;
   }
@@ -102,7 +103,7 @@ public final class Languages {
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
     if (split.length != 2) {
-      Languages.LOGGER.error("§cPlease write something valid language!");
+      Languages.LOGGER.error("§cPlease write a valid language!");
       return Languages.loop();
     }
     return new Locale(split[0], split[1]);

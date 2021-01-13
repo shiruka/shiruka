@@ -31,6 +31,7 @@ import io.github.shiruka.api.config.ConfigPath;
 import io.github.shiruka.api.config.config.PathableConfig;
 import java.io.File;
 import java.util.Locale;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -125,6 +126,16 @@ public final class ServerConfig extends PathableConfig {
    */
   private ServerConfig(@NotNull final Config origin) {
     super(origin);
+  }
+
+  /**
+   * obtains the server config instance.
+   *
+   * @return config instance.
+   */
+  @NotNull
+  public static Optional<Config> get() {
+    return ServerConfig.ADDRESS_IP.getConfig();
   }
 
   /**

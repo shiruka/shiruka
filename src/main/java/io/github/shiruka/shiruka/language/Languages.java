@@ -85,7 +85,7 @@ public final class Languages {
       Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.LOGGER.info(languageFormat, s));
       serverLocale = Languages.loop();
       ServerConfig.SERVER_LANGUAGE.setValue(serverLocale);
-      ServerConfig.SERVER_LANGUAGE.getConfig().ifPresent(Config::save);
+      ServerConfig.get().ifPresent(Config::save);
     } else {
       serverLocale = serverLanguage.get();
     }

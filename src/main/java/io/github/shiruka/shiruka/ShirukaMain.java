@@ -180,10 +180,14 @@ public final class ShirukaMain {
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
     ServerThreadPool.init();
-    final var ip = ServerConfig.ADDRESS_IP.getValue().orElseThrow();
-    final var port = ServerConfig.ADDRESS_PORT.getValue().orElseThrow();
-    final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue().orElseThrow();
-    final var description = ServerConfig.DESCRIPTION.getValue().orElseThrow();
+    final var ip = ServerConfig.ADDRESS_IP.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
+    final var port = ServerConfig.ADDRESS_PORT.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
+    final var maxPlayer = ServerConfig.MAX_PLAYERS.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
+    final var description = ServerConfig.DESCRIPTION.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"description\" not found in the server config!"));
     final var start = System.currentTimeMillis();
     final var server = new ShirukaServer(description, serverLocale, listener ->
       NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer), ShirukaConsole::new);

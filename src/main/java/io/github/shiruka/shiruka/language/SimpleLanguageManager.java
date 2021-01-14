@@ -57,7 +57,7 @@ public final class SimpleLanguageManager implements LanguageManager {
   @Override
   public void check(@NotNull final String key) {
     if (key.startsWith("shiruka.")) {
-      Preconditions.checkArgument(Languages.SHIRU_KA_KEYS.contains(key),
+      Preconditions.checkArgument(Languages.SHIRUKA_KEYS.contains(key),
         String.format("The key called %s is not found!", key));
     } else {
       Preconditions.checkArgument(Languages.VANILLA_KEYS.contains(key),
@@ -85,14 +85,17 @@ public final class SimpleLanguageManager implements LanguageManager {
   @NotNull
   @Override
   public String translate(@NotNull final Locale locale, @NotNull final String key, @NotNull final Object... params) {
-    this.check(key);
-    final var code = locale.getLanguage() + "_" + locale.getCountry();
+    final var finalKey = key.toLowerCase(Locale.ROOT);
+    this.check(finalKey);
+    final var code = (locale.getLanguage() + "_" + locale.getCountry()).toLowerCase(Locale.ROOT);
     final Properties properties;
-    if (key.startsWith("shiruka.")) {
-      properties = Objects.requireNonNull(Languages.SHIRU_KA_VARIABLES.get(code), "the language not found!");
+    if (finalKey.startsWith("shiruka.")) {
+      properties = Objects.requireNonNull(Languages.SHIRUKA_VARIABLES.get(code),
+        String.format("the language called %s not found!", code));
     } else {
-      properties = Objects.requireNonNull(Languages.VANILLA_VARIABLES.get(code), "the language not found!");
+      properties = Objects.requireNonNull(Languages.VANILLA_VARIABLES.get(code),
+        String.format("the language called %s not found!", code));
     }
-    return MessageFormat.format(properties.getProperty(key), params);
+    return MessageFormat.format(properties.getProperty(finalKey), params);
   }
 }

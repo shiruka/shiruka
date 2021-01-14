@@ -39,6 +39,7 @@ import io.github.shiruka.api.pack.PackManifest;
 import io.github.shiruka.api.permission.PermissionManager;
 import io.github.shiruka.api.plugin.PluginManager;
 import io.github.shiruka.api.scheduler.Scheduler;
+import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.api.world.WorldManager;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
@@ -259,7 +260,7 @@ public final class ShirukaServer implements Server {
   @Override
   public void startServer(final long startTime) {
     this.registerImplementations();
-    ShirukaServer.LOGGER.info("§eShiru ka is starting.");
+    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.starting").translate());
     ShirukaServer.reloadPacks();
     this.running.set(true);
     ShirukaServer.LOGGER.info("§eLoading plugins.");

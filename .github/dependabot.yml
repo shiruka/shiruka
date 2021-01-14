@@ -5,3 +5,6 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 99
+    ignored_updates:
+      - match:
+        dependency_name: "io.github.shiruka:api"

@@ -1,8 +1,6 @@
 version: 2
 updates:
   - package-ecosystem: maven
-    labels:
-      - "automerge"
     directory: "/"
     schedule:
       interval: daily

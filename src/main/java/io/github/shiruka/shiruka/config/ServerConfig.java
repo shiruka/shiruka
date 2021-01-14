@@ -30,6 +30,7 @@ import io.github.shiruka.api.config.Config;
 import io.github.shiruka.api.config.ConfigPath;
 import io.github.shiruka.api.config.config.PathableConfig;
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -83,6 +84,13 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<Boolean> FORCE_RESOURCES = commented(booleanPath(
     "force-resources", true),
     "forces to accept resource packs to players.");
+
+  /**
+   * the loaded languages.
+   */
+  public static final ConfigPath<List<String>> LOADED_LANGUAGES = commented(listStringPath(
+    "loaded-languages", "en_US"),
+    "loaded languages of the Shiru ka.");
 
   /**
    * the max players that can be online at once.

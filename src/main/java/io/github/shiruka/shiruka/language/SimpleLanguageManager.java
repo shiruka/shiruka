@@ -25,9 +25,13 @@
 
 package io.github.shiruka.shiruka.language;
 
+import com.google.common.base.Preconditions;
 import io.github.shiruka.api.language.LanguageManager;
+import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -52,12 +56,24 @@ public final class SimpleLanguageManager implements LanguageManager {
 
   @Override
   public void check(@NotNull final String key) {
+    if (key.startsWith("shiruka.")) {
+      Preconditions.checkArgument(Languages.SHIRU_KA_KEYS.contains(key),
+        String.format("The key called %s is not found!", key));
+    } else {
+      Preconditions.checkArgument(Languages.VANILLA_KEYS.contains(key),
+        String.format("The key called %s is not found!", key));
+    }
   }
 
   @NotNull
   @Override
   public Optional<Locale> getLanguage(@NotNull final String code) {
-    return Optional.empty();
+    if (!Languages.AVAILABLE_LANGUAGES.contains(code)) {
+      return Optional.empty();
+    }
+    final var split = code.split("_");
+    final var locale = new Locale(split[0], split[1]);
+    return Optional.of(locale);
   }
 
   @NotNull
@@ -68,7 +84,15 @@ public final class SimpleLanguageManager implements LanguageManager {
 
   @NotNull
   @Override
-  public String translate(@NotNull final Locale locale, @NotNull final String key, final @NotNull Object... params) {
-    return null;
+  public String translate(@NotNull final Locale locale, @NotNull final String key, @NotNull final Object... params) {
+    this.check(key);
+    final var code = locale.getLanguage() + "_" + locale.getCountry();
+    final Properties properties;
+    if (key.startsWith("shiruka.")) {
+      properties = Objects.requireNonNull(Languages.SHIRU_KA_VARIABLES.get(code), "the language not found!");
+    } else {
+      properties = Objects.requireNonNull(Languages.VANILLA_VARIABLES.get(code), "the language not found!");
+    }
+    return MessageFormat.format(properties.getProperty(key), params);
   }
 }

@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt.stream;
 
-import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.util.VarInts;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;

@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.util;
 
 import io.github.shiruka.api.misc.Optionals;
-import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.Socket;
 import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackInfo;

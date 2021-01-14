@@ -25,9 +25,9 @@
 
 package io.github.shiruka.shiruka.network.packets;
 
-import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.util.Packets;
+import io.github.shiruka.shiruka.network.util.VarInts;
 import io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.List;

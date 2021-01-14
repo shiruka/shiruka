@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.misc;
+package io.github.shiruka.shiruka.network.util;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.api.base.Vector;

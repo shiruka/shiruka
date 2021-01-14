@@ -27,12 +27,12 @@ package io.github.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.packet.PacketRegistry;
+import io.github.shiruka.shiruka.network.util.VarInts;
 import io.github.shiruka.shiruka.network.util.Zlib;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

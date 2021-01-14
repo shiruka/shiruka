@@ -6,11 +6,17 @@
 [![codecov](https://codecov.io/gh/shiruka/shiruka/branch/master/graph/badge.svg?token=R8GSQZLTS9)](https://codecov.io/gh/shiruka/shiruka)
 [![Maintainability](https://api.codeclimate.com/v1/badges/39cc4c7bce400a705913/maintainability)](https://codeclimate.com/github/shiruka/shiruka/maintainability)
 [![Hits-of-Code](https://hitsofcode.com/github/shiruka/shiruka)](https://hitsofcode.com/github/shiruka/shiruka/view)
+
 ### Contributing
+
 `mvn clean install -Dgpg.skip=true`
+
 ### Run command
+
 `java -jar shiruka.jar [options]`
+
 #### Options
+
 | Commands                                       | Descriptions                                            |
 |------------------------------------------------|---------------------------------------------------------|
 | -?, --help                                     | Show the help                                           |
@@ -20,5 +26,7 @@
 | -P, --plugins <File: Plugin directory>         | Plugin directory to use (default: plugins)              |
 | -U, --usercache <File: User cache file>        | User cache file to use (default: usercache.hjson)       |
 | -V, --version                                  | Show the Shiru ka's version                             |
+
 ### Translation
+
 [Crowdin](https://crowdin.com/project/shiru-ka)

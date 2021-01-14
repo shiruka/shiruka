@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +26,17 @@
 package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.chat.ChatColor;
+import io.github.shiruka.api.text.ChatColor;
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.shiruka.config.ServerConfig;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.event.SimpleChainData;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
-import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Packets;
+import io.github.shiruka.shiruka.network.util.VarInts;
 import io.github.shiruka.shiruka.scheduler.AsyncTask;
 import io.netty.buffer.ByteBuf;
 import java.util.regex.Pattern;
@@ -63,7 +63,7 @@ public final class PacketInLogin extends PacketIn {
    * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
    */
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
     final var protocolVersion = buf.readInt();
     final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
     final var encodedChainData = Packets.readLEAsciiString(jwt).toString();
@@ -95,16 +95,16 @@ public final class PacketInLogin extends PacketIn {
           connection.disconnect("disconnectionScreen.invalidSkin");
           return;
         }
-        final var loginData = new SimpleLoginData(chainData, connection, ChatColor.clean(username));
+        final var loginData = new SimpleLoginData(chainData, connection, () -> ChatColor.clean(username));
         connection.setLatestLoginData(loginData);
-        final var preLogin = Shiruka.getEventFactory().playerPreLogin(loginData, "Some reason.");
+        final var preLogin = Shiruka.getEventManager().playerPreLogin(loginData, () -> "Some reason.");
         preLogin.callEvent();
         if (preLogin.cancelled()) {
-          connection.disconnect(preLogin.kickMessage());
+          connection.disconnect(preLogin.kickMessage().map(Text::asString).orElse(null));
           return;
         }
         connection.setState(PlayerConnection.State.STATUS);
-        final var asyncLogin = Shiruka.getEventFactory().playerAsyncLogin(loginData);
+        final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(loginData);
         loginData.setAsyncLogin(asyncLogin);
         final var process = (AsyncTask) Shiruka.getScheduler().scheduleAsync(asyncLogin::callEvent);
         process.onComplete(() -> {

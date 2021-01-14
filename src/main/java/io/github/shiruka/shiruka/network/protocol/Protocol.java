@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +26,13 @@
 package io.github.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketBound;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.packet.PacketRegistry;
+import io.github.shiruka.shiruka.network.util.VarInts;
 import io.github.shiruka.shiruka.network.util.Zlib;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -68,12 +68,12 @@ public final class Protocol {
   /**
    * deserializes the given {@code buffer}.
    * <p>
-   * if a packet found runs {@link PacketIn#read(ByteBuf, ShirukaPlayerConnection)} method.
+   * if a packet found runs {@link PacketIn#read(ByteBuf, PlayerConnection)} method.
    *
    * @param buffer the buffer to deserialize.
    * @param connection the connection to deserialize.
    */
-  public static void deserialize(@NotNull final ByteBuf buffer, @NotNull final ShirukaPlayerConnection connection) {
+  public static void deserialize(@NotNull final ByteBuf buffer, @NotNull final PlayerConnection connection) {
     ByteBuf decompressed = null;
     try {
       decompressed = Protocol.ZLIB.inflate(buffer, 12 * 1024 * 1024);

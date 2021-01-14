@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +26,10 @@
 package io.github.shiruka.shiruka.network.packets;
 
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
-import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.api.text.TranslatedText;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
+import io.github.shiruka.shiruka.network.util.VarInts;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ public final class PacketInResourcePackChunkRequest extends PacketIn {
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final ShirukaPlayerConnection connection) {
+  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
     final var packInfo = VarInts.readString(buf).split("_");
     final var packId = UUID.fromString(packInfo[0]);
     @Nullable final String version;
@@ -59,7 +60,7 @@ public final class PacketInResourcePackChunkRequest extends PacketIn {
     final var chunkSize = buf.readIntLE();
     final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
     if (resourcePack.isEmpty()) {
-      connection.disconnect("disconnectionScreen.resourcePack");
+      connection.disconnect(TranslatedText.get("disconnectionScreen.resourcePack").asString());
       return;
     }
     final var pack = resourcePack.get();

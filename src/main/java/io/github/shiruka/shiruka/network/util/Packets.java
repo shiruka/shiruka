@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@
 package io.github.shiruka.shiruka.network.util;
 
 import io.github.shiruka.api.misc.Optionals;
-import io.github.shiruka.shiruka.misc.VarInts;
 import io.github.shiruka.shiruka.network.Socket;
 import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackInfo;

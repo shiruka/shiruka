@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.network.packet;
 
-import io.github.shiruka.shiruka.entity.ShirukaPlayerConnection;
+import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,5 +51,5 @@ public abstract class PacketIn extends Packet {
    * @param buf the buf to read.
    * @param connection the connection to read.
    */
-  public abstract void read(@NotNull ByteBuf buf, @NotNull ShirukaPlayerConnection connection);
+  public abstract void read(@NotNull ByteBuf buf, @NotNull PlayerConnection connection);
 }

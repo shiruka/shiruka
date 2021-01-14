@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,8 @@ import io.github.shiruka.api.config.Config;
 import io.github.shiruka.api.config.ConfigPath;
 import io.github.shiruka.api.config.config.PathableConfig;
 import java.io.File;
+import java.util.Locale;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -104,18 +106,18 @@ public final class ServerConfig extends PathableConfig {
     "whether to use Mojang auth to check players.");
 
   /**
+   * the server language.
+   */
+  public static final ConfigPath<Locale> SERVER_LANGUAGE = commented(localePath(
+    "server-language", Locale.ROOT),
+    "language of the Shiru ka.");
+
+  /**
    * "true" to use linux natives when available.
    */
   public static final ConfigPath<Boolean> USE_NATIVE = commented(booleanPath(
     "use-native", true),
     "\"true\" to use linux natives when available.");
-
-  /**
-   * type of the worlds to create.
-   */
-  public static final ConfigPath<String> WORLD_TYPE = commented(stringPath(
-    "world-type", "anvil"),
-    "type of thw worlds to create.");
 
   /**
    * ctor.
@@ -124,6 +126,16 @@ public final class ServerConfig extends PathableConfig {
    */
   private ServerConfig(@NotNull final Config origin) {
     super(origin);
+  }
+
+  /**
+   * obtains the server config instance.
+   *
+   * @return config instance.
+   */
+  @NotNull
+  public static Optional<Config> get() {
+    return ServerConfig.ADDRESS_IP.getConfig();
   }
 
   /**

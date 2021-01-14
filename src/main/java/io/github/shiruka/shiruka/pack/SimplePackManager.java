@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ package io.github.shiruka.shiruka.pack;
 
 import com.google.common.base.Preconditions;
 import io.github.shiruka.api.pack.*;
+import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackInfo;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackStack;
@@ -118,7 +119,7 @@ public final class SimplePackManager implements PackManager {
     this.packStack.set(new PacketOutPackStack(
       Collections.emptyList(),
       Collections.emptyList(),
-      false,
+      true,
       mustAccept,
       "*",
       this.packs.values().stream()
@@ -268,7 +269,9 @@ public final class SimplePackManager implements PackManager {
       this.packsById.put(uuid, pack);
       loader.getPreparedFile();
     }
-    // @todo #1:60m Loggers.log(Shiruka.getLanguage().translate("shiruka.resources.success", String.valueOf(manifestMap.size())));
+    final var translate = TranslatedText.get("shiruka.resources.success")
+      .translate(manifestMap.size());
+    SimplePackManager.LOGGER.debug(translate);
   }
 
   @Override

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,12 +32,14 @@ import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.base.BanList;
 import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.console.ConsoleCommandSender;
-import io.github.shiruka.api.events.EventFactory;
+import io.github.shiruka.api.events.EventManager;
+import io.github.shiruka.api.language.LanguageManager;
 import io.github.shiruka.api.pack.PackManager;
 import io.github.shiruka.api.pack.PackManifest;
 import io.github.shiruka.api.permission.PermissionManager;
+import io.github.shiruka.api.plugin.PluginManager;
 import io.github.shiruka.api.scheduler.Scheduler;
-import io.github.shiruka.api.world.WorldLoader;
+import io.github.shiruka.api.world.WorldManager;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
 import io.github.shiruka.shiruka.concurrent.PoolSpec;
 import io.github.shiruka.shiruka.concurrent.ServerThreadPool;
@@ -45,7 +47,8 @@ import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.SimpleConsoleCommandSender;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
-import io.github.shiruka.shiruka.event.SimpleEventFactory;
+import io.github.shiruka.shiruka.event.SimpleEventManager;
+import io.github.shiruka.shiruka.language.SimpleLanguageManager;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.impl.ShirukaServerListener;
 import io.github.shiruka.shiruka.network.server.ServerListener;
@@ -56,11 +59,14 @@ import io.github.shiruka.shiruka.pack.loader.RplDirectory;
 import io.github.shiruka.shiruka.pack.loader.RplZip;
 import io.github.shiruka.shiruka.pack.pack.ResourcePack;
 import io.github.shiruka.shiruka.permission.SimplePermissionManager;
+import io.github.shiruka.shiruka.plugin.SimplePluginManager;
 import io.github.shiruka.shiruka.scheduler.SimpleScheduler;
+import io.github.shiruka.shiruka.world.SimpleWorldManager;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,12 +116,6 @@ public final class ShirukaServer implements Server {
   private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
 
   /**
-   * the loader.
-   */
-  @NotNull
-  private final WorldLoader loader;
-
-  /**
    * the main thread.
    */
   @NotNull
@@ -138,6 +138,12 @@ public final class ShirukaServer implements Server {
     Executors.newScheduledThreadPool(4, PoolSpec.SCHEDULER));
 
   /**
+   * the server language.
+   */
+  @NotNull
+  private final Locale serverLanguage;
+
+  /**
    * the socket.
    */
   @NotNull
@@ -152,15 +158,15 @@ public final class ShirukaServer implements Server {
    * ctor.
    *
    * @param description the server's description.
-   * @param loader the world loader.
+   * @param serverLanguage the server language.
    * @param socket the socket.
    * @param console the console.
    */
-  ShirukaServer(@NotNull final String description, @NotNull final WorldLoader loader,
+  ShirukaServer(@NotNull final String description, @NotNull final Locale serverLanguage,
                 @NotNull final Function<ServerListener, ServerSocket> socket,
                 @NotNull final Function<Server, ShirukaConsole> console) {
     this.description = description;
-    this.loader = loader;
+    this.serverLanguage = serverLanguage;
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.console = console.apply(this);
     this.mainThread = Thread.currentThread();
@@ -253,6 +259,7 @@ public final class ShirukaServer implements Server {
   @Override
   public void startServer(final long startTime) {
     this.registerImplementations();
+    ShirukaServer.LOGGER.info("§eShiru ka is starting.");
     ShirukaServer.reloadPacks();
     this.running.set(true);
     ShirukaServer.LOGGER.info("§eLoading plugins.");
@@ -260,7 +267,7 @@ public final class ShirukaServer implements Server {
     ShirukaServer.LOGGER.info("§eEnabling plugins before the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     ShirukaServer.LOGGER.info("§eLoading worlds.");
-    this.loader.loadAll();
+//    this.worldManager.loadAll();
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     final var end = System.currentTimeMillis() - startTime;
@@ -271,7 +278,7 @@ public final class ShirukaServer implements Server {
 
   @Override
   public void stopServer() {
-    LOGGER.info("§eStopping the server.");
+    ShirukaServer.LOGGER.info("§eStopping the server.");
     this.running.set(false);
     try {
       this.socket.close();
@@ -326,10 +333,12 @@ public final class ShirukaServer implements Server {
   private void registerImplementations() {
     this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
-    this.registerInterface(EventFactory.class, new SimpleEventFactory());
+    this.registerInterface(EventManager.class, new SimpleEventManager());
+    this.registerInterface(LanguageManager.class, new SimpleLanguageManager(this.serverLanguage));
     this.registerInterface(PackManager.class, new SimplePackManager());
     this.registerInterface(PermissionManager.class, new SimplePermissionManager());
+    this.registerInterface(PluginManager.class, new SimplePluginManager());
     this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
-    this.registerInterface(WorldLoader.class, this.loader);
+    this.registerInterface(WorldManager.class, new SimpleWorldManager());
   }
 }

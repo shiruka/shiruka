@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -62,7 +62,7 @@ public final class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorke
   /**
    * the thread factory for schedulers.
    */
-  public static final ThreadFactory SCHEDULER = new PoolSpec(false, -1, "Scheduler");
+  public static final PoolSpec SCHEDULER = new PoolSpec(false, -1, "Scheduler");
 
   /**
    * a thread factory that does handling for exceptions, piping exception output to the loggers.

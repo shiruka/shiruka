@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,9 +27,11 @@ package io.github.shiruka.shiruka.events.player;
 
 import io.github.shiruka.api.entity.Player;
 import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
+import io.github.shiruka.api.text.Text;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,7 +56,7 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
    * the kick message.
    */
   @Nullable
-  private String kickMessage;
+  private Text kickMessage;
 
   /**
    * the login result.
@@ -87,15 +89,15 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
     this.actions.remove(o);
   }
 
-  @Nullable
+  @NotNull
   @Override
-  public String kickMessage() {
-    return this.kickMessage;
+  public Optional<Text> kickMessage() {
+    return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public void kickMessage(@Nullable final String message) {
-    this.kickMessage = message;
+  public void kickMessage(@Nullable final Text text) {
+    this.kickMessage = text;
   }
 
   @NotNull
@@ -111,7 +113,7 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   }
 
   @Override
-  public void loginResult(@NotNull final LoginResult result) {
-    this.loginResult = result;
+  public void loginResult(@NotNull final LoginResult loginResult) {
+    this.loginResult = loginResult;
   }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network;
 
+import java.util.Locale;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,43 +35,43 @@ public enum DisconnectReason {
   /**
    * the closed by remote peer.
    */
-  CLOSED_BY_REMOTE_PEER("CLOSED_BY_REMOTE_PEER"),
+  CLOSED_BY_REMOTE_PEER,
   /**
    * the shutting down.
    */
-  SHUTTING_DOWN("SHUTTING_DOWN"),
+  SHUTTING_DOWN,
   /**
    * the disconnected.
    */
-  DISCONNECTED("DISCONNECTED"),
+  DISCONNECTED,
   /**
    * the timed out.
    */
-  TIMED_OUT("TIMED_OUT"),
+  TIMED_OUT,
   /**
    * the connection request failed.
    */
-  CONNECTION_REQUEST_FAILED("CONNECTION_REQUEST_FAILED"),
+  CONNECTION_REQUEST_FAILED,
   /**
    * the already connected.
    */
-  ALREADY_CONNECTED("ALREADY_CONNECTED"),
+  ALREADY_CONNECTED,
   /**
    * the no free incoming connections.
    */
-  NO_FREE_INCOMING_CONNECTIONS("NO_FREE_INCOMING_CONNECTIONS"),
+  NO_FREE_INCOMING_CONNECTIONS,
   /**
    * the incompatible protocol version.
    */
-  INCOMPATIBLE_PROTOCOL_VERSION("INCOMPATIBLE_PROTOCOL_VERSION"),
+  INCOMPATIBLE_PROTOCOL_VERSION,
   /**
    * the ip recently connected.
    */
-  IP_RECENTLY_CONNECTED("IP_RECENTLY_CONNECTED"),
+  IP_RECENTLY_CONNECTED,
   /**
    * the bad packet.
    */
-  BAD_PACKET("BAD_PACKET");
+  BAD_PACKET;
 
   /**
    * the message.
@@ -80,11 +81,9 @@ public enum DisconnectReason {
 
   /**
    * ctor.
-   *
-   * @param message the message.
    */
-  DisconnectReason(@NotNull final String message) {
-    this.message = message;
+  DisconnectReason() {
+    this.message = this.name().toUpperCase(Locale.ROOT);
   }
 
   /**

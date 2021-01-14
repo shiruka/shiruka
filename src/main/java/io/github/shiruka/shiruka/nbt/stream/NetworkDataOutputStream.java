@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Shiru ka
+ * Copyright (c) 2021 Shiru ka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 
 package io.github.shiruka.shiruka.nbt.stream;
 
-import io.github.shiruka.shiruka.misc.VarInts;
+import io.github.shiruka.shiruka.network.util.VarInts;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

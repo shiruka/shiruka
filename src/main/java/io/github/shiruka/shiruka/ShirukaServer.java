@@ -264,9 +264,9 @@ public final class ShirukaServer implements Server {
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.starting").translate());
     ShirukaServer.reloadPacks();
     this.running.set(true);
-    ShirukaServer.LOGGER.info("§eLoading plugins.");
+    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.loading_plugins").translate());
     // @todo #1:60m Load plugins here.
-    ShirukaServer.LOGGER.info("§eEnabling plugins before the loading worlds.");
+    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.enabling_plugin").translate());
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     ShirukaServer.LOGGER.info("§eLoading worlds.");
 //    this.worldManager.loadAll();

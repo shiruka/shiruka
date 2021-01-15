@@ -1,3 +1,6 @@
+shiruka.server.starting=§eShiru ka server is starting.
+# {0} = chosen language
 shiruka.language.selected=Selected {0} as the default locale.
-shiruka.server.starting=Shiru ka server starting.
-shiruka.player.kickedBy=
+shiruka.server.starting=Shiru ka server is starting.
+# {0} = loaded resource pack size
+shiruka.resources.success=Successfully loaded {0} resource packs

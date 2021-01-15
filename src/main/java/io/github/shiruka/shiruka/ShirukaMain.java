@@ -175,7 +175,6 @@ public final class ShirukaMain {
    */
   private void exec() throws IOException {
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
-    final var serverLocale = Languages.startSequence();
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
@@ -189,6 +188,7 @@ public final class ShirukaMain {
     final var description = ServerConfig.DESCRIPTION.getValue()
       .orElseThrow(() -> new IllegalStateException("\"description\" not found in the server config!"));
     final var start = System.currentTimeMillis();
+    final var serverLocale = Languages.startSequence();
     final var server = new ShirukaServer(description, serverLocale, listener ->
       NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer), ShirukaConsole::new);
     Shiruka.setServer(server);

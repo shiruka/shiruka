@@ -88,7 +88,7 @@ public final class ServerConfig extends PathableConfig {
    */
   public static final ConfigPath<List<String>> LOADED_LANGUAGES = commented(listStringPath(
     "loaded-languages", new ArrayList<>()),
-    "loaded languages of the Shiru ka.");
+    "loaded languages of the Shiru ka. (automatically updated.)");
 
   /**
    * the max players that can be online at once.

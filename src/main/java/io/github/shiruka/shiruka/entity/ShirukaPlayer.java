@@ -37,7 +37,6 @@ import io.github.shiruka.api.permission.PermissionAttachment;
 import io.github.shiruka.api.permission.PermissionAttachmentInfo;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.text.Text;
-import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import java.util.Collections;
@@ -79,21 +78,11 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
    * @param connection the connection.
    * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final LoginDataEvent.ChainData chainData,
-                       @NotNull final PlayerConnection connection, @NotNull final GameProfile profile) {
+  public ShirukaPlayer(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final PlayerConnection connection,
+                       @NotNull final GameProfile profile) {
     this.chainData = chainData;
     this.connection = connection;
     this.profile = profile;
-  }
-
-  /**
-   * obtains the leave message.
-   *
-   * @return leave message.
-   */
-  @NotNull
-  private static TranslatedText getLeaveMessage() {
-    return TranslatedText.get("multiplayer.player.left");
   }
 
   @NotNull
@@ -228,7 +217,7 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   @Override
   public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
-    final var event = Shiruka.getEventManager().playerKick(this, reason, ShirukaPlayer.getLeaveMessage());
+    final var event = Shiruka.getEventManager().playerKick(this, reason);
     event.callEvent();
     return !event.cancelled();
   }

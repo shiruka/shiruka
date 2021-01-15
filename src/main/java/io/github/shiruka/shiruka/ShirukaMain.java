@@ -187,8 +187,8 @@ public final class ShirukaMain {
       .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
     final var description = ServerConfig.DESCRIPTION.getValue()
       .orElseThrow(() -> new IllegalStateException("\"description\" not found in the server config!"));
-    final var start = System.currentTimeMillis();
     final var serverLocale = Languages.startSequence();
+    final var start = System.currentTimeMillis();
     final var server = new ShirukaServer(description, serverLocale, listener ->
       NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer), ShirukaConsole::new);
     Shiruka.setServer(server);

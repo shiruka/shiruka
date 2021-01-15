@@ -30,7 +30,6 @@ import com.eclipsesource.json.JsonValue;
 import io.github.shiruka.api.config.Config;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -89,8 +88,9 @@ public final class Languages {
    * @param locale the locale to load.
    */
   public static void addLoadedLanguage(@NotNull final String locale) {
-    Languages.setLoadedLanguage(locale);
-    Languages.loadVariables(locale);
+    if (Languages.setLoadedLanguage(locale)) {
+      Languages.loadVariables(locale);
+    }
   }
 
   /**
@@ -259,8 +259,9 @@ public final class Languages {
     final var serverLanguage = ServerConfig.SERVER_LANGUAGE.getValue();
     if (serverLanguage.isPresent() && serverLanguage.get() != Locale.ROOT) {
       final var locale = serverLanguage.get();
-      Languages.setLoadedLanguage(Languages.toString(locale));
-      ServerConfig.get().ifPresent(Config::save);
+      if (Languages.setLoadedLanguage(Languages.toString(locale))) {
+        ServerConfig.get().ifPresent(Config::save);
+      }
       return locale;
     }
     Languages.LOGGER.info("§aChoose one of the available languages");
@@ -295,17 +296,20 @@ public final class Languages {
    * adds the given language to the loaded languages.
    *
    * @param locale the locale to load.
+   *
+   * @return {@code true} if the language is loaded.
    */
-  private static void setLoadedLanguage(@NotNull final String locale) {
+  private static boolean setLoadedLanguage(@NotNull final String locale) {
     if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
-      return;
+      return false;
     }
     final var value = ServerConfig.LOADED_LANGUAGES.getValue()
       .orElse(new ArrayList<>());
     if (value.contains(locale)) {
-      return;
+      return false;
     }
     value.add(locale);
     ServerConfig.LOADED_LANGUAGES.setValue(value);
+    return true;
   }
 }

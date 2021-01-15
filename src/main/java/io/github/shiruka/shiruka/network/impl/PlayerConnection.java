@@ -105,7 +105,7 @@ public final class PlayerConnection {
   public void disconnect(@Nullable final Text reason) {
     this.connection.checkForClosed();
     final var disconnectPacket = new PacketOutDisconnect(
-      this.translate0(reason, PlayerConnection.DISCONNECTED_NO_REASON),
+      this.translate0(reason, PlayerConnection.DISCONNECTED_NO_REASON).asString(),
       reason == null);
     this.sendPacket(disconnectPacket);
   }
@@ -219,7 +219,7 @@ public final class PlayerConnection {
    * @return translated string..
    */
   @NotNull
-  private String translate0(@Nullable final Text reason, @NotNull final Text fallback) {
+  private Text translate0(@Nullable final Text reason, @NotNull final Text fallback) {
     final Text finalReason;
     if (reason == null) {
       finalReason = fallback;
@@ -232,7 +232,7 @@ public final class PlayerConnection {
     } else {
       finalReason = reason;
     }
-    return finalReason.asString();
+    return finalReason;
   }
 
   /**

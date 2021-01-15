@@ -2,4 +2,4 @@
 --verbose
 --exclude target/**/*
 --exclude .idea/**/*
---exclude src/main/resources/lang/vanilla/**/*
+--exclude src/main/resources/lang/**/*

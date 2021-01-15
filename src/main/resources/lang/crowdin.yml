@@ -1,3 +1,3 @@
 files:
-  - source: source.lang
+  - source: source.properties
     translation: /shiruka/%locale_with_underscore%.%file_extension%

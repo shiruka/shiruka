@@ -93,14 +93,16 @@ public final class PlayerConnection {
    * @param params the params to disconnect.
    */
   public void disconnect(@Nullable final Text reason, @NotNull final Object... params) {
+    @Nullable final String finalReason;
     if (reason == null) {
-      this.disconnect(null);
+      finalReason = null;
     } else if (reason instanceof TranslatedText) {
-      this.disconnect(((TranslatedText) reason).translate(this.player, params)
-        .orElse(reason.asString()));
+      finalReason = ((TranslatedText) reason).translate(this.player, params)
+        .orElse(reason.asString());
     } else {
-      this.disconnect(reason.asString());
+      finalReason = reason.asString();
     }
+    this.disconnect(finalReason);
   }
 
   /**

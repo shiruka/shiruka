@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
@@ -33,6 +34,7 @@ import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.packets.PacketOutDisconnect;
 import io.github.shiruka.shiruka.network.server.ServerSocket;
+import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,18 +90,29 @@ public final class PlayerConnection {
    * disconnects the connection.
    *
    * @param reason the reason to disconnect.
+   * @param params the params to disconnect.
+   */
+  public void disconnect(@Nullable final Text reason, @NotNull final Object... params) {
+    if (reason == null) {
+      this.disconnect(null);
+    } else if (reason instanceof TranslatedText) {
+      this.disconnect(((TranslatedText) reason).translate(this.player, params)
+        .orElse(reason.asString()));
+    } else {
+      this.disconnect(reason.asString());
+    }
+  }
+
+  /**
+   * disconnects the connection.
+   *
+   * @param reason the reason to disconnect.
    */
   public void disconnect(@Nullable final String reason) {
     this.connection.checkForClosed();
-    final String finalReason;
-    final boolean messageSkipped;
-    if (reason == null) {
-      finalReason = TranslatedText.get("disconnect.disconnected").asString();
-      messageSkipped = true;
-    } else {
-      finalReason = reason;
-      messageSkipped = false;
-    }
+    final boolean messageSkipped = reason == null;
+    final var finalReason = Objects.requireNonNullElseGet(reason, () ->
+      TranslatedText.get("disconnect.disconnected").translate(this.player).orElse("disconnect.disconnected"));
     this.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped));
   }
 
@@ -140,6 +153,15 @@ public final class PlayerConnection {
   @NotNull
   public Optional<ShirukaPlayer> getPlayer() {
     return Optional.ofNullable(this.player);
+  }
+
+  /**
+   * sets the player.
+   *
+   * @param player the player to set.
+   */
+  public void setPlayer(@NotNull final ShirukaPlayer player) {
+    this.player = player;
   }
 
   /**

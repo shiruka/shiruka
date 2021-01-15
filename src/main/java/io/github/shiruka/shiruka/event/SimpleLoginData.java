@@ -123,6 +123,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
     }
     final var profile = new GameProfile(this.username, this.chainData.uniqueId(), this.chainData.xuid());
     final var player = new ShirukaPlayer(this.chainData, this.connection, profile);
+    this.connection.setPlayer(player);
     this.connection.setState(PlayerConnection.State.LOGIN);
     player.getPlayerConnection().getServer().addPlayer(player);
     // @todo #1:60m Continue to development here.

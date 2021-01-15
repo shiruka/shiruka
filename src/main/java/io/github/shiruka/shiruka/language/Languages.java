@@ -175,7 +175,7 @@ public final class Languages {
    * loads {@link #SHIRUKA_KEYS} and {@link #VANILLA_KEYS}.
    */
   private static void loadKeys() throws IOException {
-    final var shirukaResource = new InputStreamReader(Languages.getResource("lang/source.lang"),
+    final var shirukaResource = new InputStreamReader(Languages.getResource("lang/source.properties"),
       StandardCharsets.UTF_8);
     final var shirukaKeys = new Properties();
     shirukaKeys.load(shirukaResource);
@@ -229,7 +229,7 @@ public final class Languages {
   private static void loadVariables(@NotNull final String locale) {
     final var finalLocale = locale.toLowerCase(Locale.ROOT);
     Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(finalLocale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource("lang/shiruka/" + finalLocale + ".lang"),
+      final var stream = new InputStreamReader(Languages.getResource("lang/shiruka/" + finalLocale + ".properties"),
         StandardCharsets.UTF_8);
       JiraExceptionCatcher.run(() -> properties.load(stream));
     });

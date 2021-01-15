@@ -30,6 +30,7 @@ import com.eclipsesource.json.JsonValue;
 import io.github.shiruka.api.config.Config;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -199,7 +200,8 @@ public final class Languages {
   private static InputStream getResource(@NotNull final String resourcePath) {
     final var classLoader = Objects.requireNonNull(Thread.currentThread().getContextClassLoader(),
       "class loader");
-    return Objects.requireNonNull(classLoader.getResourceAsStream(resourcePath), "resource");
+    return Objects.requireNonNull(classLoader.getResourceAsStream(resourcePath),
+      String.format("The resource in %s not found", resourcePath));
   }
 
   /**
@@ -280,12 +282,12 @@ public final class Languages {
   private static void loadVariables(@NotNull final String locale) {
     final var finalLocale = locale.toLowerCase(Locale.ROOT);
     Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(finalLocale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource("lang/shiruka/" + finalLocale + ".properties"),
+      final var stream = new InputStreamReader(Languages.getResource("lang" + File.separatorChar + "shiruka" + File.separatorChar + finalLocale + ".properties"),
         StandardCharsets.UTF_8);
       JiraExceptionCatcher.run(() -> properties.load(stream));
     });
     Optional.ofNullable(Languages.VANILLA_VARIABLES.get(finalLocale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource("lang/vanilla/" + finalLocale + ".lang"),
+      final var stream = new InputStreamReader(Languages.getResource("lang" + File.separatorChar + "vanilla" + File.separatorChar + finalLocale + ".lang"),
         StandardCharsets.UTF_8);
       JiraExceptionCatcher.run(() -> properties.load(stream));
     });

@@ -29,7 +29,6 @@ import com.google.common.base.Preconditions;
 import io.github.shiruka.api.language.LanguageManager;
 import java.text.MessageFormat;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import org.jetbrains.annotations.NotNull;
@@ -71,9 +70,7 @@ public final class SimpleLanguageManager implements LanguageManager {
     if (!Languages.AVAILABLE_LANGUAGES.contains(code)) {
       return Optional.empty();
     }
-    final var split = code.split("_");
-    final var locale = new Locale(split[0], split[1]);
-    return Optional.of(locale);
+    return Optional.of(Languages.toLocale(code));
   }
 
   @NotNull
@@ -87,14 +84,11 @@ public final class SimpleLanguageManager implements LanguageManager {
   public String translate(@NotNull final Locale locale, @NotNull final String key, @NotNull final Object... params) {
     final var finalKey = key.toLowerCase(Locale.ROOT);
     this.check(finalKey);
-    final var code = (locale.getLanguage() + "_" + locale.getCountry()).toLowerCase(Locale.ROOT);
     final Properties properties;
     if (finalKey.startsWith("shiruka.")) {
-      properties = Objects.requireNonNull(Languages.SHIRUKA_VARIABLES.get(code),
-        String.format("the language called %s not found!", code));
+      properties = Languages.getShirukaVariables(locale);
     } else {
-      properties = Objects.requireNonNull(Languages.VANILLA_VARIABLES.get(code),
-        String.format("the language called %s not found!", code));
+      properties = Languages.getVanillaVariables(locale);
     }
     return MessageFormat.format(properties.getProperty(finalKey), params);
   }

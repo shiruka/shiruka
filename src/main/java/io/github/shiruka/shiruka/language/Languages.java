@@ -57,24 +57,24 @@ public final class Languages {
   static final Collection<String> SHIRUKA_KEYS = new HashSet<>();
 
   /**
-   * the shiruka variables.
-   */
-  static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
-
-  /**
    * the vanilla keys.
    */
   static final Collection<String> VANILLA_KEYS = new HashSet<>();
 
   /**
-   * the vanilla variables.
-   */
-  static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
-
-  /**
    * the logger.
    */
   private static final Logger LOGGER = LogManager.getLogger("Languages");
+
+  /**
+   * the shiruka variables.
+   */
+  private static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
+
+  /**
+   * the vanilla variables.
+   */
+  private static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
 
   /**
    * ctor.
@@ -93,6 +93,32 @@ public final class Languages {
   }
 
   /**
+   * obtains the shiruka variables from the given {@code language}.
+   *
+   * @param language the language to get.
+   *
+   * @return shiruka variables.
+   */
+  @NotNull
+  public static Properties getShirukaVariables(@NotNull final Locale language) {
+    return Objects.requireNonNullElse(Languages.SHIRUKA_VARIABLES.get(Languages.toString(language)),
+      Languages.SHIRUKA_VARIABLES.get("en_US"));
+  }
+
+  /**
+   * obtains the vanilla variables from the given {@code language}.
+   *
+   * @param language the language to get.
+   *
+   * @return vanilla variables.
+   */
+  @NotNull
+  public static Properties getVanillaVariables(@NotNull final Locale language) {
+    return Objects.requireNonNullElse(Languages.VANILLA_VARIABLES.get(Languages.toString(language)),
+      Languages.VANILLA_VARIABLES.get("en_US"));
+  }
+
+  /**
    * starts the choosing language sequence if it has never chosen before.
    *
    * @return the chosen server language.
@@ -107,6 +133,31 @@ public final class Languages {
     final var serverLanguage = Languages.loadServerLanguage();
     Languages.loadLoadedLanguages();
     return serverLanguage;
+  }
+
+  /**
+   * converts the given {@code locale} to {@link Locale} instance.
+   *
+   * @param locale the locale to convert.
+   *
+   * @return {@link String} as {@link Locale}.
+   */
+  @NotNull
+  public static Locale toLocale(@NotNull final String locale) {
+    final var split = locale.split("_");
+    return new Locale(split[0], split[1]);
+  }
+
+  /**
+   * converts the given {@code locale} to {@link String} instance.
+   *
+   * @param locale the locale to convert.
+   *
+   * @return {@link Locale} as {@link String}.
+   */
+  @NotNull
+  public static String toString(@NotNull final Locale locale) {
+    return (locale.getLanguage() + "_" + locale.getCountry()).toLowerCase(Locale.ROOT);
   }
 
   /**
@@ -257,30 +308,5 @@ public final class Languages {
     }
     value.add(finalLocale);
     ServerConfig.LOADED_LANGUAGES.setValue(value);
-  }
-
-  /**
-   * converts the given {@code locale} to {@link Locale} instance.
-   *
-   * @param locale the locale to convert.
-   *
-   * @return {@link String} as {@link Locale}.
-   */
-  @NotNull
-  private static Locale toLocale(@NotNull final String locale) {
-    final var split = locale.split("_");
-    return new Locale(split[0], split[1]);
-  }
-
-  /**
-   * converts the given {@code locale} to {@link String} instance.
-   *
-   * @param locale the locale to convert.
-   *
-   * @return {@link Locale} as {@link String}.
-   */
-  @NotNull
-  private static String toString(@NotNull final Locale locale) {
-    return locale.getLanguage() + "_" + locale.getCountry();
   }
 }

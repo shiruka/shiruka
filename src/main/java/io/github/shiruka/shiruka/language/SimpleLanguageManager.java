@@ -82,14 +82,13 @@ public final class SimpleLanguageManager implements LanguageManager {
   @NotNull
   @Override
   public String translate(@NotNull final Locale locale, @NotNull final String key, @NotNull final Object... params) {
-    final var finalKey = key.toLowerCase(Locale.ROOT);
-    this.check(finalKey);
+    this.check(key);
     final Properties properties;
-    if (finalKey.startsWith("shiruka.")) {
+    if (key.startsWith("shiruka.")) {
       properties = Languages.getShirukaVariables(locale);
     } else {
       properties = Languages.getVanillaVariables(locale);
     }
-    return MessageFormat.format(properties.getProperty(finalKey), params);
+    return MessageFormat.format(properties.getProperty(key), params);
   }
 }

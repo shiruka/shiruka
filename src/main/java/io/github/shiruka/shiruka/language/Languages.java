@@ -158,7 +158,7 @@ public final class Languages {
    */
   @NotNull
   public static String toString(@NotNull final Locale locale) {
-    return (locale.getLanguage() + "_" + locale.getCountry()).toLowerCase(Locale.ROOT);
+    return locale.getLanguage() + "_" + locale.getCountry();
   }
 
   /**
@@ -169,7 +169,7 @@ public final class Languages {
   @NotNull
   private static Locale choosingLanguageLoop() {
     final var scanner = new Scanner(System.in);
-    final var chosenLanguage = scanner.nextLine().toLowerCase(Locale.ROOT);
+    final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
     if (!Languages.AVAILABLE_LANGUAGES.contains(chosenLanguage) || split.length != 2) {
       Languages.LOGGER.error("§cPlease write a valid language!");
@@ -216,7 +216,6 @@ public final class Languages {
     final var languages = parse.asArray();
     Languages.AVAILABLE_LANGUAGES.addAll(languages.values().stream()
       .map(JsonValue::asString)
-      .map(s -> s.toLowerCase(Locale.ROOT))
       .collect(Collectors.toUnmodifiableSet()));
     Languages.AVAILABLE_LANGUAGES.forEach(s -> {
       Languages.SHIRUKA_VARIABLES.put(s, new Properties());
@@ -280,14 +279,13 @@ public final class Languages {
    * @param locale the locale to load.
    */
   private static void loadVariables(@NotNull final String locale) {
-    final var finalLocale = locale.toLowerCase(Locale.ROOT);
-    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(finalLocale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource("lang" + File.separatorChar + "shiruka" + File.separatorChar + finalLocale + ".properties"),
+    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(locale)).ifPresent(properties -> {
+      final var stream = new InputStreamReader(Languages.getResource("lang/shiruka/" + locale + ".properties"),
         StandardCharsets.UTF_8);
       JiraExceptionCatcher.run(() -> properties.load(stream));
     });
-    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(finalLocale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource("lang" + File.separatorChar + "vanilla" + File.separatorChar + finalLocale + ".lang"),
+    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties -> {
+      final var stream = new InputStreamReader(Languages.getResource("lang/vanilla/" + locale + ".lang"),
         StandardCharsets.UTF_8);
       JiraExceptionCatcher.run(() -> properties.load(stream));
     });
@@ -299,16 +297,15 @@ public final class Languages {
    * @param locale the locale to load.
    */
   private static void setLoadedLanguage(@NotNull final String locale) {
-    final var finalLocale = locale.toLowerCase(Locale.ROOT);
-    if (!Languages.AVAILABLE_LANGUAGES.contains(finalLocale)) {
+    if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
       return;
     }
     final var value = ServerConfig.LOADED_LANGUAGES.getValue()
       .orElse(new ArrayList<>());
-    if (value.contains(finalLocale)) {
+    if (value.contains(locale)) {
       return;
     }
-    value.add(finalLocale);
+    value.add(locale);
     ServerConfig.LOADED_LANGUAGES.setValue(value);
   }
 }

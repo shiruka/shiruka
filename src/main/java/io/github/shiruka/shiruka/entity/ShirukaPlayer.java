@@ -208,12 +208,6 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
     return this.profile;
   }
 
-  @NotNull
-  @Override
-  public ShirukaServer getServer() {
-    return this.connection.getServer();
-  }
-
   @Override
   public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {

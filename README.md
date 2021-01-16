@@ -16,7 +16,7 @@ Shiru ka is a brand new server software for Minecraft: Bedrock Edition, similar 
 [MiNET](https://github.com/NiclasOlofsson/MiNET),
 and many others.
 The following set of features makes Shiru ka unique among all others:
-
+- It is open-source with [MIT license](https://github.com/shiruka/shiruka/blob/master/LICENSE)
 
 ![master](https://github.com/shiruka/shiruka/workflows/build/badge.svg)
 [![codecov](https://codecov.io/gh/shiruka/shiruka/branch/master/graph/badge.svg?token=R8GSQZLTS9)](https://codecov.io/gh/shiruka/shiruka)

@@ -19,7 +19,7 @@ and many others.
 <h3 align="center">
   <a href="https://github.com/shiruka/conribution">Contributing</a>
   /
-  <a href="https://github.com/shiruka/conribution">Code Style</a>
+  <a href="https://github.com/shiruka/codestyle">Code Style</a>
 </h3>
 
 ![master](https://github.com/shiruka/shiruka/workflows/build/badge.svg)

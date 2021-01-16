@@ -9,9 +9,9 @@
 </p>
 
 Shiru ka is a brand new server software for Minecraft: Bedrock Edition, similar to 
-[GoMint](https://github.com/gomint/), 
-[CloudburstMC](https://github.com/cloudburstmc/), 
-[PowerNukkit](https://github.com/powernukkit/), 
+[GoMint](https://github.com/gomint/),
+[CloudburstMC](https://github.com/cloudburstmc/),
+[PowerNukkit](https://github.com/powernukkit/),
 and many others.
 The following set of features makes Shiru ka unique among all others:
 

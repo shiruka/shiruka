@@ -9,13 +9,17 @@
 
 ### Contributing
 
-`mvn clean install -Dgpg.skip=true`
+`mvn clean install`
 
-### Run command
+### Start Shiru ka
 
 `java -jar shiruka.jar [options]`
 
-#### Options
+#### With RAM
+
+`java -Xms3G -Xmx3G -jar shiruka.jar [options]`
+
+#### Shiru ka's Options
 
 | Commands                                       | Descriptions                                            |
 |------------------------------------------------|---------------------------------------------------------|

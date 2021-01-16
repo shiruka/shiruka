@@ -37,7 +37,6 @@ import io.github.shiruka.api.permission.PermissionAttachment;
 import io.github.shiruka.api.permission.PermissionAttachmentInfo;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.text.Text;
-import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import java.util.Collections;
 import java.util.List;

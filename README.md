@@ -1,6 +1,6 @@
 <p align="center">
   <a href="http://shiruka.net">
-    <img src="logo/SHIRUKA.png"/>
+    <img src="logo/SHIRUKA.png" width="150px"/>
   </a>
 </p>
 <h1 align="center">Shiru ka</h1>

@@ -30,7 +30,10 @@ import io.github.shiruka.api.config.Config;
 import io.github.shiruka.api.config.ConfigPath;
 import io.github.shiruka.api.config.config.PathableConfig;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 /**

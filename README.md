@@ -1,6 +1,6 @@
 <p align="center">
   <a href="http://shiruka.net">
-    <img src="logo/SHIRUKA.png" width="150px"/>
+    <img src="logo/SHIRUKA.png" width="200px"/>
   </a>
 </p>
 <h1 align="center">Shiru ka</h1>
@@ -13,7 +13,6 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/39cc4c7bce400a705913/maintainability)](https://codeclimate.com/github/shiruka/shiruka/maintainability)
 [![Hits-of-Code](https://hitsofcode.com/github/shiruka/shiruka)](https://hitsofcode.com/github/shiruka/shiruka/view)
 ![Java 11](https://img.shields.io/badge/java-11-green)
-[<img src="logo/IDEA.png" width="25px"/>](https://www.jetbrains.com/idea/)
 
 ### Contributing
 

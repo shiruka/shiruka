@@ -21,14 +21,4 @@ jobs:
         with:
           java-version: 11
 
-      - run: |
-          [[ "${{ steps.bump-semver.outputs.new_version }}" =~ ^[0-9]+(\.[0-9]+)*$ ]] || exit -1
-          mvn install -B
-
-      - uses: ncipollo/release-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ steps.bump-semver.outputs.new_version }}
-          tag: ${{ steps.bump-semver.outputs.new_version }}
-          artifacts: "target/shiruka.jar"
-          body: '[Changelog](https://github.com/shiruka/shiruka/compare/${{ steps.version.outputs.release }}...${{ steps.bump-semver.outputs.new_version }})'
+      - run: mvn clean install

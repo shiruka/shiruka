@@ -20,26 +20,21 @@ Shiru ka is a brand-new server software for Minecraft: Bedrock Edition, similar 
 [CloudburstMC](https://github.com/cloudburstmc/),
 [PowerNukkit](https://github.com/powernukkit/),
 [PocketMine](https://github.com/pmmp),
-[MiNET](https://github.com/NiclasOlofsson/MiNET),
-and many others.
+[MiNET](https://github.com/NiclasOlofsson/MiNET), and many others.
 
 <h3 align="center">
-  <a href="https://github.com/shiruka/conribution">Contributing</a>
-/
+  <a href="https://github.com/shiruka/conribution">Contributing</a> 
+/ 
   <a href="https://github.com/shiruka/codestyle">Code Style</a>
 </h3>
 
-<h3 align="center">
-  Start Shiru ka
-</h3>
+<h3 align="center">Compiling</h3>
+<p align="center">mvn clean install</p>
 
-`java -jar shiruka.jar [options]`
+<h3 align="center">Start Shiru ka</h3>
+<p align="center">java -jar shiruka.jar [options]</p>
 
-#### With RAM
-
-`java -Xms3G -Xmx3G -jar shiruka.jar [options]`
-
-#### Shiru ka's Options
+<h4 align="center">Start options</h4>
 
 | Commands                                       | Descriptions                                            |
 |------------------------------------------------|---------------------------------------------------------|
@@ -51,6 +46,4 @@ and many others.
 | -U, --usercache <File: User cache file>        | User cache file to use (default: usercache.hjson)       |
 | -V, --version                                  | Show the Shiru ka's version                             |
 
-### Translation
-
-[Crowdin](https://crowdin.com/project/shiru-ka)
+<h3 align="center"><a href="https://crowdin.com/project/shiru-ka">Translation</a></h3>

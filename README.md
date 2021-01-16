@@ -20,6 +20,8 @@ Shiru ka is a brand-new server software for Minecraft: Bedrock Edition, similar 
   <a href="https://github.com/shiruka/conribution">Contributing</a> 
 / 
   <a href="https://github.com/shiruka/codestyle">Code Style</a>
+/
+  <a href="https://crowdin.com/project/shiru-ka">Translation</a>
 </h3>
 
 <h3 align="center">Compiling</h3>
@@ -38,5 +40,3 @@ Shiru ka is a brand-new server software for Minecraft: Bedrock Edition, similar 
 | -P, --plugins <File: Plugin directory>         | Plugin directory to use (default: plugins)              |
 | -U, --usercache <File: User cache file>        | User cache file to use (default: usercache.hjson)       |
 | -V, --version                                  | Show the Shiru ka's version                             |
-
-<h3 align="center"><a href="https://crowdin.com/project/shiru-ka">Translation</a></h3>

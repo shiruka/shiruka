@@ -29,6 +29,7 @@ Shiru ka is a brand-new server software for Minecraft: Bedrock Edition, similar 
 
 <h3 align="center">Start Shiru ka</h3>
 <p align="center">java -jar shiruka.jar [options]</p>
+<p align="center">
 
 | Options                                       | Descriptions                                            |
 |------------------------------------------------|---------------------------------------------------------|
@@ -39,3 +40,5 @@ Shiru ka is a brand-new server software for Minecraft: Bedrock Edition, similar 
 | -P, --plugins <File: Plugin directory>         | Plugin directory to use (default: plugins)              |
 | -U, --usercache <File: User cache file>        | User cache file to use (default: usercache.hjson)       |
 | -V, --version                                  | Show the Shiru ka's version                             |
+
+</p>

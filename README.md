@@ -7,6 +7,7 @@
 <p align="center">
   <strong>A fully open-source server software for Minecraft: Bedrock Edition</strong>
 </p>
+
 Shiru ka is a brand new server software for Minecraft: Bedrock Edition, similar to 
 [GoMint](https://github.com/gomint/), 
 [CloudburstMC](https://github.com/cloudburstmc/), 

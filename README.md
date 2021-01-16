@@ -7,6 +7,8 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/39cc4c7bce400a705913/maintainability)](https://codeclimate.com/github/shiruka/shiruka/maintainability)
 [![Hits-of-Code](https://hitsofcode.com/github/shiruka/shiruka)](https://hitsofcode.com/github/shiruka/shiruka/view)
 
+Shiruka ka requires Java 11
+
 ### Contributing
 
 `mvn clean install`

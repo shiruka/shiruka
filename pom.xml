@@ -33,7 +33,7 @@
     <version>2.1.5</version>
   </parent>
   <artifactId>shiruka</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <name>shiruka</name>
   <description>Brand new server software for Minecraft: Bedrock Edition.</description>
   <url>https://github.com/shiruka/shiruka</url>

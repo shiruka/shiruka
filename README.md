@@ -1,4 +1,12 @@
-[<img src="logo/SHIRUKA.png" width="92px"/>](https://github.com/shiruka)
+<p align="center">
+  <a href="http://shiruka.net">
+    <img src="logo/SHIRUKA.png"/>
+  </a>
+</p>
+<h1 align="center">Shiru ka</h1>
+<p align="center">
+  <strong>A complete server software for Minecraft Bedrock Edition</strong>
+</p>
 
 ![master](https://github.com/shiruka/shiruka/workflows/build/badge.svg)
 [![codecov](https://codecov.io/gh/shiruka/shiruka/branch/master/graph/badge.svg?token=R8GSQZLTS9)](https://codecov.io/gh/shiruka/shiruka)

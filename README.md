@@ -7,7 +7,12 @@
 <p align="center">
   <strong>A fully open-source server software for Minecraft: Bedrock Edition</strong>
 </p>
-Shiru ka is a brand new server software for Minecraft: Bedrock Edition.
+Shiru ka is a brand new server software for Minecraft: Bedrock Edition, similar to 
+[GoMint](https://github.com/gomint), 
+[CloudburstMC](https://github.com/cloudburstmc), 
+[PowerNukkit](https://github.com/powernukkit), 
+and many others.
+The following set of features makes Artipie unique among all others
 
 ![master](https://github.com/shiruka/shiruka/workflows/build/badge.svg)
 [![codecov](https://codecov.io/gh/shiruka/shiruka/branch/master/graph/badge.svg?token=R8GSQZLTS9)](https://codecov.io/gh/shiruka/shiruka)

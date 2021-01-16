@@ -1,6 +1,6 @@
 [<img src="logo/SHIRUKA.png" width="92px"/>](https://github.com/shiruka)
 
-[<img src="logo/IDEA.png" width="92px"/>](https://www.jetbrains.com/idea/)
+[<img src="logo/IDEA.png" width="32px"/>](https://www.jetbrains.com/idea/)
 
 
 ![master](https://github.com/shiruka/shiruka/workflows/build/badge.svg)

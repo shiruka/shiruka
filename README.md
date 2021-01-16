@@ -5,7 +5,6 @@
   <a href="http://docs.shiruka.net">Documentation</a> 
 </h3>
 
-![Java 11](https://img.shields.io/badge/java-11-green)
 ![master](https://github.com/shiruka/shiruka/workflows/build/badge.svg)
 [![codecov](https://codecov.io/gh/shiruka/shiruka/branch/master/graph/badge.svg?token=R8GSQZLTS9)](https://codecov.io/gh/shiruka/shiruka)
 [![Maintainability](https://api.codeclimate.com/v1/badges/39cc4c7bce400a705913/maintainability)](https://codeclimate.com/github/shiruka/shiruka/maintainability)

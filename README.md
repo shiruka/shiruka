@@ -25,11 +25,13 @@ and many others.
 
 <h3 align="center">
   <a href="https://github.com/shiruka/conribution">Contributing</a>
-  /
+/
   <a href="https://github.com/shiruka/codestyle">Code Style</a>
 </h3>
 
-### Start Shiru ka
+<h3 align="center">
+  Start Shiru ka
+</h3>
 
 `java -jar shiruka.jar [options]`
 

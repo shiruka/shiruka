@@ -91,11 +91,11 @@ public final class PacketInLogin extends PacketIn {
         if (!matcher.matches() ||
           username.equalsIgnoreCase("rcon") ||
           username.equalsIgnoreCase("console")) {
-          connection.disconnect("disconnectionScreen.invalidName");
+          connection.disconnect(TranslatedText.get("disconnectionScreen.invalidName"));
           return;
         }
         if (!chainData.skin().isValid()) {
-          connection.disconnect("disconnectionScreen.invalidSkin");
+          connection.disconnect(TranslatedText.get("disconnectionScreen.invalidSkin"));
           return;
         }
         final var loginData = new SimpleLoginData(chainData, connection, () -> ChatColor.clean(username));

@@ -261,6 +261,12 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   public void setOp(final boolean value) {
   }
 
+  /**
+   * runs when player want to join the server.
+   */
+  public void onLogin() {
+  }
+
   @Override
   public void sendMessage(@NotNull final Text message, @NotNull final Object... params) {
   }

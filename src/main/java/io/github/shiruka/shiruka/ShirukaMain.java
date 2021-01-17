@@ -35,6 +35,7 @@ import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.language.Languages;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
+import io.github.shiruka.shiruka.util.SystemUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -106,6 +107,7 @@ public final class ShirukaMain {
       System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
     }
     System.setProperty("library.jansi.version", "Shiru ka");
+    SystemUtils.startTimerHack();
     final var main = new ShirukaMain(parsed);
     JiraExceptionCatcher.run(main::exec);
   }

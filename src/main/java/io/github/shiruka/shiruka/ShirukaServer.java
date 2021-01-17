@@ -260,7 +260,6 @@ public final class ShirukaServer implements Server {
   @Override
   public void startServer(final long startTime) {
     this.registerImplementations();
-    // Translation is active after here.
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.starting"));
     ShirukaServer.reloadPacks();
     this.running.set(true);

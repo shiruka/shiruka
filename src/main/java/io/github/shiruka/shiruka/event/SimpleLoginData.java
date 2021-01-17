@@ -111,6 +111,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * initializes the player.
    */
   public void initializePlayer() {
+    System.out.println("test");
     if (this.asyncLogin == null) {
       return;
     }
@@ -126,6 +127,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
     this.connection.setPlayer(player);
     this.connection.setState(PlayerConnection.State.LOGIN);
     player.getPlayerConnection().getServer().addPlayer(player);
+    player.onLogin();
     // @todo #1:60m Continue to development here.
     this.asyncLogin.objects().forEach(action -> action.accept(player));
   }

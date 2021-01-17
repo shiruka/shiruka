@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.network.util;
 
-import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.network.Socket;
 import io.github.shiruka.shiruka.network.*;
 import io.github.shiruka.shiruka.network.packets.PacketOutPackInfo;
@@ -300,9 +299,9 @@ public final class Packets {
    */
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public static boolean verifyUnconnectedMagic(@NotNull final ByteBuf buffer) {
-    return Arrays.equals(
-      Optionals.useAndGet(new byte[Constants.UNCONNECTED_MAGIC.length], buffer::readBytes),
-      Constants.UNCONNECTED_MAGIC);
+    final var bytes = new byte[Constants.UNCONNECTED_MAGIC.length];
+    buffer.readBytes(bytes);
+    return Arrays.equals(bytes, Constants.UNCONNECTED_MAGIC);
   }
 
   /**
@@ -396,7 +395,7 @@ public final class Packets {
    */
   private static void createPacket(@NotNull final ChannelHandlerContext ctx, final int initialSize,
                                    @NotNull final Consumer<ByteBuf> packet) {
-    Optionals.useAndGet(ctx.alloc().ioBuffer(initialSize), packet);
+    packet.accept(ctx.alloc().ioBuffer(initialSize));
   }
 
   /**
@@ -408,7 +407,7 @@ public final class Packets {
    */
   private static void createPacket(@NotNull final ChannelHandlerContext ctx, final int initialSize,
                                    final int maxCapacity, @NotNull final Consumer<ByteBuf> packet) {
-    Optionals.useAndGet(ctx.alloc().ioBuffer(initialSize, maxCapacity), packet);
+    packet.accept(ctx.alloc().ioBuffer(initialSize, maxCapacity));
   }
 
   /**
@@ -419,7 +418,7 @@ public final class Packets {
    */
   private static void createPacket(@NotNull final Connection<?> connection, final int size,
                                    @NotNull final Consumer<ByteBuf> packet) {
-    Optionals.useAndGet(connection.allocateBuffer(size), packet);
+    packet.accept(connection.allocateBuffer(size));
   }
 
   /**

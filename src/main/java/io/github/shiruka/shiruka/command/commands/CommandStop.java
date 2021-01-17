@@ -30,7 +30,6 @@ import static io.github.shiruka.api.command.Commands.literal;
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents stop command.

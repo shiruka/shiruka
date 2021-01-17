@@ -332,7 +332,6 @@ public final class ShirukaServer implements Server {
    * registers the implementation of the interfaces which are singleton.
    */
   private void registerImplementations() {
-    this.registerInterface(CommandManager.class, new SimpleCommandManager());
     this.registerInterface(ConsoleCommandSender.class, new SimpleConsoleCommandSender(this.console));
     this.registerInterface(EventManager.class, new SimpleEventManager());
     this.registerInterface(LanguageManager.class, new SimpleLanguageManager(this.serverLanguage));
@@ -341,5 +340,6 @@ public final class ShirukaServer implements Server {
     this.registerInterface(PluginManager.class, new SimplePluginManager());
     this.registerInterface(Scheduler.class, new SimpleScheduler(this.schedulerService));
     this.registerInterface(WorldManager.class, new SimpleWorldManager());
+    this.registerInterface(CommandManager.class, new SimpleCommandManager());
   }
 }

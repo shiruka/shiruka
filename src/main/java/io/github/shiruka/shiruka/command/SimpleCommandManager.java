@@ -30,8 +30,9 @@ import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.command.CommandNode;
 import io.github.shiruka.api.command.CommandSender;
 import io.github.shiruka.api.command.builder.LiteralBuilder;
+import io.github.shiruka.api.command.exceptions.CommandSyntaxException;
 import io.github.shiruka.api.plugin.Plugin;
-import java.util.Arrays;
+import io.github.shiruka.shiruka.command.commands.CommandStop;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -53,6 +54,10 @@ public final class SimpleCommandManager implements CommandManager {
    */
   private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
 
+  static {
+    CommandStop.register();
+  }
+
   /**
    * registers internal(Shiru ka) commands.
    *
@@ -73,7 +78,11 @@ public final class SimpleCommandManager implements CommandManager {
 
   @Override
   public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
-    SimpleCommandManager.LOGGER.info("{} -> {}", sender.getName().asString(), command);
+    try {
+      SimpleCommandManager.DISPATCHER.execute(command, sender);
+    } catch (final CommandSyntaxException e) {
+      SimpleCommandManager.LOGGER.error("An exception caught when running a command: ", e);
+    }
   }
 
   @Override

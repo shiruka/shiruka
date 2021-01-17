@@ -25,10 +25,13 @@
 
 package io.github.shiruka.shiruka.command;
 
+import io.github.shiruka.api.command.CommandDispatcher;
 import io.github.shiruka.api.command.CommandManager;
 import io.github.shiruka.api.command.CommandNode;
 import io.github.shiruka.api.command.CommandSender;
+import io.github.shiruka.api.command.builder.LiteralBuilder;
 import io.github.shiruka.api.plugin.Plugin;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -41,9 +44,32 @@ import org.jetbrains.annotations.NotNull;
 public final class SimpleCommandManager implements CommandManager {
 
   /**
+   * the dispatcher.
+   */
+  private static final CommandDispatcher DISPATCHER = new CommandDispatcher();
+
+  /**
    * the logger.
    */
   private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
+
+  /**
+   * registers internal(Shiru ka) commands.
+   *
+   * @param commands the commands to register.
+   */
+  public static void registerInternal(@NotNull final CommandNode... commands) {
+    SimpleCommandManager.DISPATCHER.register(commands);
+  }
+
+  /**
+   * registers the given commands.
+   *
+   * @param builders the builders to register.
+   */
+  public static void registerInternal(@NotNull final LiteralBuilder... builders) {
+    SimpleCommandManager.DISPATCHER.register(builders);
+  }
 
   @Override
   public void execute(@NotNull final String command, @NotNull final CommandSender sender) {

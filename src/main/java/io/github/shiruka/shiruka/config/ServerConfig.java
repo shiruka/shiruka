@@ -129,6 +129,13 @@ public final class ServerConfig extends PathableConfig {
     "\"true\" to use linux natives when available.");
 
   /**
+   * the white list to prevent join random players.
+   */
+  public static final ConfigPath<Boolean> WHITE_LIST = commented(booleanPath(
+    "white-list", false),
+    "if its \"true\" players that are not in the white list can't join the server.");
+
+  /**
    * ctor.
    *
    * @param origin the origin.

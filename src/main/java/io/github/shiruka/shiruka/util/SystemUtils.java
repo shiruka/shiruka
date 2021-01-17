@@ -23,44 +23,48 @@
  *
  */
 
-package io.github.shiruka.shiruka.command;
+package io.github.shiruka.shiruka.util;
 
-import io.github.shiruka.api.command.CommandManager;
-import io.github.shiruka.api.command.CommandNode;
-import io.github.shiruka.api.command.CommandSender;
-import io.github.shiruka.api.plugin.Plugin;
-import java.util.Collections;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 /**
- * a simple implementation for {@link CommandManager}.
+ * a class that contains utility methods for system.
  */
-public final class SimpleCommandManager implements CommandManager {
+public final class SystemUtils {
 
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
+  private static final Logger LOGGER = LogManager.getLogger("SystemUtils");
 
-  @Override
-  public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
-    SimpleCommandManager.LOGGER.info("{} -> {}", sender.getName().asString(), command);
+  /**
+   * ctor.
+   */
+  private SystemUtils() {
   }
 
-  @Override
-  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commands) {
-  }
-
-  @NotNull
-  @Override
-  public Map<String, CommandNode> registered(@NotNull final Plugin plugin) {
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public void unregister(@NotNull final String... commands) {
+  /**
+   * starts the timer hack.
+   */
+  public static void startTimerHack() {
+    final var exceptionMessage = "Caught previously unhandled exception :";
+    final var thread = new Thread("Timer Hack") {
+      @Override
+      public void run() {
+        while (true) {
+          try {
+            Thread.sleep(2147483647L);
+          } catch (final InterruptedException interruptedexception) {
+            SystemUtils.LOGGER.warn("Timer hack interrupted, that really should not happen!");
+            return;
+          }
+        }
+      }
+    };
+    thread.setDaemon(true);
+    thread.setUncaughtExceptionHandler((t, e) ->
+      SystemUtils.LOGGER.error(exceptionMessage, e));
+    thread.start();
   }
 }

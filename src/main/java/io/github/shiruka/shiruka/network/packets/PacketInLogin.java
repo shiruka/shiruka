@@ -28,9 +28,11 @@ package io.github.shiruka.shiruka.network.packets;
 import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.text.ChatColor;
 import io.github.shiruka.api.text.Text;
+import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.event.SimpleChainData;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
+import io.github.shiruka.shiruka.language.Languages;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
 import io.github.shiruka.shiruka.network.packet.PacketIn;
 import io.github.shiruka.shiruka.network.packet.PacketOut;
@@ -79,8 +81,9 @@ public final class PacketInLogin extends PacketIn {
     connection.getServer().getSchedulerService().execute(() -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
       Shiruka.getScheduler().schedule(() -> {
+        Languages.addLoadedLanguage(chainData.languageCode());
         if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
-          connection.disconnect("disconnectionScreen.notAuthenticated");
+          connection.disconnect(TranslatedText.get("disconnectionScreen.notAuthenticated"));
           return;
         }
         final var username = chainData.username();
@@ -88,11 +91,11 @@ public final class PacketInLogin extends PacketIn {
         if (!matcher.matches() ||
           username.equalsIgnoreCase("rcon") ||
           username.equalsIgnoreCase("console")) {
-          connection.disconnect("disconnectionScreen.invalidName");
+          connection.disconnect(TranslatedText.get("disconnectionScreen.invalidName"));
           return;
         }
         if (!chainData.skin().isValid()) {
-          connection.disconnect("disconnectionScreen.invalidSkin");
+          connection.disconnect(TranslatedText.get("disconnectionScreen.invalidSkin"));
           return;
         }
         final var loginData = new SimpleLoginData(chainData, connection, () -> ChatColor.clean(username));

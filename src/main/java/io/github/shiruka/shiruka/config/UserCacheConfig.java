@@ -29,7 +29,7 @@ import io.github.shiruka.api.config.Config;
 import io.github.shiruka.api.config.ConfigPath;
 import io.github.shiruka.api.config.config.PathableConfig;
 import io.github.shiruka.shiruka.config.paths.ApGameProfileEntries;
-import io.github.shiruka.shiruka.util.GameProfileEntry;
+import io.github.shiruka.shiruka.base.GameProfileEntry;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

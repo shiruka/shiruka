@@ -22,35 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package io.github.shiruka.shiruka.config.paths;
-
-import io.github.shiruka.api.config.ConfigPath;
-import io.github.shiruka.api.config.path.advanced.ApMapList;
-import io.github.shiruka.shiruka.base.GameProfileEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 /**
- * a class that represents game profile entries {@link ConfigPath} implementation.
+ * the package that contains base elements.
  */
-public final class ApGameProfileEntries extends ApMapList<GameProfileEntry> {
-
-  public ApGameProfileEntries(@NotNull final String path, @Nullable final List<GameProfileEntry> def) {
-    //noinspection unchecked
-    super(path, def,
-      maps -> Optional.of(maps.stream()
-        .map(map -> (Map<String, Object>) map)
-        .map(GameProfileEntry::fromMap)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toList())),
-      entries -> Optional.of(entries.stream()
-        .map(GameProfileEntry::toMap)
-        .collect(Collectors.toList())));
-  }
-}
+package io.github.shiruka.shiruka.base;

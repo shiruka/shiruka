@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.shiruka.shiruka.util;
+package io.github.shiruka.shiruka.base;
 
 import io.github.shiruka.api.base.GameProfile;
 import java.text.DateFormat;

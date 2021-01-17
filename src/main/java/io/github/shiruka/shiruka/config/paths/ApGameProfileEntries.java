@@ -28,6 +28,7 @@ package io.github.shiruka.shiruka.config.paths;
 import io.github.shiruka.api.config.ConfigPath;
 import io.github.shiruka.api.config.path.advanced.ApMapList;
 import io.github.shiruka.shiruka.config.UserCacheConfig;
+import io.github.shiruka.shiruka.util.GameProfileEntry;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,19 +39,19 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents game profile entries {@link ConfigPath} implementation.
  */
-public final class ApGameProfileEntries extends ApMapList<UserCacheConfig.GameProfileEntry> {
+public final class ApGameProfileEntries extends ApMapList<GameProfileEntry> {
 
-  public ApGameProfileEntries(@NotNull final String path, @Nullable final List<UserCacheConfig.GameProfileEntry> def) {
+  public ApGameProfileEntries(@NotNull final String path, @Nullable final List<GameProfileEntry> def) {
     //noinspection unchecked
     super(path, def,
       maps -> Optional.of(maps.stream()
         .map(map -> (Map<String, Object>) map)
-        .map(UserCacheConfig.GameProfileEntry::fromMap)
+        .map(GameProfileEntry::fromMap)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .collect(Collectors.toList())),
       entries -> Optional.of(entries.stream()
-        .map(UserCacheConfig.GameProfileEntry::toMap)
+        .map(GameProfileEntry::toMap)
         .collect(Collectors.toList())));
   }
 }

@@ -4,4 +4,3 @@
 <h3 align="center">
   <a href="http://docs.shiruka.net">Documentation</a> 
 </h3>
-

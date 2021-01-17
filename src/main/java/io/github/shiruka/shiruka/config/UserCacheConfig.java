@@ -101,7 +101,7 @@ public final class UserCacheConfig extends PathableConfig {
      * @param expiresOn the expires on.
      * @param profile the profile.
      */
-    public GameProfileEntry(@NotNull final Date expiresOn, @NotNull final GameProfile profile) {
+    private GameProfileEntry(@NotNull final Date expiresOn, @NotNull final GameProfile profile) {
       this.count = GameProfileEntry.COUNT.getAndIncrement();
       this.expiresOn = (Date) expiresOn.clone();
       this.profile = profile;

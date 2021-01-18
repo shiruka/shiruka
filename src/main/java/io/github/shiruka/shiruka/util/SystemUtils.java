@@ -45,6 +45,24 @@ public final class SystemUtils {
   }
 
   /**
+   * obtains the monotonic millis.
+   *
+   * @return monotonic millis.
+   */
+  public static long getMonotonicMillis() {
+    return SystemUtils.getMonotonicNanos() / 1000000L;
+  }
+
+  /**
+   * obtains the monotonic nanos.
+   *
+   * @return monotonic nanos.
+   */
+  public static long getMonotonicNanos() {
+    return System.nanoTime();
+  }
+
+  /**
    * starts the timer hack.
    */
   public static void startTimerHack() {

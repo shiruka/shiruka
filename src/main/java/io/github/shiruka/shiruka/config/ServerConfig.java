@@ -129,6 +129,20 @@ public final class ServerConfig extends PathableConfig {
     "\"true\" to use linux natives when available.");
 
   /**
+   * shows a warning message when server overloads.
+   */
+  public static final ConfigPath<Boolean> WARN_ON_OVERLOAD = commented(booleanPath(
+    "warn-on-overload", true),
+    "shows warning when server overloads.");
+
+  /**
+   * the white list to prevent join random players.
+   */
+  public static final ConfigPath<Boolean> WHITE_LIST = commented(booleanPath(
+    "white-list", false),
+    "if its \"true\" players that are not in the white list can't join the server.");
+
+  /**
    * ctor.
    *
    * @param origin the origin.

@@ -23,46 +23,50 @@
  *
  */
 
-package io.github.shiruka.shiruka.config;
+package io.github.shiruka.shiruka.command.commands;
 
-import io.github.shiruka.api.config.Config;
-import io.github.shiruka.api.config.ConfigPath;
-import io.github.shiruka.api.config.config.PathableConfig;
-import io.github.shiruka.shiruka.base.GameProfileEntry;
-import io.github.shiruka.shiruka.config.paths.ApGameProfileEntries;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import static io.github.shiruka.api.command.CommandResult.succeed;
+import static io.github.shiruka.api.command.Commands.literal;
+import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.shiruka.command.SimpleCommandManager;
 
 /**
- * list of server operators.
+ * a class that represents stop command.
  */
-public final class UserCacheConfig extends PathableConfig {
+public final class CommandStop extends CommandHelper {
 
   /**
-   * the entries.
+   * the instance.
    */
-  public static final ConfigPath<List<GameProfileEntry>> ENTRIES =
-    new ApGameProfileEntries("profiles", new ArrayList<>());
+  private static final CommandStop INSTANCE = new CommandStop();
 
   /**
    * ctor.
-   *
-   * @param origin the origin.
    */
-  private UserCacheConfig(@NotNull final Config origin) {
-    super(origin);
+  private CommandStop() {
   }
 
   /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
+   * registers the stop command.
    */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(UserCacheConfig::new)
-      .ifPresent(Config::save);
+  public static void init() {
+    CommandStop.INSTANCE.register();
+  }
+
+  /**
+   * registers the stop command.
+   */
+  public void register() {
+    SimpleCommandManager.registerInternal(literal("stop")
+      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.stop"))
+      .executes(context -> {
+        CommandHelper.sendTranslated(context, "command_stop.register.add_confirm");
+        return succeed();
+      })
+      .then(literal("confirm")
+        .executes(context -> {
+          Shiruka.getServer().stopServer();
+          return succeed();
+        })));
   }
 }

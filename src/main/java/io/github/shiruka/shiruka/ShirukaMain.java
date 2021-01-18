@@ -33,6 +33,7 @@ import io.github.shiruka.shiruka.config.UserCacheConfig;
 import io.github.shiruka.shiruka.console.ShirukaConsole;
 import io.github.shiruka.shiruka.console.ShirukaConsoleParser;
 import io.github.shiruka.shiruka.language.Languages;
+import io.github.shiruka.shiruka.log.ForwardLogHandler;
 import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
 import io.github.shiruka.shiruka.network.server.NetServerSocket;
 import io.github.shiruka.shiruka.util.SystemUtils;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Objects;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -47,6 +49,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.io.IoBuilder;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -108,6 +111,14 @@ public final class ShirukaMain {
     }
     System.setProperty("library.jansi.version", "Shiru ka");
     SystemUtils.startTimerHack();
+    final var global = java.util.logging.Logger.getLogger("");
+    global.setUseParentHandlers(false);
+    Arrays.stream(global.getHandlers())
+      .forEach(global::removeHandler);
+    global.addHandler(new ForwardLogHandler());
+    final var rootLogger = LogManager.getRootLogger();
+    System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
+    System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
     final var main = new ShirukaMain(parsed);
     JiraExceptionCatcher.run(main::exec);
   }

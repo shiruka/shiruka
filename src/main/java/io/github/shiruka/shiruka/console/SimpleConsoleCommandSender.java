@@ -31,6 +31,9 @@ import io.github.shiruka.api.permission.PermissionAttachment;
 import io.github.shiruka.api.permission.PermissionAttachmentInfo;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.text.Text;
+import io.github.shiruka.api.text.TranslatedText;
+import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +42,11 @@ import org.jetbrains.annotations.NotNull;
  * a simple console implementation for {@link ConsoleCommandSender}.
  */
 public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
+
+  /**
+   * the console name.
+   */
+  private static final String CONSOLE_NAME = "CONSOLE";
 
   /**
    * the console.
@@ -84,17 +92,17 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
   @NotNull
   @Override
   public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
   public boolean hasPermission(@NotNull final String name) {
-    return false;
+    return true;
   }
 
   @Override
   public boolean hasPermission(@NotNull final Permission perm) {
-    return false;
+    return true;
   }
 
   @Override
@@ -118,12 +126,12 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
   @NotNull
   @Override
   public Text getName() {
-    return () -> "CONSOLE";
+    return () -> SimpleConsoleCommandSender.CONSOLE_NAME;
   }
 
   @Override
   public boolean isOp() {
-    return false;
+    return true;
   }
 
   @Override
@@ -131,6 +139,11 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
   }
 
   @Override
-  public void sendMessage(@NotNull final Text message, final @NotNull Object... params) {
+  public void sendMessage(@NotNull final Text message, @NotNull final Object... params) {
+    if (message instanceof TranslatedText) {
+      System.out.println(message.asString());
+    } else {
+      System.out.println(MessageFormat.format(message.asString(), params));
+    }
   }
 }

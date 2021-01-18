@@ -23,34 +23,46 @@
  *
  */
 
-package io.github.shiruka.shiruka.config.paths;
+package io.github.shiruka.shiruka.concurrent.tasks;
 
-import io.github.shiruka.api.config.ConfigPath;
-import io.github.shiruka.api.config.path.advanced.ApMapList;
-import io.github.shiruka.shiruka.base.GameProfileEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * a class that represents game profile entries {@link ConfigPath} implementation.
+ * an abstract implementation for {@link AsyncTaskHandler} which
  */
-public final class ApGameProfileEntries extends ApMapList<GameProfileEntry> {
+public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends AsyncTaskHandler<R> {
 
-  public ApGameProfileEntries(@NotNull final String path, @Nullable final List<GameProfileEntry> def) {
-    //noinspection unchecked
-    super(path, def,
-      maps -> Optional.of(maps.stream()
-        .map(map -> (Map<String, Object>) map)
-        .map(GameProfileEntry::fromMap)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toList())),
-      entries -> Optional.of(entries.stream()
-        .map(GameProfileEntry::toMap)
-        .collect(Collectors.toList())));
+  /**
+   * the reentrant count.
+   */
+  private final AtomicInteger reentrantCount = new AtomicInteger();
+
+  /**
+   * ctor.
+   *
+   * @param threadName the thread name.
+   */
+  protected AsyncTaskHandlerReentrant(@NotNull final String threadName) {
+    super(threadName);
+  }
+
+  @Override
+  public final void executeTask(@NotNull final R job) {
+    this.reentrantCount.incrementAndGet();
+    try {
+      super.executeTask(job);
+    } finally {
+      this.reentrantCount.decrementAndGet();
+    }
+  }
+
+  @Override
+  public boolean isNotMainThread() {
+    return this.isEntered() || super.isNotMainThread();
+  }
+
+  public final boolean isEntered() {
+    return this.reentrantCount.get() != 0;
   }
 }

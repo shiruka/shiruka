@@ -23,34 +23,33 @@
  *
  */
 
-package io.github.shiruka.shiruka.config.paths;
+package io.github.shiruka.shiruka.concurrent.tasks;
 
-import io.github.shiruka.api.config.ConfigPath;
-import io.github.shiruka.api.config.path.advanced.ApMapList;
-import io.github.shiruka.shiruka.base.GameProfileEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * a class that represents game profile entries {@link ConfigPath} implementation.
+ * an interface to determine mailboxes.
+ *
+ * @param <R> type of the job.
  */
-public final class ApGameProfileEntries extends ApMapList<GameProfileEntry> {
+public interface Mailbox<R> extends AutoCloseable {
 
-  public ApGameProfileEntries(@NotNull final String path, @Nullable final List<GameProfileEntry> def) {
-    //noinspection unchecked
-    super(path, def,
-      maps -> Optional.of(maps.stream()
-        .map(map -> (Map<String, Object>) map)
-        .map(GameProfileEntry::fromMap)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toList())),
-      entries -> Optional.of(entries.stream()
-        .map(GameProfileEntry::toMap)
-        .collect(Collectors.toList())));
+  /**
+   * adds the given {@code job} into the job list.
+   *
+   * @param job the job to add.
+   */
+  void addJob(@NotNull R job);
+
+  @Override
+  default void close() {
   }
+
+  /**
+   * obtains the thread name.
+   *
+   * @return thread name.
+   */
+  @NotNull
+  String getThreadName();
 }

@@ -43,11 +43,11 @@ public final class SimpleCommandManager implements CommandManager {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
+  private static final Logger LOGGER = LogManager.getLogger(SimpleCommandManager.class);
 
   @Override
   public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
-    SimpleCommandManager.LOGGER.info("{} -> {}", sender.getName().asString(), command);
+    SimpleCommandManager.LOGGER.info("{} -> {}", sender.getName(), command);
   }
 
   @Override

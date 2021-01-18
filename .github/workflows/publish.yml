@@ -9,15 +9,45 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+      - uses: actions-ecosystem/action-release-label@v1
+        id: release-label
+
+      - if: ${{ steps.release-label.outputs.level == null }}
+        run: exit 1
+
+      - uses: softprops/turnstyle@v1
+        with:
+          poll-interval-seconds: 10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/checkout@v2
+
+      - uses: pozetroninc/github-action-get-latest-release@v0.5.0
+        id: version
+        with:
+          owner: shiruka
+          repo: shiruka
+
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
+        with:
+          current_version: ${{ steps.version.outputs.release }}
+          level: ${{ steps.release-label.outputs.level }}
 
       - uses: actions/setup-java@v1
         with:
           java-version: 11
 
-      - run: mvn clean install
+      - run: |
+          [[ "${{ steps.bump-semver.outputs.new_version }}" =~ ^[0-9]+(\.[0-9]+)*$ ]] || exit -1
+          mvn versions:set -DnewVersion="${{ steps.bump-semver.outputs.new_version }}" -B
+          mvn install -B
 
-      - uses: actions/upload-artifact@v2
+      - uses: ncipollo/release-action@v1
         with:
-          name: shiruka
-          path: target/shiruka.jar
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.bump-semver.outputs.new_version }}
+          tag: ${{ steps.bump-semver.outputs.new_version }}
+          artifacts: "target/shiruka.jar"
+          body: '[Changelog](https://github.com/shiruka/shiruka/compare/${{ steps.version.outputs.release }}...${{ steps.bump-semver.outputs.new_version }})'

@@ -57,24 +57,24 @@ public final class Languages {
   static final Collection<String> SHIRUKA_KEYS = new HashSet<>();
 
   /**
+   * the shiruka variables.
+   */
+  static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
+
+  /**
    * the vanilla keys.
    */
   static final Collection<String> VANILLA_KEYS = new HashSet<>();
 
   /**
+   * the vanilla variables.
+   */
+  static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
+
+  /**
    * the logger.
    */
   private static final Logger LOGGER = LogManager.getLogger("Languages");
-
-  /**
-   * the shiruka variables.
-   */
-  private static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
-
-  /**
-   * the vanilla variables.
-   */
-  private static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
 
   /**
    * ctor.
@@ -88,35 +88,8 @@ public final class Languages {
    * @param locale the locale to load.
    */
   public static void addLoadedLanguage(@NotNull final String locale) {
-    if (Languages.setLoadedLanguage(locale)) {
-      Languages.loadVariables(locale);
-    }
-  }
-
-  /**
-   * obtains the shiruka variables from the given {@code language}.
-   *
-   * @param language the language to get.
-   *
-   * @return shiruka variables.
-   */
-  @NotNull
-  public static Properties getShirukaVariables(@NotNull final Locale language) {
-    return Objects.requireNonNullElse(Languages.SHIRUKA_VARIABLES.get(Languages.toString(language)),
-      Languages.SHIRUKA_VARIABLES.get("en_US"));
-  }
-
-  /**
-   * obtains the vanilla variables from the given {@code language}.
-   *
-   * @param language the language to get.
-   *
-   * @return vanilla variables.
-   */
-  @NotNull
-  public static Properties getVanillaVariables(@NotNull final Locale language) {
-    return Objects.requireNonNullElse(Languages.VANILLA_VARIABLES.get(Languages.toString(language)),
-      Languages.VANILLA_VARIABLES.get("en_US"));
+    Languages.setLoadedLanguage(locale);
+    Languages.loadVariables(locale);
   }
 
   /**
@@ -137,31 +110,6 @@ public final class Languages {
   }
 
   /**
-   * converts the given {@code locale} to {@link Locale} instance.
-   *
-   * @param locale the locale to convert.
-   *
-   * @return {@link String} as {@link Locale}.
-   */
-  @NotNull
-  public static Locale toLocale(@NotNull final String locale) {
-    final var split = locale.split("_");
-    return new Locale(split[0], split[1]);
-  }
-
-  /**
-   * converts the given {@code locale} to {@link String} instance.
-   *
-   * @param locale the locale to convert.
-   *
-   * @return {@link Locale} as {@link String}.
-   */
-  @NotNull
-  public static String toString(@NotNull final Locale locale) {
-    return locale.getLanguage() + "_" + locale.getCountry();
-  }
-
-  /**
    * starts the loop to get chosen language.
    *
    * @return chosen language.
@@ -169,7 +117,7 @@ public final class Languages {
   @NotNull
   private static Locale choosingLanguageLoop() {
     final var scanner = new Scanner(System.in);
-    final var chosenLanguage = scanner.nextLine();
+    final var chosenLanguage = scanner.nextLine().toLowerCase(Locale.ROOT);
     final var split = chosenLanguage.split("_");
     if (!Languages.AVAILABLE_LANGUAGES.contains(chosenLanguage) || split.length != 2) {
       Languages.LOGGER.error("§cPlease write a valid language!");
@@ -200,8 +148,7 @@ public final class Languages {
   private static InputStream getResource(@NotNull final String resourcePath) {
     final var classLoader = Objects.requireNonNull(Thread.currentThread().getContextClassLoader(),
       "class loader");
-    return Objects.requireNonNull(classLoader.getResourceAsStream(resourcePath),
-      String.format("The resource in %s not found", resourcePath));
+    return Objects.requireNonNull(classLoader.getResourceAsStream(resourcePath), "resource");
   }
 
   /**
@@ -216,6 +163,7 @@ public final class Languages {
     final var languages = parse.asArray();
     Languages.AVAILABLE_LANGUAGES.addAll(languages.values().stream()
       .map(JsonValue::asString)
+      .map(s -> s.toLowerCase(Locale.ROOT))
       .collect(Collectors.toUnmodifiableSet()));
     Languages.AVAILABLE_LANGUAGES.forEach(s -> {
       Languages.SHIRUKA_VARIABLES.put(s, new Properties());
@@ -259,9 +207,8 @@ public final class Languages {
     final var serverLanguage = ServerConfig.SERVER_LANGUAGE.getValue();
     if (serverLanguage.isPresent() && serverLanguage.get() != Locale.ROOT) {
       final var locale = serverLanguage.get();
-      if (Languages.setLoadedLanguage(Languages.toString(locale))) {
-        ServerConfig.get().ifPresent(Config::save);
-      }
+      Languages.setLoadedLanguage(Languages.toString(locale));
+      ServerConfig.get().ifPresent(Config::save);
       return locale;
     }
     Languages.LOGGER.info("§aChoose one of the available languages");
@@ -280,13 +227,14 @@ public final class Languages {
    * @param locale the locale to load.
    */
   private static void loadVariables(@NotNull final String locale) {
-    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(locale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource("lang/shiruka/" + locale + ".properties"),
+    final var finalLocale = locale.toLowerCase(Locale.ROOT);
+    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(finalLocale)).ifPresent(properties -> {
+      final var stream = new InputStreamReader(Languages.getResource("lang/shiruka/" + finalLocale + ".properties"),
         StandardCharsets.UTF_8);
       JiraExceptionCatcher.run(() -> properties.load(stream));
     });
-    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource("lang/vanilla/" + locale + ".lang"),
+    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(finalLocale)).ifPresent(properties -> {
+      final var stream = new InputStreamReader(Languages.getResource("lang/vanilla/" + finalLocale + ".lang"),
         StandardCharsets.UTF_8);
       JiraExceptionCatcher.run(() -> properties.load(stream));
     });
@@ -296,20 +244,43 @@ public final class Languages {
    * adds the given language to the loaded languages.
    *
    * @param locale the locale to load.
-   *
-   * @return {@code true} if the language is loaded.
    */
-  private static boolean setLoadedLanguage(@NotNull final String locale) {
-    if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
-      return false;
+  private static void setLoadedLanguage(@NotNull final String locale) {
+    final var finalLocale = locale.toLowerCase(Locale.ROOT);
+    if (!Languages.AVAILABLE_LANGUAGES.contains(finalLocale)) {
+      return;
     }
     final var value = ServerConfig.LOADED_LANGUAGES.getValue()
       .orElse(new ArrayList<>());
-    if (value.contains(locale)) {
-      return false;
+    if (value.contains(finalLocale)) {
+      return;
     }
-    value.add(locale);
+    value.add(finalLocale);
     ServerConfig.LOADED_LANGUAGES.setValue(value);
-    return true;
+  }
+
+  /**
+   * converts the given {@code locale} to {@link Locale} instance.
+   *
+   * @param locale the locale to convert.
+   *
+   * @return {@link String} as {@link Locale}.
+   */
+  @NotNull
+  private static Locale toLocale(@NotNull final String locale) {
+    final var split = locale.split("_");
+    return new Locale(split[0], split[1]);
+  }
+
+  /**
+   * converts the given {@code locale} to {@link String} instance.
+   *
+   * @param locale the locale to convert.
+   *
+   * @return {@link Locale} as {@link String}.
+   */
+  @NotNull
+  private static String toString(@NotNull final Locale locale) {
+    return locale.getLanguage() + "_" + locale.getCountry();
   }
 }

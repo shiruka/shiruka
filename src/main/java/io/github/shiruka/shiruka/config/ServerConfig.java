@@ -30,10 +30,7 @@ import io.github.shiruka.api.config.Config;
 import io.github.shiruka.api.config.ConfigPath;
 import io.github.shiruka.api.config.config.PathableConfig;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -91,7 +88,7 @@ public final class ServerConfig extends PathableConfig {
    */
   public static final ConfigPath<List<String>> LOADED_LANGUAGES = commented(listStringPath(
     "loaded-languages", new ArrayList<>()),
-    "loaded languages of the Shiru ka. (automatically updated.)");
+    "loaded languages of the Shiru ka.");
 
   /**
    * the max players that can be online at once.

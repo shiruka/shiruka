@@ -269,7 +269,9 @@ public final class SimplePackManager implements PackManager {
       this.packsById.put(uuid, pack);
       loader.getPreparedFile();
     }
-    SimplePackManager.LOGGER.debug(TranslatedText.get("shiruka.resources.success", manifestMap.size()));
+    final var translate = TranslatedText.get("shiruka.resources.success")
+      .translate(manifestMap.size());
+    SimplePackManager.LOGGER.debug(translate);
   }
 
   @Override

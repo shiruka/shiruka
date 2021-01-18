@@ -71,7 +71,7 @@ public final class PacketInResourcePackResponse extends PacketIn {
     switch (status) {
       case REFUSED:
         if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
-          connection.disconnect(TranslatedText.get("disconnectionScreen.noReason"));
+          connection.disconnect(TranslatedText.get("disconnectionScreen.noReason").asString());
         }
         break;
       case COMPLETED:
@@ -89,7 +89,7 @@ public final class PacketInResourcePackResponse extends PacketIn {
         packs.forEach(pack -> {
           final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
           if (optional.isEmpty()) {
-            connection.disconnect(TranslatedText.get("disconnectionScreen.resourcePack"));
+            connection.disconnect(TranslatedText.get("disconnectionScreen.resourcePack").asString());
             return;
           }
           final var loaded = optional.get();

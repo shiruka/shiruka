@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network.server;
 
+import io.github.shiruka.api.misc.Optionals;
 import io.github.shiruka.shiruka.network.Connection;
 import io.github.shiruka.shiruka.network.ConnectionHandler;
 import io.github.shiruka.shiruka.network.ConnectionState;
@@ -334,12 +335,13 @@ public final class NetServerConnectionHandler implements ConnectionHandler {
       return;
     }
     Packets.readAddress(packet);
-    final var mtu = packet.readUnsignedShort();
-    this.connection.setMtu(mtu);
-    this.connection.setUniqueId(packet.readLong());
-    this.connection.initialize();
-    Packets.sendOpenConnectionReply2(this.connection);
-    this.connection.setState(ConnectionState.INITIALIZED);
+    Optionals.useAndGet(packet.readUnsignedShort(), mtu -> {
+      this.connection.setMtu(mtu);
+      this.connection.setUniqueId(packet.readLong());
+      this.connection.initialize();
+      Packets.sendOpenConnectionReply2(this.connection);
+      this.connection.setState(ConnectionState.INITIALIZED);
+    });
   }
 
   /**

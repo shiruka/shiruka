@@ -23,44 +23,34 @@
  *
  */
 
-package io.github.shiruka.shiruka.command;
+package io.github.shiruka.shiruka.config.paths;
 
-import io.github.shiruka.api.command.CommandManager;
-import io.github.shiruka.api.command.CommandNode;
-import io.github.shiruka.api.command.CommandSender;
-import io.github.shiruka.api.plugin.Plugin;
-import java.util.Collections;
+import io.github.shiruka.api.config.ConfigPath;
+import io.github.shiruka.api.config.path.advanced.ApMapList;
+import io.github.shiruka.shiruka.config.UserCacheConfig;
+import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link CommandManager}.
+ * a class that represents game profile entries {@link ConfigPath} implementation.
  */
-public final class SimpleCommandManager implements CommandManager {
+public final class ApGameProfileEntries extends ApMapList<UserCacheConfig.GameProfileEntry> {
 
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
-
-  @Override
-  public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
-    SimpleCommandManager.LOGGER.info("{} -> {}", sender.getName().asString(), command);
-  }
-
-  @Override
-  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commands) {
-  }
-
-  @NotNull
-  @Override
-  public Map<String, CommandNode> registered(@NotNull final Plugin plugin) {
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public void unregister(@NotNull final String... commands) {
+  public ApGameProfileEntries(@NotNull final String path, @Nullable final List<UserCacheConfig.GameProfileEntry> def) {
+    //noinspection unchecked
+    super(path, def,
+      maps -> Optional.of(maps.stream()
+        .map(map -> (Map<String, Object>) map)
+        .map(UserCacheConfig.GameProfileEntry::fromMap)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toList())),
+      entries -> Optional.of(entries.stream()
+        .map(UserCacheConfig.GameProfileEntry::toMap)
+        .collect(Collectors.toList())));
   }
 }

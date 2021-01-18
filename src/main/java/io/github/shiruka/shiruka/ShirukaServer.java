@@ -92,7 +92,7 @@ public final class ShirukaServer implements Server {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("ShirukaServer");
+  private static final Logger LOGGER = LogManager.getLogger("Shiruka");
 
   /**
    * the packs path.
@@ -260,13 +260,12 @@ public final class ShirukaServer implements Server {
   @Override
   public void startServer(final long startTime) {
     this.registerImplementations();
-    // Translation is active after here.
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.starting").translate());
+    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.starting"));
     ShirukaServer.reloadPacks();
     this.running.set(true);
-    ShirukaServer.LOGGER.info("§eLoading plugins.");
+    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.loading_plugins"));
     // @todo #1:60m Load plugins here.
-    ShirukaServer.LOGGER.info("§eEnabling plugins before the loading worlds.");
+    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.enabling_plugin"));
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     ShirukaServer.LOGGER.info("§eLoading worlds.");
 //    this.worldManager.loadAll();

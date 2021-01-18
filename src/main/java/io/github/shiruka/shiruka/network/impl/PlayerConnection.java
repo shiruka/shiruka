@@ -25,6 +25,7 @@
 
 package io.github.shiruka.shiruka.network.impl;
 
+import io.github.shiruka.api.text.Text;
 import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
@@ -41,6 +42,11 @@ import org.jetbrains.annotations.Nullable;
  * a class that represents player connections.
  */
 public final class PlayerConnection {
+
+  /**
+   * the disconnected with no reason.
+   */
+  private static final Text DISCONNECTED_NO_REASON = TranslatedText.get("disconnect.disconnected");
 
   /**
    * the connection.
@@ -86,21 +92,35 @@ public final class PlayerConnection {
 
   /**
    * disconnects the connection.
+   */
+  public void disconnect() {
+    this.disconnect((Text) null);
+  }
+
+  /**
+   * disconnects the connection.
+   *
+   * @param reason the reason to disconnect.
+   */
+  public void disconnect(@Nullable final Text reason) {
+    this.connection.checkForClosed();
+    final var disconnectPacket = new PacketOutDisconnect(
+      this.translate0(reason, PlayerConnection.DISCONNECTED_NO_REASON).asString(),
+      reason == null);
+    this.sendPacket(disconnectPacket);
+  }
+
+  /**
+   * disconnects the connection.
    *
    * @param reason the reason to disconnect.
    */
   public void disconnect(@Nullable final String reason) {
-    this.connection.checkForClosed();
-    final String finalReason;
-    final boolean messageSkipped;
     if (reason == null) {
-      finalReason = TranslatedText.get("disconnect.disconnected").asString();
-      messageSkipped = true;
+      this.disconnect();
     } else {
-      finalReason = reason;
-      messageSkipped = false;
+      this.disconnect(() -> reason);
     }
-    this.sendPacket(new PacketOutDisconnect(finalReason, messageSkipped));
   }
 
   /**
@@ -143,6 +163,15 @@ public final class PlayerConnection {
   }
 
   /**
+   * sets the player.
+   *
+   * @param player the player to set.
+   */
+  public void setPlayer(@NotNull final ShirukaPlayer player) {
+    this.player = player;
+  }
+
+  /**
    * obtains the server.
    *
    * @return server.
@@ -179,6 +208,31 @@ public final class PlayerConnection {
   public void sendPacket(@NotNull final PacketOut packet) {
     this.connection.checkForClosed();
     this.connection.addQueuedPacket(packet);
+  }
+
+  /**
+   * the internal simple translation..
+   *
+   * @param reason the reason to translate.
+   * @param fallback the fallback to translate.
+   *
+   * @return translated string..
+   */
+  @NotNull
+  private Text translate0(@Nullable final Text reason, @NotNull final Text fallback) {
+    final Text finalReason;
+    if (reason == null) {
+      finalReason = fallback;
+    } else if (reason instanceof TranslatedText) {
+      if (this.player == null) {
+        finalReason = reason;
+      } else {
+        finalReason = () -> ((TranslatedText) reason).translate(this.player).orElse(reason.asString());
+      }
+    } else {
+      finalReason = reason;
+    }
+    return finalReason;
   }
 
   /**

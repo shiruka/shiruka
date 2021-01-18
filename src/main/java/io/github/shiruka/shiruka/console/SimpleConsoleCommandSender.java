@@ -25,7 +25,6 @@
 
 package io.github.shiruka.shiruka.console;
 
-import io.github.shiruka.api.Server;
 import io.github.shiruka.api.console.ConsoleCommandSender;
 import io.github.shiruka.api.permission.Permission;
 import io.github.shiruka.api.permission.PermissionAttachment;
@@ -122,16 +121,6 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
     return () -> "CONSOLE";
   }
 
-  @NotNull
-  @Override
-  public Server getServer() {
-    return null;
-  }
-
-  @Override
-  public void sendMessage(@NotNull final Text message, final @NotNull Object... params) {
-  }
-
   @Override
   public boolean isOp() {
     return false;
@@ -139,5 +128,9 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
 
   @Override
   public void setOp(final boolean value) {
+  }
+
+  @Override
+  public void sendMessage(@NotNull final Text message, final @NotNull Object... params) {
   }
 }

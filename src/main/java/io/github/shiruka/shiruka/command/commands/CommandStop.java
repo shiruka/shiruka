@@ -36,9 +36,34 @@ import io.github.shiruka.shiruka.command.SimpleCommandManager;
 public final class CommandStop extends CommandHelper {
 
   /**
+   * the command.
+   */
+  private static final String COMMAND = "stop";
+
+  /**
+   * the confirm sub command.
+   */
+  private static final String CONFIRM_SUB_COMMAND = "confirm";
+
+  /**
+   * the description.
+   */
+  private static final String DESCRIPTION = "Stops the server.";
+
+  /**
    * the instance.
    */
   private static final CommandStop INSTANCE = new CommandStop();
+
+  /**
+   * the message key from the Shiru ka's language properties file.
+   */
+  private static final String MESSAGE = "command_stop.register.add_confirm";
+
+  /**
+   * the permission.
+   */
+  private static final String PERMISSION = "shiruka.command.stop";
 
   /**
    * ctor.
@@ -57,13 +82,14 @@ public final class CommandStop extends CommandHelper {
    * registers the stop command.
    */
   public void register() {
-    SimpleCommandManager.registerInternal(literal("stop")
-      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.stop"))
+    SimpleCommandManager.registerInternal(literal(CommandStop.COMMAND)
+      .describe(CommandStop.DESCRIPTION)
+      .requires(commandSender -> this.testPermission(commandSender, CommandStop.PERMISSION))
       .executes(context -> {
-        CommandHelper.sendTranslated(context, "command_stop.register.add_confirm");
+        CommandHelper.sendTranslated(context, CommandStop.MESSAGE);
         return succeed();
       })
-      .then(literal("confirm")
+      .then(literal(CommandStop.CONFIRM_SUB_COMMAND)
         .executes(context -> {
           Shiruka.getServer().stopServer();
           return succeed();

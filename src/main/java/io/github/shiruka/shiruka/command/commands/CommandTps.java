@@ -39,9 +39,24 @@ import org.jetbrains.annotations.NotNull;
 public final class CommandTps extends CommandHelper {
 
   /**
+   * the description.
+   */
+  private static final String DESCRIPTION = "Gets the current ticks per second for the server.";
+
+  /**
    * the instance.
    */
   private static final CommandTps INSTANCE = new CommandTps();
+
+  /**
+   * the message key from the Shiru ka's language properties file.
+   */
+  private static final String MESSAGE = "shiruka.command.commands.command_tps.register.show_tps";
+
+  /**
+   * the permission.
+   */
+  private static final String PERMISSION = "shiruka.command.tps";
 
   /**
    * ctor.
@@ -84,11 +99,11 @@ public final class CommandTps extends CommandHelper {
    */
   private void register() {
     SimpleCommandManager.registerInternal(literal("tps")
-      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.tps"))
+      .describe(CommandTps.DESCRIPTION)
+      .requires(commandSender -> this.testPermission(commandSender, CommandTps.PERMISSION))
       .executes(context -> {
         final var tpsAvg = CommandTps.getTps();
-        CommandHelper.sendTranslated(context, "shiruka.command.commands.command_tps.register.show_tps",
-          tpsAvg[0], tpsAvg[1], tpsAvg[2]);
+        CommandHelper.sendTranslated(context, CommandTps.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
         return succeed();
       }));
   }

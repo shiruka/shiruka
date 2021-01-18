@@ -47,10 +47,6 @@ public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends Asyn
     super(threadName);
   }
 
-  public final boolean isEntered() {
-    return this.reentrantCount.get() != 0;
-  }
-
   @Override
   public final void executeTask(@NotNull final R job) {
     this.reentrantCount.incrementAndGet();
@@ -64,5 +60,9 @@ public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends Asyn
   @Override
   public boolean isNotMainThread() {
     return this.isEntered() || super.isNotMainThread();
+  }
+
+  public final boolean isEntered() {
+    return this.reentrantCount.get() != 0;
   }
 }

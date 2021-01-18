@@ -28,7 +28,6 @@ package io.github.shiruka.shiruka.command.commands;
 import static io.github.shiruka.api.command.CommandResult.succeed;
 import static io.github.shiruka.api.command.Commands.literal;
 import io.github.shiruka.api.text.ChatColor;
-import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
 import io.github.shiruka.shiruka.concurrent.ShirukaTick;
 import java.util.Arrays;

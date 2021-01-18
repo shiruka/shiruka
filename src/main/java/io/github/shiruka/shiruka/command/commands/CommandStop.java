@@ -37,6 +37,11 @@ import io.github.shiruka.shiruka.command.SimpleCommandManager;
 public final class CommandStop extends CommandHelper {
 
   /**
+   * the instance.
+   */
+  private static final CommandStop INSTANCE = new CommandStop();
+
+  /**
    * ctor.
    */
   private CommandStop() {
@@ -46,7 +51,7 @@ public final class CommandStop extends CommandHelper {
    * registers the stop command.
    */
   public static void init() {
-    new CommandStop().register();
+    CommandStop.INSTANCE.register();
   }
 
   /**

@@ -40,6 +40,11 @@ import org.jetbrains.annotations.NotNull;
 public final class CommandTps extends CommandHelper {
 
   /**
+   * the instance.
+   */
+  private static final CommandTps INSTANCE = new CommandTps();
+
+  /**
    * ctor.
    */
   private CommandTps() {
@@ -49,7 +54,7 @@ public final class CommandTps extends CommandHelper {
    * registers the stop command.
    */
   public static void init() {
-    new CommandTps().register();
+    CommandTps.INSTANCE.register();
   }
 
   /**

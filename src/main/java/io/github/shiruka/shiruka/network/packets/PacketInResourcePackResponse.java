@@ -79,7 +79,7 @@ public final class PacketInResourcePackResponse extends PacketIn {
         if (data == null) {
           return;
         }
-        if (data.getProcess() != null && data.getProcess().isDone()) {
+        if (data.getTask() != null && !Shiruka.getScheduler().isCurrentlyRunning(data.getTask().getTaskId())) {
           data.initializePlayer();
         } else {
           data.setShouldLogin(true);

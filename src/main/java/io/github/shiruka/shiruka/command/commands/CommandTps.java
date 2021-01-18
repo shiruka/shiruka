@@ -27,42 +27,65 @@ package io.github.shiruka.shiruka.command.commands;
 
 import static io.github.shiruka.api.command.CommandResult.succeed;
 import static io.github.shiruka.api.command.Commands.literal;
-import io.github.shiruka.api.Shiruka;
+import io.github.shiruka.api.text.ChatColor;
 import io.github.shiruka.api.text.TranslatedText;
 import io.github.shiruka.shiruka.command.SimpleCommandManager;
+import io.github.shiruka.shiruka.concurrent.ShirukaTick;
+import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents stop command.
+ * a class that represents tps command.
  */
-public final class CommandStop extends CommandHelper {
+public final class CommandTps extends CommandHelper {
 
   /**
    * ctor.
    */
-  private CommandStop() {
+  private CommandTps() {
   }
 
   /**
    * registers the stop command.
    */
   public static void init() {
-    new CommandStop().register();
+    new CommandTps().register();
   }
 
   /**
-   * registers the stop command.
+   * obtains the tps numbers as {@link String} array which has 3 elements.
+   *
+   * @return tps numbers as string array.
    */
-  public void register() {
-    SimpleCommandManager.registerInternal(literal("stop")
-      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.stop"))
-      .executes(context -> {
-        CommandHelper.sendTranslated(context, "command_stop.register.add_confirm");
-        return succeed();
+  @NotNull
+  private static String[] getTps() {
+    return Arrays.stream(ShirukaTick.getTps())
+      .mapToObj(value -> {
+        final ChatColor color;
+        if (value > 18.0) {
+          color = ChatColor.GREEN;
+        } else if (value > 16.0) {
+          color = ChatColor.YELLOW;
+        } else {
+          color = ChatColor.RED;
+        }
+        final var putStart = value > 21.0 ? "*" : "";
+        return color + putStart + Math.min(Math.round(value * 100.0) / 100.0, 20.0) + ChatColor.RESET;
       })
-      .then(literal("confirm")
-        .executes(context -> {
-          Shiruka.getServer().stopServer();
-          return succeed();
-        })));
+      .toArray(String[]::new);
+  }
+
+  /**
+   * registers the command.
+   */
+  private void register() {
+    SimpleCommandManager.registerInternal(literal("tps")
+      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.tps"))
+      .executes(context -> {
+        final var tpsAvg = CommandTps.getTps();
+        CommandHelper.sendTranslated(context, "shiruka.command.commands.command_tps.register.show_tps",
+          tpsAvg[0], tpsAvg[1], tpsAvg[2]);
+        return succeed();
+      }));
   }
 }

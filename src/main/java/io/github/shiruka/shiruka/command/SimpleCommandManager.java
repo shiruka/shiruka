@@ -33,6 +33,7 @@ import io.github.shiruka.api.command.builder.LiteralBuilder;
 import io.github.shiruka.api.command.exceptions.CommandSyntaxException;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.shiruka.command.commands.CommandStop;
+import io.github.shiruka.shiruka.command.commands.CommandTps;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -55,7 +56,8 @@ public final class SimpleCommandManager implements CommandManager {
   private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
 
   static {
-    CommandStop.register();
+    CommandStop.init();
+    CommandTps.init();
   }
 
   /**

@@ -25,10 +25,13 @@
 
 package io.github.shiruka.shiruka.concurrent;
 
-import io.github.shiruka.api.Server;
-import io.github.shiruka.shiruka.misc.JiraExceptionCatcher;
-import io.github.shiruka.shiruka.scheduler.SyncTaskManager;
-import java.util.concurrent.TimeUnit;
+import io.github.shiruka.api.text.TranslatedText;
+import io.github.shiruka.shiruka.ShirukaServer;
+import io.github.shiruka.shiruka.config.ServerConfig;
+import io.github.shiruka.shiruka.util.RollingAverage;
+import io.github.shiruka.shiruka.util.SystemUtils;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -39,28 +42,136 @@ import org.jetbrains.annotations.NotNull;
 public final class ShirukaTick implements Runnable {
 
   /**
+   * the maximum tps.
+   */
+  public static final int TPS = 20;
+
+  /**
+   * the tick time.
+   */
+  public static final int TICK_TIME = 1000000000 / ShirukaTick.TPS;
+
+  /**
    * the logger.
    */
   private static final Logger LOGGER = LogManager.getLogger("ShirukaTick");
 
   /**
-   * the amount of time taken by a single tick
+   * the sample interval.
    */
-  private static final long TICK_MILLIS = TimeUnit.SECONDS.toMillis(1) / 20;
+  private static final int SAMPLE_INTERVAL = 20;
+
+  /**
+   * tps for 1 minute.
+   */
+  private static final RollingAverage TPS_1 = new RollingAverage(60);
+
+  /**
+   * tps for 15 minutes.
+   */
+  private static final RollingAverage TPS_15 = new RollingAverage(60 * 15);
+
+  /**
+   * tps for 5 minutes.
+   */
+  private static final RollingAverage TPS_5 = new RollingAverage(60 * 5);
+
+  /**
+   * the tps base.
+   */
+  private static final BigDecimal TPS_BASE = new BigDecimal("1E9")
+    .multiply(new BigDecimal(ShirukaTick.SAMPLE_INTERVAL));
+
+  /**
+   * the current tick.
+   */
+  public static int currentTick = 0;
+
+  /**
+   * is oversleep.
+   */
+  private final boolean isOversleep = false;
 
   /**
    * the server.
    */
   @NotNull
-  private final Server server;
+  private final ShirukaServer server;
+
+  /**
+   * the force ticks.
+   */
+  public boolean forceTicks;
+
+  /**
+   * the ticks.
+   */
+  int ticks;
+
+  /**
+   * the delayed tasks max next tick time.
+   */
+  private long delayedTasksMaxNextTickTime;
+
+  /**
+   * the has ticked.
+   */
+  private boolean hasTicked;
+
+  /**
+   * the last overload time.
+   */
+  private long lastOverloadTime;
+
+  /**
+   * the last ticking.
+   */
+  private long lastTick = 0;
+
+  /**
+   * the may have delayed task.
+   */
+  private boolean mayHaveDelayedTasks;
+
+  /**
+   * the next tick.
+   */
+  private long nextTick;
 
   /**
    * ctor.
    *
    * @param server the server.
    */
-  public ShirukaTick(@NotNull final Server server) {
+  public ShirukaTick(@NotNull final ShirukaServer server) {
     this.server = server;
+    this.nextTick = SystemUtils.getMonotonicMillis();
+  }
+
+  /**
+   * obtains the tps of the server.
+   *
+   * @return a double array which has 3 average tps numbers for 1, 5, and 15 minutes.
+   */
+  public static double[] getTps() {
+    return new double[]{
+      ShirukaTick.TPS_1.getAverage(),
+      ShirukaTick.TPS_5.getAverage(),
+      ShirukaTick.TPS_15.getAverage()
+    };
+  }
+
+  /**
+   * checks if the thread can sleep for tick.
+   *
+   * @return {@code true} if the thread can sleep for tick.
+   */
+  public boolean canSleepForTick() {
+    if (this.isOversleep) {
+      return this.mayHaveDelayedTasks && SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
+    }
+    final var check = this.mayHaveDelayedTasks ? this.delayedTasksMaxNextTickTime : this.nextTick;
+    return this.forceTicks || this.server.getTaskHandler().isEntered() || SystemUtils.getMonotonicMillis() < check;
   }
 
   /**
@@ -68,26 +179,35 @@ public final class ShirukaTick implements Runnable {
    */
   @Override
   public void run() {
+    final var warnOnOverload = ServerConfig.WARN_ON_OVERLOAD.getValue()
+      .orElse(true);
+    final var start = System.nanoTime();
+    var currentTime = 0L;
+    var tickSection = start;
+    this.lastTick = start - ShirukaTick.TICK_TIME;
     while (this.server.isRunning()) {
-      final var start = System.currentTimeMillis();
-      SyncTaskManager.update(start);
-      // @todo #1:15m Add more tick operations.
-      final var end = System.currentTimeMillis();
-      final var elapsed = end - start;
-      final var waitTime = ShirukaTick.TICK_MILLIS - elapsed;
-      if (waitTime < 0) {
-        ShirukaTick.LOGGER.debug("Server running behind {}ms, skipped {} ticks",
-          -waitTime, -waitTime / ShirukaTick.TICK_MILLIS);
-        continue;
+      final var tickTime = (currentTime = System.nanoTime()) / (1000L * 1000L) - this.nextTick;
+      if (tickTime > 5000L && this.nextTick - this.lastOverloadTime >= 30000L) {
+        final var waitTime = tickTime / 50L;
+        if (warnOnOverload) {
+          ShirukaTick.LOGGER.warn(TranslatedText.get("shiruka.concurrent.tick.run.overload", tickTime, waitTime));
+        }
+        this.nextTick += waitTime * 50L;
+        this.lastOverloadTime = this.nextTick;
       }
-      try {
-        Thread.sleep(waitTime);
-      } catch (final InterruptedException e) {
-        this.server.stopServer();
-      } catch (final Exception e) {
-        JiraExceptionCatcher.serverException(e);
-        break;
+      if (++ShirukaTick.currentTick % ShirukaTick.SAMPLE_INTERVAL == 0) {
+        final var diff = currentTime - tickSection;
+        final var currentTps = ShirukaTick.TPS_BASE.divide(new BigDecimal(diff), 30, RoundingMode.HALF_UP);
+        ShirukaTick.TPS_1.add(currentTps, diff);
+        ShirukaTick.TPS_5.add(currentTps, diff);
+        ShirukaTick.TPS_15.add(currentTps, diff);
+        tickSection = currentTime;
       }
+      this.lastTick = currentTime;
+      this.nextTick += 50L;
+      this.mayHaveDelayedTasks = true;
+      this.delayedTasksMaxNextTickTime = Math.max(SystemUtils.getMonotonicMillis() + 50L, this.nextTick);
+      this.hasTicked = true;
     }
   }
 }

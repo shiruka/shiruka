@@ -158,14 +158,14 @@ public final class SimplePackManager implements PackManager {
 
   @NotNull
   @Override
-  public Optional<Pack> getPack(@NotNull final String s) {
-    return Optional.ofNullable(this.packs.get(s));
+  public Optional<Pack> getPack(@NotNull final String id) {
+    return Optional.ofNullable(this.packs.get(id));
   }
 
   @NotNull
   @Override
-  public Optional<Pack> getPackByUniqueId(@NotNull final UUID uuid) {
-    return Optional.ofNullable(this.packsById.get(uuid));
+  public Optional<Pack> getPackByUniqueId(@NotNull final UUID uniqueId) {
+    return Optional.ofNullable(this.packsById.get(uniqueId));
   }
 
   @NotNull
@@ -269,7 +269,8 @@ public final class SimplePackManager implements PackManager {
       this.packsById.put(uuid, pack);
       loader.getPreparedFile();
     }
-    SimplePackManager.LOGGER.debug(TranslatedText.get("shiruka.resources.success", manifestMap.size()));
+    SimplePackManager.LOGGER.debug(TranslatedText.get("shiruka.pack.pack_manager.load_packs.success",
+      manifestMap.size()));
   }
 
   @Override

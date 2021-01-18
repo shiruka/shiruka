@@ -30,10 +30,12 @@ import io.github.shiruka.api.events.LoginDataEvent;
 import io.github.shiruka.api.events.LoginResultEvent;
 import io.github.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import io.github.shiruka.api.events.player.PlayerPreLoginEvent;
+import io.github.shiruka.api.scheduler.Task;
 import io.github.shiruka.api.text.Text;
 import io.github.shiruka.shiruka.entity.ShirukaPlayer;
 import io.github.shiruka.shiruka.network.impl.PlayerConnection;
-import io.github.shiruka.shiruka.scheduler.AsyncTask;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +57,17 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
   private final PlayerConnection connection;
 
   /**
+   * the should login.
+   */
+  private final AtomicBoolean shouldLogin = new AtomicBoolean();
+
+  /**
+   * the task.
+   */
+  @NotNull
+  private final AtomicReference<Task> task = new AtomicReference<>();
+
+  /**
    * the username.
    */
   @NotNull
@@ -65,17 +78,6 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    */
   @Nullable
   private PlayerAsyncLoginEvent asyncLogin;
-
-  /**
-   * the process.
-   */
-  @Nullable
-  private AsyncTask process;
-
-  /**
-   * the should login.
-   */
-  private boolean shouldLogin;
 
   /**
    * ctor.
@@ -98,20 +100,28 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
   }
 
   /**
-   * obtains the process.
+   * obtains the task.
    *
-   * @return process.
+   * @return task.
    */
   @Nullable
-  public AsyncTask getProcess() {
-    return this.process;
+  public Task getTask() {
+    return this.task.get();
+  }
+
+  /**
+   * sets the task.
+   *
+   * @param task task to set.
+   */
+  public void setTask(@NotNull final Task task) {
+    this.task.set(task);
   }
 
   /**
    * initializes the player.
    */
   public void initializePlayer() {
-    System.out.println("test");
     if (this.asyncLogin == null) {
       return;
     }
@@ -142,21 +152,12 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
   }
 
   /**
-   * sets the process.
-   *
-   * @param process the process to set.
-   */
-  public void setAsyncProcess(@NotNull final AsyncTask process) {
-    this.process = process;
-  }
-
-  /**
    * sets the should login.
    *
    * @param shouldLogin the should login to set.
    */
-  public void setShouldLogin(final boolean shouldLogin) {
-    this.shouldLogin = shouldLogin;
+  public synchronized void setShouldLogin(final boolean shouldLogin) {
+    this.shouldLogin.set(shouldLogin);
   }
 
   /**
@@ -164,7 +165,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    *
    * @return should login.
    */
-  public boolean shouldLogin() {
-    return this.shouldLogin;
+  public synchronized boolean shouldLogin() {
+    return this.shouldLogin.get();
   }
 }

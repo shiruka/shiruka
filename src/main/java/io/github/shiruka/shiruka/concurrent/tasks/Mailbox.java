@@ -23,46 +23,31 @@
  *
  */
 
-package io.github.shiruka.shiruka.command.commands;
+package io.github.shiruka.shiruka.concurrent.tasks;
 
-import static io.github.shiruka.api.command.CommandResult.succeed;
-import static io.github.shiruka.api.command.Commands.literal;
-import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.text.TranslatedText;
-import io.github.shiruka.shiruka.command.SimpleCommandManager;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents stop command.
+ * an interface to determine mailboxes.
+ *
+ * @param <R> type of the job.
  */
-public final class CommandStop extends CommandHelper {
+public interface Mailbox<R> extends AutoCloseable {
 
   /**
-   * ctor.
+   * adds the given {@code job} into the job list.
+   *
+   * @param job the job to add.
    */
-  private CommandStop() {
+  void addJob(@NotNull R job);
+
+  @Override
+  default void close() {
   }
 
   /**
-   * registers the stop command.
+   * obtains the thread name.
    */
-  public static void init() {
-    new CommandStop().register();
-  }
-
-  /**
-   * registers the stop command.
-   */
-  public void register() {
-    SimpleCommandManager.registerInternal(literal("stop")
-      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.stop"))
-      .executes(context -> {
-        CommandHelper.sendTranslated(context, "command_stop.register.add_confirm");
-        return succeed();
-      })
-      .then(literal("confirm")
-        .executes(context -> {
-          Shiruka.getServer().stopServer();
-          return succeed();
-        })));
-  }
+  @NotNull
+  String getThreadName();
 }

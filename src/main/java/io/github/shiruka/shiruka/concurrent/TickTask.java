@@ -23,46 +23,48 @@
  *
  */
 
-package io.github.shiruka.shiruka.command.commands;
+package io.github.shiruka.shiruka.concurrent;
 
-import static io.github.shiruka.api.command.CommandResult.succeed;
-import static io.github.shiruka.api.command.Commands.literal;
-import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.text.TranslatedText;
-import io.github.shiruka.shiruka.command.SimpleCommandManager;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents stop command.
+ * a class that represents tick tasks.
  */
-public final class CommandStop extends CommandHelper {
+public final class TickTask implements Runnable {
+
+  /**
+   * the job.
+   */
+  @NotNull
+  private final Runnable job;
+
+  /**
+   * the job.
+   */
+  private final int tick;
 
   /**
    * ctor.
+   *
+   * @param job the job.
+   * @param tick the tick.
    */
-  private CommandStop() {
+  public TickTask(@NotNull final Runnable job, final int tick) {
+    this.job = job;
+    this.tick = tick;
   }
 
   /**
-   * registers the stop command.
+   * obtains the tick.
+   *
+   * @return tick.
    */
-  public static void init() {
-    new CommandStop().register();
+  public int getTick() {
+    return this.tick;
   }
 
-  /**
-   * registers the stop command.
-   */
-  public void register() {
-    SimpleCommandManager.registerInternal(literal("stop")
-      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.stop"))
-      .executes(context -> {
-        CommandHelper.sendTranslated(context, "command_stop.register.add_confirm");
-        return succeed();
-      })
-      .then(literal("confirm")
-        .executes(context -> {
-          Shiruka.getServer().stopServer();
-          return succeed();
-        })));
+  @Override
+  public void run() {
+    this.job.run();
   }
 }

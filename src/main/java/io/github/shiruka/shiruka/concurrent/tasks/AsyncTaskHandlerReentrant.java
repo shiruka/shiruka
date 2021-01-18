@@ -23,46 +23,46 @@
  *
  */
 
-package io.github.shiruka.shiruka.command.commands;
+package io.github.shiruka.shiruka.concurrent.tasks;
 
-import static io.github.shiruka.api.command.CommandResult.succeed;
-import static io.github.shiruka.api.command.Commands.literal;
-import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.text.TranslatedText;
-import io.github.shiruka.shiruka.command.SimpleCommandManager;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents stop command.
+ * an abstract implementation for {@link AsyncTaskHandler} which
  */
-public final class CommandStop extends CommandHelper {
+public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends AsyncTaskHandler<R> {
+
+  /**
+   * the reentrant count.
+   */
+  private final AtomicInteger reentrantCount = new AtomicInteger();
 
   /**
    * ctor.
+   *
+   * @param threadName the thread name.
    */
-  private CommandStop() {
+  protected AsyncTaskHandlerReentrant(@NotNull final String threadName) {
+    super(threadName);
   }
 
-  /**
-   * registers the stop command.
-   */
-  public static void init() {
-    new CommandStop().register();
+  public final boolean isEntered() {
+    return this.reentrantCount.get() != 0;
   }
 
-  /**
-   * registers the stop command.
-   */
-  public void register() {
-    SimpleCommandManager.registerInternal(literal("stop")
-      .requires(commandSender -> this.testPermission(commandSender, "shiruka.command.stop"))
-      .executes(context -> {
-        CommandHelper.sendTranslated(context, "command_stop.register.add_confirm");
-        return succeed();
-      })
-      .then(literal("confirm")
-        .executes(context -> {
-          Shiruka.getServer().stopServer();
-          return succeed();
-        })));
+  @Override
+  public final void executeTask(@NotNull final R job) {
+    this.reentrantCount.incrementAndGet();
+    try {
+      super.executeTask(job);
+    } finally {
+      this.reentrantCount.decrementAndGet();
+    }
+  }
+
+  @Override
+  public boolean isNotMainThread() {
+    return this.isEntered() || super.isNotMainThread();
   }
 }

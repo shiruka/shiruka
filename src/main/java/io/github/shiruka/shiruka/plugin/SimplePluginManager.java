@@ -44,7 +44,7 @@ public final class SimplePluginManager implements PluginManager {
   }
 
   @Override
-  public void disablePlugin(@NotNull final Plugin plugin, final boolean b) {
+  public void disablePlugin(@NotNull final Plugin plugin, final boolean closeClassloader) {
   }
 
   @Override
@@ -57,7 +57,7 @@ public final class SimplePluginManager implements PluginManager {
 
   @NotNull
   @Override
-  public Optional<Plugin> getPlugin(@NotNull final String s) {
+  public Optional<Plugin> getPlugin(@NotNull final String name) {
     return Optional.empty();
   }
 
@@ -68,7 +68,7 @@ public final class SimplePluginManager implements PluginManager {
   }
 
   @Override
-  public boolean isPluginEnabled(@NotNull final String s) {
+  public boolean isPluginEnabled(@NotNull final String name) {
     return false;
   }
 
@@ -86,7 +86,7 @@ public final class SimplePluginManager implements PluginManager {
 
   @NotNull
   @Override
-  public Plugin[] loadPlugins(@NotNull final File file) {
+  public Plugin[] loadPlugins(@NotNull final File directory) {
     return new Plugin[0];
   }
 }

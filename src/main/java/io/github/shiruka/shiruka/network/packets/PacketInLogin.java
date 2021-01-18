@@ -29,6 +29,7 @@ import io.github.shiruka.api.Shiruka;
 import io.github.shiruka.api.text.ChatColor;
 import io.github.shiruka.api.text.Text;
 import io.github.shiruka.api.text.TranslatedText;
+import io.github.shiruka.shiruka.ShirukaServer;
 import io.github.shiruka.shiruka.config.ServerConfig;
 import io.github.shiruka.shiruka.event.SimpleChainData;
 import io.github.shiruka.shiruka.event.SimpleLoginData;
@@ -39,7 +40,6 @@ import io.github.shiruka.shiruka.network.packet.PacketOut;
 import io.github.shiruka.shiruka.network.util.Constants;
 import io.github.shiruka.shiruka.network.util.Packets;
 import io.github.shiruka.shiruka.network.util.VarInts;
-import io.github.shiruka.shiruka.scheduler.AsyncTask;
 import io.netty.buffer.ByteBuf;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
@@ -78,9 +78,9 @@ public final class PacketInLogin extends PacketIn {
       connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD));
       return;
     }
-    connection.getServer().getSchedulerService().execute(() -> {
+    Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
-      Shiruka.getScheduler().schedule(() -> {
+      Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
         Languages.addLoadedLanguage(chainData.languageCode());
         if (!chainData.xboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
           connection.disconnect(TranslatedText.get("disconnectionScreen.notAuthenticated"));
@@ -109,13 +109,14 @@ public final class PacketInLogin extends PacketIn {
         connection.setState(PlayerConnection.State.STATUS);
         final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(loginData);
         loginData.setAsyncLogin(asyncLogin);
-        final var process = (AsyncTask) Shiruka.getScheduler().scheduleAsync(asyncLogin::callEvent);
-        process.onComplete(() -> {
-          if (loginData.shouldLogin()) {
-            loginData.initializePlayer();
-          }
-        });
-        loginData.setAsyncProcess(process);
+        loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
+          asyncLogin.callEvent();
+          Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
+            if (loginData.shouldLogin()) {
+              loginData.initializePlayer();
+            }
+          });
+        }));
         connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_SUCCESS));
         final var packInfo = Shiruka.getPackManager().getPackInfo();
         if (packInfo instanceof PacketOut) {

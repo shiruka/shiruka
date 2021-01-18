@@ -67,15 +67,15 @@ public final class SimpleEventManager implements EventManager {
   @NotNull
   @Override
   public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final KickEvent.Reason reason,
-                                    @NotNull final Text text) {
-    return new SimplePlayerKickEvent(player, reason, text);
+                                    @NotNull final Text kickMessage) {
+    return new SimplePlayerKickEvent(player, reason, kickMessage);
   }
 
   @NotNull
   @Override
   public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.LoginData loginData,
-                                            @Nullable final Text text) {
-    return new SimplePlayerPreLoginEvent(loginData, text);
+                                            @Nullable final Text kickMessage) {
+    return new SimplePlayerPreLoginEvent(loginData, kickMessage);
   }
 
   @Override

@@ -47,6 +47,8 @@ public interface Mailbox<R> extends AutoCloseable {
 
   /**
    * obtains the thread name.
+   *
+   * @return thread name.
    */
   @NotNull
   String getThreadName();

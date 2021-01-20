@@ -131,7 +131,7 @@ public final class ShirukaTask implements Task, Runnable {
   public void cancel() {
   }
 
-  @NotNull
+  @Nullable
   @Override
   public Plugin getOwner() {
     return this.owner;
@@ -139,7 +139,7 @@ public final class ShirukaTask implements Task, Runnable {
 
   @Override
   public int getTaskId() {
-    return 0;
+    return this.id;
   }
 
   @Override

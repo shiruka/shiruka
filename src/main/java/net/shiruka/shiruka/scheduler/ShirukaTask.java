@@ -119,6 +119,7 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @param id the id.
    * @param job the job.
+   * @param jobName the job name.
    */
   public ShirukaTask(final int id, @Nullable final Consumer<Task> job, @NotNull final String jobName) {
     this.id = id;

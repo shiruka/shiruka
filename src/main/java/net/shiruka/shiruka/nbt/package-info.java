@@ -23,6 +23,6 @@
  *
  */
 /**
- * the main package that contains nbt classes.
+ * the package that contains nbt classes.
  */
 package net.shiruka.shiruka.nbt;

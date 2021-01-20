@@ -170,7 +170,7 @@ public final class TimingsManager {
   }
 
   /**
-   * Ticked every tick by CraftBukkit to count the number of times a timer
+   * Ticked every tick by Shiru ka to count the number of times a timer
    * caused TPS loss.
    */
   static void tick() {

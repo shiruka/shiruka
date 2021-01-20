@@ -38,11 +38,11 @@ public final class MinecraftTimings {
 
   public static final Timing antiXrayUpdateTimer = Timings.ofSafe("anti-xray - update");
 
-  public static final Timing bukkitSchedulerFinishTimer = Timings.ofSafe("Bukkit Scheduler - Finishing");
+  public static final Timing shirukaSchedulerFinishTimer = Timings.ofSafe("Shiru ka Scheduler - Finishing");
 
-  public static final Timing bukkitSchedulerPendingTimer = Timings.ofSafe("Bukkit Scheduler - Pending");
+  public static final Timing shirukaSchedulerPendingTimer = Timings.ofSafe("Shiru ka Scheduler - Pending");
 
-  public static final Timing bukkitSchedulerTimer = Timings.ofSafe("Bukkit Scheduler");
+  public static final Timing shirukaSchedulerTimer = Timings.ofSafe("Shiru ka Scheduler");
 
   public static final Timing chunkIOTickTimer = Timings.ofSafe("ChunkIOTick");
 

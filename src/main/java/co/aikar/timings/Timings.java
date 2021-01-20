@@ -275,7 +275,7 @@ public final class Timings {
 
   /*
   =================
-  Protected API: These are for internal use only in Bukkit/CraftBukkit
+  Protected API: These are for internal use only in Shiru ka
   These do not have isPrimaryThread() checks in the startTiming/stopTiming
   =================
   */

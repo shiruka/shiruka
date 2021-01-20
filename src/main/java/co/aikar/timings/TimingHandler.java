@@ -24,13 +24,13 @@
 package co.aikar.timings;
 
 import co.aikar.util.LoadingIntMap;
-import net.shiruka.api.Shiruka;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.shiruka.api.Shiruka;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -25,14 +25,14 @@ package co.aikar.timings;
 
 import co.aikar.util.LoadingMap;
 import com.google.common.collect.EvictingQueue;
-import net.shiruka.api.Shiruka;
-import net.shiruka.api.command.tree.LiteralNode;
-import net.shiruka.api.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import net.shiruka.api.Shiruka;
+import net.shiruka.api.command.tree.LiteralNode;
+import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.plugin.java.JavaPluginClassLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -133,7 +133,7 @@ public final class TimingsManager {
   /**
    * Resets all timing data on the next tick
    */
-  static void reset() {
+  public static void reset() {
     TimingsManager.needsFullReset = true;
   }
 

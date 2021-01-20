@@ -26,17 +26,15 @@ package co.aikar.timings;
 import static co.aikar.timings.TimingsManager.FULL_SERVER_TICK;
 import static co.aikar.timings.TimingsManager.MINUTE_REPORTS;
 import static co.aikar.util.JSONUtil.*;
-import co.aikar.util.JSONUtil;
 import co.aikar.util.LoadingMap;
 import co.aikar.util.MRUMapCache;
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+import java.lang.management.ManagementFactory;
 import java.util.*;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.Material;
 import net.shiruka.api.entity.EntityType;
-import net.shiruka.api.world.World;
-import java.lang.management.ManagementFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -38,12 +38,6 @@ public final class MinecraftTimings {
 
   public static final Timing antiXrayUpdateTimer = Timings.ofSafe("anti-xray - update");
 
-  public static final Timing shirukaSchedulerFinishTimer = Timings.ofSafe("Shiru ka Scheduler - Finishing");
-
-  public static final Timing shirukaSchedulerPendingTimer = Timings.ofSafe("Shiru ka Scheduler - Pending");
-
-  public static final Timing shirukaSchedulerTimer = Timings.ofSafe("Shiru ka Scheduler");
-
   public static final Timing chunkIOTickTimer = Timings.ofSafe("ChunkIOTick");
 
   public static final Timing commandFunctionsTimer = Timings.ofSafe("Command Functions");
@@ -73,6 +67,12 @@ public final class MinecraftTimings {
   public static final Timing serverCommandTimer = Timings.ofSafe("Server Command");
 
   public static final Timing serverOversleep = Timings.ofSafe("Server Oversleep");
+
+  public static final Timing shirukaSchedulerFinishTimer = Timings.ofSafe("Shiru ka Scheduler - Finishing");
+
+  public static final Timing shirukaSchedulerPendingTimer = Timings.ofSafe("Shiru ka Scheduler - Pending");
+
+  public static final Timing shirukaSchedulerTimer = Timings.ofSafe("Shiru ka Scheduler");
 
   public static final Timing structureGenerationTimer = Timings.ofSafe("Structure Generation");
 

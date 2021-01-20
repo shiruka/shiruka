@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an implementation for {@link Task} which is sync.
  */
-public final class ShirukaTask implements Task, Runnable {
+public class ShirukaTask implements Task, Runnable {
 
   /**
    * the period of cancel.
@@ -149,7 +149,7 @@ public final class ShirukaTask implements Task, Runnable {
 
   @Override
   public boolean isSync() {
-    return false;
+    return true;
   }
 
   /**

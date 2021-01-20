@@ -25,6 +25,9 @@
 
 package net.shiruka.shiruka.scheduler;
 
+import co.aikar.timings.MinecraftTimings;
+import co.aikar.timings.NullTimingHandler;
+import co.aikar.timings.Timing;
 import java.util.function.Consumer;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.Task;
@@ -80,6 +83,12 @@ public class ShirukaTask implements Task, Runnable {
   private final Plugin owner;
 
   /**
+   * the timings.
+   */
+  @NotNull
+  public Timing timings;
+
+  /**
    * the period.
    */
   private volatile long period;
@@ -98,6 +107,11 @@ public class ShirukaTask implements Task, Runnable {
     this.job = job;
     this.owner = owner;
     this.period = period;
+    if (job != null) {
+      this.timings = MinecraftTimings.getPluginTaskTimings(this, period);
+    } else {
+      this.timings = NullTimingHandler.NULL;
+    }
   }
 
   /**
@@ -105,10 +119,13 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @param id the id.
    * @param job the job.
-   * @param period the period.
    */
-  public ShirukaTask(final int id, @Nullable final Consumer<Task> job, final long period) {
-    this(id, job, ShirukaServer.INTERNAL_PLUGIN, period);
+  public ShirukaTask(final int id, @Nullable final Consumer<Task> job, @NotNull final String jobName) {
+    this.id = id;
+    this.job = job;
+    this.owner = ShirukaServer.INTERNAL_PLUGIN;
+    this.period = ShirukaTask.PERIOD_NO_REPEATING;
+    this.timings = MinecraftTimings.getInternalTaskName(jobName);
   }
 
   /**
@@ -125,6 +142,16 @@ public class ShirukaTask implements Task, Runnable {
    */
   ShirukaTask() {
     this(ShirukaTask.PERIOD_NO_REPEATING, null, null, ShirukaTask.PERIOD_NO_REPEATING);
+  }
+
+  /**
+   * obtains the job.
+   *
+   * @return job.
+   */
+  @Nullable
+  public final Consumer<Task> getJob() {
+    return this.job;
   }
 
   @Override

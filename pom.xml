@@ -156,7 +156,7 @@
     <dependency>
       <groupId>org.jline</groupId>
       <artifactId>jline-terminal-jansi</artifactId>
-      <version>3.18.0</version>
+      <version>3.19.0</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>

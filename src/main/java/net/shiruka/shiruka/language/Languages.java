@@ -227,7 +227,7 @@ public final class Languages {
    * loads {@link #SHIRUKA_KEYS} and {@link #VANILLA_KEYS}.
    */
   private static void loadKeys() throws IOException {
-    final var shirukaResource = new InputStreamReader(Languages.getResource("lang/source.properties"),
+    final var shirukaResource = new InputStreamReader(Languages.getResource("lang/shiruka/en_US.properties"),
       StandardCharsets.UTF_8);
     final var shirukaKeys = new Properties();
     shirukaKeys.load(shirukaResource);

@@ -275,7 +275,7 @@ public class TimingsExport extends Thread {
         hostName = InetAddress.getLocalHost().getHostName();
       } catch (final Exception ignored) {
       }
-      con.setRequestProperty("User-Agent", "Shiru ka/" + ServerConfig.TIMINGS_SERVER_NAME.getValue().orElse("Unknown Server") + "/" + hostName);
+      con.setRequestProperty("User-Agent", "Shiruka/" + ServerConfig.TIMINGS_SERVER_NAME.getValue().orElse("Unknown Server") + "/" + hostName);
       con.setRequestMethod("POST");
       con.setInstanceFollowRedirects(false);
       final OutputStream request = new GZIPOutputStream(con.getOutputStream()) {{

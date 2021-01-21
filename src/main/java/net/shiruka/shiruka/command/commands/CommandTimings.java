@@ -113,7 +113,6 @@ public final class CommandTimings extends CommandHelper {
           if (!CommandTimings.checkTimingsOn(context)) {
             return of();
           }
-          final var now = System.currentTimeMillis();
           Timings.setVerboseTimingsEnabled(true);
           // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.verbose_enabled`.
           context.getSender().sendMessage("§aEnabled Verbose Timings");

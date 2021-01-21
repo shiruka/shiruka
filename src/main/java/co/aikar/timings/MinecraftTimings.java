@@ -32,6 +32,9 @@ import net.shiruka.api.plugin.Plugin;
 import net.shiruka.shiruka.network.packet.Packet;
 import net.shiruka.shiruka.scheduler.ShirukaTask;
 
+/**
+ * @todo #1:15m Implement getTileEntityTimings and getCommandFunctionTiming methods.
+ */
 public final class MinecraftTimings {
 
   public static final Timing antiXrayObfuscateTimer = Timings.ofSafe("anti-xray - obfuscate");
@@ -165,7 +168,6 @@ public final class MinecraftTimings {
   public static void stopServer() {
     TimingsManager.stopServer();
   }
-//  @todo #1:15m Implement getTileEntityTimings method.
 //  /**
 //   * Get a named timer for the specified tile entity type to track type specific timings.
 //   */

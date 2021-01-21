@@ -175,7 +175,6 @@ public final class MinecraftTimings {
 //    final String entityType = entity.getClass().getName();
 //    return Timings.ofSafe("Minecraft", "## tickTileEntity - " + entityType, MinecraftTimings.tickTileEntityTimer);
 //  }
-//  @todo #1:15m Implement getCommandFunctionTiming method.
 //  public static Timing getCommandFunctionTiming(final CustomFunction function) {
 //    return Timings.ofSafe("Command Function - " + function.getMinecraftKey().toString());
 //  }

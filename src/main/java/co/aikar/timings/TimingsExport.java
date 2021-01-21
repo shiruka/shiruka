@@ -134,7 +134,7 @@ public class TimingsExport extends Thread {
       )
     );
     parent.put("worlds", new HashMap<>());
-//    @todo #1:60m Implement world for timings 2.
+    // @todo #1:60m Implement world for timings 2.
 //    parent.put("worlds", toObjectMapper(Shiruka.getWorlds(), world -> {
 //      return pair(world.getName(), createObject(
 //        pair("gamerules", toObjectMapper(world.getGameRules(), rule -> {

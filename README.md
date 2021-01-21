@@ -6,3 +6,5 @@
 /
   <a href="https://github.com/shiruka/shiruka/discussions">Discussions</a> 
 </h3>
+
+<p align="center"><a href="https://www.jetbrains.com/?from=shiruka"><img src="logo/jetbrains.svg" width="50px"/></a></p>

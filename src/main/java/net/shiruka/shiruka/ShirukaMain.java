@@ -29,8 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Stream;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.shiruka.api.Shiruka;
@@ -113,7 +113,7 @@ public final class ShirukaMain {
     SystemUtils.startTimerHack();
     final var global = java.util.logging.Logger.getLogger("");
     global.setUseParentHandlers(false);
-    Arrays.stream(global.getHandlers())
+    Stream.of(global.getHandlers())
       .forEach(global::removeHandler);
     global.addHandler(new ForwardLogHandler());
     final var rootLogger = LogManager.getRootLogger();

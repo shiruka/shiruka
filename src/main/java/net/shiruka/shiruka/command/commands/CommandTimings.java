@@ -84,9 +84,9 @@ public final class CommandTimings extends CommandHelper {
     if (!Timings.isTimingsEnabled()) {
       // @todo #1:15m Add translation for `shiruka.command.commands.timings.check_timings_on.enable_timings`.
       context.getSender().sendMessage("Please enable timings by typing /timings on");
-      return true;
+      return false;
     }
-    return false;
+    return true;
   }
 
   /**

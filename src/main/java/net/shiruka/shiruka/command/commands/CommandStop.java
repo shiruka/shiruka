@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.command.commands;
 
-import static net.shiruka.api.command.CommandResult.succeed;
+import static net.shiruka.api.command.CommandResult.of;
 import static net.shiruka.api.command.Commands.literal;
 import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.command.SimpleCommandManager;
@@ -87,12 +87,12 @@ public final class CommandStop extends CommandHelper {
       .requires(commandSender -> this.testPermission(commandSender, CommandStop.PERMISSION))
       .executes(context -> {
         CommandHelper.sendTranslated(context, CommandStop.MESSAGE);
-        return succeed();
+        return of();
       })
       .then(literal(CommandStop.CONFIRM_SUB_COMMAND)
         .executes(context -> {
           Shiruka.getServer().stopServer();
-          return succeed();
+          return of();
         })));
   }
 }

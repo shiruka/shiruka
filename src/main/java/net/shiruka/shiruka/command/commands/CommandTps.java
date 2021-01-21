@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.command.commands;
 
-import static net.shiruka.api.command.CommandResult.succeed;
+import static net.shiruka.api.command.CommandResult.of;
 import static net.shiruka.api.command.Commands.literal;
 import java.util.Arrays;
 import net.shiruka.api.text.ChatColor;
@@ -104,7 +104,7 @@ public final class CommandTps extends CommandHelper {
       .executes(context -> {
         final var tpsAvg = CommandTps.getTps();
         CommandHelper.sendTranslated(context, CommandTps.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
-        return succeed();
+        return of();
       }));
   }
 }

@@ -89,6 +89,11 @@ public class ShirukaTask implements Task, Runnable {
   public Timing timings;
 
   /**
+   * the next run.
+   */
+  private long nextRun;
+
+  /**
    * the period.
    */
   private volatile long period;
@@ -181,6 +186,24 @@ public class ShirukaTask implements Task, Runnable {
   }
 
   /**
+   * obtains the next run.
+   *
+   * @return next run.
+   */
+  public long getNextRun() {
+    return this.nextRun;
+  }
+
+  /**
+   * sets the next run.
+   *
+   * @param nextRun the next run to set.
+   */
+  public void setNextRun(final long nextRun) {
+    this.nextRun = nextRun;
+  }
+
+  /**
    * obtains the period.
    *
    * @return period.
@@ -200,5 +223,15 @@ public class ShirukaTask implements Task, Runnable {
 
   @Override
   public void run() {
+  }
+
+  /**
+   * sets the status to cancelled, synchronizing when required.
+   *
+   * @return {@code false} if it is a craft future task that has already begun execution, {@code true} otherwise.
+   */
+  boolean cancel0() {
+    this.setPeriod(ShirukaTask.PERIOD_CANCEL);
+    return true;
   }
 }

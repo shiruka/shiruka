@@ -23,10 +23,11 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.concurrent.tasks;
 
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.concurrent.tasks.AsyncTaskHandlerReentrant;
+import net.shiruka.shiruka.concurrent.ShirukaTick;
+import net.shiruka.shiruka.concurrent.TickTask;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -60,7 +61,7 @@ public final class ShirukaAsyncTaskHandler extends AsyncTaskHandlerReentrant<Tic
 
   @Override
   public boolean canExecute(@NotNull final TickTask job) {
-    return job.getTick() + 3 < this.tick.ticks || this.tick.canSleepForTick();
+    return job.getTick() + 3 < this.tick.getTicks() || this.tick.canSleepForTick();
   }
 
   @NotNull
@@ -77,7 +78,7 @@ public final class ShirukaAsyncTaskHandler extends AsyncTaskHandlerReentrant<Tic
       job = () -> {
       };
     }
-    return new TickTask(job, this.tick.ticks);
+    return new TickTask(job, this.tick.getTicks());
   }
 
   @Override

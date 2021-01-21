@@ -54,7 +54,7 @@ import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
 import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
-import net.shiruka.shiruka.concurrent.ShirukaAsyncTaskHandler;
+import net.shiruka.shiruka.concurrent.tasks.ShirukaAsyncTaskHandler;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;

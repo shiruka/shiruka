@@ -25,9 +25,11 @@
 
 package net.shiruka.shiruka.scheduler;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.Scheduler;
@@ -36,85 +38,116 @@ import net.shiruka.api.scheduler.TaskWorker;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a simple implementation for {@link Scheduler}.
+ * an abstract implementation for {@link Scheduler}.
  */
-public final class SimpleScheduler implements ShirukaScheduler {
+public abstract class SchedulerEnvelope implements ShirukaScheduler {
 
   /**
-   * the id counter.
+   * the pending jobs.
    */
-  private final AtomicInteger idCounter = new AtomicInteger();
+  final PriorityQueue<ShirukaTask> pending = new PriorityQueue<>(10, Comparator
+    .comparingLong(ShirukaTask::getNextRun)
+    .thenComparingInt(ShirukaTask::getTaskId));
+
+  /**
+   * the runners.
+   */
+  final ConcurrentHashMap<Integer, ShirukaTask> runners = new ConcurrentHashMap<>();
+
+  /**
+   * the delegate.
+   */
+  @NotNull
+  private final ShirukaScheduler delegate;
+
+  /**
+   * the current tick.
+   */
+  volatile int currentTick = -1;
+
+  /**
+   * ctor.
+   *
+   * @param delegate the delegate.
+   */
+  protected SchedulerEnvelope(@NotNull final ShirukaScheduler delegate) {
+    this.delegate = delegate;
+  }
 
   @Override
   public void cancelTask(final int taskId) {
+    this.delegate.cancelTask(taskId);
   }
 
   @Override
   public void cancelTasks(@NotNull final Plugin plugin) {
+    this.delegate.cancelTasks(plugin);
   }
 
   @NotNull
   @Override
   public List<TaskWorker> getActiveWorkers() {
-    return null;
+    return this.delegate.getActiveWorkers();
   }
 
   @NotNull
   @Override
   public List<Task> getPendingTasks() {
-    return null;
+    return this.delegate.getPendingTasks();
   }
 
   @Override
   public boolean isCurrentlyRunning(final int taskId) {
-    return false;
+    return this.delegate.isCurrentlyRunning(taskId);
   }
 
   @Override
   public boolean isQueued(final int taskId) {
-    return false;
+    return this.isCurrentlyRunning(taskId);
   }
 
   @NotNull
   @Override
   public Task schedule(@NotNull final Plugin plugin, @NotNull final Consumer<Task> job) {
-    return null;
+    return this.delegate.schedule(plugin, job);
   }
 
   @NotNull
   @Override
   public Task schedule(@NotNull final Plugin plugin, @NotNull final Consumer<Task> job, final long delay,
                        @NotNull final TimeUnit timeUnit) {
-    return null;
+    return this.delegate.schedule(plugin, job, delay, timeUnit);
   }
 
   @NotNull
   @Override
   public Task schedule(@NotNull final Plugin plugin, @NotNull final Consumer<Task> job, final long delay,
                        final long period, @NotNull final TimeUnit timeUnit) {
-    return null;
+    return this.delegate.schedule(plugin, job, delay, period, timeUnit);
   }
 
   @NotNull
   @Override
   public Task scheduleAsync(@NotNull final Plugin plugin, @NotNull final Consumer<Task> job) {
-    return null;
+    return this.delegate.scheduleAsync(plugin, job);
   }
 
   @NotNull
   @Override
   public Task scheduleAsync(@NotNull final Plugin plugin, @NotNull final Consumer<Task> job, final long delay,
                             final long period, @NotNull final TimeUnit timeUnit) {
-    return null;
+    return this.delegate.scheduleAsync(plugin, job, delay, period, timeUnit);
   }
 
+  @NotNull
   @Override
   public Task scheduleAsync(@NotNull final Plugin plugin, @NotNull final Consumer<Task> job, final long delay,
                             @NotNull final TimeUnit timeUnit) {
-    return null;
+    return this.delegate.scheduleAsync(plugin, job, delay, timeUnit);
   }
 
   @Override
   public void mainThreadHeartbeat(final int currentTick) {
+    this.delegate.mainThreadHeartbeat(currentTick);
   }
 }

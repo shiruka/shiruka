@@ -25,10 +25,15 @@
 
 package net.shiruka.shiruka.concurrent;
 
+import co.aikar.timings.MinecraftTimings;
+import co.aikar.timings.TimingsManager;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import net.shiruka.api.Shiruka;
+import net.shiruka.api.events.EventManager;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
+import net.shiruka.shiruka.concurrent.tasks.ShirukaAsyncTaskHandler;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.util.RollingAverage;
 import net.shiruka.shiruka.util.SystemUtils;
@@ -88,9 +93,10 @@ public final class ShirukaTick implements Runnable {
   public static int currentTick = 0;
 
   /**
-   * is oversleep.
+   * the event manager.
    */
-  private final boolean isOversleep = false;
+  @NotNull
+  private final EventManager eventManager;
 
   /**
    * the server.
@@ -99,14 +105,15 @@ public final class ShirukaTick implements Runnable {
   private final ShirukaServer server;
 
   /**
+   * the task handler.
+   */
+  @NotNull
+  private final ShirukaAsyncTaskHandler taskHandler;
+
+  /**
    * the force ticks.
    */
   public boolean forceTicks;
-
-  /**
-   * the ticks.
-   */
-  int ticks;
 
   /**
    * the delayed tasks max next tick time.
@@ -117,6 +124,11 @@ public final class ShirukaTick implements Runnable {
    * the has ticked.
    */
   private boolean hasTicked;
+
+  /**
+   * is oversleep.
+   */
+  private boolean isOversleep = false;
 
   /**
    * the last overload time.
@@ -134,9 +146,24 @@ public final class ShirukaTick implements Runnable {
   private boolean mayHaveDelayedTasks;
 
   /**
+   * the mid tick chunks tasks ran.
+   */
+  private int midTickChunksTasksRan;
+
+  /**
+   * the mid tick last ran.
+   */
+  private long midTickLastRan;
+
+  /**
    * the next tick.
    */
   private long nextTick;
+
+  /**
+   * the ticks.
+   */
+  private int ticks;
 
   /**
    * ctor.
@@ -145,7 +172,8 @@ public final class ShirukaTick implements Runnable {
    */
   public ShirukaTick(@NotNull final ShirukaServer server) {
     this.server = server;
-    this.nextTick = SystemUtils.getMonotonicMillis();
+    this.eventManager = Shiruka.getEventManager();
+    this.taskHandler = server.getTaskHandler();
   }
 
   /**
@@ -171,7 +199,31 @@ public final class ShirukaTick implements Runnable {
       return this.mayHaveDelayedTasks && SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
     }
     final var check = this.mayHaveDelayedTasks ? this.delayedTasksMaxNextTickTime : this.nextTick;
-    return this.forceTicks || this.server.getTaskHandler().isEntered() || SystemUtils.getMonotonicMillis() < check;
+    return this.forceTicks || this.taskHandler.isEntered() || SystemUtils.getMonotonicMillis() < check;
+  }
+
+  /**
+   * obtains the ticks.
+   *
+   * @return ticks.
+   */
+  public int getTicks() {
+    return this.ticks;
+  }
+
+  /**
+   * loads the chunks.
+   */
+  public void midTickLoadChunks() {
+    if (!this.taskHandler.isMainThread() || System.nanoTime() - this.midTickLastRan < 1000000) {
+      return;
+    }
+    try (final var ignored = MinecraftTimings.midTickChunkTasks.startTiming()) {
+//      for (final var value : this.server.getWorlds()) {
+//        value.getChunkProvider().serverThreadQueue.midTickLoadChunks();
+//      }
+      this.midTickLastRan = System.nanoTime();
+    }
   }
 
   /**
@@ -179,6 +231,7 @@ public final class ShirukaTick implements Runnable {
    */
   @Override
   public void run() {
+    this.nextTick = SystemUtils.getMonotonicMillis();
     final var warnOnOverload = ServerConfig.WARN_ON_OVERLOAD.getValue()
       .orElse(true);
     final var start = System.nanoTime();
@@ -203,11 +256,57 @@ public final class ShirukaTick implements Runnable {
         ShirukaTick.TPS_15.add(currentTps, diff);
         tickSection = currentTime;
       }
+      this.midTickChunksTasksRan = 0;
       this.lastTick = currentTime;
       this.nextTick += 50L;
+      try (final var ignored = TimingsManager.FULL_SERVER_TICK.startTiming()) {
+        this.doTick();
+      }
       this.mayHaveDelayedTasks = true;
       this.delayedTasksMaxNextTickTime = Math.max(SystemUtils.getMonotonicMillis() + 50L, this.nextTick);
+      this.sleepForTick();
       this.hasTicked = true;
     }
+  }
+
+  /**
+   * checks if the thread can oversleep.
+   *
+   * @return {@code true} if the thread can oversleep.
+   */
+  private boolean canOversleep() {
+    return this.mayHaveDelayedTasks && SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
+  }
+
+  /**
+   * checks if thread can sleep for tick no oversleep.
+   *
+   * @return {@code true} if thread can sleep for tick no oversleep.
+   */
+  private boolean canSleepForTickNoOversleep() {
+    return this.forceTicks || this.taskHandler.isEntered() || SystemUtils.getMonotonicMillis() < this.nextTick;
+  }
+
+  /**
+   * runs the game's elements.
+   */
+  private void doTick() {
+    final var now = SystemUtils.getMonotonicNanos();
+    this.isOversleep = true;
+    try (final var ignored = MinecraftTimings.serverOversleep.startTiming()) {
+      this.taskHandler.awaitJobs(() -> {
+        this.midTickLoadChunks();
+        return !this.canOversleep();
+      });
+      this.isOversleep = false;
+    }
+    this.eventManager.serverTick(++this.ticks).callEvent();
+  }
+
+  /**
+   * sleeps for tick.
+   */
+  private void sleepForTick() {
+    this.taskHandler.awaitJobs(() -> !this.canSleepForTickNoOversleep());
   }
 }

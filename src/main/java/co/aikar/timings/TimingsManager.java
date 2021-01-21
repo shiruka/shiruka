@@ -39,20 +39,19 @@ import org.jetbrains.annotations.Nullable;
 
 public final class TimingsManager {
 
-  public static final FullServerTickHandler FULL_SERVER_TICK = new FullServerTickHandler();
+  public static final FullServerTickHandler FULL_SERVER_TICK;
+
+  public static final TimingHandler TIMINGS_TICK;
 
   static final List<TimingHandler> HANDLERS = new ArrayList<>(1024);
 
   static final List<TimingHistory.MinuteReport> MINUTE_REPORTS = new ArrayList<>(64);
 
-  static final Map<TimingIdentifier, TimingHandler> TIMING_MAP = LoadingMap.of(
-    new ConcurrentHashMap<>(4096, .5F), TimingHandler::new);
+  static final Map<TimingIdentifier, TimingHandler> TIMING_MAP;
 
-  public static final Timing PLUGIN_GROUP_HANDLER = Timings.ofSafe("Plugins");
+  public static final Timing PLUGIN_GROUP_HANDLER;
 
-  public static final TimingHandler TIMINGS_TICK = Timings.ofSafe("Timings Tick", TimingsManager.FULL_SERVER_TICK);
-
-  public static List<String> hiddenConfigs = new ArrayList<String>();
+  public static List<String> hiddenConfigs = new ArrayList<>();
 
   public static boolean privacy = false;
 
@@ -65,6 +64,14 @@ public final class TimingsManager {
   static boolean needsRecheckEnabled = false;
 
   static long timingStart = 0;
+
+  static {
+    TIMING_MAP = LoadingMap.of(
+      new ConcurrentHashMap<>(4096, .5F), TimingHandler::new);
+    FULL_SERVER_TICK = new FullServerTickHandler();
+    TIMINGS_TICK = Timings.ofSafe("Timings Tick", TimingsManager.FULL_SERVER_TICK);
+    PLUGIN_GROUP_HANDLER = Timings.ofSafe("Plugins");
+  }
 
   private TimingsManager() {
   }
@@ -115,6 +122,13 @@ public final class TimingsManager {
     return null;
   }
 
+  /**
+   * Resets all timing data on the next tick
+   */
+  public static void reset() {
+    TimingsManager.needsFullReset = true;
+  }
+
   @NotNull
   static TimingHandler getHandler(@Nullable final String group, @NotNull final String name, @Nullable final Timing parent) {
     return TimingsManager.TIMING_MAP.get(new TimingIdentifier(group, name, parent));
@@ -127,13 +141,6 @@ public final class TimingsManager {
       }
     }
     TimingsManager.needsRecheckEnabled = false;
-  }
-
-  /**
-   * Resets all timing data on the next tick
-   */
-  public static void reset() {
-    TimingsManager.needsFullReset = true;
   }
 
   static void resetTimings() {

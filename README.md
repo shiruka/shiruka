@@ -7,4 +7,4 @@
   <a href="https://github.com/shiruka/shiruka/discussions">Discussions</a> 
 </h3>
 
-<p align="center"><a href="https://www.jetbrains.com/?from=shiruka"><img src="logo/JETBRAINS.svg" width="50px"/></a></p>
+<p align="center"><a href="https://www.jetbrains.com/?from=shiruka"><img src="logo/JETBRAINS.svg" width="75px"/></a></p>

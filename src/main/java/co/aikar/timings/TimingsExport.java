@@ -70,6 +70,8 @@ public class TimingsExport extends Thread {
 
   /**
    * Checks if any pending reports are being requested, and builds one if needed.
+   *
+   * @todo #1:60m Implement world for timings 2.
    */
   public static void reportTimings() {
     if (Timings.requestingReport.isEmpty()) {
@@ -134,7 +136,6 @@ public class TimingsExport extends Thread {
       )
     );
     parent.put("worlds", new HashMap<>());
-    // @todo #1:60m Implement world for timings 2.
 //    parent.put("worlds", toObjectMapper(Shiruka.getWorlds(), world -> {
 //      return pair(world.getName(), createObject(
 //        pair("gamerules", toObjectMapper(world.getGameRules(), rule -> {

@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.command.commands;
 
+import static net.shiruka.api.command.CommandResult.empty;
 import static net.shiruka.api.command.CommandResult.of;
 import static net.shiruka.api.command.Commands.*;
 import co.aikar.timings.Timings;
@@ -39,8 +40,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class CommandTimings extends CommandHelper {
 
-  public static final String PERMISSION = "shiruka.command.timings";
-
   /**
    * the command.
    */
@@ -51,6 +50,14 @@ public final class CommandTimings extends CommandHelper {
    */
   private static final CommandTimings INSTANCE = new CommandTimings();
 
+  /**
+   * the permission.
+   */
+  private static final String PERMISSION = "shiruka.command.timings";
+
+  /**
+   * the last reset attempt.
+   */
   private long lastResetAttempt = 0;
 
   /**
@@ -77,7 +84,7 @@ public final class CommandTimings extends CommandHelper {
     if (!Timings.isTimingsEnabled()) {
       // @todo #1:15m Add translation for `shiruka.command.commands.timings.check_timings_on.enable_timings`.
       context.getSender().sendMessage("Please enable timings by typing /timings on");
-      return false;
+      return true;
     }
     return false;
   }
@@ -110,8 +117,8 @@ public final class CommandTimings extends CommandHelper {
         }))
       .then(literal("verbon")
         .executes(context -> {
-          if (!CommandTimings.checkTimingsOn(context)) {
-            return of();
+          if (CommandTimings.checkTimingsOn(context)) {
+            return empty();
           }
           Timings.setVerboseTimingsEnabled(true);
           // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.verbose_enabled`.
@@ -120,8 +127,8 @@ public final class CommandTimings extends CommandHelper {
         }))
       .then(literal("verboff")
         .executes(context -> {
-          if (!CommandTimings.checkTimingsOn(context)) {
-            return of();
+          if (CommandTimings.checkTimingsOn(context)) {
+            return empty();
           }
           final var now = System.currentTimeMillis();
           Timings.setVerboseTimingsEnabled(false);

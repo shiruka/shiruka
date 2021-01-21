@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration name="Start" default="false" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="io.github.shiruka.shiruka.ShirukaMain"/>
+    <option name="MAIN_CLASS_NAME" value="net.shiruka.shiruka.ShirukaMain"/>
     <module name="shiruka"/>
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/target"/>
     <method v="2">

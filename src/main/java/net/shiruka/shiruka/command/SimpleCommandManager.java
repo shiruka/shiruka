@@ -90,7 +90,7 @@ public final class SimpleCommandManager implements CommandManager {
         SimpleCommandManager.DISPATCHER.execute(command, sender);
       } catch (final CommandSyntaxException e) {
         if (e.getType() == CommandException.DISPATCHER_UNKNOWN_COMMAND) {
-         sender.sendMessage(TranslatedText.get("shiruka.command.manager.execute.not_found"));
+         sender.sendMessage(TranslatedText.get("shiruka.command.manager.execute.not_found", command));
          return;
         }
         SimpleCommandManager.LOGGER.error("An exception caught when running a command: ", e);

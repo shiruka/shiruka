@@ -152,7 +152,7 @@ public final class Timings {
   }
 
   /**
-   * Gets whether or not the Spigot Timings system is enabled
+   * Gets whether or not the Shiru ka Timings system is enabled
    *
    * @return Enabled or not
    */
@@ -161,7 +161,7 @@ public final class Timings {
   }
 
   /**
-   * <p>Sets whether or not the Spigot Timings system should be enabled</p>
+   * <p>Sets whether or not the Shiru ka Timings system should be enabled</p>
    * <p>
    * Calling this will reset timing data.
    *

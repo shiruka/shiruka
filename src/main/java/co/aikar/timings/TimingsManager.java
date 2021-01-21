@@ -46,8 +46,7 @@ public final class TimingsManager {
   static final List<TimingHistory.MinuteReport> MINUTE_REPORTS = new ArrayList<>(64);
 
   static final Map<TimingIdentifier, TimingHandler> TIMING_MAP = LoadingMap.of(
-    new ConcurrentHashMap<>(4096, .5F), TimingHandler::new
-  );
+    new ConcurrentHashMap<>(4096, .5F), TimingHandler::new);
 
   public static final Timing PLUGIN_GROUP_HANDLER = Timings.ofSafe("Plugins");
 

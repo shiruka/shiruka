@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.command.commands;
 
-import java.util.Arrays;
 import java.util.stream.Stream;
 import net.shiruka.api.command.context.CommandContext;
 import net.shiruka.api.command.sender.CommandSender;
@@ -87,9 +86,8 @@ abstract class CommandHelper {
    */
   protected static boolean testPermissionSilent(@NotNull final CommandSender target,
                                                 @NotNull final String... permissions) {
-    return Stream.of(permissions).allMatch(permission ->
-      permission.length() == 0 &&
-        Arrays.stream(permission.split(";")).anyMatch(target::hasPermission));
+    return Stream.of(permissions)
+      .allMatch(target::hasPermission);
   }
 
   /**

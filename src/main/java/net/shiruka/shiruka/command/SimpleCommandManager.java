@@ -35,6 +35,7 @@ import net.shiruka.api.command.exceptions.CommandSyntaxException;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.shiruka.command.commands.CommandStop;
+import net.shiruka.shiruka.command.commands.CommandTimings;
 import net.shiruka.shiruka.command.commands.CommandTps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,6 +58,7 @@ public final class SimpleCommandManager implements CommandManager {
 
   static {
     CommandStop.init();
+    CommandTimings.init();
     CommandTps.init();
   }
 

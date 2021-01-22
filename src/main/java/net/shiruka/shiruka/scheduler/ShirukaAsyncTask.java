@@ -33,7 +33,7 @@ import net.shiruka.api.scheduler.TaskWorker;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link ShirukaTask which is async.
+ * an implementation for {@link ShirukaTask} which is async.
  */
 public final class ShirukaAsyncTask extends ShirukaTask {
 

@@ -51,6 +51,13 @@ public final class SimpleAsyncScheduler extends SimpleScheduler {
   private final Executor management = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
     .setNameFormat("Simple Async Scheduler Management Thread").build());
 
+  /**
+   * ctor.
+   */
+  public SimpleAsyncScheduler() {
+    super(true);
+  }
+
   @Override
   public void cancelTask(final int taskId) {
     this.management.execute(() -> this.removeTask(taskId));

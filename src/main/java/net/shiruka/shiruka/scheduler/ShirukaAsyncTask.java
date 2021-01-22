@@ -50,6 +50,7 @@ public final class ShirukaAsyncTask extends ShirukaTask {
 
   /**
    * ctor.
+   *
    * @param id the id.
    * @param task the task.
    * @param plugin the plugin.

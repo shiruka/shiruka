@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> type of the future object.
  */
-public final class CraftFuture<T> extends ShirukaTask implements Future<T> {
+public final class ShirukaFuture<T> extends ShirukaTask implements Future<T> {
 
   /**
    * the callable.
@@ -63,7 +63,7 @@ public final class CraftFuture<T> extends ShirukaTask implements Future<T> {
    * @param plugin the plugin.
    * @param id the id.
    */
-  CraftFuture(@NotNull final Callable<T> callable, @NotNull final Plugin plugin, final int id) {
+  ShirukaFuture(@NotNull final Callable<T> callable, @NotNull final Plugin plugin, final int id) {
     super(id, null, plugin, ShirukaTask.PERIOD_NO_REPEATING);
     this.callable = callable;
   }

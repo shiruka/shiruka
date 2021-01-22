@@ -164,7 +164,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     if (!plugin.isEnabled()) {
       throw new IllegalPluginAccessException("Plugin attempted to register task while disabled");
     }
-    final var future = new CraftFuture<>(task, plugin, this.nextId());
+    final var future = new ShirukaFuture<>(task, plugin, this.nextId());
     this.handle(future, 0L);
     return future;
   }

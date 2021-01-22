@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.shiruka.api.Server;
@@ -90,14 +89,14 @@ public final class ShirukaServer implements Server {
   public static final InternalShirukaPlugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
 
   /**
-   * obtains the Shiru ka server's version
-   */
-  public static final String VERSION = "1.0.0-SNAPSHOT";
-
-  /**
    * the logger.
    */
   public static final Logger LOGGER = LogManager.getLogger("Shiruka");
+
+  /**
+   * obtains the Shiru ka server's version
+   */
+  public static final String VERSION = "1.0.0-SNAPSHOT";
 
   /**
    * the packs path.
@@ -231,8 +230,7 @@ public final class ShirukaServer implements Server {
    * @param socket the socket.
    */
   ShirukaServer(@NotNull final Function<Server, ShirukaConsole> console, @NotNull final Locale serverLanguage,
-                @NotNull final Function<ServerListener, ServerSocket> socket) throws ExecutionException,
-    InterruptedException {
+                @NotNull final Function<ServerListener, ServerSocket> socket) {
     this.console = console.apply(this);
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.serverThread = Thread.currentThread();

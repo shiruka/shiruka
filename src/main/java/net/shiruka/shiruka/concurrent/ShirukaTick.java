@@ -30,10 +30,8 @@ import co.aikar.timings.TimingsManager;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import net.shiruka.api.Shiruka;
-import net.shiruka.api.events.EventManager;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.concurrent.tasks.ShirukaAsyncTaskHandler;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.util.RollingAverage;
 import net.shiruka.shiruka.util.SystemUtils;
@@ -99,12 +97,6 @@ public final class ShirukaTick implements Runnable {
   private final ShirukaServer server;
 
   /**
-   * the task handler.
-   */
-  @NotNull
-  private final ShirukaAsyncTaskHandler taskHandler;
-
-  /**
    * the force ticks.
    */
   public boolean forceTicks;
@@ -166,7 +158,6 @@ public final class ShirukaTick implements Runnable {
    */
   public ShirukaTick(@NotNull final ShirukaServer server) {
     this.server = server;
-    this.taskHandler = server.getTaskHandler();
   }
 
   /**
@@ -192,7 +183,7 @@ public final class ShirukaTick implements Runnable {
       return this.mayHaveDelayedTasks && SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
     }
     final var check = this.mayHaveDelayedTasks ? this.delayedTasksMaxNextTickTime : this.nextTick;
-    return this.forceTicks || this.taskHandler.isEntered() || SystemUtils.getMonotonicMillis() < check;
+    return this.forceTicks || this.server.getTaskHandler().isEntered() || SystemUtils.getMonotonicMillis() < check;
   }
 
   /**
@@ -208,7 +199,7 @@ public final class ShirukaTick implements Runnable {
    * loads the chunks.
    */
   public void midTickLoadChunks() {
-    if (!this.taskHandler.isMainThread() || System.nanoTime() - this.midTickLastRan < 1000000) {
+    if (!this.server.getTaskHandler().isMainThread() || System.nanoTime() - this.midTickLastRan < 1000000) {
       return;
     }
     try (final var ignored = MinecraftTimings.midTickChunkTasks.startTiming()) {
@@ -277,7 +268,7 @@ public final class ShirukaTick implements Runnable {
    * @return {@code true} if thread can sleep for tick no oversleep.
    */
   private boolean canSleepForTickNoOversleep() {
-    return this.forceTicks || this.taskHandler.isEntered() || SystemUtils.getMonotonicMillis() < this.nextTick;
+    return this.forceTicks || this.server.getTaskHandler().isEntered() || SystemUtils.getMonotonicMillis() < this.nextTick;
   }
 
   /**
@@ -287,7 +278,7 @@ public final class ShirukaTick implements Runnable {
     final var now = SystemUtils.getMonotonicNanos();
     this.isOversleep = true;
     try (final var ignored = MinecraftTimings.serverOversleep.startTiming()) {
-      this.taskHandler.awaitJobs(() -> {
+      this.server.getTaskHandler().awaitJobs(() -> {
         this.midTickLoadChunks();
         return !this.canOversleep();
       });
@@ -300,6 +291,6 @@ public final class ShirukaTick implements Runnable {
    * sleeps for tick.
    */
   private void sleepForTick() {
-    this.taskHandler.awaitJobs(() -> !this.canSleepForTickNoOversleep());
+    this.server.getTaskHandler().awaitJobs(() -> !this.canSleepForTickNoOversleep());
   }
 }

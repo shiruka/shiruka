@@ -26,9 +26,6 @@
 package net.shiruka.shiruka.scheduler;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.*;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.events.server.exception.ServerSchedulerException;
@@ -39,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a simple async implementation for {@link Scheduler}.
  */
-public final class SimpleAsyncScheduler extends SchedulerEnvelope {
+public final class SimpleAsyncScheduler extends SimpleScheduler {
 
   /**
    * the executor.
@@ -54,18 +51,6 @@ public final class SimpleAsyncScheduler extends SchedulerEnvelope {
   private final Executor management = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
     .setNameFormat("Simple Async Scheduler Management Thread").build());
 
-  /**
-   * the temp.
-   */
-  private final List<ShirukaTask> temp = new ArrayList<>();
-
-  /**
-   * ctor.
-   */
-  public SimpleAsyncScheduler() {
-    super(new SimpleScheduler());
-  }
-
   @Override
   public void cancelTask(final int taskId) {
     this.management.execute(() -> this.removeTask(taskId));
@@ -74,14 +59,12 @@ public final class SimpleAsyncScheduler extends SchedulerEnvelope {
   @Override
   public void cancelTasks(@NotNull final Plugin plugin) {
     this.parsePending();
-    final var iterator = this.pending.iterator();
-    while (iterator.hasNext()) {
+    for (final var iterator = this.pending.iterator(); iterator.hasNext(); ) {
       final var task = iterator.next();
-      if (task.getTaskId() == -1 || !Objects.equals(task.getOwner(), plugin)) {
-        continue;
+      if (task.getTaskId() != -1 && plugin.equals(task.getOwner())) {
+        task.cancel0();
+        iterator.remove();
       }
-      task.cancel0();
-      iterator.remove();
     }
   }
 

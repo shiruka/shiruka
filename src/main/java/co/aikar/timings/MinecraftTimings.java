@@ -127,8 +127,8 @@ public final class MinecraftTimings {
       return NullTimingHandler.NULL;
     }
     final Plugin plugin;
-    final var taskClass = task.getJob() != null
-      ? task.getJob().getClass()
+    final var taskClass = task.getTask() != null
+      ? task.getTask().getClass()
       : null;
     if (task.getOwner() != null) {
       plugin = task.getOwner();

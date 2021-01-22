@@ -97,7 +97,7 @@ public final class ShirukaServer implements Server {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Shiruka");
+  public static final Logger LOGGER = LogManager.getLogger("Shiruka");
 
   /**
    * the packs path.

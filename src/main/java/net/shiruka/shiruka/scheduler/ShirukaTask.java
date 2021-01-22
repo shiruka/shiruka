@@ -29,6 +29,7 @@ import co.aikar.timings.MinecraftTimings;
 import co.aikar.timings.NullTimingHandler;
 import co.aikar.timings.Timing;
 import java.util.function.Consumer;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.shiruka.ShirukaServer;
@@ -71,22 +72,28 @@ public class ShirukaTask implements Task, Runnable {
   private final int id;
 
   /**
-   * the job.
-   */
-  @Nullable
-  private final Consumer<Task> job;
-
-  /**
    * the owner.
    */
   @Nullable
   private final Plugin owner;
 
   /**
+   * the job.
+   */
+  @Nullable
+  private final Consumer<ShirukaTask> task;
+
+  /**
    * the timings.
    */
   @NotNull
   public Timing timings;
+
+  /**
+   * the next task.
+   */
+  @Nullable
+  private volatile ShirukaTask next;
 
   /**
    * the next run.
@@ -102,17 +109,17 @@ public class ShirukaTask implements Task, Runnable {
    * ctor.
    *
    * @param id the id.
-   * @param job the job.
+   * @param task the job.
    * @param owner the owner.
    * @param period the period.
    */
-  public ShirukaTask(final int id, @Nullable final Consumer<Task> job, @Nullable final Plugin owner,
+  public ShirukaTask(final int id, @Nullable final Consumer<ShirukaTask> task, @Nullable final Plugin owner,
                      final long period) {
     this.id = id;
-    this.job = job;
+    this.task = task;
     this.owner = owner;
     this.period = period;
-    if (job != null) {
+    if (task != null) {
       this.timings = MinecraftTimings.getPluginTaskTimings(this, period);
     } else {
       this.timings = NullTimingHandler.NULL;
@@ -123,15 +130,15 @@ public class ShirukaTask implements Task, Runnable {
    * ctor.
    *
    * @param id the id.
-   * @param job the job.
-   * @param jobName the job name.
+   * @param task the job.
+   * @param taskName the job name.
    */
-  public ShirukaTask(final int id, @Nullable final Consumer<Task> job, @NotNull final String jobName) {
+  public ShirukaTask(final int id, @Nullable final Consumer<ShirukaTask> task, @NotNull final String taskName) {
     this.id = id;
-    this.job = job;
+    this.task = task;
     this.owner = ShirukaServer.INTERNAL_PLUGIN;
     this.period = ShirukaTask.PERIOD_NO_REPEATING;
-    this.timings = MinecraftTimings.getInternalTaskName(jobName);
+    this.timings = MinecraftTimings.getInternalTaskName(taskName);
   }
 
   /**
@@ -139,7 +146,7 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @param task the task.
    */
-  ShirukaTask(@NotNull final Consumer<Task> task) {
+  ShirukaTask(@NotNull final Consumer<ShirukaTask> task) {
     this(ShirukaTask.PERIOD_NO_REPEATING, task, null, ShirukaTask.PERIOD_NO_REPEATING);
   }
 
@@ -156,12 +163,13 @@ public class ShirukaTask implements Task, Runnable {
    * @return job.
    */
   @Nullable
-  public final Consumer<Task> getJob() {
-    return this.job;
+  public final Consumer<ShirukaTask> getTask() {
+    return this.task;
   }
 
   @Override
   public void cancel() {
+    Shiruka.getScheduler().cancelTask(this.id);
   }
 
   @Nullable
@@ -177,12 +185,31 @@ public class ShirukaTask implements Task, Runnable {
 
   @Override
   public boolean isCancelled() {
-    return false;
+    return this.period == ShirukaTask.PERIOD_CANCEL;
   }
 
   @Override
   public boolean isSync() {
     return true;
+  }
+
+  /**
+   * obtains the next task.
+   *
+   * @return next task.
+   */
+  @Nullable
+  public ShirukaTask getNext() {
+    return this.next;
+  }
+
+  /**
+   * sets the next task.
+   *
+   * @param next the next task to set.
+   */
+  public void setNext(@Nullable final ShirukaTask next) {
+    this.next = next;
   }
 
   /**
@@ -223,6 +250,11 @@ public class ShirukaTask implements Task, Runnable {
 
   @Override
   public void run() {
+    try (final var ignored = this.timings.startTiming()) {
+      if (this.task != null) {
+        this.task.accept(this);
+      }
+    }
   }
 
   /**

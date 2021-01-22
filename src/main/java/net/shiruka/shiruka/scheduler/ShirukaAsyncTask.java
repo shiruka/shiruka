@@ -48,6 +48,14 @@ public final class ShirukaAsyncTask extends ShirukaTask {
    */
   private final LinkedList<TaskWorker> workers = new LinkedList<>();
 
+  /**
+   * ctor.
+   * @param id the id.
+   * @param task the task.
+   * @param plugin the plugin.
+   * @param delay the delay.
+   * @param runners the runners.
+   */
   ShirukaAsyncTask(final int id, @NotNull final Consumer<ShirukaTask> task, @NotNull final Plugin plugin,
                    final long delay, @NotNull final Map<Integer, ShirukaTask> runners) {
     super(id, task, plugin, delay);

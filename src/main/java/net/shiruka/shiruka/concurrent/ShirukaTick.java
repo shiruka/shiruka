@@ -93,12 +93,6 @@ public final class ShirukaTick implements Runnable {
   public static int currentTick = 0;
 
   /**
-   * the event manager.
-   */
-  @NotNull
-  private final EventManager eventManager;
-
-  /**
    * the server.
    */
   @NotNull
@@ -172,7 +166,6 @@ public final class ShirukaTick implements Runnable {
    */
   public ShirukaTick(@NotNull final ShirukaServer server) {
     this.server = server;
-    this.eventManager = Shiruka.getEventManager();
     this.taskHandler = server.getTaskHandler();
   }
 
@@ -300,7 +293,7 @@ public final class ShirukaTick implements Runnable {
       });
       this.isOversleep = false;
     }
-    this.eventManager.serverTick(++this.ticks).callEvent();
+    Shiruka.getEventManager().serverTick(++this.ticks).callEvent();
   }
 
   /**

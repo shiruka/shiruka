@@ -196,14 +196,14 @@ public final class ShirukaServer implements Server {
   private final Object stopLock = new Object();
 
   /**
-   * the tick.
-   */
-  private final ShirukaTick tick = new ShirukaTick(this);
-
-  /**
    * the task handler.
    */
-  private final ShirukaAsyncTaskHandler taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
+  private final ShirukaAsyncTaskHandler taskHandler;
+
+  /**
+   * the tick.
+   */
+  private final ShirukaTick tick;
 
   /**
    * the world manager.
@@ -231,6 +231,8 @@ public final class ShirukaServer implements Server {
    */
   ShirukaServer(@NotNull final Function<Server, ShirukaConsole> console, @NotNull final Locale serverLanguage,
                 @NotNull final Function<ServerListener, ServerSocket> socket) {
+    this.tick = new ShirukaTick(this);
+    this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
     this.console = console.apply(this);
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.serverThread = Thread.currentThread();

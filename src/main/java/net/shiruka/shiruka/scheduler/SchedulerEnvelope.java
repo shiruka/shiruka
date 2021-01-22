@@ -150,4 +150,9 @@ public abstract class SchedulerEnvelope implements ShirukaScheduler {
   public void mainThreadHeartbeat(final int currentTick) {
     this.delegate.mainThreadHeartbeat(currentTick);
   }
+
+  @Override
+  public void parsePending() {
+    this.delegate.parsePending();
+  }
 }

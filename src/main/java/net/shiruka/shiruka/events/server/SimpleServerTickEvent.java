@@ -39,6 +39,7 @@ public final class SimpleServerTickEvent implements ServerTickEvent {
 
   /**
    * ctor.
+   *
    * @param tick the tick.
    */
   public SimpleServerTickEvent(final int tick) {

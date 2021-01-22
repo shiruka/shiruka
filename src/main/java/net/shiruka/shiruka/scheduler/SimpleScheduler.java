@@ -117,4 +117,8 @@ public final class SimpleScheduler implements ShirukaScheduler {
   @Override
   public void mainThreadHeartbeat(final int currentTick) {
   }
+
+  @Override
+  public void parsePending() {
+  }
 }

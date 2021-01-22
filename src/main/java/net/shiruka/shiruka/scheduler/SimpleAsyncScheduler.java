@@ -122,7 +122,7 @@ public final class SimpleAsyncScheduler extends SchedulerEnvelope {
    * @param taskId the task id to remove.
    */
   private synchronized void removeTask(final int taskId) {
-    parsePending();
+    this.parsePending();
     this.pending.removeIf(task -> {
       if (task.getTaskId() != taskId) {
         return false;
@@ -138,11 +138,11 @@ public final class SimpleAsyncScheduler extends SchedulerEnvelope {
    * @param currentTick the current tick to run.
    */
   private synchronized void runTasks(final int currentTick) {
-    parsePending();
+    this.parsePending();
     while (!this.pending.isEmpty() && this.pending.peek().getNextRun() <= currentTick) {
       final var task = this.pending.remove();
       if (!this.executeTask(task)) {
-        parsePending();
+        this.parsePending();
         continue;
       }
       final var period = task.getPeriod();
@@ -150,7 +150,7 @@ public final class SimpleAsyncScheduler extends SchedulerEnvelope {
         task.setNextRun(currentTick + period);
         this.temp.add(task);
       }
-      parsePending();
+      this.parsePending();
     }
     this.pending.addAll(this.temp);
     this.temp.clear();

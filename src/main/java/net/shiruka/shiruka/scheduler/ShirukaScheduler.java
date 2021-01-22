@@ -38,4 +38,9 @@ public interface ShirukaScheduler extends Scheduler {
    * @param currentTick the current tick.
    */
   void mainThreadHeartbeat(int currentTick);
+
+  /**
+   * parses the pending tasks.
+   */
+  void parsePending();
 }

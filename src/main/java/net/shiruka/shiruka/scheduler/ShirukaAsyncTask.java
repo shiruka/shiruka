@@ -63,6 +63,11 @@ public final class ShirukaAsyncTask extends ShirukaTask {
     this.runners = runners;
   }
 
+  /**
+   * obtains the workers.
+   *
+   * @return workers.
+   */
   @NotNull
   public List<TaskWorker> getWorkers() {
     return Collections.unmodifiableList(this.workers);
@@ -140,13 +145,12 @@ public final class ShirukaAsyncTask extends ShirukaTask {
   }
 
   @Override
-  boolean cancel0() {
+  void cancel0() {
     synchronized (this.workers) {
       this.setPeriod(ShirukaTask.PERIOD_CANCEL);
       if (this.workers.isEmpty()) {
         this.runners.remove(this.getTaskId());
       }
     }
-    return true;
   }
 }

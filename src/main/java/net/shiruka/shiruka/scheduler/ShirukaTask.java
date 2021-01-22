@@ -157,34 +157,24 @@ public class ShirukaTask implements Task, Runnable {
     this(ShirukaTask.PERIOD_NO_REPEATING, null, null, ShirukaTask.PERIOD_NO_REPEATING);
   }
 
-  /**
-   * obtains the job.
-   *
-   * @return job.
-   */
-  @Nullable
-  public final Consumer<ShirukaTask> getTask() {
-    return this.task;
-  }
-
   @Override
-  public void cancel() {
+  public final void cancel() {
     Shiruka.getScheduler().cancelTask(this.id);
   }
 
   @Nullable
   @Override
-  public Plugin getOwner() {
+  public final Plugin getOwner() {
     return this.owner;
   }
 
   @Override
-  public int getTaskId() {
+  public final int getTaskId() {
     return this.id;
   }
 
   @Override
-  public boolean isCancelled() {
+  public final boolean isCancelled() {
     return this.period == ShirukaTask.PERIOD_CANCEL;
   }
 
@@ -199,7 +189,7 @@ public class ShirukaTask implements Task, Runnable {
    * @return next task.
    */
   @Nullable
-  public ShirukaTask getNext() {
+  public final ShirukaTask getNext() {
     return this.next;
   }
 
@@ -208,7 +198,7 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @param next the next task to set.
    */
-  public void setNext(@Nullable final ShirukaTask next) {
+  public final void setNext(@Nullable final ShirukaTask next) {
     this.next = next;
   }
 
@@ -217,7 +207,7 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @return next run.
    */
-  public long getNextRun() {
+  public final long getNextRun() {
     return this.nextRun;
   }
 
@@ -226,7 +216,7 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @param nextRun the next run to set.
    */
-  public void setNextRun(final long nextRun) {
+  public final void setNextRun(final long nextRun) {
     this.nextRun = nextRun;
   }
 
@@ -235,7 +225,7 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @return period.
    */
-  public long getPeriod() {
+  public final long getPeriod() {
     return this.period;
   }
 
@@ -244,8 +234,18 @@ public class ShirukaTask implements Task, Runnable {
    *
    * @param period the period to set.
    */
-  public void setPeriod(final long period) {
+  public final void setPeriod(final long period) {
     this.period = period;
+  }
+
+  /**
+   * obtains the job.
+   *
+   * @return job.
+   */
+  @Nullable
+  public final Consumer<ShirukaTask> getTask() {
+    return this.task;
   }
 
   @Override
@@ -259,11 +259,8 @@ public class ShirukaTask implements Task, Runnable {
 
   /**
    * sets the status to cancelled, synchronizing when required.
-   *
-   * @return {@code false} if it is a craft future task that has already begun execution, {@code true} otherwise.
    */
-  boolean cancel0() {
+  void cancel0() {
     this.setPeriod(ShirukaTask.PERIOD_CANCEL);
-    return true;
   }
 }

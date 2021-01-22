@@ -27,7 +27,9 @@ package net.shiruka.shiruka.scheduler;
 
 import co.aikar.timings.MinecraftTimings;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -154,6 +156,17 @@ public class SimpleScheduler implements ShirukaScheduler {
       finalPeriod = period;
     }
     return new MapEntry<>(finalPeriod, finalDelay);
+  }
+
+  @NotNull
+  @Override
+  public final <T> Future<T> callSyncMethod(@NotNull final Plugin plugin, @NotNull final Callable<T> task) {
+    if (!plugin.isEnabled()) {
+      throw new IllegalPluginAccessException("Plugin attempted to register task while disabled");
+    }
+    final var future = new CraftFuture<>(task, plugin, this.nextId());
+    this.handle(future, 0L);
+    return future;
   }
 
   @Override

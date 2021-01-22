@@ -259,7 +259,8 @@ public final class ShirukaTick implements Runnable {
    * @return {@code true} if the thread can oversleep.
    */
   private boolean canOversleep() {
-    return this.mayHaveDelayedTasks && SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
+    return this.mayHaveDelayedTasks &&
+      SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
   }
 
   /**
@@ -268,7 +269,9 @@ public final class ShirukaTick implements Runnable {
    * @return {@code true} if thread can sleep for tick no oversleep.
    */
   private boolean canSleepForTickNoOversleep() {
-    return this.forceTicks || this.server.getTaskHandler().isEntered() || SystemUtils.getMonotonicMillis() < this.nextTick;
+    return this.forceTicks ||
+      this.server.getTaskHandler().isEntered() ||
+      SystemUtils.getMonotonicMillis() < this.nextTick;
   }
 
   /**

@@ -61,7 +61,7 @@ abstract class CommandHelper {
    */
   protected static void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
                                        @NotNull final Object... params) {
-    sender.sendMessage(TranslatedText.get(CommandHelper.KEY_PREFIX + key), params);
+    sender.sendMessage(TranslatedText.get(CommandHelper.KEY_PREFIX + key, params));
   }
 
   /**

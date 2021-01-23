@@ -23,65 +23,67 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.events.server;
 
-import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.concurrent.tasks.AsyncTaskHandlerReentrant;
+import net.shiruka.api.Shiruka;
+import net.shiruka.api.command.sender.CommandSender;
+import net.shiruka.api.events.server.ServerCommandEvent;
+import net.shiruka.shiruka.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents Shiru ka's async task handler.
+ * a simple implementation for {@link ServerCommandEvent}.
  */
-public final class ShirukaAsyncTaskHandler extends AsyncTaskHandlerReentrant<TickTask> {
+public final class SimpleServerCommandEvent extends SimpleCancellableEvent implements ServerCommandEvent {
 
   /**
-   * the server.
+   * the async.
    */
-  @NotNull
-  private final ShirukaServer server;
+  private final boolean async;
 
   /**
-   * the tick.
+   * the sender.
    */
   @NotNull
-  private final ShirukaTick tick;
+  private final CommandSender sender;
+
+  /**
+   * the command.
+   */
+  @NotNull
+  private String command;
 
   /**
    * ctor.
    *
-   * @param server the server.
-   * @param tick the tick.
+   * @param sender the sender.
+   * @param command the command.
    */
-  public ShirukaAsyncTaskHandler(@NotNull final ShirukaServer server, @NotNull final ShirukaTick tick) {
-    super("Shiruka");
-    this.server = server;
-    this.tick = tick;
-  }
-
-  @Override
-  public boolean canExecute(@NotNull final TickTask job) {
-    return job.getTick() + 3 < this.tick.ticks || this.tick.canSleepForTick();
+  public SimpleServerCommandEvent(@NotNull final CommandSender sender, @NotNull final String command) {
+    this.sender = sender;
+    this.command = command;
+    this.async = !Shiruka.isPrimaryThread();
   }
 
   @NotNull
   @Override
-  public Thread getThread() {
-    return this.server.getServerThread();
+  public String getCommand() {
+    return this.command;
   }
 
   @Override
-  public TickTask postToMainThread(@NotNull Runnable job) {
-    if (this.server.isStopped() &&
-      Thread.currentThread().equals(this.server.getShutdownThread())) {
-      job.run();
-      job = () -> {
-      };
-    }
-    return new TickTask(job, this.tick.ticks);
+  public void setCommand(@NotNull final String command) {
+    this.command = command;
+  }
+
+  @NotNull
+  @Override
+  public CommandSender getSender() {
+    return this.sender;
   }
 
   @Override
-  public boolean isNotMainThread() {
-    return super.isNotMainThread() && !this.server.isStopped();
+  public boolean isAsync() {
+    return this.async;
   }
 }

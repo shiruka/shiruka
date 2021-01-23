@@ -23,52 +23,24 @@
  *
  */
 
-package net.shiruka.shiruka.nbt.stream;
+package net.shiruka.shiruka.scheduler;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import net.shiruka.shiruka.network.util.VarInts;
-import org.jetbrains.annotations.NotNull;
+import net.shiruka.api.scheduler.Scheduler;
 
 /**
- * an implementation for {@link LittleEndianDataOutputStream}.
+ * an interface to determine Shiru ka schedulers.
  */
-public final class NetworkDataOutputStream extends LittleEndianDataOutputStream {
+public interface ShirukaScheduler extends Scheduler {
 
   /**
-   * ctor.
+   * the main thread hear beat.
    *
-   * @param stream the stream.
+   * @param currentTick the current tick.
    */
-  public NetworkDataOutputStream(@NotNull final OutputStream stream) {
-    super(stream);
-  }
+  void mainThreadHeartbeat(int currentTick);
 
   /**
-   * ctor.
-   *
-   * @param stream the stream.
+   * parses the pending tasks.
    */
-  public NetworkDataOutputStream(@NotNull final DataOutputStream stream) {
-    super(stream);
-  }
-
-  @Override
-  public void writeInt(final int v) throws IOException {
-    VarInts.writeInt(this.stream, v);
-  }
-
-  @Override
-  public void writeLong(final long v) throws IOException {
-    VarInts.writeLong(this.stream, v);
-  }
-
-  @Override
-  public void writeUTF(@NotNull final String s) throws IOException {
-    final var bytes = s.getBytes(StandardCharsets.UTF_8);
-    VarInts.writeUnsignedInt(this.stream, bytes.length);
-    this.write(bytes);
-  }
+  void parsePending();
 }

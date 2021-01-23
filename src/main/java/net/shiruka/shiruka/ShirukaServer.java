@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.shiruka.api.Server;
@@ -54,8 +53,8 @@ import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
 import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
-import net.shiruka.shiruka.concurrent.ShirukaAsyncTaskHandler;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
+import net.shiruka.shiruka.concurrent.tasks.ShirukaAsyncTaskHandler;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
@@ -90,14 +89,14 @@ public final class ShirukaServer implements Server {
   public static final InternalShirukaPlugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
 
   /**
+   * the logger.
+   */
+  public static final Logger LOGGER = LogManager.getLogger("Shiruka");
+
+  /**
    * obtains the Shiru ka server's version
    */
   public static final String VERSION = "1.0.0-SNAPSHOT";
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger("Shiruka");
 
   /**
    * the packs path.
@@ -197,14 +196,14 @@ public final class ShirukaServer implements Server {
   private final Object stopLock = new Object();
 
   /**
-   * the tick.
-   */
-  private final ShirukaTick tick = new ShirukaTick(this);
-
-  /**
    * the task handler.
    */
-  private final ShirukaAsyncTaskHandler taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
+  private final ShirukaAsyncTaskHandler taskHandler;
+
+  /**
+   * the tick.
+   */
+  private final ShirukaTick tick;
 
   /**
    * the world manager.
@@ -230,9 +229,10 @@ public final class ShirukaServer implements Server {
    * @param serverLanguage the server language.
    * @param socket the socket.
    */
-  ShirukaServer(@NotNull final Function<Server, ShirukaConsole> console, @NotNull final Locale serverLanguage,
-                @NotNull final Function<ServerListener, ServerSocket> socket) throws ExecutionException,
-    InterruptedException {
+  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final Locale serverLanguage,
+                @NotNull final Function<ServerListener, ServerSocket> socket) {
+    this.tick = new ShirukaTick(this);
+    this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
     this.console = console.apply(this);
     this.socket = socket.apply(new ShirukaServerListener(this));
     this.serverThread = Thread.currentThread();
@@ -367,6 +367,16 @@ public final class ShirukaServer implements Server {
   @Override
   public <I> void unregisterInterface(@NotNull final Class<I> cls) {
     this.interfaces.remove(cls);
+  }
+
+  /**
+   * obtains the scheduler.
+   *
+   * @return scheduler.
+   */
+  @NotNull
+  public SimpleScheduler getScheduler() {
+    return this.scheduler;
   }
 
   /**

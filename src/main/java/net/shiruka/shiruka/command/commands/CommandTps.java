@@ -51,7 +51,7 @@ public final class CommandTps extends CommandHelper {
   /**
    * the message key from the Shiru ka's language properties file.
    */
-  private static final String MESSAGE = "shiruka.command.commands.tps.register.show_tps";
+  private static final String MESSAGE = "tps.register.show_tps";
 
   /**
    * the permission.

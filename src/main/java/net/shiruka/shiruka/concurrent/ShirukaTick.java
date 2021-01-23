@@ -25,8 +25,13 @@
 
 package net.shiruka.shiruka.concurrent;
 
+import co.aikar.timings.MinecraftTimings;
+import co.aikar.timings.TimingsManager;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
@@ -88,9 +93,9 @@ public final class ShirukaTick implements Runnable {
   public static int currentTick = 0;
 
   /**
-   * is oversleep.
+   * the console command queue.
    */
-  private final boolean isOversleep = false;
+  private final Queue<String> consoleCommandQueue = new ConcurrentLinkedQueue<>();
 
   /**
    * the server.
@@ -104,11 +109,6 @@ public final class ShirukaTick implements Runnable {
   public boolean forceTicks;
 
   /**
-   * the ticks.
-   */
-  int ticks;
-
-  /**
    * the delayed tasks max next tick time.
    */
   private long delayedTasksMaxNextTickTime;
@@ -117,6 +117,11 @@ public final class ShirukaTick implements Runnable {
    * the has ticked.
    */
   private boolean hasTicked;
+
+  /**
+   * is oversleep.
+   */
+  private boolean isOversleep = false;
 
   /**
    * the last overload time.
@@ -134,9 +139,24 @@ public final class ShirukaTick implements Runnable {
   private boolean mayHaveDelayedTasks;
 
   /**
+   * the mid tick chunks tasks ran.
+   */
+  private int midTickChunksTasksRan;
+
+  /**
+   * the mid tick last ran.
+   */
+  private long midTickLastRan;
+
+  /**
    * the next tick.
    */
   private long nextTick;
+
+  /**
+   * the ticks.
+   */
+  private int ticks;
 
   /**
    * ctor.
@@ -145,7 +165,6 @@ public final class ShirukaTick implements Runnable {
    */
   public ShirukaTick(@NotNull final ShirukaServer server) {
     this.server = server;
-    this.nextTick = SystemUtils.getMonotonicMillis();
   }
 
   /**
@@ -162,6 +181,15 @@ public final class ShirukaTick implements Runnable {
   }
 
   /**
+   * adds the given {@code command}.
+   *
+   * @param command the command to add.
+   */
+  public void addCommand(@NotNull final String command) {
+    this.consoleCommandQueue.add(command);
+  }
+
+  /**
    * checks if the thread can sleep for tick.
    *
    * @return {@code true} if the thread can sleep for tick.
@@ -175,10 +203,36 @@ public final class ShirukaTick implements Runnable {
   }
 
   /**
+   * obtains the ticks.
+   *
+   * @return ticks.
+   */
+  public int getTicks() {
+    return this.ticks;
+  }
+
+  /**
+   * loads the chunks.
+   */
+  public void midTickLoadChunks() {
+    if (!this.server.getTaskHandler().isMainThread() ||
+      System.nanoTime() - this.midTickLastRan < 1000000) {
+      return;
+    }
+    try (final var ignored = MinecraftTimings.midTickChunkTasks.startTiming()) {
+//      for (final var value : this.server.getWorlds()) {
+//        value.getChunkProvider().serverThreadQueue.midTickLoadChunks();
+//      }
+      this.midTickLastRan = System.nanoTime();
+    }
+  }
+
+  /**
    * starts the heartbeat.
    */
   @Override
   public void run() {
+    this.nextTick = SystemUtils.getMonotonicMillis();
     final var warnOnOverload = ServerConfig.WARN_ON_OVERLOAD.getValue()
       .orElse(true);
     final var start = System.nanoTime();
@@ -203,11 +257,89 @@ public final class ShirukaTick implements Runnable {
         ShirukaTick.TPS_15.add(currentTps, diff);
         tickSection = currentTime;
       }
+      this.midTickChunksTasksRan = 0;
       this.lastTick = currentTime;
       this.nextTick += 50L;
+      try (final var ignored = TimingsManager.FULL_SERVER_TICK.startTiming()) {
+        this.doTick();
+      }
       this.mayHaveDelayedTasks = true;
       this.delayedTasksMaxNextTickTime = Math.max(SystemUtils.getMonotonicMillis() + 50L, this.nextTick);
+      this.sleepForTick();
       this.hasTicked = true;
     }
+  }
+
+  /**
+   * checks if the thread can oversleep.
+   *
+   * @return {@code true} if the thread can oversleep.
+   */
+  private boolean canOversleep() {
+    return this.mayHaveDelayedTasks &&
+      SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
+  }
+
+  /**
+   * checks if thread can sleep for tick no oversleep.
+   *
+   * @return {@code true} if thread can sleep for tick no oversleep.
+   */
+  private boolean canSleepForTickNoOversleep() {
+    return this.forceTicks ||
+      this.server.getTaskHandler().isEntered() ||
+      SystemUtils.getMonotonicMillis() < this.nextTick;
+  }
+
+  /**
+   * runs the game's elements.
+   */
+  private void doTick() {
+    final var now = SystemUtils.getMonotonicNanos();
+    this.isOversleep = true;
+    try (final var ignored = MinecraftTimings.serverOversleep.startTiming()) {
+      this.server.getTaskHandler().awaitJobs(() -> {
+        this.midTickLoadChunks();
+        return !this.canOversleep();
+      });
+      this.isOversleep = false;
+    }
+    Shiruka.getEventManager().serverTick(++this.ticks).callEvent();
+    this.doTick0();
+    this.handleQueuedConsoleCommands();
+  }
+
+  /**
+   * runs the game's elements.
+   */
+  private void doTick0() {
+    this.midTickLoadChunks();
+    try (final var ignored = MinecraftTimings.shirukaSchedulerTimer.startTiming()) {
+      this.server.getScheduler().mainThreadHeartbeat(this.ticks);
+    }
+    this.midTickLoadChunks();
+  }
+
+  /**
+   * handles queued console commands.
+   */
+  private void handleQueuedConsoleCommands() {
+    try (final var ignored = MinecraftTimings.serverCommandTimer.startTiming()) {
+      String command;
+      while ((command = this.consoleCommandQueue.poll()) != null) {
+        final var sender = Shiruka.getConsoleCommandSender();
+        final var event = Shiruka.getEventManager().serverCommand(sender, command);
+        if (event.callEvent()) {
+          Shiruka.getCommandManager().execute(event.getCommand(), sender);
+        }
+      }
+    }
+  }
+
+  /**
+   * sleeps for tick.
+   */
+  private void sleepForTick() {
+    this.server.getTaskHandler().awaitJobs(() -> !this.canSleepForTickNoOversleep());
   }
 }

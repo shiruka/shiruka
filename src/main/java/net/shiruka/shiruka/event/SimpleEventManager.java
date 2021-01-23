@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.event;
 
+import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.Listener;
 import net.shiruka.api.event.method.MethodAdapter;
@@ -36,10 +37,17 @@ import net.shiruka.api.events.LoginDataEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.events.player.PlayerKickEvent;
 import net.shiruka.api.events.player.PlayerPreLoginEvent;
+import net.shiruka.api.events.server.ServerCommandEvent;
+import net.shiruka.api.events.server.ServerExceptionEvent;
+import net.shiruka.api.events.server.ServerTickEvent;
+import net.shiruka.api.events.server.exception.ServerException;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.events.player.SimplePlayerAsyncLoginEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerKickEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerPreLoginEvent;
+import net.shiruka.shiruka.events.server.SimpleServerCommandEvent;
+import net.shiruka.shiruka.events.server.SimpleServerExceptionEvent;
+import net.shiruka.shiruka.events.server.SimpleServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,6 +89,25 @@ public final class SimpleEventManager implements EventManager {
   @Override
   public void register(@NotNull final Listener listener) {
     this.adapter.register(listener);
+  }
+
+  @NotNull
+  @Override
+  public ServerCommandEvent serverCommand(@NotNull final CommandSender sender, @NotNull final String command) {
+    return new SimpleServerCommandEvent(sender, command);
+  }
+
+  @NotNull
+  @Override
+  public ServerExceptionEvent serverException(@NotNull final ServerException serverException,
+                                              final boolean isAsync) {
+    return new SimpleServerExceptionEvent(serverException, isAsync);
+  }
+
+  @NotNull
+  @Override
+  public ServerTickEvent serverTick(final int tick) {
+    return new SimpleServerTickEvent(tick);
   }
 
   @Override

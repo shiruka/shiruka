@@ -30,9 +30,8 @@ import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * catches exceptions in the server process that are
- * unrecoverable and pastes a link for creating an issue
- * with details pulled from the environment.
+ * catches exceptions in the server process that are unrecoverable and pastes a link for creating an issue with details
+ * pulled from the environment.
  */
 public final class JiraExceptionCatcher {
 

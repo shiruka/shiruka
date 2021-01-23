@@ -229,7 +229,7 @@ public final class ShirukaServer implements Server {
    * @param serverLanguage the server language.
    * @param socket the socket.
    */
-  ShirukaServer(@NotNull final Function<Server, ShirukaConsole> console, @NotNull final Locale serverLanguage,
+  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final Locale serverLanguage,
                 @NotNull final Function<ServerListener, ServerSocket> socket) {
     this.tick = new ShirukaTick(this);
     this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
@@ -367,6 +367,16 @@ public final class ShirukaServer implements Server {
   @Override
   public <I> void unregisterInterface(@NotNull final Class<I> cls) {
     this.interfaces.remove(cls);
+  }
+
+  /**
+   * obtains the scheduler.
+   *
+   * @return scheduler.
+   */
+  @NotNull
+  public SimpleScheduler getScheduler() {
+    return this.scheduler;
   }
 
   /**

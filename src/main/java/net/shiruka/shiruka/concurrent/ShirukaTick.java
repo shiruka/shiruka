@@ -29,6 +29,8 @@ import co.aikar.timings.MinecraftTimings;
 import co.aikar.timings.TimingsManager;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
@@ -89,6 +91,11 @@ public final class ShirukaTick implements Runnable {
    * the current tick.
    */
   public static int currentTick = 0;
+
+  /**
+   * the console command queue.
+   */
+  private final Queue<String> consoleCommandQueue = new ConcurrentLinkedQueue<>();
 
   /**
    * the server.
@@ -174,6 +181,15 @@ public final class ShirukaTick implements Runnable {
   }
 
   /**
+   * adds the given {@code command}.
+   *
+   * @param command the command to add.
+   */
+  public void addCommand(@NotNull final String command) {
+    this.consoleCommandQueue.add(command);
+  }
+
+  /**
    * checks if the thread can sleep for tick.
    *
    * @return {@code true} if the thread can sleep for tick.
@@ -199,7 +215,8 @@ public final class ShirukaTick implements Runnable {
    * loads the chunks.
    */
   public void midTickLoadChunks() {
-    if (!this.server.getTaskHandler().isMainThread() || System.nanoTime() - this.midTickLastRan < 1000000) {
+    if (!this.server.getTaskHandler().isMainThread() ||
+      System.nanoTime() - this.midTickLastRan < 1000000) {
       return;
     }
     try (final var ignored = MinecraftTimings.midTickChunkTasks.startTiming()) {
@@ -288,6 +305,35 @@ public final class ShirukaTick implements Runnable {
       this.isOversleep = false;
     }
     Shiruka.getEventManager().serverTick(++this.ticks).callEvent();
+    this.doTick0();
+    this.handleQueuedConsoleCommands();
+  }
+
+  /**
+   * runs the game's elements.
+   */
+  private void doTick0() {
+    this.midTickLoadChunks();
+    try (final var ignored = MinecraftTimings.shirukaSchedulerTimer.startTiming()) {
+      this.server.getScheduler().mainThreadHeartbeat(this.ticks);
+    }
+    this.midTickLoadChunks();
+  }
+
+  /**
+   * handles queued console commands.
+   */
+  private void handleQueuedConsoleCommands() {
+    try (final var ignored = MinecraftTimings.serverCommandTimer.startTiming()) {
+      String command;
+      while ((command = this.consoleCommandQueue.poll()) != null) {
+        final var sender = Shiruka.getConsoleCommandSender();
+        final var event = Shiruka.getEventManager().serverCommand(sender, command);
+        if (event.callEvent()) {
+          Shiruka.getCommandManager().execute(event.getCommand(), sender);
+        }
+      }
+    }
   }
 
   /**

@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
 import net.shiruka.api.Server;
 import net.shiruka.api.Shiruka;
+import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -55,7 +56,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
    * the server instance.
    */
   @NotNull
-  private final Server server;
+  private final ShirukaServer server;
 
   /**
    * ctor.
@@ -63,7 +64,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
    * @param server the server.
    * @param completer the completer.
    */
-  public ShirukaConsole(@NotNull final Completer completer, @NotNull final Server server) {
+  public ShirukaConsole(@NotNull final Completer completer, @NotNull final ShirukaServer server) {
     this.completer = completer;
     this.server = server;
   }
@@ -73,7 +74,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
    *
    * @param server the server.
    */
-  public ShirukaConsole(@NotNull final Server server) {
+  public ShirukaConsole(@NotNull final ShirukaServer server) {
     this(new ConsoleCommandCompleter(server), server);
   }
 
@@ -84,7 +85,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
 
   @Override
   protected void runCommand(@NotNull final String command) {
-    Shiruka.getCommandManager().execute(command);
+    this.server.getTick().addCommand(command);
   }
 
   @Override

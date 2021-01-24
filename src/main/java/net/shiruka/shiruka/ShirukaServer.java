@@ -464,10 +464,10 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     }
     final PacketHandler handler;
     final var address = peer.getAddress();
-    if (players.containsKey(address)) {
-      handler = players.get(address);
-    } else if (connectingPlayers.containsKey(address)) {
-      handler = connectingPlayers.get(address);
+    if (this.players.containsKey(address)) {
+      handler = this.players.get(address);
+    } else if (this.connectingPlayers.containsKey(address)) {
+      handler = this.connectingPlayers.get(address);
     } else {
       return;
     }

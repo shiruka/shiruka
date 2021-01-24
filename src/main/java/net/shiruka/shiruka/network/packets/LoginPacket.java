@@ -26,7 +26,9 @@
 package net.shiruka.shiruka.network.packets;
 
 import com.whirvis.jraknet.RakNetPacket;
+import com.whirvis.jraknet.peer.RakNetClientPeer;
 import io.netty.util.AsciiString;
+import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.packet.ShirukaPacket;
 import net.shiruka.shiruka.network.util.PacketHelper;
 import org.jetbrains.annotations.NotNull;
@@ -64,5 +66,12 @@ public final class LoginPacket extends ShirukaPacket {
     final var jwt = this.buffer().readSlice((int) this.readUnsignedVarInt());
     this.chainData = PacketHelper.readLEAsciiString(jwt);
     this.skinData = PacketHelper.readLEAsciiString(jwt);
+  }
+
+  @Override
+  public void handle(@NotNull final PacketHandler handler, @NotNull final RakNetClientPeer connection) {
+    this.check(this.chainData);
+    this.check(this.skinData);
+    handler.loginPacket(this, connection);
   }
 }

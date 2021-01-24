@@ -28,9 +28,12 @@ package net.shiruka.shiruka.network.packet;
 import com.google.common.base.Preconditions;
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
+import java.util.Objects;
+import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a generic abstract packet for Shiru ka packets.
@@ -84,5 +87,22 @@ public abstract class ShirukaPacket extends RakNetPacket {
   @Override
   public void decode() {
     // ignored.
+  }
+
+  /**
+   * handles the packet.
+   *
+   * @param handler the handler to handle.
+   * @param connection the connection to handle.
+   */
+  public abstract void handle(@NotNull PacketHandler handler, @NotNull final RakNetClientPeer connection);
+
+  /**
+   * checks if the given {@code object} is null.
+   *
+   * @param object the object to check.
+   */
+  protected final void check(@Nullable final Object object) {
+    Objects.requireNonNull(object, String.format("The packet %s not initiated!", this.getId()));
   }
 }

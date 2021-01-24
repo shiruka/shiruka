@@ -25,8 +25,8 @@
 
 package net.shiruka.shiruka.network;
 
+import com.whirvis.jraknet.peer.RakNetClientPeer;
 import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -38,7 +38,8 @@ public interface PacketHandler {
    * handles the login packet.
    *
    * @param packet the packet to handle.
+   * @param connection the connection to handle.
    */
-  default void loginPacket(@NotNull final LoginPacket packet) {
+  default void loginPacket(@NotNull final LoginPacket packet, @NotNull final RakNetClientPeer connection) {
   }
 }

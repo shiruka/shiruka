@@ -43,6 +43,7 @@ import net.shiruka.api.permission.PermissionAttachment;
 import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
+import net.shiruka.shiruka.network.PacketHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,13 +52,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @todo #1:60m Implement ShirukaPlayer's methods.
  */
-public final class ShirukaPlayer extends ShirukaEntity implements Player {
-
-  /**
-   * the chain data.
-   */
-  @NotNull
-  private final LoginDataEvent.ChainData chainData;
+public final class ShirukaPlayer extends ShirukaEntity implements Player, PacketHandler {
 
   /**
    * the connection.
@@ -71,23 +66,24 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   private final AtomicInteger ping = new AtomicInteger();
 
   /**
+   * the chain data.
+   */
+  @Nullable
+  private LoginDataEvent.ChainData chainData;
+
+  /**
    * the profile.
    */
-  @NotNull
-  private final GameProfile profile;
+  @Nullable
+  private GameProfile profile;
 
   /**
    * ctor.
    *
-   * @param chainData the chain data.
    * @param connection the connection.
-   * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final RakNetClientPeer connection,
-                       @NotNull final GameProfile profile) {
-    this.chainData = chainData;
+  public ShirukaPlayer(@NotNull final RakNetClientPeer connection) {
     this.connection = connection;
-    this.profile = profile;
   }
 
   @NotNull

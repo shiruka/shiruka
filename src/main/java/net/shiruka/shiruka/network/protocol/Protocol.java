@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.zip.DataFormatException;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.packet.PacketOut;
 import net.shiruka.shiruka.network.packet.PacketRegistry;
 import net.shiruka.shiruka.network.util.VarInts;
@@ -65,10 +66,12 @@ public final class Protocol {
   /**
    * deserializes the given {@code packet}.
    *
+   * @param handler the handler to handle.
    * @param packet the packet to deserialize.
    * @param connection the connection to deserialize.
    */
-  public static void deserialize(@NotNull final RakNetPacket packet, @NotNull final RakNetClientPeer connection) {
+  public static void deserialize(@NotNull final PacketHandler handler, @NotNull final RakNetPacket packet,
+                                 @NotNull final RakNetClientPeer connection) {
     try {
       Protocol.ZLIB.inflate(packet, 12 * 1024 * 1024);
       while (packet.buffer().isReadable()) {
@@ -81,9 +84,9 @@ public final class Protocol {
         final var packetId = header & 0x3ff;
         Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
         final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
-          String.format("The packet id %s not found!", packetId));
-        connection.getServer().addSelfListener()
-        shirukaPacket.apply(packet).decode();
+          String.format("The packet id %s not found!", packetId)).apply(packet);
+        shirukaPacket.decode();
+        shirukaPacket.handle(handler, connection);
       }
     } catch (final DataFormatException e) {
       JiraExceptionCatcher.serverException(e);

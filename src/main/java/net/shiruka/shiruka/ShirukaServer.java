@@ -28,14 +28,10 @@ package net.shiruka.shiruka;
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
-import com.whirvis.jraknet.peer.RakNetState;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -51,7 +47,6 @@ import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
-import net.shiruka.api.pack.PackManifest;
 import net.shiruka.api.permission.PermissionManager;
 import net.shiruka.api.plugin.PluginManager;
 import net.shiruka.api.plugin.SimplePluginManager;
@@ -67,12 +62,9 @@ import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
+import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.protocol.Protocol;
-import net.shiruka.shiruka.network.util.Misc;
 import net.shiruka.shiruka.pack.SimplePackManager;
-import net.shiruka.shiruka.pack.loader.RplDirectory;
-import net.shiruka.shiruka.pack.loader.RplZip;
-import net.shiruka.shiruka.pack.pack.ResourcePack;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
 import net.shiruka.shiruka.scheduler.SimpleScheduler;
@@ -113,15 +105,15 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   public static final String VERSION = "1.0.0-SNAPSHOT";
 
   /**
-   * the packs path.
-   */
-  private static final Path PACKS_PATH = Misc.HOME_PATH.resolve("packs");
-
-  /**
    * the command manager.
    */
   @NotNull
   private final SimpleCommandManager commandManager;
+
+  /**
+   * the connecting players.
+   */
+  private final Map<InetSocketAddress, ShirukaPlayer> connectingPlayers = new ConcurrentHashMap<>();
 
   /**
    * the console.
@@ -342,7 +334,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   public void startServer() {
     this.registerImplementations();
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.starting"));
-    this.reloadPacks();
+    this.packManager.reloadPacks();
     this.running.set(true);
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
     // @todo #1:60m Load plugins here.
@@ -450,18 +442,39 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
+    final var address = peer.getAddress();
+    if (this.players.containsKey(address)) {
+      this.players.get(address)
+        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
+      return;
+    }
+    if (this.connectingPlayers.containsKey(address)) {
+      this.players.get(address)
+        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
+      return;
+    }
+    this.connectingPlayers.put(address, new ShirukaPlayer(peer));
   }
 
   @Override
   public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
                             final int channel) {
-    if (peer.getState() != RakNetState.CONNECTED) {
+    if (!peer.isConnected()) {
+      return;
+    }
+    final PacketHandler handler;
+    final var address = peer.getAddress();
+    if (players.containsKey(address)) {
+      handler = players.get(address);
+    } else if (connectingPlayers.containsKey(address)) {
+      handler = connectingPlayers.get(address);
+    } else {
       return;
     }
     final var packetId = packet.readUnsignedByte();
     if (packetId == 0xfe) {
       packet.buffer().markReaderIndex();
-      Protocol.deserialize(packet, peer);
+      Protocol.deserialize(handler, packet, peer);
     }
   }
 
@@ -487,25 +500,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.registerInterface(Scheduler.class, this.scheduler);
     this.registerInterface(WorldManager.class, this.worldManager);
     this.registerInterface(CommandManager.class, this.commandManager);
-  }
-
-  /**
-   * reloads packs.
-   */
-  private void reloadPacks() {
-    ShirukaServer.LOGGER.debug("§7Reloading packs.");
-    this.packManager.registerLoader(RplZip.class, RplZip.FACTORY);
-    this.packManager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
-    this.packManager.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);
-    if (Files.notExists(ShirukaServer.PACKS_PATH)) {
-      try {
-        Files.createDirectory(ShirukaServer.PACKS_PATH);
-      } catch (final IOException e) {
-        throw new IllegalStateException("Unable to create packs directory");
-      }
-    }
-    this.packManager.loadPacks(ShirukaServer.PACKS_PATH);
-    this.packManager.closeRegistration();
   }
 
   /**

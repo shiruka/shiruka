@@ -194,7 +194,7 @@ public final class ShirukaMain {
     ServerThreadPool.init();
     final var ip = ServerConfig.ADDRESS_IP.getValue()
       .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
-    final var port = ServerConfig.DESCRIPTION_IPV4_PORT.getValue()
+    final var port = ServerConfig.PORT.getValue()
       .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
     final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
       .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));

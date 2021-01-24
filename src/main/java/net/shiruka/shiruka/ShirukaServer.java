@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -447,16 +449,11 @@ public final class ShirukaServer implements Server {
   private ServerDescription createDefaultDescription() {
     final var gameMode = GameMode.fromType(ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("survival"))
       .orElse(GameMode.SURVIVAL);
-    final var ipv4Port = ServerConfig.DESCRIPTION_IPV4_PORT.getValue().orElse(19132);
-    final var ipv6Port = ServerConfig.DESCRIPTION_IPV6_PORT.getValue().orElse(19133);
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var subMotd = ServerConfig.DESCRIPTION_SUB_MOTD.getValue().orElse("");
-    final var extras = ServerConfig.DESCRIPTION_EXTRAS.getValue().orElse(Collections.emptyList())
-      .toArray(new String[0]);
-    return new ServerDescription(gameMode, ipv4Port, ipv6Port, maxPlayers, Constants.MINECRAFT_PROTOCOL_VERSION,
-      this.socket.getUniqueId(), Constants.MINECRAFT_VERSION, motd, ServerDescription.Edition.MCPE, extras,
-      this.players.size(), subMotd);
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    return new ServerDescription(gameMode, maxPlayers, Constants.MINECRAFT_PROTOCOL_VERSION, this.socket.getUniqueId(),
+      Constants.MINECRAFT_VERSION, motd, ServerDescription.Edition.MCPE, this.players.size(), worldName);
   }
 
   /**
@@ -515,13 +512,10 @@ public final class ShirukaServer implements Server {
   @NotNull
   private ServerDescription updateDescription() {
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var subMotd = ServerConfig.DESCRIPTION_SUB_MOTD.getValue().orElse("");
-    final var extras = ServerConfig.DESCRIPTION_EXTRAS.getValue().orElse(Collections.emptyList())
-      .toArray(new String[0]);
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
     this.description.setDescription(motd);
-    this.description.setExtras(extras);
     this.description.setPlayerCount(this.players.size());
-    this.description.setSubDescription(subMotd);
+    this.description.setWorldName(worldName);
     return this.description;
   }
 }

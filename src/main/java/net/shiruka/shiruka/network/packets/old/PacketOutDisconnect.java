@@ -23,35 +23,46 @@
  *
  */
 
-package net.shiruka.shiruka.network.packet;
+package net.shiruka.shiruka.network.packets.old;
 
+import io.netty.buffer.ByteBuf;
+import net.shiruka.shiruka.network.packet.PacketOut;
+import net.shiruka.shiruka.network.util.VarInts;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract class to determine packets.
+ * a packet that disconnects the sent client.
  */
-public abstract class Packet {
+public final class PacketOutDisconnect extends PacketOut {
 
   /**
-   * the id.
+   * the kick message.
    */
-  private final int id;
+  @NotNull
+  private final String kickMessage;
+
+  /**
+   * the message skipped.
+   */
+  private final boolean messageSkipped;
 
   /**
    * ctor.
    *
-   * @param cls the packet class.
+   * @param kickMessage the kick message.
+   * @param messageSkipped the message skipped.
    */
-  protected Packet(@NotNull final Class<? extends Packet> cls) {
-    this.id = PacketRegistry.idOf(PacketRegistry.packetInfo(cls));
+  public PacketOutDisconnect(@NotNull final String kickMessage, final boolean messageSkipped) {
+    super(PacketOutDisconnect.class);
+    this.kickMessage = kickMessage;
+    this.messageSkipped = messageSkipped;
   }
 
-  /**
-   * obtains id of the packet.
-   *
-   * @return the packet id.
-   */
-  public final int id() {
-    return this.id;
+  @Override
+  public void write(@NotNull final ByteBuf buf) {
+    buf.writeBoolean(this.messageSkipped);
+    if (!this.messageSkipped) {
+      VarInts.writeString(buf, this.kickMessage);
+    }
   }
 }

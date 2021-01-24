@@ -35,7 +35,6 @@ import net.shiruka.api.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
-import net.shiruka.shiruka.network.impl.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +53,7 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * the player.
    */
   @NotNull
-  private final PlayerConnection connection;
+  private final ShirukaPlayer player;
 
   /**
    * the should login.
@@ -83,14 +82,14 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * ctor.
    *
    * @param chainData the chain data.
-   * @param connection the connection.
+   * @param player the player.
    * @param username the username.
    */
-  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData,
-                         @NotNull final PlayerConnection connection, @NotNull final Text username) {
+  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final ShirukaPlayer player,
+                         @NotNull final Text username) {
     this.chainData = chainData;
     this.username = username;
-    this.connection = connection;
+    this.player = player;
   }
 
   @NotNull
@@ -125,20 +124,16 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
     if (this.asyncLogin == null) {
       return;
     }
-    if (this.connection.getConnection().isClosed()) {
+    if (this.player.getConnection().isDisconnected()) {
       return;
     }
     if (this.asyncLogin.loginResult() == LoginResultEvent.LoginResult.KICK) {
-      this.connection.disconnect(this.asyncLogin.kickMessage().orElse(null));
+      this.player.disconnect(this.asyncLogin.kickMessage().orElse(null));
       return;
     }
     final var profile = new GameProfile(this.username, this.chainData.uniqueId(), this.chainData.xuid());
-    final var player = new ShirukaPlayer(this.chainData, this.connection, profile);
-    this.connection.setPlayer(player);
-    this.connection.setState(PlayerConnection.State.LOGIN);
-    player.getPlayerConnection().getServer().addPlayer(player);
-    player.onLogin();
-    this.asyncLogin.objects().forEach(action -> action.accept(player));
+    this.player.onLogin();
+    this.asyncLogin.objects().forEach(action -> action.accept(this.player));
   }
 
   /**

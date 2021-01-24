@@ -23,47 +23,46 @@
  *
  */
 
-package net.shiruka.shiruka.network.packets;
+package net.shiruka.shiruka.network.packet;
 
-import io.netty.buffer.ByteBuf;
-import net.shiruka.api.pack.Pack;
-import net.shiruka.shiruka.network.packet.PacketOut;
-import net.shiruka.shiruka.network.util.VarInts;
+import com.whirvis.jraknet.RakNetPacket;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents resource pack data info packets.
+ * a class that represents packet registry.
  */
-public final class PacketOutResourcePackDataInfo extends PacketOut {
+public final class PacketRegistry {
 
   /**
-   * the maximum chunk size.
+   * the packets.
    */
-  private static final int MAX_CHUNK_SIZE = 1048576;
+  public static final Map<Integer, Function<RakNetPacket, ShirukaPacket>> PACKETS;
 
-  @NotNull
-  private final Pack pack;
-
-  /**
-   * ctor.
-   *
-   * @param pack the pack.
-   */
-  public PacketOutResourcePackDataInfo(@NotNull final Pack pack) {
-    super(PacketOutResourcePackDataInfo.class);
-    this.pack = pack;
+  static {
+    PACKETS = new ConcurrentHashMap<>();
+    PacketRegistry.put(1, LoginPacket::new);
+    PacketRegistry.put(2, PlayStatusPacket::new);
   }
 
-  @Override
-  public void write(@NotNull final ByteBuf buf) {
-    VarInts.writeString(buf, this.pack.getId().toString() + '_' + this.pack.getVersion());
-    buf.writeIntLE(PacketOutResourcePackDataInfo.MAX_CHUNK_SIZE);
-    buf.writeIntLE((int) (this.pack.getSize() / PacketOutResourcePackDataInfo.MAX_CHUNK_SIZE));
-    buf.writeLongLE(this.pack.getSize());
-    final var hash = this.pack.getHash();
-    VarInts.writeUnsignedInt(buf, hash.length);
-    buf.writeBytes(hash);
-    buf.writeBoolean(false);
-    buf.writeByte(this.pack.getType().getId());
+  /**
+   * the ctor.
+   */
+  private PacketRegistry() {
+  }
+
+  /**
+   * puts the given {@code id} to the {@link #PACKETS}
+   *
+   * @param id the id to put.
+   * @param packetFunction the packet supplier to put.
+   */
+  private static void put(final int id, @NotNull final Function<RakNetPacket, ShirukaPacket> packetFunction) {
+    PacketRegistry.PACKETS.put(id, packetFunction);
   }
 }

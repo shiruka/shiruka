@@ -45,6 +45,7 @@ import net.shiruka.shiruka.console.ShirukaConsoleParser;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.log.ForwardLogHandler;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.network.ShirukaServerListener;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -211,7 +212,7 @@ public final class ShirukaMain {
     socket.setIdentifier(identifier);
     final var server = new ShirukaServer(start, ShirukaConsole::new, serverLocale, socket);
     Shiruka.setServer(server);
+    socket.addListener(new ShirukaServerListener(server));
     socket.start();
-    server.startServer(start);
   }
 }

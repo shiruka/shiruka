@@ -23,29 +23,21 @@
  *
  */
 
-package net.shiruka.shiruka.network.packet;
+package net.shiruka.shiruka.network.packets;
 
-import io.netty.buffer.ByteBuf;
+import com.whirvis.jraknet.RakNetPacket;
+import net.shiruka.shiruka.network.packet.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an abstract implementation for {@link Packet} that determines outgoing packets.
+ * a packet that sends to clients to notify connection's play status.
  */
-public abstract class PacketOut extends Packet {
+public final class PlayStatusPacket extends ShirukaPacket {
 
   /**
    * ctor.
-   *
-   * @param cls the packet class.
    */
-  protected PacketOut(@NotNull final Class<? extends Packet> cls) {
-    super(cls);
+  public PlayStatusPacket(@NotNull final RakNetPacket packet) throws IllegalArgumentException {
+    super(ShirukaPacket.ID_PLAY_STATUS, packet);
   }
-
-  /**
-   * writes the buf of a client-bound buf.
-   *
-   * @param buf the buf to write.
-   */
-  public abstract void write(@NotNull ByteBuf buf);
 }

@@ -194,6 +194,11 @@ public final class ShirukaServer implements Server {
   private final RakNetServer socket;
 
   /**
+   * the start time.
+   */
+  private final long startTime;
+
+  /**
    * the stop lock.
    */
   private final Object stopLock = new Object();
@@ -234,7 +239,7 @@ public final class ShirukaServer implements Server {
    */
   ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
                 @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
-    this.startTime =startTime;
+    this.startTime = startTime;
     this.tick = new ShirukaTick(this);
     this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
     this.console = console.apply(this);
@@ -257,7 +262,7 @@ public final class ShirukaServer implements Server {
    * @param player the player to add.
    */
   public void addPlayer(@NotNull final ShirukaPlayer player) {
-    this.players.put(player.getPlayerConnection().getAddress(), player);
+    this.players.put(player.getConnection().getAddress(), player);
   }
 
   @NotNull
@@ -344,7 +349,7 @@ public final class ShirukaServer implements Server {
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
     this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
-    final var end = System.currentTimeMillis() - startTime;
+    final var end = System.currentTimeMillis() - this.startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
   }
@@ -443,7 +448,7 @@ public final class ShirukaServer implements Server {
    * @param player the player to remove.
    */
   public void removePlayer(@NotNull final ShirukaPlayer player) {
-    this.players.remove(player.getPlayerConnection().getAddress());
+    this.players.remove(player.getConnection().getAddress());
   }
 
   /**

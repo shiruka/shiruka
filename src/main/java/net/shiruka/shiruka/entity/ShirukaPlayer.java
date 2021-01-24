@@ -150,6 +150,14 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   public void removeAttachment(@NotNull final PermissionAttachment attachment) {
   }
 
+  /**
+   * disconnects the player.
+   *
+   * @param reason the reason to disconnect.
+   */
+  public void disconnect(@Nullable final Text reason) {
+  }
+
   @Nullable
   @Override
   public Location getBedSpawnLocation() {
@@ -226,6 +234,16 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
     return !event.cancelled();
   }
 
+  /**
+   * obtains the connection.
+   *
+   * @return connection.
+   */
+  @NotNull
+  public RakNetClientPeer getConnection() {
+    return this.connection;
+  }
+
   @NotNull
   @Override
   public List<MetadataValue> getMetadata(@NotNull final String key) {
@@ -251,16 +269,6 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
 
   @Override
   public void tick() {
-  }
-
-  /**
-   * obtains the player connection.
-   *
-   * @return player connection.
-   */
-  @NotNull
-  public RakNetClientPeer getPlayerConnection() {
-    return this.connection;
   }
 
   @Override

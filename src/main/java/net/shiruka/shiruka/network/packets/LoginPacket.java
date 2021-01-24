@@ -25,28 +25,44 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import io.netty.buffer.ByteBuf;
-import net.shiruka.shiruka.network.impl.PlayerConnection;
-import net.shiruka.shiruka.network.packet.PacketIn;
+import com.whirvis.jraknet.RakNetPacket;
+import io.netty.util.AsciiString;
+import net.shiruka.shiruka.network.packet.ShirukaPacket;
+import net.shiruka.shiruka.network.util.PacketHelper;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * sends by the client at the start of the game.
- * it is sent to let the server know if it supports the client-side blob cache.
- * clients such as Nintendo Switch do not support the cache, and attempting to use it anyway will fail.
+ * a packet that sends by clients to request a login process.
  */
-public final class PacketInClientCacheStatus extends PacketIn {
+public final class LoginPacket extends ShirukaPacket {
+
+  /**
+   * the chain data.
+   */
+  private AsciiString chainData;
+
+  /**
+   * the protocol version.
+   */
+  private int protocolVersion;
+
+  /**
+   * the skin data.
+   */
+  private AsciiString skinData;
 
   /**
    * ctor.
    */
-  public PacketInClientCacheStatus() {
-    super(PacketInClientCacheStatus.class);
+  public LoginPacket(@NotNull final RakNetPacket packet) throws IllegalArgumentException {
+    super(ShirukaPacket.ID_LOGIN, packet);
   }
 
   @Override
-  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
-    final var blobCacheSupport = buf.readBoolean();
-    // @todo #1:15m Add blobCacheSupport field for ShirukaPlayer to set/get blob cache support.
+  public void decode() {
+    this.protocolVersion = this.readInt();
+    final var jwt = readSlice(this.readUnsignedVarInt());
+    this.chainData = PacketHelper.readLEAsciiString(jwt);
+    this.skinData = PacketHelper.readLEAsciiString(jwt);
   }
 }

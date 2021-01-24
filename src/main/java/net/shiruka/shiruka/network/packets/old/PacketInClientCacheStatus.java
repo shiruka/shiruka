@@ -23,35 +23,30 @@
  *
  */
 
-package net.shiruka.shiruka.network.packet;
+package net.shiruka.shiruka.network.packets.old;
 
+import io.netty.buffer.ByteBuf;
+import net.shiruka.shiruka.network.impl.PlayerConnection;
+import net.shiruka.shiruka.network.packet.PacketIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * the direction which a packet is sent towards.
+ * sends by the client at the start of the game.
+ * it is sent to let the server know if it supports the client-side blob cache.
+ * clients such as Nintendo Switch do not support the cache, and attempting to use it anyway will fail.
  */
-public enum PacketBound {
-  /**
-   * client-bound, out packets.
-   */
-  CLIENT,
-  /**
-   * server-bound, in packets.
-   */
-  SERVER;
+public final class PacketInClientCacheStatus extends PacketIn {
 
   /**
-   * obtain the bound of the packet represented by the given class.
-   *
-   * @param cls the class to determine the bound.
-   *
-   * @return the bound of the packet.
+   * ctor.
    */
-  @NotNull
-  public PacketBound from(@NotNull final Class<? extends Packet> cls) {
-    if (cls.getSuperclass() == PacketIn.class) {
-      return PacketBound.SERVER;
-    }
-    return PacketBound.CLIENT;
+  public PacketInClientCacheStatus() {
+    super(PacketInClientCacheStatus.class);
+  }
+
+  @Override
+  public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
+    final var blobCacheSupport = buf.readBoolean();
+    // @todo #1:15m Add blobCacheSupport field for ShirukaPlayer to set/get blob cache support.
   }
 }

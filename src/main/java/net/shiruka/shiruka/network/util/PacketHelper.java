@@ -27,12 +27,11 @@ package net.shiruka.shiruka.network.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.AsciiString;
-import java.net.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
-import net.shiruka.shiruka.network.packets.PacketOutPackInfo;
-import net.shiruka.shiruka.network.packets.PacketOutPackStack;
+import net.shiruka.shiruka.network.packets.old.PacketOutPackInfo;
+import net.shiruka.shiruka.network.packets.old.PacketOutPackStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -44,42 +43,6 @@ public final class PacketHelper {
    * ctor.
    */
   private PacketHelper() {
-  }
-
-  /**
-   * reads the given buffer to parse as {@link InetSocketAddress}.
-   *
-   * @param buffer the buffer to parse.
-   *
-   * @return an address from the given buffer instance.
-   */
-  @NotNull
-  public static InetSocketAddress readAddress(@NotNull final ByteBuf buffer) {
-    final var type = buffer.readByte();
-    final InetAddress address;
-    final int port;
-    try {
-      if (type == 4) {
-        final var addressBytes = new byte[4];
-        buffer.readBytes(addressBytes);
-        Misc.flip(addressBytes);
-        address = InetAddress.getByAddress(addressBytes);
-        port = buffer.readUnsignedShort();
-      } else if (type == 6) {
-        buffer.readShortLE();
-        port = buffer.readUnsignedShort();
-        buffer.readInt();
-        final var addressBytes = new byte[16];
-        buffer.readBytes(addressBytes);
-        final var scopeId = buffer.readInt();
-        address = Inet6Address.getByAddress(null, addressBytes, scopeId);
-      } else {
-        throw new UnsupportedOperationException("Unknown Internet Protocol version.");
-      }
-    } catch (final UnknownHostException e) {
-      throw new IllegalArgumentException(e);
-    }
-    return new InetSocketAddress(address, port);
   }
 
   /**
@@ -178,30 +141,5 @@ public final class PacketHelper {
                                             @NotNull final PacketOutPackInfo.Entry entry) {
     PacketHelper.writeEntry(buffer, entry);
     buffer.writeBoolean(entry.isRaytracingCapable());
-  }
-
-  /**
-   * writes the given address into the given buffer.
-   *
-   * @param buffer the buffer to write.
-   * @param address the address to write.
-   */
-  private static void writeAddress(@NotNull final ByteBuf buffer, @NotNull final InetSocketAddress address) {
-    final var addressBytes = address.getAddress().getAddress();
-    if (address.getAddress() instanceof Inet4Address) {
-      buffer.writeByte(4);
-      Misc.flip(addressBytes);
-      buffer.writeBytes(addressBytes);
-      buffer.writeShort(address.getPort());
-    } else if (address.getAddress() instanceof Inet6Address) {
-      buffer.writeByte(6);
-      buffer.writeShortLE(23);
-      buffer.writeShort(address.getPort());
-      buffer.writeInt(0);
-      buffer.writeBytes(addressBytes);
-      buffer.writeInt(((Inet6Address) address.getAddress()).getScopeId());
-    } else {
-      throw new UnsupportedOperationException("Unknown InetAddress instance");
-    }
   }
 }

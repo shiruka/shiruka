@@ -25,16 +25,13 @@
 
 package net.shiruka.shiruka.network.util;
 
-import io.netty.buffer.ByteBuf;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Queue;
 import java.util.stream.IntStream;
-import net.shiruka.shiruka.network.objects.IntRange;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -102,50 +99,6 @@ public final class Misc {
     value |= value >> 16;
     value++;
     return value;
-  }
-
-  /**
-   * write the given int range to the buffer.
-   *
-   * @param buffer the buffer to write.
-   * @param ackQueue the ackQueue to write
-   * @param mtu the mtu to write.
-   */
-  public static void writeIntRanges(@NotNull final ByteBuf buffer, @NotNull final Queue<IntRange> ackQueue, int mtu) {
-    final var lengthIndex = buffer.writerIndex();
-    buffer.writeZero(2);
-    mtu -= 2;
-    int count = 0;
-    IntRange ackRange;
-    while ((ackRange = ackQueue.poll()) != null) {
-      IntRange nextRange;
-      while ((nextRange = ackQueue.peek()) != null &&
-        ackRange.getMaximum() + 1 == nextRange.getMinimum()) {
-        ackQueue.remove();
-        ackRange.setMaximum(nextRange.getMaximum());
-      }
-      if (ackRange.getMinimum() == ackRange.getMaximum()) {
-        if (mtu < 4) {
-          break;
-        }
-        mtu -= 4;
-        buffer.writeBoolean(true);
-        buffer.writeMediumLE(ackRange.getMinimum());
-      } else {
-        if (mtu < 7) {
-          break;
-        }
-        mtu -= 7;
-        buffer.writeBoolean(false);
-        buffer.writeMediumLE(ackRange.getMinimum());
-        buffer.writeMediumLE(ackRange.getMaximum());
-      }
-      count++;
-    }
-    final var finalIndex = buffer.writerIndex();
-    buffer.writerIndex(lengthIndex);
-    buffer.writeShort(count);
-    buffer.writerIndex(finalIndex);
   }
 
   /**

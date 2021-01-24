@@ -23,58 +23,66 @@
  *
  */
 
-package net.shiruka.shiruka.network;
+package net.shiruka.shiruka.network.packet;
 
+import com.google.common.base.Preconditions;
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
-import com.whirvis.jraknet.peer.RakNetState;
-import com.whirvis.jraknet.server.RakNetServer;
-import com.whirvis.jraknet.server.RakNetServerListener;
-import com.whirvis.jraknet.server.ServerPing;
-import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.network.protocol.Protocol;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link RakNetServerListener}.
+ * a generic abstract packet for Shiru ka packets.
  */
-public final class ShirukaServerListener implements RakNetServerListener {
+public abstract class ShirukaPacket extends RakNetPacket {
 
   /**
-   * the server instance.
+   * the id of the {@link LoginPacket}.
    */
-  @NotNull
-  private final ShirukaServer server;
+  public static final int ID_LOGIN = 1;
+
+  /**
+   * the id of the {@link PlayStatusPacket}.
+   */
+  public static final int ID_PLAY_STATUS = 2;
 
   /**
    * ctor.
    *
-   * @param server the server.
+   * @param id the id.
    */
-  public ShirukaServerListener(@NotNull final ShirukaServer server) {
-    this.server = server;
+  protected ShirukaPacket(final int id, @NotNull final RakNetPacket packet) {
+    super(id);
+    Preconditions.checkArgument(id >= RakNetPacket.ID_USER_PACKET_ENUM,
+      "Packet ID must be in between %s-255",
+      RakNetPacket.ID_USER_PACKET_ENUM);
+    this.setBuffer(packet.buffer());
+  }
+
+  /**
+   * decodes the packet.
+   *
+   * @param connection the connection to decode.
+   */
+  public void decode(@NotNull final RakNetClientPeer connection) {
+  }
+
+  /**
+   * encodes the packet.
+   *
+   * @param connection the connection to encode.
+   */
+  public void encode(@NotNull final RakNetClientPeer connection) {
   }
 
   @Override
-  public void onStart(final RakNetServer server) {
-    this.server.startServer();
+  public void encode() {
+    // ignored.
   }
 
   @Override
-  public void onPing(final RakNetServer server, final ServerPing ping) {
-    this.server.onPing(ping);
-  }
-
-  @Override
-  public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
-                            final int channel) {
-    if (peer.getState() != RakNetState.CONNECTED) {
-      return;
-    }
-    final var packetId = packet.readUnsignedByte();
-    if (packetId == 0xfe) {
-      packet.buffer().markReaderIndex();
-      Protocol.deserialize(packet, peer);
-    }
+  public void decode() {
+    // ignored.
   }
 }

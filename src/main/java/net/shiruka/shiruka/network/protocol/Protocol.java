@@ -25,20 +25,14 @@
 
 package net.shiruka.shiruka.network.protocol;
 
-import com.google.common.base.Preconditions;
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
-import com.whirvis.jraknet.peer.RakNetPeer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufUtil;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.zip.DataFormatException;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import net.shiruka.shiruka.network.impl.PlayerConnection;
-import net.shiruka.shiruka.network.packet.PacketBound;
-import net.shiruka.shiruka.network.packet.PacketIn;
 import net.shiruka.shiruka.network.packet.PacketOut;
 import net.shiruka.shiruka.network.packet.PacketRegistry;
 import net.shiruka.shiruka.network.util.VarInts;
@@ -70,47 +64,35 @@ public final class Protocol {
 
   /**
    * deserializes the given {@code packet}.
-   * <p>
-   * if a packet found runs {@link PacketIn#read(ByteBuf, RakNetClientPeer)} method.
    *
    * @param packet the packet to deserialize.
    * @param connection the connection to deserialize.
    */
   public static void deserialize(@NotNull final RakNetPacket packet, @NotNull final RakNetClientPeer connection) {
-    ByteBuf decompressed = null;
     try {
-      decompressed = Protocol.ZLIB.inflate(packet, 12 * 1024 * 1024);
-      while (decompressed.isReadable()) {
-        final var length = VarInts.readUnsignedVarInt(decompressed);
-        final var packetBuffer = decompressed.readSlice(length);
-        if (!packetBuffer.isReadable()) {
-          throw new DataFormatException("Packet cannot be empty");
+      Protocol.ZLIB.inflate(packet, 12 * 1024 * 1024);
+      while (packet.buffer().isReadable()) {
+        final var length = (int) packet.readUnsignedVarInt();
+        packet.setBuffer(packet.buffer().readSlice(length));
+        if (!packet.buffer().isReadable()) {
+          throw new DataFormatException("Packet cannot be empty!");
         }
-        try {
-          final var header = VarInts.readUnsignedVarInt(packetBuffer);
-          final var packetId = header & 0x3ff;
-          Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
-          final var packetIn = PacketRegistry.makeIn(cls);
-          packetIn.read(packetBuffer, connection);
-        } catch (final InvocationTargetException | InstantiationException |
-          IllegalAccessException e) {
-          Protocol.LOGGER.debug("Error occurred whilst decoding packet", e);
-          Protocol.LOGGER.debug("Packet contents\n{}", ByteBufUtil.prettyHexDump(packetBuffer.readerIndex(0)));
-        }
+        final var header = (int) packet.readUnsignedVarInt();
+        final var packetId = header & 0x3ff;
+        Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
+        final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
+          String.format("The packet id %s not found!", packetId));
+        shirukaPacket.apply(packet).decode();
       }
     } catch (final DataFormatException e) {
       JiraExceptionCatcher.serverException(e);
     } finally {
-      if (decompressed != null) {
-        decompressed.release();
-      }
+      packet.release();
     }
   }
 
   /**
    * serializes the given {@code buf}.
-   * <p>
-   * if a packet found runs {@link PacketOut#write(ByteBuf)} method.
    *
    * @param buffer the buf to serialize.
    * @param packets the packets to serialize.

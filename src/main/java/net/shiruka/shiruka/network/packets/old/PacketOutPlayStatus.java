@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.network.packets;
+package net.shiruka.shiruka.network.packets.old;
 
 import io.netty.buffer.ByteBuf;
 import net.shiruka.shiruka.network.packet.PacketOut;

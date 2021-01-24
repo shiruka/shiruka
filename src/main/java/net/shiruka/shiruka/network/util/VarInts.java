@@ -30,7 +30,6 @@ import io.netty.buffer.ByteBuf;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import net.shiruka.api.base.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -39,11 +38,6 @@ import org.jetbrains.annotations.NotNull;
  * an utility class to write/read {@link DataInput} and {@link DataOutput}.
  */
 public final class VarInts {
-
-  /**
-   * The default character encoding for protocol Strings.
-   */
-  private static final Charset NET_CHARSET = StandardCharsets.UTF_8;
 
   /**
    * ctor.
@@ -125,7 +119,7 @@ public final class VarInts {
   public static String readString(final ByteBuf buf) {
     final var len = VarInts.readVarInt(buf);
     final var stringData = VarInts.arr(buf, len);
-    return new String(stringData, VarInts.NET_CHARSET);
+    return new String(stringData, StandardCharsets.UTF_8);
   }
 
   /**
@@ -258,7 +252,7 @@ public final class VarInts {
    */
   public static void writeString(@NotNull final ByteBuf buf, @NotNull final String s) {
     VarInts.writeVarInt(buf, s.length());
-    buf.writeBytes(s.getBytes(VarInts.NET_CHARSET));
+    buf.writeBytes(s.getBytes(StandardCharsets.UTF_8));
   }
 
   /**

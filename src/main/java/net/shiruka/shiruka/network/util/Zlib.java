@@ -28,6 +28,7 @@ package net.shiruka.shiruka.network.util;
 import com.nukkitx.natives.util.Natives;
 import com.nukkitx.natives.zlib.Deflater;
 import com.nukkitx.natives.zlib.Inflater;
+import com.whirvis.jraknet.RakNetPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.util.zip.DataFormatException;
@@ -121,9 +122,9 @@ public final class Zlib {
   }
 
   /**
-   * inflates the given {@code buffer} byte byf.
+   * inflates the given {@code rakNetPacket} byte byf.
    *
-   * @param buffer the buffer to inflate.
+   * @param rakNetPacket the rakNetPacket to inflate.
    * @param maxSize the maximum size to inflate.
    *
    * @return inflated byte buf instance.
@@ -131,9 +132,10 @@ public final class Zlib {
    * @throws DataFormatException if inflated data exceeds maximum size.
    */
   @NotNull
-  public ByteBuf inflate(@NotNull final ByteBuf buffer, final int maxSize) throws DataFormatException {
+  public ByteBuf inflate(@NotNull final RakNetPacket rakNetPacket, final int maxSize) throws DataFormatException {
     ByteBuf source = null;
     final var decompressed = ByteBufAllocator.DEFAULT.ioBuffer();
+    final var buffer = rakNetPacket.buffer();
     try {
       if (!buffer.isDirect()) {
         final ByteBuf temporary = ByteBufAllocator.DEFAULT.ioBuffer();

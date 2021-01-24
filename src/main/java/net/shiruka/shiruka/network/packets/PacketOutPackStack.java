@@ -29,7 +29,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.List;
 import net.shiruka.shiruka.network.packet.PacketOut;
-import net.shiruka.shiruka.network.util.Packets;
+import net.shiruka.shiruka.network.util.PacketHelper;
 import net.shiruka.shiruka.network.util.VarInts;
 import org.jetbrains.annotations.NotNull;
 
@@ -97,10 +97,10 @@ public final class PacketOutPackStack extends PacketOut {
   @Override
   public void write(@NotNull final ByteBuf buf) {
     buf.writeBoolean(this.forcedToAccept);
-    Packets.writeArray(buf, this.behaviorPacks, Packets::writeEntry);
-    Packets.writeArray(buf, this.resourcePacks, Packets::writeEntry);
+    PacketHelper.writeArray(buf, this.behaviorPacks, PacketHelper::writeEntry);
+    PacketHelper.writeArray(buf, this.resourcePacks, PacketHelper::writeEntry);
     VarInts.writeString(buf, this.gameVersion);
-    Packets.writeExperiments(buf, this.experiments);
+    PacketHelper.writeExperiments(buf, this.experiments);
     buf.writeBoolean(this.experimentsPreviouslyToggled);
   }
 

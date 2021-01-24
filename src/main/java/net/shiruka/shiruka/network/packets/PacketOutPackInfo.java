@@ -29,7 +29,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.List;
 import net.shiruka.shiruka.network.packet.PacketOut;
-import net.shiruka.shiruka.network.util.Packets;
+import net.shiruka.shiruka.network.util.PacketHelper;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -80,8 +80,8 @@ public final class PacketOutPackInfo extends PacketOut {
   public void write(@NotNull final ByteBuf buf) {
     buf.writeBoolean(this.forcedToAccept);
     buf.writeBoolean(this.scriptingEnabled);
-    Packets.writeArrayShortLE(buf, this.behaviorPackInfos, Packets::writeEntry);
-    Packets.writeArrayShortLE(buf, this.resourcePackInfos, Packets::writeResourcePackEntry);
+    PacketHelper.writeArrayShortLE(buf, this.behaviorPackInfos, PacketHelper::writeEntry);
+    PacketHelper.writeArrayShortLE(buf, this.resourcePackInfos, PacketHelper::writeResourcePackEntry);
   }
 
   /**

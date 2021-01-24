@@ -27,8 +27,6 @@ package net.shiruka.shiruka.console;
 
 import java.nio.file.Paths;
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
-import net.shiruka.api.Server;
-import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Completer;

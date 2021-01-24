@@ -25,6 +25,9 @@
 
 package net.shiruka.shiruka;
 
+import com.whirvis.jraknet.identifier.MinecraftIdentifier;
+import com.whirvis.jraknet.server.RakNetServer;
+import com.whirvis.jraknet.server.ServerPing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
@@ -38,7 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
-import net.shiruka.api.base.GameMode;
 import net.shiruka.api.command.CommandManager;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
 import net.shiruka.api.entity.Player;
@@ -50,7 +52,6 @@ import net.shiruka.api.permission.PermissionManager;
 import net.shiruka.api.plugin.PluginManager;
 import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
-import net.shiruka.api.server.ServerDescription;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
 import net.shiruka.shiruka.command.SimpleCommandManager;
@@ -62,10 +63,6 @@ import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
-import net.shiruka.shiruka.network.impl.ShirukaServerListener;
-import net.shiruka.shiruka.network.server.ServerListener;
-import net.shiruka.shiruka.network.server.ServerSocket;
-import net.shiruka.shiruka.network.util.Constants;
 import net.shiruka.shiruka.network.util.Misc;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.pack.loader.RplDirectory;
@@ -96,6 +93,16 @@ public final class ShirukaServer implements Server {
   public static final Logger LOGGER = LogManager.getLogger("Shiruka");
 
   /**
+   * the protocol version of the Minecraft game.
+   */
+  public static final short MINECRAFT_PROTOCOL_VERSION = 422;
+
+  /**
+   * the version of the Minecraft game.
+   */
+  public static final String MINECRAFT_VERSION = "1.16.201";
+
+  /**
    * obtains the Shiru ka server's version
    */
   public static final String VERSION = "1.0.0-SNAPSHOT";
@@ -122,12 +129,6 @@ public final class ShirukaServer implements Server {
    */
   @NotNull
   private final SimpleConsoleCommandSender consoleCommandSender;
-
-  /**
-   * the server's description.
-   */
-  @NotNull
-  private final ServerDescription description;
 
   /**
    * the event manager.
@@ -190,7 +191,7 @@ public final class ShirukaServer implements Server {
    * the socket.
    */
   @NotNull
-  private final ServerSocket socket;
+  private final RakNetServer socket;
 
   /**
    * the stop lock.
@@ -231,12 +232,13 @@ public final class ShirukaServer implements Server {
    * @param serverLanguage the server language.
    * @param socket the socket.
    */
-  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final Locale serverLanguage,
-                @NotNull final Function<ServerListener, ServerSocket> socket) {
+  ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
+                @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
+    this.startTime =startTime;
     this.tick = new ShirukaTick(this);
     this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
     this.console = console.apply(this);
-    this.socket = socket.apply(new ShirukaServerListener(this));
+    this.socket = socket;
     this.serverThread = Thread.currentThread();
     this.commandManager = new SimpleCommandManager();
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
@@ -247,7 +249,6 @@ public final class ShirukaServer implements Server {
     this.pluginManager = new SimplePluginManager();
     this.scheduler = new SimpleScheduler();
     this.worldManager = new SimpleWorldManager();
-    this.description = this.createDefaultDescription();
   }
 
   /**
@@ -256,7 +257,7 @@ public final class ShirukaServer implements Server {
    * @param player the player to add.
    */
   public void addPlayer(@NotNull final ShirukaPlayer player) {
-    this.players.put(player.getPlayerConnection().getConnection().getAddress(), player);
+    this.players.put(player.getPlayerConnection().getAddress(), player);
   }
 
   @NotNull
@@ -296,15 +297,6 @@ public final class ShirukaServer implements Server {
     return this.players.size();
   }
 
-  @NotNull
-  @Override
-  public ServerDescription getServerDescription(final boolean forceUpdate) {
-    if (forceUpdate) {
-      return this.updateDescription();
-    }
-    return this.description;
-  }
-
   @Override
   public boolean isInShutdownState() {
     return !this.running.get();
@@ -337,7 +329,7 @@ public final class ShirukaServer implements Server {
   }
 
   @Override
-  public void startServer(final long startTime) {
+  public void startServer() {
     this.registerImplementations();
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.starting"));
     this.reloadPacks();
@@ -432,28 +424,26 @@ public final class ShirukaServer implements Server {
   }
 
   /**
+   * runs when a client sends a ping to the server.
+   *
+   * @param ping the ping to edit.
+   */
+  public void onPing(@NotNull final ServerPing ping) {
+    final var identifier = (MinecraftIdentifier) ping.getIdentifier();
+    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    identifier.setServerName(motd);
+    identifier.setWorldName(worldName);
+    identifier.setOnlinePlayerCount(this.players.size());
+  }
+
+  /**
    * removes the given player from {@link #players}.
    *
    * @param player the player to remove.
    */
   public void removePlayer(@NotNull final ShirukaPlayer player) {
-    this.players.remove(player.getPlayerConnection().getConnection().getAddress());
-  }
-
-  /**
-   * creates a default server description instance from the server config values.
-   *
-   * @return a newly created server description instance.
-   */
-  @NotNull
-  private ServerDescription createDefaultDescription() {
-    final var gameMode = GameMode.fromType(ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("survival"))
-      .orElse(GameMode.SURVIVAL);
-    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    return new ServerDescription(gameMode, maxPlayers, Constants.MINECRAFT_PROTOCOL_VERSION, this.socket.getUniqueId(),
-      Constants.MINECRAFT_VERSION, motd, ServerDescription.Edition.MCPE, this.players.size(), worldName);
+    this.players.remove(player.getPlayerConnection().getAddress());
   }
 
   /**
@@ -502,20 +492,5 @@ public final class ShirukaServer implements Server {
       this.running.set(false);
     }
     this.shutdownThread = Thread.currentThread();
-  }
-
-  /**
-   * updates the server description and returns it.
-   *
-   * @return updated server description.
-   */
-  @NotNull
-  private ServerDescription updateDescription() {
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    this.description.setDescription(motd);
-    this.description.setPlayerCount(this.players.size());
-    this.description.setWorldName(worldName);
-    return this.description;
   }
 }

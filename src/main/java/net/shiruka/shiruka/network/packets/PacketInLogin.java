@@ -40,7 +40,7 @@ import net.shiruka.shiruka.network.impl.PlayerConnection;
 import net.shiruka.shiruka.network.packet.PacketIn;
 import net.shiruka.shiruka.network.packet.PacketOut;
 import net.shiruka.shiruka.network.util.Constants;
-import net.shiruka.shiruka.network.util.Packets;
+import net.shiruka.shiruka.network.util.PacketHelper;
 import net.shiruka.shiruka.network.util.VarInts;
 import org.jetbrains.annotations.NotNull;
 
@@ -68,13 +68,13 @@ public final class PacketInLogin extends PacketIn {
   public void read(@NotNull final ByteBuf buf, @NotNull final PlayerConnection connection) {
     final var protocolVersion = buf.readInt();
     final var jwt = buf.readSlice(VarInts.readUnsignedVarInt(buf));
-    final var encodedChainData = Packets.readLEAsciiString(jwt).toString();
-    final var encodedSkinData = Packets.readLEAsciiString(jwt).toString();
-    if (protocolVersion < Constants.MINECRAFT_PROTOCOL_VERSION) {
+    final var encodedChainData = PacketHelper.readLEAsciiString(jwt).toString();
+    final var encodedSkinData = PacketHelper.readLEAsciiString(jwt).toString();
+    if (protocolVersion < ShirukaServer.MINECRAFT_PROTOCOL_VERSION) {
       connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_CLIENT_OLD));
       return;
     }
-    if (protocolVersion > Constants.MINECRAFT_PROTOCOL_VERSION) {
+    if (protocolVersion > ShirukaServer.MINECRAFT_PROTOCOL_VERSION) {
       connection.sendPacket(new PacketOutPlayStatus(PacketOutPlayStatus.Status.LOGIN_FAILED_SERVER_OLD));
       return;
     }

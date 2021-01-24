@@ -25,8 +25,8 @@
 
 package net.shiruka.shiruka.network.packet;
 
+import com.whirvis.jraknet.peer.RakNetClientPeer;
 import io.netty.buffer.ByteBuf;
-import net.shiruka.shiruka.network.impl.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,5 +51,5 @@ public abstract class PacketIn extends Packet {
    * @param buf the buf to read.
    * @param connection the connection to read.
    */
-  public abstract void read(@NotNull ByteBuf buf, @NotNull PlayerConnection connection);
+  public abstract void read(@NotNull ByteBuf buf, @NotNull RakNetClientPeer connection);
 }

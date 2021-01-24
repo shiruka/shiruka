@@ -23,23 +23,22 @@
  *
  */
 
-package net.shiruka.shiruka.network.impl;
+package net.shiruka.shiruka.network;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
-import java.net.InetSocketAddress;
-import java.util.concurrent.CompletableFuture;
-import net.shiruka.api.server.ServerDescription;
+import com.whirvis.jraknet.RakNetPacket;
+import com.whirvis.jraknet.peer.RakNetClientPeer;
+import com.whirvis.jraknet.peer.RakNetState;
+import com.whirvis.jraknet.server.RakNetServer;
+import com.whirvis.jraknet.server.RakNetServerListener;
+import com.whirvis.jraknet.server.ServerPing;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.network.Connection;
-import net.shiruka.shiruka.network.server.ServerListener;
-import net.shiruka.shiruka.network.server.ServerSocket;
+import net.shiruka.shiruka.network.protocol.Protocol;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link ServerListener}.
+ * an implementation for {@link RakNetServerListener}.
  */
-public final class ShirukaServerListener implements ServerListener {
+public final class ShirukaServerListener implements RakNetServerListener {
 
   /**
    * the server instance.
@@ -57,25 +56,20 @@ public final class ShirukaServerListener implements ServerListener {
   }
 
   @Override
-  public boolean onConnect(@NotNull final InetSocketAddress address) {
-    return true;
+  public void onPing(final RakNetServer server, final ServerPing ping) {
+    this.server.onPing(ping);
   }
 
   @Override
-  public void onConnectionCreation(@NotNull final Connection<ServerSocket> connection) {
-    final var playerConnection = new PlayerConnection(connection, this.server);
-    final var connectionListener = new ShirukaConnectionListener(playerConnection);
-    connection.setConnectionListener(connectionListener);
-  }
-
-  @Override
-  public byte[] onRequestServerData(@NotNull final ServerSocket server,
-                                                       @NotNull final InetSocketAddress requester) {
-    return this.server.getServerDescription().toPacket();
-  }
-
-  @Override
-  public void onUnhandledDatagram(@NotNull final ServerSocket server, @NotNull final ChannelHandlerContext ctx,
-                                  @NotNull final DatagramPacket packet) {
+  public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
+                            final int channel) {
+    if (peer.getState() != RakNetState.CONNECTED) {
+      return;
+    }
+    final var packetId = packet.readUnsignedByte();
+    if (packetId == 0xfe) {
+      packet.buffer().markReaderIndex();
+      Protocol.deserialize(packet, peer);
+    }
   }
 }

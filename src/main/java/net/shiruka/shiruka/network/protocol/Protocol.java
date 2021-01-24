@@ -26,6 +26,9 @@
 package net.shiruka.shiruka.network.protocol;
 
 import com.google.common.base.Preconditions;
+import com.whirvis.jraknet.RakNetPacket;
+import com.whirvis.jraknet.peer.RakNetClientPeer;
+import com.whirvis.jraknet.peer.RakNetPeer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
@@ -66,17 +69,17 @@ public final class Protocol {
   }
 
   /**
-   * deserializes the given {@code buffer}.
+   * deserializes the given {@code packet}.
    * <p>
-   * if a packet found runs {@link PacketIn#read(ByteBuf, PlayerConnection)} method.
+   * if a packet found runs {@link PacketIn#read(ByteBuf, RakNetClientPeer)} method.
    *
-   * @param buffer the buffer to deserialize.
+   * @param packet the packet to deserialize.
    * @param connection the connection to deserialize.
    */
-  public static void deserialize(@NotNull final ByteBuf buffer, @NotNull final PlayerConnection connection) {
+  public static void deserialize(@NotNull final RakNetPacket packet, @NotNull final RakNetClientPeer connection) {
     ByteBuf decompressed = null;
     try {
-      decompressed = Protocol.ZLIB.inflate(buffer, 12 * 1024 * 1024);
+      decompressed = Protocol.ZLIB.inflate(packet, 12 * 1024 * 1024);
       while (decompressed.isReadable()) {
         final var length = VarInts.readUnsignedVarInt(decompressed);
         final var packetBuffer = decompressed.readSlice(length);
@@ -87,11 +90,8 @@ public final class Protocol {
           final var header = VarInts.readUnsignedVarInt(packetBuffer);
           final var packetId = header & 0x3ff;
           Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
-          final var cls = PacketRegistry.byId(connection.getState(),
-            PacketBound.SERVER, packetId);
-          Preconditions.checkArgument(cls != null, "Packet with %s not found!", packetId);
-          final var packet = PacketRegistry.makeIn(cls);
-          packet.read(packetBuffer, connection);
+          final var packetIn = PacketRegistry.makeIn(cls);
+          packetIn.read(packetBuffer, connection);
         } catch (final InvocationTargetException | InstantiationException |
           IllegalAccessException e) {
           Protocol.LOGGER.debug("Error occurred whilst decoding packet", e);

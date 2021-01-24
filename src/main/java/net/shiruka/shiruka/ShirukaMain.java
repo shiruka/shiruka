@@ -25,6 +25,8 @@
 
 package net.shiruka.shiruka;
 
+import com.whirvis.jraknet.identifier.MinecraftIdentifier;
+import com.whirvis.jraknet.server.RakNetServer;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -43,7 +45,6 @@ import net.shiruka.shiruka.console.ShirukaConsoleParser;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.log.ForwardLogHandler;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import net.shiruka.shiruka.network.server.NetServerSocket;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -187,6 +188,7 @@ public final class ShirukaMain {
    * @throws Exception if something went wrong when starting the Shiru ka.
    */
   private void exec() throws Exception {
+    final var start = System.currentTimeMillis();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
@@ -199,10 +201,17 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
       .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
     final var serverLocale = Languages.startSequence();
-    final var start = System.currentTimeMillis();
-    final var server = new ShirukaServer(ShirukaConsole::new, serverLocale, listener ->
-      NetServerSocket.init(new InetSocketAddress(ip, port), listener, maxPlayer));
+    final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
+    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
+    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
+    final var identifier = new MinecraftIdentifier(motd, ShirukaServer.MINECRAFT_PROTOCOL_VERSION,
+      ShirukaServer.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
+    socket.setIdentifier(identifier);
+    final var server = new ShirukaServer(start, ShirukaConsole::new, serverLocale, socket);
     Shiruka.setServer(server);
+    socket.start();
     server.startServer(start);
   }
 }

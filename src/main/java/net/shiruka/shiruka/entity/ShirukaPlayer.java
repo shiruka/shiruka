@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.entity;
 
+import com.whirvis.jraknet.peer.RakNetClientPeer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,6 @@ import net.shiruka.api.permission.PermissionAttachment;
 import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.network.impl.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,7 +63,7 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
    * the connection.
    */
   @NotNull
-  private final PlayerConnection connection;
+  private final RakNetClientPeer connection;
 
   /**
    * the ping.
@@ -83,7 +83,7 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
    * @param connection the connection.
    * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final PlayerConnection connection,
+  public ShirukaPlayer(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final RakNetClientPeer connection,
                        @NotNull final GameProfile profile) {
     this.chainData = chainData;
     this.connection = connection;
@@ -259,7 +259,7 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
    * @return player connection.
    */
   @NotNull
-  public PlayerConnection getPlayerConnection() {
+  public RakNetClientPeer getPlayerConnection() {
     return this.connection;
   }
 

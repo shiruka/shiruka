@@ -82,6 +82,7 @@ public final class Protocol {
         Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
         final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
           String.format("The packet id %s not found!", packetId));
+        connection.getServer().addSelfListener()
         shirukaPacket.apply(packet).decode();
       }
     } catch (final DataFormatException e) {

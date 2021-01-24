@@ -25,8 +25,12 @@
 
 package net.shiruka.shiruka;
 
+import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
+import com.whirvis.jraknet.peer.RakNetClientPeer;
+import com.whirvis.jraknet.peer.RakNetState;
 import com.whirvis.jraknet.server.RakNetServer;
+import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -63,6 +67,7 @@ import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
+import net.shiruka.shiruka.network.protocol.Protocol;
 import net.shiruka.shiruka.network.util.Misc;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.pack.loader.RplDirectory;
@@ -80,7 +85,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an implementation for {@link Server}.
  */
-public final class ShirukaServer implements Server {
+public final class ShirukaServer implements Server, RakNetServerListener {
 
   /**
    * the internal plugin of Shiru ka.
@@ -428,18 +433,36 @@ public final class ShirukaServer implements Server {
     return this.isStopped;
   }
 
-  /**
-   * runs when a client sends a ping to the server.
-   *
-   * @param ping the ping to edit.
-   */
-  public void onPing(@NotNull final ServerPing ping) {
+  @Override
+  public void onStart(final RakNetServer server) {
+    this.startServer();
+  }
+
+  @Override
+  public void onPing(final RakNetServer server, final ServerPing ping) {
     final var identifier = (MinecraftIdentifier) ping.getIdentifier();
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
     final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
     identifier.setServerName(motd);
     identifier.setWorldName(worldName);
     identifier.setOnlinePlayerCount(this.players.size());
+  }
+
+  @Override
+  public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
+  }
+
+  @Override
+  public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
+                            final int channel) {
+    if (peer.getState() != RakNetState.CONNECTED) {
+      return;
+    }
+    final var packetId = packet.readUnsignedByte();
+    if (packetId == 0xfe) {
+      packet.buffer().markReaderIndex();
+      Protocol.deserialize(packet, peer);
+    }
   }
 
   /**

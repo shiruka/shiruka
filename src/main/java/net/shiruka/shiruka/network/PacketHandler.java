@@ -23,46 +23,22 @@
  *
  */
 
-package net.shiruka.shiruka.network.packets;
+package net.shiruka.shiruka.network;
 
-import com.whirvis.jraknet.RakNetPacket;
-import io.netty.util.AsciiString;
-import net.shiruka.shiruka.network.packet.ShirukaPacket;
-import net.shiruka.shiruka.network.util.PacketHelper;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a packet that sends by clients to request a login process.
+ * an interface to determine packet handlers.
  */
-public final class LoginPacket extends ShirukaPacket {
+public interface PacketHandler {
 
   /**
-   * the chain data.
+   * handles the login packet.
+   *
+   * @param packet the packet to handle.
    */
-  private AsciiString chainData;
-
-  /**
-   * the protocol version.
-   */
-  private int protocolVersion;
-
-  /**
-   * the skin data.
-   */
-  private AsciiString skinData;
-
-  /**
-   * ctor.
-   */
-  public LoginPacket(@NotNull final RakNetPacket packet) throws IllegalArgumentException {
-    super(ShirukaPacket.ID_LOGIN, packet);
-  }
-
-  @Override
-  public void decode() {
-    this.protocolVersion = this.readInt();
-    final var jwt = this.buffer().readSlice((int) this.readUnsignedVarInt());
-    this.chainData = PacketHelper.readLEAsciiString(jwt);
-    this.skinData = PacketHelper.readLEAsciiString(jwt);
+  default void loginPacket(@NotNull final LoginPacket packet) {
   }
 }

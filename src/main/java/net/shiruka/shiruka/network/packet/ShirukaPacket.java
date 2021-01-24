@@ -96,13 +96,4 @@ public abstract class ShirukaPacket extends RakNetPacket {
    * @param connection the connection to handle.
    */
   public abstract void handle(@NotNull PacketHandler handler, @NotNull final RakNetClientPeer connection);
-
-  /**
-   * checks if the given {@code object} is null.
-   *
-   * @param object the object to check.
-   */
-  protected final void check(@Nullable final Object object) {
-    Objects.requireNonNull(object, String.format("The packet %s not initiated!", this.getId()));
-  }
 }

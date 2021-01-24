@@ -70,8 +70,35 @@ public final class LoginPacket extends ShirukaPacket {
 
   @Override
   public void handle(@NotNull final PacketHandler handler, @NotNull final RakNetClientPeer connection) {
-    this.check(this.chainData);
-    this.check(this.skinData);
     handler.loginPacket(this, connection);
+  }
+
+  /**
+   * obtains the chain data.
+   *
+   * @return chain data.
+   */
+  @NotNull
+  public AsciiString getChainData() {
+    return this.chainData;
+  }
+
+  /**
+   * obtains the protocol version.
+   *
+   * @return protocol version.
+   */
+  public int getProtocolVersion() {
+    return this.protocolVersion;
+  }
+
+  /**
+   * obtains the skin data.
+   *
+   * @return skin data.
+   */
+  @NotNull
+  public AsciiString getSkinData() {
+    return this.skinData;
   }
 }

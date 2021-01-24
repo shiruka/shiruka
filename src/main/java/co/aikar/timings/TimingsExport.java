@@ -106,7 +106,7 @@ public class TimingsExport extends Thread {
       pair("datapacks", Shiruka.getPackManager().getPacks().keySet())
     );
     if (!TimingsManager.privacy) {
-      final var description = Shiruka.getServer().getServerDescription().join();
+      final var description = Shiruka.getServer().getServerDescription();
       appendObjectData(parent,
         pair("server", ServerConfig.TIMINGS_SERVER_NAME.getValue().orElse("Unknown Server")),
         pair("motd", description.getDescription())

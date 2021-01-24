@@ -374,7 +374,9 @@ public class LoadingMap<K, V> extends AbstractMap<K, V> {
     @Override
     public V apply(@Nullable final K input) {
       try {
-        return this.constructor != null ? this.constructor.newInstance(input) : this.valueClass.newInstance();
+        return this.constructor != null
+          ? this.constructor.newInstance(input)
+          : this.valueClass.getConstructor().newInstance();
       } catch (final Exception e) {
         throw new ExceptionInInitializerError(e);
       }

@@ -62,8 +62,7 @@ public interface ServerListener {
    *
    * @return a server data.
    */
-  @NotNull
-  CompletableFuture<byte[]> onRequestServerData(@NotNull ServerSocket server, @NotNull InetSocketAddress requester);
+  byte[] onRequestServerData(@NotNull ServerSocket server, @NotNull InetSocketAddress requester);
 
   /**
    * runs when a raw datagram packet received.

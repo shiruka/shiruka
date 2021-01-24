@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -296,11 +298,11 @@ public final class ShirukaServer implements Server {
 
   @NotNull
   @Override
-  public CompletableFuture<ServerDescription> getServerDescription(final boolean forceUpdate) {
+  public ServerDescription getServerDescription(final boolean forceUpdate) {
     if (forceUpdate) {
       return this.updateDescription();
     }
-    return CompletableFuture.completedFuture(this.description);
+    return this.description;
   }
 
   @Override
@@ -348,8 +350,9 @@ public final class ShirukaServer implements Server {
     // this.worldManager.loadAll();
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
-    final var end = System.currentTimeMillis() - startTime;
     new Thread(this.console::start).start();
+    this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
+    final var end = System.currentTimeMillis() - startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
   }
@@ -446,16 +449,11 @@ public final class ShirukaServer implements Server {
   private ServerDescription createDefaultDescription() {
     final var gameMode = GameMode.fromType(ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("survival"))
       .orElse(GameMode.SURVIVAL);
-    final var ipv4Port = ServerConfig.DESCRIPTION_IPV4_PORT.getValue().orElse(19132);
-    final var ipv6Port = ServerConfig.DESCRIPTION_IPV6_PORT.getValue().orElse(19133);
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var subMotd = ServerConfig.DESCRIPTION_SUB_MOTD.getValue().orElse("");
-    final var extras = ServerConfig.DESCRIPTION_EXTRAS.getValue().orElse(Collections.emptyList())
-      .toArray(new String[0]);
-    return new ServerDescription(gameMode, ipv4Port, ipv6Port, maxPlayers, Constants.MINECRAFT_PROTOCOL_VERSION,
-      this.socket.getUniqueId(), Constants.MINECRAFT_VERSION, motd, ServerDescription.Edition.MCPE, extras,
-      this.players.size(), subMotd);
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    return new ServerDescription(gameMode, maxPlayers, Constants.MINECRAFT_PROTOCOL_VERSION, this.socket.getUniqueId(),
+      Constants.MINECRAFT_VERSION, motd, ServerDescription.Edition.MCPE, this.players.size(), worldName);
   }
 
   /**
@@ -512,17 +510,12 @@ public final class ShirukaServer implements Server {
    * @return updated server description.
    */
   @NotNull
-  private CompletableFuture<ServerDescription> updateDescription() {
-    return CompletableFuture.supplyAsync(() -> {
-      final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-      final var subMotd = ServerConfig.DESCRIPTION_SUB_MOTD.getValue().orElse("");
-      final var extras = ServerConfig.DESCRIPTION_EXTRAS.getValue().orElse(Collections.emptyList())
-        .toArray(new String[0]);
-      this.description.setDescription(motd);
-      this.description.setExtras(extras);
-      this.description.setPlayerCount(this.players.size());
-      this.description.setSubDescription(subMotd);
-      return this.description;
-    });
+  private ServerDescription updateDescription() {
+    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    this.description.setDescription(motd);
+    this.description.setPlayerCount(this.players.size());
+    this.description.setWorldName(worldName);
+    return this.description;
   }
 }

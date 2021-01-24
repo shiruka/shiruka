@@ -230,7 +230,7 @@ public final class NetServerSocket extends NetSocket implements ServerSocket {
           NetServerSocket.LOGGER.error(future.cause().getMessage());
           completableFuture.completeExceptionally(future.cause());
         }
-        NetServerSocket.LOGGER.debug("§7The server bound.");
+        NetServerSocket.LOGGER.debug("§7The server bound on {}.", this.getAddress().toString());
         completableFuture.complete(future.channel());
       });
     return CompletableFuture.allOf(completableFuture);

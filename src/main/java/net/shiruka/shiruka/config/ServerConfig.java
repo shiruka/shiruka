@@ -63,32 +63,11 @@ public final class ServerConfig extends PathableConfig {
     "name of the over world.");
 
   /**
-   * the server description's extras.
-   */
-  public static final ConfigPath<List<String>> DESCRIPTION_EXTRAS = commented(listStringPath(
-    "description.extras", Collections.emptyList()),
-    "the server description's extras.");
-
-  /**
    * the game mode.
    */
   public static final ConfigPath<String> DESCRIPTION_GAME_MODE = commented(stringPath(
     "description.game-mode", "survival"),
     "Shiru ka server's game mode.");
-
-  /**
-   * server's ipv4 port.
-   */
-  public static final ConfigPath<Integer> DESCRIPTION_IPV4_PORT = commented(integerPath(
-    "description.port", 19132),
-    "server's port.");
-
-  /**
-   * server's ipv6 port.
-   */
-  public static final ConfigPath<Integer> DESCRIPTION_IPV6_PORT = commented(integerPath(
-    "description.port", 19133),
-    "server's port.");
 
   /**
    * the max players that can be online at once.
@@ -103,13 +82,6 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<String> DESCRIPTION_MOTD = commented(stringPath(
     "description.motd", "Shiru ka server"),
     "the description message shown in the server list.");
-
-  /**
-   * the sub description message shown in the server list.
-   */
-  public static final ConfigPath<String> DESCRIPTION_SUB_MOTD = commented(stringPath(
-    "description.sub-motd", "Shiru ka server"),
-    "the syb description message shown in the server list.");
 
   /**
    * forces to accept incoming resource packs.
@@ -138,6 +110,13 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<Boolean> ONLINE_MODE = commented(booleanPath(
     "online-mode", true),
     "whether to use Mojang auth to check players.");
+
+  /**
+   * server's ipv4 port.
+   */
+  public static final ConfigPath<Integer> PORT = commented(integerPath(
+    "port", 19132),
+    "server's port.");
 
   /**
    * the server language.

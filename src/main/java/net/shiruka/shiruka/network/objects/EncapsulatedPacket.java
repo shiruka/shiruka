@@ -42,6 +42,12 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 public final class EncapsulatedPacket implements ReferenceCounted {
 
+  private static final byte FLAG_RELIABILITY = (byte) 0b11100000;
+
+  private static final int FLAG_RELIABILITY_INDEX = 5;
+
+  private static final byte FLAG_SPLIT = (byte) 0b00010000;
+
   /**
    * the ordering channel.
    */
@@ -206,23 +212,20 @@ public final class EncapsulatedPacket implements ReferenceCounted {
    */
   void decode(@NotNull final ByteBuf packet) {
     final var flags = packet.readByte();
-    final var optional = PacketReliability.fromId((flags & 0b11100000) >> 5);
+    final var optional = PacketReliability.fromId(
+      (flags & EncapsulatedPacket.FLAG_RELIABILITY) >> EncapsulatedPacket.FLAG_RELIABILITY_INDEX);
     if (optional.isEmpty()) {
       return;
     }
     this.reliability = optional.get();
-    this.split = (flags & 0b00010000) != 0;
-    final var size = packet.readUnsignedShort() + 7 >> 3;
+    this.split = (flags & EncapsulatedPacket.FLAG_SPLIT) != 0;
+    final var size = packet.readUnsignedShort() / Byte.SIZE;
     if (this.reliability.isReliable()) {
-      this.reliabilityIndex = packet.readUnsignedMediumLE();
+      this.reliabilityIndex = packet.readMediumLE();
     }
-    if (this.reliability.isSequenced()) {
-      this.sequenceIndex = packet.readUnsignedMediumLE();
-    }
-    if (this.reliability.isOrdered() ||
-      this.reliability.isSequenced()) {
-      this.orderingIndex = packet.readUnsignedMediumLE();
-      this.orderingChannel = packet.readUnsignedByte();
+    if (this.reliability.isOrdered() || this.reliability.isSequenced()) {
+      this.orderingIndex = packet.readMediumLE();
+      this.orderingChannel = packet.readByte();
     }
     if (this.split) {
       this.partCount = packet.readInt();

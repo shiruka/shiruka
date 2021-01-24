@@ -70,6 +70,7 @@ final class NetServerDatagramHandler extends MessageToMessageDecoder<DatagramPac
   protected void decode(final ChannelHandlerContext ctx, final DatagramPacket datagram, final List<Object> out) {
     final var sender = datagram.sender();
     if (this.server.getBlockedAddresses().containsKey(sender.getAddress())) {
+      datagram.release();
       return;
     }
     final var content = datagram.content();

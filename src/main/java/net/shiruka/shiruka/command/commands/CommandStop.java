@@ -58,7 +58,7 @@ public final class CommandStop extends CommandHelper {
   /**
    * the message key from the Shiru ka's language properties file.
    */
-  private static final String MESSAGE = "command_stop.register.add_confirm";
+  private static final String MESSAGE = "shiruka.command.commands.command_stop.register.add_confirm";
 
   /**
    * the permission.

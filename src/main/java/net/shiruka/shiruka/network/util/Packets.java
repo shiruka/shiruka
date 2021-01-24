@@ -582,18 +582,17 @@ public final class Packets {
                                                 @NotNull final ServerSocket server,
                                                 @NotNull final InetSocketAddress recipient,
                                                 final long pingTime) {
-    server.getServerListener().onRequestServerData(server, recipient).thenAccept(serverData -> {
-      final var serverDataLength = serverData.length;
-      final var packetLength = 35 + serverDataLength;
-      Packets.createPacket(ctx, packetLength, packet -> {
-        packet.writeByte(Packets.UNCONNECTED_PONG);
-        packet.writeLong(pingTime);
-        packet.writeLong(server.getUniqueId());
-        Packets.writeUnconnectedMagic(packet);
-        packet.writeShort(serverDataLength);
-        packet.writeBytes(serverData);
-        Socket.sendWithPromise(ctx, packet, recipient);
-      });
+    final var serverData = server.getServerListener().onRequestServerData(server, recipient);
+    final var serverDataLength = serverData.length;
+    final var packetLength = 35 + serverDataLength;
+    Packets.createPacket(ctx, packetLength, packet -> {
+      packet.writeByte(Packets.UNCONNECTED_PONG);
+      packet.writeLong(pingTime);
+      packet.writeLong(server.getUniqueId());
+      Packets.writeUnconnectedMagic(packet);
+      packet.writeShort(serverDataLength);
+      packet.writeBytes(serverData);
+      Socket.sendWithPromise(ctx, packet, recipient);
     });
   }
 

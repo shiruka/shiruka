@@ -39,11 +39,6 @@ import org.jetbrains.annotations.Nullable;
 abstract class CommandHelper {
 
   /**
-   * the key prefix.
-   */
-  private static final String KEY_PREFIX = "shiruka.command.commands.";
-
-  /**
    * the permission message.
    * <p>
    * Placeholders:
@@ -61,7 +56,7 @@ abstract class CommandHelper {
    */
   protected static void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
                                        @NotNull final Object... params) {
-    sender.sendMessage(TranslatedText.get(CommandHelper.KEY_PREFIX + key, params));
+    sender.sendMessage(TranslatedText.get(key, params));
   }
 
   /**

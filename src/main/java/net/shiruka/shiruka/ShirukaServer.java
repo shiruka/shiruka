@@ -296,11 +296,11 @@ public final class ShirukaServer implements Server {
 
   @NotNull
   @Override
-  public CompletableFuture<ServerDescription> getServerDescription(final boolean forceUpdate) {
+  public ServerDescription getServerDescription(final boolean forceUpdate) {
     if (forceUpdate) {
       return this.updateDescription();
     }
-    return CompletableFuture.completedFuture(this.description);
+    return this.description;
   }
 
   @Override
@@ -348,8 +348,9 @@ public final class ShirukaServer implements Server {
     // this.worldManager.loadAll();
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
-    final var end = System.currentTimeMillis() - startTime;
     new Thread(this.console::start).start();
+    this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
+    final var end = System.currentTimeMillis() - startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
   }
@@ -512,17 +513,15 @@ public final class ShirukaServer implements Server {
    * @return updated server description.
    */
   @NotNull
-  private CompletableFuture<ServerDescription> updateDescription() {
-    return CompletableFuture.supplyAsync(() -> {
-      final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-      final var subMotd = ServerConfig.DESCRIPTION_SUB_MOTD.getValue().orElse("");
-      final var extras = ServerConfig.DESCRIPTION_EXTRAS.getValue().orElse(Collections.emptyList())
-        .toArray(new String[0]);
-      this.description.setDescription(motd);
-      this.description.setExtras(extras);
-      this.description.setPlayerCount(this.players.size());
-      this.description.setSubDescription(subMotd);
-      return this.description;
-    });
+  private ServerDescription updateDescription() {
+    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+    final var subMotd = ServerConfig.DESCRIPTION_SUB_MOTD.getValue().orElse("");
+    final var extras = ServerConfig.DESCRIPTION_EXTRAS.getValue().orElse(Collections.emptyList())
+      .toArray(new String[0]);
+    this.description.setDescription(motd);
+    this.description.setExtras(extras);
+    this.description.setPlayerCount(this.players.size());
+    this.description.setSubDescription(subMotd);
+    return this.description;
   }
 }

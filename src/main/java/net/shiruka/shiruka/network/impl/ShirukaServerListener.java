@@ -68,11 +68,10 @@ public final class ShirukaServerListener implements ServerListener {
     connection.setConnectionListener(connectionListener);
   }
 
-  @NotNull
   @Override
-  public CompletableFuture<byte[]> onRequestServerData(@NotNull final ServerSocket server,
+  public byte[] onRequestServerData(@NotNull final ServerSocket server,
                                                        @NotNull final InetSocketAddress requester) {
-    return this.server.getServerDescription().thenApply(ServerDescription::toPacket);
+    return this.server.getServerDescription().toPacket();
   }
 
   @Override

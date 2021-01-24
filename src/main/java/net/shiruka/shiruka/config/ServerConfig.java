@@ -80,15 +80,15 @@ public final class ServerConfig extends PathableConfig {
    * server's ipv4 port.
    */
   public static final ConfigPath<Integer> DESCRIPTION_IPV4_PORT = commented(integerPath(
-    "description.port", 19132),
-    "server's port.");
+    "description.portv4", 19132),
+    "server's ipv4 port.");
 
   /**
    * server's ipv6 port.
    */
   public static final ConfigPath<Integer> DESCRIPTION_IPV6_PORT = commented(integerPath(
-    "description.port", 19133),
-    "server's port.");
+    "description.portv6", 19133),
+    "server's ipv6 port.");
 
   /**
    * the max players that can be online at once.

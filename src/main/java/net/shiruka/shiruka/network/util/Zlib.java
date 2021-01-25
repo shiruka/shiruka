@@ -28,7 +28,7 @@ package net.shiruka.shiruka.network.util;
 import com.nukkitx.natives.util.Natives;
 import com.nukkitx.natives.zlib.Deflater;
 import com.nukkitx.natives.zlib.Inflater;
-import com.whirvis.jraknet.RakNetPacket;
+import com.whirvis.jraknet.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.util.zip.DataFormatException;
@@ -83,7 +83,7 @@ public final class Zlib {
    * @param compressed the compressed to deflate.
    * @param level the level to deflate.
    */
-  public void deflate(@NotNull final ByteBuf uncompressed, @NotNull final ByteBuf compressed, final int level) {
+  public void deflate(@NotNull final ByteBuf uncompressed, @NotNull final Packet compressed, final int level) {
     ByteBuf destination = null;
     ByteBuf source = null;
     try {
@@ -93,38 +93,38 @@ public final class Zlib {
       } else {
         source = uncompressed;
       }
-      if (!compressed.isDirect()) {
+      if (!compressed.buffer().isDirect()) {
         destination = ByteBufAllocator.DEFAULT.ioBuffer();
       } else {
-        destination = compressed;
+        destination = compressed.buffer();
       }
-      final var deflater = this.deflaterLocal.get();
-      deflater.reset();
-      deflater.setLevel(level);
-      deflater.setInput(source.internalNioBuffer(source.readerIndex(), source.readableBytes()));
-      while (!deflater.finished()) {
+      final var deflated = this.deflaterLocal.get();
+      deflated.reset();
+      deflated.setLevel(level);
+      deflated.setInput(source.internalNioBuffer(source.readerIndex(), source.readableBytes()));
+      while (!deflated.finished()) {
         final var index = destination.writerIndex();
         destination.ensureWritable(Zlib.CHUNK);
-        final var written = deflater.deflate(destination.internalNioBuffer(index, Zlib.CHUNK));
+        final var written = deflated.deflate(destination.internalNioBuffer(index, Zlib.CHUNK));
         destination.writerIndex(index + written);
       }
-      if (destination != compressed) {
-        compressed.writeBytes(destination);
+      if (destination != compressed.buffer()) {
+        compressed.buffer().writeBytes(destination);
       }
     } finally {
       if (source != null && source != uncompressed) {
         source.release();
       }
-      if (destination != null && destination != compressed) {
+      if (destination != null && destination != compressed.buffer()) {
         destination.release();
       }
     }
   }
 
   /**
-   * inflates the given {@code rakNetPacket} byte byf.
+   * inflates the given {@code packet} byte byf.
    *
-   * @param rakNetPacket the rakNetPacket to inflate.
+   * @param packet the packet to inflate.
    * @param maxSize the maximum size to inflate.
    *
    * @return inflated byte buf instance.
@@ -132,10 +132,10 @@ public final class Zlib {
    * @throws DataFormatException if inflated data exceeds maximum size.
    */
   @NotNull
-  public ByteBuf inflate(@NotNull final RakNetPacket rakNetPacket, final int maxSize) throws DataFormatException {
+  public ByteBuf inflate(@NotNull final Packet packet, final int maxSize) throws DataFormatException {
     ByteBuf source = null;
     final var decompressed = ByteBufAllocator.DEFAULT.ioBuffer();
-    final var buffer = rakNetPacket.buffer();
+    final var buffer = packet.buffer();
     try {
       if (!buffer.isDirect()) {
         final ByteBuf temporary = ByteBufAllocator.DEFAULT.ioBuffer();

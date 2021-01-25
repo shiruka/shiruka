@@ -27,8 +27,6 @@ package net.shiruka.shiruka.network.protocol;
 
 import com.whirvis.jraknet.Packet;
 import com.whirvis.jraknet.RakNetPacket;
-import com.whirvis.jraknet.peer.RakNetClientPeer;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.util.Collection;
 import java.util.Objects;
@@ -97,31 +95,35 @@ public final class Protocol {
   /**
    * serializes the given {@code packet}.
    *
-   * @param packet the packet to serialize.
    * @param packets the packets to serialize.
    * @param level the level to serialize.
+   *
+   * @return serialized packet.
    */
-  public static void serialize(@NotNull final Packet packet, @NotNull final Collection<ShirukaPacket> packets,
-                               final int level) {
+  @NotNull
+  public static Packet serialize(@NotNull final Collection<ShirukaPacket> packets, final int level) {
+    final var finalPacket = new Packet();
     final var uncompressed = ByteBufAllocator.DEFAULT.ioBuffer(packets.size() << 3);
     try {
-      for (final var shirukaPacket : packets) {
-        final var packetBuffer = ByteBufAllocator.DEFAULT.ioBuffer();
+      for (final var packet : packets) {
+        final var temp = ByteBufAllocator.DEFAULT.ioBuffer();
         try {
-          final var id = shirukaPacket.getId();
+          final var id = packet.getId();
           var header = 0;
           header |= id & 0x3ff;
-          VarInts.writeUnsignedInt(packetBuffer, header);
-          shirukaPacket.encode();
-          VarInts.writeUnsignedInt(uncompressed, packetBuffer.readableBytes());
-          uncompressed.writeBytes(packetBuffer);
+          VarInts.writeUnsignedInt(temp, header);
+          packet.setBuffer(temp);
+          packet.encode();
+          VarInts.writeUnsignedInt(uncompressed, temp.readableBytes());
+          uncompressed.writeBytes(temp);
         } finally {
-          packetBuffer.release();
+          temp.release();
         }
       }
-      Protocol.ZLIB.deflate(uncompressed, packet, level);
+      Protocol.ZLIB.deflate(uncompressed, finalPacket, level);
     } finally {
       uncompressed.release();
     }
+    return finalPacket;
   }
 }

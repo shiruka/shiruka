@@ -25,8 +25,7 @@
 
 package net.shiruka.shiruka.network.packet;
 
-import com.google.common.base.Preconditions;
-import com.whirvis.jraknet.RakNetPacket;
+import com.whirvis.jraknet.Packet;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import net.shiruka.shiruka.network.packets.PlayStatusPacket;
@@ -35,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a generic abstract packet for Shiru ka packets.
  */
-public abstract class ShirukaPacket extends RakNetPacket {
+public abstract class ShirukaPacket extends Packet {
 
   /**
    * the id of the {@link LoginPacket}.
@@ -48,26 +47,34 @@ public abstract class ShirukaPacket extends RakNetPacket {
   public static final int ID_PLAY_STATUS = 2;
 
   /**
+   * the id.
+   */
+  private final int id;
+
+  /**
    * ctor.
    *
    * @param id the id.
    */
-  protected ShirukaPacket(final int id, @NotNull final RakNetPacket packet) {
-    super(id);
-    Preconditions.checkArgument(id >= RakNetPacket.ID_USER_PACKET_ENUM,
-      "Packet ID must be in between %s-255",
-      RakNetPacket.ID_USER_PACKET_ENUM);
-    this.setBuffer(packet.buffer());
+  protected ShirukaPacket(final int id) {
+    this.id = id;
   }
 
-  @Override
+  public void decode() {
+    // ignored.
+  }
+
   public void encode() {
     // ignored.
   }
 
-  @Override
-  public void decode() {
-    // ignored.
+  /**
+   * obtains the id.
+   *
+   * @return id.
+   */
+  public int getId() {
+    return this.id;
   }
 
   /**

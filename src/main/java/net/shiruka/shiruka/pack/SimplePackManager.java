@@ -38,8 +38,6 @@ import net.shiruka.api.pack.*;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.network.packets.old.PacketOutPackInfo;
-import net.shiruka.shiruka.network.packets.old.PacketOutPackStack;
 import net.shiruka.shiruka.network.util.Misc;
 import net.shiruka.shiruka.pack.loader.RplDirectory;
 import net.shiruka.shiruka.pack.loader.RplZip;
@@ -81,13 +79,13 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs info packet.
    */
-  private final AtomicReference<PacketOutPackInfo> packInfo = new AtomicReference<>(new PacketOutPackInfo(
+  private final AtomicReference<PackInfoPacket> packInfo = new AtomicReference<>(new PackInfoPacket(
     new ObjectArrayList<>(), false, new ObjectArrayList<>(), false));
 
   /**
    * the pack stack packet.
    */
-  private final AtomicReference<PacketOutPackStack> packStack = new AtomicReference<>(new PacketOutPackStack(
+  private final AtomicReference<PackStackPacket> packStack = new AtomicReference<>(new PackStackPacket(
     new ObjectArrayList<>(), new ObjectArrayList<>(), false, false, "", new ObjectArrayList<>()));
 
   /**
@@ -117,16 +115,16 @@ public final class SimplePackManager implements PackManager {
     this.checkClosed();
     final var mustAccept = (boolean) ServerConfig.FORCE_RESOURCES.getValue()
       .orElse(false);
-    this.packInfo.set(new PacketOutPackInfo(Collections.emptyList(),
+    this.packInfo.set(new PackInfoPacket(Collections.emptyList(),
       mustAccept,
       new ObjectArrayList<>(this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PacketOutPackInfo.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
+          new PackInfoPacket.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
             false, false, ""))
         .collect(Collectors.toList())),
       false));
-    this.packStack.set(new PacketOutPackStack(
+    this.packStack.set(new PackStackPacket(
       Collections.emptyList(),
       Collections.emptyList(),
       true,
@@ -135,7 +133,7 @@ public final class SimplePackManager implements PackManager {
       this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PacketOutPackStack.Entry(pack.getId().toString(), pack.getVersion().toString(), ""))
+          new PackStackPacket.Entry(pack.getId().toString(), pack.getVersion().toString(), ""))
         .collect(Collectors.toList())));
     this.closed = true;
   }

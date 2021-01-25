@@ -44,6 +44,7 @@ import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.network.packets.LoginPacket;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -276,10 +277,8 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
   public void setOp(final boolean value) {
   }
 
-  /**
-   * runs when player want to join the server.
-   */
-  public void onLogin() {
+  @Override
+  public void loginPacket(@NotNull final LoginPacket packet) {
   }
 
   @Override

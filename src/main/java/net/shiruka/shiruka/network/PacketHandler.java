@@ -38,8 +38,7 @@ public interface PacketHandler {
    * handles the login packet.
    *
    * @param packet the packet to handle.
-   * @param connection the connection to handle.
    */
-  default void loginPacket(@NotNull final LoginPacket packet, @NotNull final RakNetClientPeer connection) {
+  default void loginPacket(@NotNull final LoginPacket packet) {
   }
 }

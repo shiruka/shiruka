@@ -30,8 +30,6 @@ import io.netty.util.AsciiString;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
-import net.shiruka.shiruka.network.packets.old.PacketOutPackInfo;
-import net.shiruka.shiruka.network.packets.old.PacketOutPackStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -94,7 +92,7 @@ public final class PacketHelper {
    * @param buffer the buffer to write.
    * @param entry the entry to write.
    */
-  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PacketOutPackStack.Entry entry) {
+  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PackStackPacket.Entry entry) {
     VarInts.writeString(buffer, entry.getPackId());
     VarInts.writeString(buffer, entry.getPackVersion());
     VarInts.writeString(buffer, entry.getSubPackName());
@@ -106,7 +104,7 @@ public final class PacketHelper {
    * @param buffer the buffer to write.
    * @param entry the entry to write.
    */
-  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PacketOutPackInfo.Entry entry) {
+  public static void writeEntry(@NotNull final ByteBuf buffer, @NotNull final PackInfoPacket.Entry entry) {
     VarInts.writeString(buffer, entry.getPackId());
     VarInts.writeString(buffer, entry.getPackVersion());
     buffer.writeLongLE(entry.getPackSize());
@@ -123,7 +121,7 @@ public final class PacketHelper {
    * @param experiments the experiment to write.
    */
   public static void writeExperiments(@NotNull final ByteBuf buffer,
-                                      @NotNull final List<PacketOutPackStack.ExperimentData> experiments) {
+                                      @NotNull final List<PackStackPacket.ExperimentData> experiments) {
     buffer.writeIntLE(experiments.size());
     experiments.forEach(experiment -> {
       VarInts.writeString(buffer, experiment.getName());
@@ -138,7 +136,7 @@ public final class PacketHelper {
    * @param entry the entry to write.
    */
   public static void writeResourcePackEntry(@NotNull final ByteBuf buffer,
-                                            @NotNull final PacketOutPackInfo.Entry entry) {
+                                            @NotNull final PackInfoPacket.Entry entry) {
     PacketHelper.writeEntry(buffer, entry);
     buffer.writeBoolean(entry.isRaytracingCapable());
   }

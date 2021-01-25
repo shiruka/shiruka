@@ -34,8 +34,8 @@ import java.util.Objects;
 import java.util.zip.DataFormatException;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PacketHandler;
-import net.shiruka.shiruka.network.packet.PacketOut;
 import net.shiruka.shiruka.network.packet.PacketRegistry;
+import net.shiruka.shiruka.network.packet.ShirukaPacket;
 import net.shiruka.shiruka.network.util.VarInts;
 import net.shiruka.shiruka.network.util.Zlib;
 import org.apache.logging.log4j.LogManager;
@@ -86,7 +86,7 @@ public final class Protocol {
         final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
           String.format("The packet id %s not found!", packetId)).apply(packet);
         shirukaPacket.decode();
-        shirukaPacket.handle(handler, connection);
+        shirukaPacket.handle(handler);
       }
     } catch (final DataFormatException e) {
       JiraExceptionCatcher.serverException(e);
@@ -102,18 +102,18 @@ public final class Protocol {
    * @param packets the packets to serialize.
    * @param level the level to serialize.
    */
-  public static void serialize(@NotNull final ByteBuf buffer, @NotNull final Collection<PacketOut> packets,
+  public static void serialize(@NotNull final ByteBuf buffer, @NotNull final Collection<ShirukaPacket> packets,
                                final int level) {
     final var uncompressed = ByteBufAllocator.DEFAULT.ioBuffer(packets.size() << 3);
     try {
       for (final var packet : packets) {
         final var packetBuffer = ByteBufAllocator.DEFAULT.ioBuffer();
         try {
-          final var id = packet.id();
+          final var id = packet.getId();
           var header = 0;
           header |= id & 0x3ff;
           VarInts.writeUnsignedInt(packetBuffer, header);
-          packet.write(packetBuffer);
+          packet.encode();
           VarInts.writeUnsignedInt(uncompressed, packetBuffer.readableBytes());
           uncompressed.writeBytes(packetBuffer);
         } finally {

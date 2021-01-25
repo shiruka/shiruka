@@ -40,4 +40,8 @@ public final class PlayStatusPacket extends ShirukaPacket {
   public PlayStatusPacket(@NotNull final RakNetPacket packet) throws IllegalArgumentException {
     super(ShirukaPacket.ID_PLAY_STATUS, packet);
   }
+
+  @Override
+  public void encode() {
+  }
 }

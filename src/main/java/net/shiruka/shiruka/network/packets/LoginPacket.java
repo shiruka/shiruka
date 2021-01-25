@@ -69,8 +69,8 @@ public final class LoginPacket extends ShirukaPacket {
   }
 
   @Override
-  public void handle(@NotNull final PacketHandler handler, @NotNull final RakNetClientPeer connection) {
-    handler.loginPacket(this, connection);
+  public void handle(@NotNull final PacketHandler handler) {
+    handler.loginPacket(this);
   }
 
   /**

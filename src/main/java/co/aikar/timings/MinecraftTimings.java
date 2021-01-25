@@ -26,10 +26,10 @@
 package co.aikar.timings;
 
 import com.google.common.collect.MapMaker;
+import com.whirvis.jraknet.Packet;
 import java.util.Map;
 import net.shiruka.api.block.Block;
 import net.shiruka.api.plugin.Plugin;
-import net.shiruka.shiruka.network.packet.Packet;
 import net.shiruka.shiruka.scheduler.ShirukaTask;
 
 /**

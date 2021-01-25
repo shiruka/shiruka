@@ -210,7 +210,6 @@ public final class ShirukaMain {
    * @throws Exception if something went wrong when starting the Shiru ka.
    */
   private void exec() throws Exception {
-    final var start = System.currentTimeMillis();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
@@ -223,6 +222,7 @@ public final class ShirukaMain {
     final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
       .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
     final var serverLocale = Languages.startSequence();
+    final var start = System.currentTimeMillis();
     final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");

@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.network.protocol;
 
+import com.whirvis.jraknet.Packet;
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import io.netty.buffer.ByteBuf;
@@ -94,31 +95,31 @@ public final class Protocol {
   }
 
   /**
-   * serializes the given {@code buf}.
+   * serializes the given {@code packet}.
    *
-   * @param buffer the buf to serialize.
+   * @param packet the packet to serialize.
    * @param packets the packets to serialize.
    * @param level the level to serialize.
    */
-  public static void serialize(@NotNull final ByteBuf buffer, @NotNull final Collection<ShirukaPacket> packets,
+  public static void serialize(@NotNull final Packet packet, @NotNull final Collection<ShirukaPacket> packets,
                                final int level) {
     final var uncompressed = ByteBufAllocator.DEFAULT.ioBuffer(packets.size() << 3);
     try {
-      for (final var packet : packets) {
+      for (final var shirukaPacket : packets) {
         final var packetBuffer = ByteBufAllocator.DEFAULT.ioBuffer();
         try {
-          final var id = packet.getId();
+          final var id = shirukaPacket.getId();
           var header = 0;
           header |= id & 0x3ff;
           VarInts.writeUnsignedInt(packetBuffer, header);
-          packet.encode();
+          shirukaPacket.encode();
           VarInts.writeUnsignedInt(uncompressed, packetBuffer.readableBytes());
           uncompressed.writeBytes(packetBuffer);
         } finally {
           packetBuffer.release();
         }
       }
-      Protocol.ZLIB.deflate(uncompressed, buffer, level);
+      Protocol.ZLIB.deflate(uncompressed, packet, level);
     } finally {
       uncompressed.release();
     }

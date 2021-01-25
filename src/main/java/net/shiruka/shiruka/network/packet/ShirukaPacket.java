@@ -27,7 +27,6 @@ package net.shiruka.shiruka.network.packet;
 
 import com.google.common.base.Preconditions;
 import com.whirvis.jraknet.RakNetPacket;
-import com.whirvis.jraknet.peer.RakNetClientPeer;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import net.shiruka.shiruka.network.packets.PlayStatusPacket;

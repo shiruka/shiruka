@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.network;
 
-import com.whirvis.jraknet.peer.RakNetClientPeer;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import org.jetbrains.annotations.NotNull;
 

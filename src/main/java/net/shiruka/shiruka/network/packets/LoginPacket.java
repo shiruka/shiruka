@@ -26,7 +26,6 @@
 package net.shiruka.shiruka.network.packets;
 
 import com.whirvis.jraknet.RakNetPacket;
-import com.whirvis.jraknet.peer.RakNetClientPeer;
 import io.netty.util.AsciiString;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.packet.ShirukaPacket;

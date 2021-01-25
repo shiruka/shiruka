@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.UUID;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,7 +67,7 @@ public final class ResourcePackChunkRequestPacket extends ShirukaPacket {
 
   @Override
   public void decode() {
-    final var packInfo = this.readString().split("_");
+    final var packInfo = VarInts.readString(this.buffer()).split("_");
     this.packId = UUID.fromString(packInfo[0]);
     if (packInfo.length > 1) {
       this.version = packInfo[1];

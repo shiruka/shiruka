@@ -27,6 +27,7 @@ package net.shiruka.shiruka.network;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.nio.charset.StandardCharsets;
 import net.shiruka.api.base.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +40,33 @@ public final class VarInts {
    * ctor.
    */
   private VarInts() {
+  }
+
+  /**
+   * transfers the specified length of bytes from the buffer into a new byte array.
+   *
+   * @param buf the buffer to transfer from.
+   * @param len the length of bytes to transfer.
+   *
+   * @return the new byte array.
+   */
+  public static byte[] arr(@NotNull final ByteBuf buf, final int len) {
+    final var bytes = new byte[len];
+    buf.readBytes(bytes);
+    return bytes;
+  }
+
+  /**
+   * reads the next String value from the byte stream represented by the given buffer.
+   *
+   * @param buf the buffer which to read the String.
+   *
+   * @return the next String value.
+   */
+  public static String readString(final ByteBuf buf) {
+    final var len = VarInts.readVarInt(buf);
+    final var stringData = VarInts.arr(buf, len);
+    return new String(stringData, StandardCharsets.UTF_8);
   }
 
   /**
@@ -111,6 +139,17 @@ public final class VarInts {
   public static void writeByteArray(@NotNull final ByteBuf buffer, final byte[] bytes) {
     VarInts.writeUnsignedInt(buffer, bytes.length);
     buffer.writeBytes(bytes);
+  }
+
+  /**
+   * encodes the given String into the given buffer using the Minecraft protocol format.
+   *
+   * @param buf the buffer which to write.
+   * @param s the String to write.
+   */
+  public static void writeString(@NotNull final ByteBuf buf, @NotNull final String s) {
+    VarInts.writeVarInt(buf, s.length());
+    buf.writeBytes(s.getBytes(StandardCharsets.UTF_8));
   }
 
   /**

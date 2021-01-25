@@ -27,6 +27,7 @@ package net.shiruka.shiruka.network.packets;
 
 import java.util.UUID;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,7 +87,7 @@ public final class ResourcePackChunkDataPacket extends ShirukaPacket {
     final var packInfo = this.getPackId().toString() + (this.getPackVersion() == null
       ? ""
       : '_' + this.getPackVersion());
-    this.writeString(packInfo);
+    VarInts.writeString(this.buffer(), packInfo);
     this.writeIntLE(this.getChunkIndex());
     this.writeLongLE(this.getProgress());
     this.writeByteArray(this.getData());

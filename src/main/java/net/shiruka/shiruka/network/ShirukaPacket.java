@@ -90,6 +90,11 @@ public abstract class ShirukaPacket extends Packet {
   protected static final int ID_RESOURCE_PACK_RESPONSE = 8;
 
   /**
+   * the id of the {@link ViolationWarningPacket}.
+   */
+  protected static final int ID_VIOLATION_WARNING = 156;
+
+  /**
    * the id.
    */
   private final int id;
@@ -192,7 +197,7 @@ public abstract class ShirukaPacket extends Packet {
    * @param <T> type of the value.
    */
   public final <T> void writeArray(@NotNull final Collection<T> array, @NotNull final Consumer<T> consumer) {
-    this.writeUnsignedInt(array.size());
+    VarInts.writeUnsignedInt(this.buffer(), array.size());
     array.forEach(consumer);
   }
 
@@ -214,7 +219,7 @@ public abstract class ShirukaPacket extends Packet {
    * @param bytes the bytes to write.
    */
   public final void writeByteArray(final byte[] bytes) {
-    this.writeUnsignedInt(bytes.length);
+    VarInts.writeUnsignedInt(this.buffer(), bytes.length);
     this.buffer().writeBytes(bytes);
   }
 
@@ -224,9 +229,9 @@ public abstract class ShirukaPacket extends Packet {
    * @param entry the entry to write.
    */
   public final void writeEntry(@NotNull final PackStackPacket.Entry entry) {
-    this.writeString(entry.getPackId());
-    this.writeString(entry.getPackVersion());
-    this.writeString(entry.getSubPackName());
+    VarInts.writeString(this.buffer(), entry.getPackId());
+    VarInts.writeString(this.buffer(), entry.getPackVersion());
+    VarInts.writeString(this.buffer(), entry.getSubPackName());
   }
 
   /**
@@ -235,12 +240,12 @@ public abstract class ShirukaPacket extends Packet {
    * @param entry the entry to write.
    */
   public final void writeEntry(@NotNull final PackInfoPacket.Entry entry) {
-    this.writeString(entry.getPackId());
-    this.writeString(entry.getPackVersion());
+    VarInts.writeString(this.buffer(), entry.getPackId());
+    VarInts.writeString(this.buffer(), entry.getPackVersion());
     this.writeLongLE(entry.getPackSize());
-    this.writeString(entry.getContentKey());
-    this.writeString(entry.getSubPackName());
-    this.writeString(entry.getContentId());
+    VarInts.writeString(this.buffer(), entry.getContentKey());
+    VarInts.writeString(this.buffer(), entry.getSubPackName());
+    VarInts.writeString(this.buffer(), entry.getContentId());
     this.writeBoolean(entry.isScripting());
   }
 
@@ -252,7 +257,7 @@ public abstract class ShirukaPacket extends Packet {
   public final void writeExperiments(@NotNull final List<PackStackPacket.ExperimentData> experiments) {
     this.writeIntLE(experiments.size());
     experiments.forEach(experiment -> {
-      this.writeString(experiment.getName());
+      VarInts.writeString(this.buffer(), experiment.getName());
       this.writeBoolean(experiment.isEnabled());
     });
   }

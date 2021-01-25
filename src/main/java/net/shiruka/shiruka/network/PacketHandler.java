@@ -25,10 +25,7 @@
 
 package net.shiruka.shiruka.network;
 
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -66,5 +63,13 @@ public interface PacketHandler {
    * @param packet the packet to handle.
    */
   default void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
+  }
+
+  /**
+   * handles the violation warning packet.
+   *
+   * @param packet the packet to handle.
+   */
+  default void violationWarningPacket(@NotNull final ViolationWarningPacket packet) {
   }
 }

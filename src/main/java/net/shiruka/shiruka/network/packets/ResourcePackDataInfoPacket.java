@@ -27,6 +27,7 @@ package net.shiruka.shiruka.network.packets;
 
 import net.shiruka.api.pack.Pack;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -57,12 +58,12 @@ public final class ResourcePackDataInfoPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.writeString(this.pack.getId().toString() + '_' + this.pack.getVersion());
+    VarInts.writeString(this.buffer(), this.pack.getId().toString() + '_' + this.pack.getVersion());
     this.writeIntLE(ResourcePackDataInfoPacket.MAX_CHUNK_SIZE);
     this.writeIntLE((int) (this.pack.getSize() / ResourcePackDataInfoPacket.MAX_CHUNK_SIZE));
     this.writeLongLE(this.pack.getSize());
     final var hash = this.pack.getHash();
-    this.writeUnsignedInt(hash.length);
+    VarInts.writeUnsignedInt(this.buffer(), hash.length);
     this.buffer().writeBytes(hash);
     this.writeBoolean(false);
     this.writeByte(this.pack.getType().getId());

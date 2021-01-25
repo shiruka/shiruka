@@ -29,6 +29,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collections;
 import java.util.List;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -105,7 +106,7 @@ public final class PackStackPacket extends ShirukaPacket {
     this.writeBoolean(this.forcedToAccept);
     this.writeArray(this.getBehaviorPacks(), this::writeEntry);
     this.writeArray(this.getResourcePacks(), this::writeEntry);
-    this.writeString(this.getGameVersion());
+    VarInts.writeString(this.buffer(),this.getGameVersion());
     this.writeExperiments(this.getExperiments());
     this.writeBoolean(this.experimentsPreviouslyToggled);
   }

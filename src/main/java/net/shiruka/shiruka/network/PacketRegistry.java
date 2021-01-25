@@ -29,10 +29,7 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.function.Function;
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,6 +48,7 @@ public final class PacketRegistry {
     PacketRegistry.put(8, ResourcePackResponsePacket::new);
     PacketRegistry.put(84, ResourcePackChunkRequestPacket::new);
     PacketRegistry.put(129, ClientCacheStatusPacket::new);
+    PacketRegistry.put(156, ViolationWarningPacket::new);
   }
 
   /**

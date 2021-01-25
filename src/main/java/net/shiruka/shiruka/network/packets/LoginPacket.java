@@ -30,6 +30,7 @@ import io.netty.util.AsciiString;
 import java.util.Objects;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +68,7 @@ public final class LoginPacket extends ShirukaPacket {
   @Override
   public void decode() {
     this.protocolVersion = this.readInt();
-    final var jwt = this.buffer().readSlice((int) this.readUnsignedVarInt());
+    final var jwt = this.buffer().readSlice(VarInts.readUnsignedVarInt(this.buffer()));
     this.chainData = ShirukaPacket.readLEAsciiString(jwt);
     this.skinData = ShirukaPacket.readLEAsciiString(jwt);
   }

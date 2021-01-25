@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +53,7 @@ public final class ResourcePackResponsePacket extends ShirukaPacket {
 
   /**
    * ctor.
+   *
    * @param original the original.
    */
   public ResourcePackResponsePacket(final @NotNull ByteBuf original) {
@@ -64,7 +66,7 @@ public final class ResourcePackResponsePacket extends ShirukaPacket {
     final var length = this.readShortLE();
     final var packs = new ArrayList<Entry>();
     IntStream.range(0, length)
-      .mapToObj(i -> this.readString().split("_"))
+      .mapToObj(i -> VarInts.readString(this.buffer()).split("_"))
       .forEach(uniqueIdVersion -> {
         try {
           packs.add(new Entry(UUID.fromString(uniqueIdVersion[0]), uniqueIdVersion[1]));

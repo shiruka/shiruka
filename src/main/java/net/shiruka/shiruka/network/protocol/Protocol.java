@@ -68,10 +68,8 @@ public final class Protocol {
    *
    * @param handler the handler to handle.
    * @param packet the packet to deserialize.
-   * @param connection the connection to deserialize.
    */
-  public static void deserialize(@NotNull final PacketHandler handler, @NotNull final RakNetPacket packet,
-                                 @NotNull final RakNetClientPeer connection) {
+  public static void deserialize(@NotNull final PacketHandler handler, @NotNull final RakNetPacket packet) {
     try {
       Protocol.ZLIB.inflate(packet, 12 * 1024 * 1024);
       while (packet.buffer().isReadable()) {

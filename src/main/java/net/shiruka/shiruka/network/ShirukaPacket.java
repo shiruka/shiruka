@@ -42,7 +42,7 @@ public abstract class ShirukaPacket extends Packet {
   /**
    * the id of the {@link ClientCacheStatusPacket}.
    */
-  protected static final int ID_CLIENT_CACHE_STATUS = 135;
+  protected static final int ID_CLIENT_CACHE_STATUS = 129;
 
   /**
    * the id of the {@link DisconnectPacket}.
@@ -75,12 +75,22 @@ public abstract class ShirukaPacket extends Packet {
   private final int id;
 
   /**
+   * the client id.
+   */
+  private int clientId;
+
+  /**
+   * the sender id.
+   */
+  private int senderId;
+
+  /**
    * ctor.
    *
    * @param id the id.
    * @param original the original.
    */
-  protected ShirukaPacket(final int id, @NotNull final Packet original) {
+  protected ShirukaPacket(final int id, @NotNull final ByteBuf original) {
     super(original);
     this.id = id;
   }
@@ -110,12 +120,48 @@ public abstract class ShirukaPacket extends Packet {
   }
 
   /**
+   * obtains the client id.
+   *
+   * @return client i.d
+   */
+  public final int getClientId() {
+    return this.clientId;
+  }
+
+  /**
+   * sets the client id.
+   *
+   * @param clientId client id to set.
+   */
+  public final void setClientId(final int clientId) {
+    this.clientId = clientId;
+  }
+
+  /**
    * obtains the id.
    *
    * @return id.
    */
   public final int getId() {
     return this.id;
+  }
+
+  /**
+   * obtains the sender id.
+   *
+   * @return sender i.d
+   */
+  public final int getSenderId() {
+    return this.senderId;
+  }
+
+  /**
+   * sets the sender id.
+   *
+   * @param senderId sender id to set.
+   */
+  public final void setSenderId(final int senderId) {
+    this.senderId = senderId;
   }
 
   /**
@@ -126,7 +172,7 @@ public abstract class ShirukaPacket extends Packet {
    * @param <T> type of the value.
    */
   public final <T> void writeArray(@NotNull final Collection<T> array, @NotNull final Consumer<T> consumer) {
-    this.writeUnsignedInt(array.size());
+    VarInts.writeUnsignedInt(this.buffer(), array.size());
     array.forEach(consumer);
   }
 
@@ -148,9 +194,9 @@ public abstract class ShirukaPacket extends Packet {
    * @param entry the entry to write.
    */
   public final void writeEntry(@NotNull final PackStackPacket.Entry entry) {
-    this.writeString(entry.getPackId());
-    this.writeString(entry.getPackVersion());
-    this.writeString(entry.getSubPackName());
+    VarInts.writeString(this.buffer(), entry.getPackId());
+    VarInts.writeString(this.buffer(), entry.getPackVersion());
+    VarInts.writeString(this.buffer(), entry.getSubPackName());
   }
 
   /**
@@ -159,13 +205,13 @@ public abstract class ShirukaPacket extends Packet {
    * @param entry the entry to write.
    */
   public final void writeEntry(@NotNull final PackInfoPacket.Entry entry) {
-    this.writeString(entry.getPackId());
-    this.writeString(entry.getPackVersion());
+    VarInts.writeString(this.buffer(), entry.getPackId());
+    VarInts.writeString(this.buffer(), entry.getPackVersion());
     this.writeLongLE(entry.getPackSize());
-    this.writeString(entry.getContentKey());
-    this.writeString(entry.getSubPackName());
-    this.writeString(entry.getContentId());
-    this.writeBoolean(entry.isScripting());
+    VarInts.writeString(this.buffer(), entry.getContentKey());
+    VarInts.writeString(this.buffer(), entry.getSubPackName());
+    VarInts.writeString(this.buffer(), entry.getContentId());
+    this.buffer().writeBoolean(entry.isScripting());
   }
 
   /**
@@ -174,9 +220,9 @@ public abstract class ShirukaPacket extends Packet {
    * @param experiments the experiment to write.
    */
   public final void writeExperiments(@NotNull final List<PackStackPacket.ExperimentData> experiments) {
-    this.writeIntLE(experiments.size());
+    this.buffer().writeIntLE(experiments.size());
     experiments.forEach(experiment -> {
-      this.writeString(experiment.getName());
+      VarInts.writeString(this.buffer(), experiment.getName());
       this.writeBoolean(experiment.isEnabled());
     });
   }
@@ -188,7 +234,7 @@ public abstract class ShirukaPacket extends Packet {
    */
   public final void writeResourcePackEntry(@NotNull final PackInfoPacket.Entry entry) {
     this.writeEntry(entry);
-    this.writeBoolean(entry.isRaytracingCapable());
+    this.buffer().writeBoolean(entry.isRaytracingCapable());
   }
 
   /**

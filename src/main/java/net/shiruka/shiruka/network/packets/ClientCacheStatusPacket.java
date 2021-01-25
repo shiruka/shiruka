@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import com.whirvis.jraknet.Packet;
+import io.netty.buffer.ByteBuf;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +47,7 @@ public final class ClientCacheStatusPacket extends ShirukaPacket {
    *
    * @param original the original.
    */
-  public ClientCacheStatusPacket(@NotNull final Packet original) {
+  public ClientCacheStatusPacket(@NotNull final ByteBuf original) {
     super(ShirukaPacket.ID_CLIENT_CACHE_STATUS, original);
   }
 
@@ -60,7 +60,7 @@ public final class ClientCacheStatusPacket extends ShirukaPacket {
 
   @Override
   public void decode() {
-    this.blobCacheSupport = this.readBoolean();
+    this.blobCacheSupport = this.buffer().readBoolean();
   }
 
   @Override

@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import com.whirvis.jraknet.Packet;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,7 +66,7 @@ public final class PackInfoPacket extends ShirukaPacket {
    *
    * @param original the original.
    */
-  public PackInfoPacket(final @NotNull Packet original) {
+  public PackInfoPacket(@NotNull final ByteBuf original) {
     super(ShirukaPacket.ID_PACK_INFO, original);
   }
 
@@ -96,8 +96,8 @@ public final class PackInfoPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.writeBoolean(this.forcedToAccept);
-    this.writeBoolean(this.scriptingEnabled);
+    this.buffer().writeBoolean(this.forcedToAccept);
+    this.buffer().writeBoolean(this.scriptingEnabled);
     this.writeArrayShortLE(this.getBehaviorPackInfos(), this::writeEntry);
     this.writeArrayShortLE(this.getResourcePackInfos(), this::writeResourcePackEntry);
   }

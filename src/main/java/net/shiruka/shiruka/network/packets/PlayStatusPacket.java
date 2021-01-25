@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import com.whirvis.jraknet.Packet;
+import io.netty.buffer.ByteBuf;
 import java.util.Objects;
 import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +47,7 @@ public final class PlayStatusPacket extends ShirukaPacket {
    *
    * @param original the original.
    */
-  public PlayStatusPacket(@NotNull final Packet original) {
+  public PlayStatusPacket(@NotNull final ByteBuf original) {
     super(ShirukaPacket.ID_PLAY_STATUS, original);
   }
 

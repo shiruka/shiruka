@@ -26,7 +26,8 @@
 package net.shiruka.shiruka.network;
 
 import com.whirvis.jraknet.Packet;
-import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.zip.DataFormatException;
@@ -63,24 +64,26 @@ public final class Protocol {
    * @param compressed the compressed to deserialize.
    */
   public static void deserialize(@NotNull final PacketHandler handler, @NotNull final Packet compressed) {
-    Packet decompressed = null;
+    ByteBuf decompressed = null;
     try {
-      decompressed = Protocol.ZLIB.inflate(compressed, 12 * 1024 * 1024);
-      while (decompressed.buffer().isReadable()) {
-        final var length = (int) decompressed.readUnsignedVarInt();
-        decompressed.setBuffer(decompressed.buffer().readSlice(length));
-        if (!decompressed.buffer().isReadable()) {
+      decompressed = Protocol.ZLIB.inflate(compressed.buffer(), 12 * 1024 * 1024);
+      while (decompressed.isReadable()) {
+        final var length = VarInts.readUnsignedVarInt(decompressed);
+        final var buffer = decompressed.readSlice(length);
+        if (!buffer.isReadable()) {
           throw new DataFormatException("Packet cannot be empty!");
         }
-        final var header = (int) decompressed.readUnsignedVarInt();
+        final var header = VarInts.readUnsignedVarInt(buffer);
         final var packetId = header & 0x3ff;
-        Protocol.LOGGER.debug("§7Incoming compressed id -> {}", packetId);
+        Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
         final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
-          String.format("The compressed id %s not found!", packetId)).apply(decompressed);
+          String.format("The compressed id %s not found!", packetId)).apply(buffer);
+        shirukaPacket.setSenderId(header >>> 10 & 3);
+        shirukaPacket.setClientId(header >>> 12 & 3);
         shirukaPacket.decode();
         shirukaPacket.handle(handler);
       }
-    } catch (final DataFormatException e) {
+    } catch (final Exception e) {
       JiraExceptionCatcher.serverException(e);
     } finally {
       if (decompressed != null) {
@@ -92,35 +95,35 @@ public final class Protocol {
   /**
    * serializes the given {@code packet}.
    *
+   * @param result the result.
    * @param packets the packets to serialize.
    * @param level the level to serialize.
-   *
-   * @return serialized packet.
    */
-  @NotNull
-  public static Packet serialize(@NotNull final Collection<ShirukaPacket> packets, final int level) {
-    final var finalPacket = new Packet();
-    final var uncompressed = new Packet(ByteBufAllocator.DEFAULT.ioBuffer(packets.size() << 3));
+  public static void serialize(@NotNull final ByteBuf result, @NotNull final Collection<ShirukaPacket> packets,
+                               final int level) {
+    final var uncompressed = Unpooled.buffer(packets.size() << 3);
     try {
       for (final var packet : packets) {
-        final var temp = new Packet(ByteBufAllocator.DEFAULT.ioBuffer());
+        final var buffer = Unpooled.buffer();
         try {
-          final var id = packet.getId();
+          final var packetId = packet.getId();
+          Protocol.LOGGER.debug("§7Outgoing packet id -> {}", packetId);
           var header = 0;
-          header |= id & 0x3ff;
-          temp.writeUnsignedInt(header);
-          packet.setBuffer(temp.buffer());
+          header |= packetId & 0x3ff;
+          header |= (packet.getSenderId() & 3) << 10;
+          header |= (packet.getClientId() & 3) << 12;
+          VarInts.writeUnsignedInt(buffer, header);
+          packet.setBuffer(buffer);
           packet.encode();
-          uncompressed.writeUnsignedInt(temp.buffer().readableBytes());
-          uncompressed.buffer().writeBytes(temp.buffer());
+          VarInts.writeUnsignedInt(uncompressed, buffer.readableBytes());
+          uncompressed.writeBytes(buffer);
         } finally {
-          temp.release();
+          buffer.release();
         }
       }
-      Protocol.ZLIB.deflate(uncompressed, finalPacket, level);
+      Protocol.ZLIB.deflate(uncompressed, result, level);
     } finally {
       uncompressed.release();
     }
-    return finalPacket;
   }
 }

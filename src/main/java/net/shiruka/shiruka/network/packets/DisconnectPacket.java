@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.network.packets;
 
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -58,9 +59,9 @@ public final class DisconnectPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.writeBoolean(this.messageSkipped);
+    this.buffer().writeBoolean(this.messageSkipped);
     if (!this.messageSkipped) {
-      this.writeString(this.kickMessage);
+      VarInts.writeString(this.buffer(), this.kickMessage);
     }
   }
 }

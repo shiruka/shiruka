@@ -32,10 +32,7 @@ import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
 import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -357,6 +354,26 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   /**
+   * obtains the connecting players.
+   *
+   * @return connecting players.
+   */
+  @NotNull
+  public Collection<ShirukaPlayer> getConnectingPlayers() {
+    return Collections.unmodifiableCollection(this.connectingPlayers.values());
+  }
+
+  /**
+   * obtains the online players.
+   *
+   * @return online players.
+   */
+  @NotNull
+  public Collection<ShirukaPlayer> getPlayers() {
+    return Collections.unmodifiableCollection(this.players.values());
+  }
+
+  /**
    * obtains the scheduler.
    *
    * @return scheduler.
@@ -447,11 +464,15 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
+  public void onDisconnect(final RakNetServer server, final InetSocketAddress address, final RakNetClientPeer peer,
+                           final String reason) {
+    this.connectingPlayers.remove(address);
+    this.players.remove(address);
+  }
+
+  @Override
   public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
                             final int channel) {
-    if (!peer.isConnected()) {
-      return;
-    }
     final PacketHandler handler;
     final var address = peer.getAddress();
     if (this.players.containsKey(address)) {
@@ -461,8 +482,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     } else {
       return;
     }
-    final var packetId = packet.readUnsignedByte();
-    if (packetId == 0xfe) {
+    if (packet.getId() == 0xfe) {
       packet.buffer().markReaderIndex();
       Protocol.deserialize(handler, packet);
     }

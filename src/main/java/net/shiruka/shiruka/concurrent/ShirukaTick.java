@@ -35,6 +35,7 @@ import net.shiruka.api.Shiruka;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.util.RollingAverage;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.LogManager;
@@ -318,6 +319,8 @@ public final class ShirukaTick implements Runnable {
       this.server.getScheduler().mainThreadHeartbeat(this.ticks);
     }
     this.midTickLoadChunks();
+    this.server.getConnectingPlayers().forEach(ShirukaPlayer::tick);
+    this.server.getPlayers().forEach(ShirukaPlayer::tick);
   }
 
   /**

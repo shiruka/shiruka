@@ -25,12 +25,13 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import com.whirvis.jraknet.Packet;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -78,7 +79,7 @@ public final class PackStackPacket extends ShirukaPacket {
    *
    * @param original the original.
    */
-  public PackStackPacket(@NotNull final Packet original) {
+  public PackStackPacket(@NotNull final ByteBuf original) {
     super(ShirukaPacket.ID_PACK_STACK, original);
   }
 
@@ -114,12 +115,12 @@ public final class PackStackPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.writeBoolean(this.forcedToAccept);
+    this.buffer().writeBoolean(this.forcedToAccept);
     this.writeArray(this.getBehaviorPacks(), this::writeEntry);
     this.writeArray(this.getResourcePacks(), this::writeEntry);
-    this.writeString(this.getGameVersion());
+    VarInts.writeString(this.buffer(), this.getGameVersion());
     this.writeExperiments(this.getExperiments());
-    this.writeBoolean(this.experimentsPreviouslyToggled);
+    this.buffer().writeBoolean(this.experimentsPreviouslyToggled);
   }
 
   /**

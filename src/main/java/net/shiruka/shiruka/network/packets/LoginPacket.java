@@ -25,11 +25,12 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import com.whirvis.jraknet.Packet;
+import io.netty.buffer.ByteBuf;
 import io.netty.util.AsciiString;
 import java.util.Objects;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,7 +61,7 @@ public final class LoginPacket extends ShirukaPacket {
    *
    * @param original the original.
    */
-  public LoginPacket(@NotNull final Packet original) {
+  public LoginPacket(@NotNull final ByteBuf original) {
     super(ShirukaPacket.ID_LOGIN, original);
   }
 
@@ -74,7 +75,7 @@ public final class LoginPacket extends ShirukaPacket {
   @Override
   public void decode() {
     this.setProtocolVersion(this.readInt());
-    final var jwt = this.buffer().readSlice((int) this.readUnsignedVarInt());
+    final var jwt = this.buffer().readSlice(VarInts.readUnsignedVarInt(this.buffer()));
     this.setChainData(ShirukaPacket.readLEAsciiString(jwt));
     this.setSkinData(ShirukaPacket.readLEAsciiString(jwt));
   }

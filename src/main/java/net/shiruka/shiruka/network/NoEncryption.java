@@ -25,45 +25,16 @@
 
 package net.shiruka.shiruka.network;
 
-import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import java.util.Map;
-import java.util.function.Function;
-import net.shiruka.shiruka.network.packets.*;
-import org.jetbrains.annotations.NotNull;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * a class that represents packet registry.
+ * an annotation that represents packets which are not need encryption.
  */
-public final class PacketRegistry {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface NoEncryption {
 
-  /**
-   * the packets.
-   */
-  public static final Map<Integer, Function<ByteBuf, ShirukaPacket>> PACKETS;
-
-  static {
-    PACKETS = new Object2ObjectOpenHashMap<>();
-    PacketRegistry.put(1, LoginPacket::new);
-    PacketRegistry.put(2, PlayStatusPacket::new);
-    PacketRegistry.put(6, PackInfoPacket::new);
-    PacketRegistry.put(7, PackStackPacket::new);
-    PacketRegistry.put(129, ClientCacheStatusPacket::new);
-  }
-
-  /**
-   * the ctor.
-   */
-  private PacketRegistry() {
-  }
-
-  /**
-   * puts the given {@code id} to the {@link #PACKETS}
-   *
-   * @param id the id to put.
-   * @param packetFunction the packet supplier to put.
-   */
-  private static void put(final int id, @NotNull final Function<ByteBuf, ShirukaPacket> packetFunction) {
-    PacketRegistry.PACKETS.put(id, packetFunction);
-  }
 }

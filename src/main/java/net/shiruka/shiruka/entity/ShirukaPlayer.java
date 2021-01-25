@@ -27,9 +27,15 @@ package net.shiruka.shiruka.entity;
 
 import com.google.common.base.Preconditions;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
+import com.whirvis.jraknet.protocol.Reliability;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.util.internal.PlatformDependent;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.zip.Deflater;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
@@ -50,7 +56,9 @@ import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.event.LoginData;
 import net.shiruka.shiruka.event.SimpleChainData;
 import net.shiruka.shiruka.language.Languages;
+import net.shiruka.shiruka.network.NoEncryption;
 import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.network.ShirukaPacket;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
@@ -86,6 +94,11 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
    * the ping.
    */
   private final AtomicInteger ping = new AtomicInteger();
+
+  /**
+   * the queued packets.
+   */
+  private final Queue<ShirukaPacket> queuedPackets = PlatformDependent.newMpscQueue();
 
   /**
    * the blob cache support.
@@ -393,6 +406,7 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
 
   @Override
   public void tick() {
+    this.handleQueuedPackets();
   }
 
   @Override
@@ -425,6 +439,67 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
    * @param packet the packet to send.
    */
   public void sendPacket(@NotNull final ShirukaPacket packet) {
+    this.queuedPackets.add(packet);
+  }
+
+  /**
+   * sends the given {@code packet} to {@link #connection}.
+   *
+   * @param packet the packet to send.
+   */
+  public void sendPacketImmediately(@NotNull final ShirukaPacket packet) {
+    this.sendWrapped(Collections.singleton(packet));
+  }
+
+  /**
+   * handles {@link #queuedPackets}.
+   */
+  private void handleQueuedPackets() {
+    var toBatch = new ObjectArrayList<ShirukaPacket>();
+    @Nullable ShirukaPacket packet;
+    while ((packet = this.queuedPackets.poll()) != null) {
+      if (!packet.getClass().isAnnotationPresent(NoEncryption.class)) {
+        toBatch.add(packet);
+        continue;
+      }
+      if (!toBatch.isEmpty()) {
+        this.sendWrapped(toBatch);
+        toBatch = new ObjectArrayList<>();
+      }
+      this.sendWrapped(Collections.singleton(packet));
+    }
+    if (!toBatch.isEmpty()) {
+      this.sendWrapped(toBatch);
+    }
+  }
+
+  /**
+   * sends the wrapped packets to the connection.
+   *
+   * @param packets the packets to send.
+   */
+  private void sendWrapped(@NotNull final Collection<ShirukaPacket> packets) {
+    final var compressed = Unpooled.buffer();
+    try {
+      Protocol.serialize(compressed, packets, Deflater.DEFAULT_COMPRESSION);
+      this.sendWrapped(compressed);
+    } catch (final Exception e) {
+      Shiruka.getLogger().error("Unable to compress packets", e);
+    } finally {
+      compressed.release();
+    }
+  }
+
+  /**
+   * sends the given compressed packet to the connection.
+   *
+   * @param compressed the compressed packet to send.
+   */
+  private synchronized void sendWrapped(@NotNull final ByteBuf compressed) {
+    final var packet = Unpooled.buffer(compressed.readableBytes() + 9);
+    packet.writeByte(0xfe);
+    packet.writeBytes(compressed);
+    this.connection.sendMessage(Reliability.RELIABLE_ORDERED, packet);
   }
 
   /**

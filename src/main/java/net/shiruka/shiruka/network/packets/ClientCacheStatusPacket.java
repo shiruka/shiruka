@@ -60,7 +60,7 @@ public final class ClientCacheStatusPacket extends ShirukaPacket {
 
   @Override
   public void decode() {
-    this.blobCacheSupport = this.buffer().readBoolean();
+    this.blobCacheSupport = this.readBoolean();
   }
 
   @Override
@@ -75,14 +75,5 @@ public final class ClientCacheStatusPacket extends ShirukaPacket {
    */
   public boolean isBlobCacheSupport() {
     return this.blobCacheSupport;
-  }
-
-  /**
-   * sets the blob cache support.
-   *
-   * @param blobCacheSupport blob cache support to set.
-   */
-  public void setBlobCacheSupport(final boolean blobCacheSupport) {
-    this.blobCacheSupport = blobCacheSupport;
   }
 }

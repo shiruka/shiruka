@@ -25,15 +25,11 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import net.shiruka.shiruka.network.ShirukaPacket;
-import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents pack stack packets.
@@ -43,45 +39,36 @@ public final class PackStackPacket extends ShirukaPacket {
   /**
    * the behavior packs.
    */
-  @Nullable
-  private List<Entry> behaviorPacks;
+  @NotNull
+  private final List<Entry> behaviorPacks;
 
   /**
    * the experiments.
    */
-  @Nullable
-  private List<ExperimentData> experiments;
+  @NotNull
+  private final List<ExperimentData> experiments;
 
   /**
    * the experiment previously toggled.
    */
-  private boolean experimentsPreviouslyToggled;
+  private final boolean experimentsPreviouslyToggled;
 
   /**
    * the forced to accept.
    */
-  private boolean forcedToAccept;
+  private final boolean forcedToAccept;
 
   /**
    * the game version.
    */
-  @Nullable
-  private String gameVersion;
+  @NotNull
+  private final String gameVersion;
 
   /**
    * the resource packs.
    */
-  @Nullable
-  private List<Entry> resourcePacks;
-
-  /**
-   * ctor.
-   *
-   * @param original the original.
-   */
-  public PackStackPacket(@NotNull final ByteBuf original) {
-    super(ShirukaPacket.ID_PACK_STACK, original);
-  }
+  @NotNull
+  private final List<Entry> resourcePacks;
 
   /**
    * ctor.
@@ -115,12 +102,12 @@ public final class PackStackPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.buffer().writeBoolean(this.forcedToAccept);
+    this.writeBoolean(this.forcedToAccept);
     this.writeArray(this.getBehaviorPacks(), this::writeEntry);
     this.writeArray(this.getResourcePacks(), this::writeEntry);
-    VarInts.writeString(this.buffer(), this.getGameVersion());
+    this.writeString(this.getGameVersion());
     this.writeExperiments(this.getExperiments());
-    this.buffer().writeBoolean(this.experimentsPreviouslyToggled);
+    this.writeBoolean(this.experimentsPreviouslyToggled);
   }
 
   /**
@@ -130,7 +117,7 @@ public final class PackStackPacket extends ShirukaPacket {
    */
   @NotNull
   public List<Entry> getBehaviorPacks() {
-    return Collections.unmodifiableList(Objects.requireNonNull(this.behaviorPacks));
+    return this.behaviorPacks;
   }
 
   /**
@@ -140,7 +127,7 @@ public final class PackStackPacket extends ShirukaPacket {
    */
   @NotNull
   public List<ExperimentData> getExperiments() {
-    return Collections.unmodifiableList(Objects.requireNonNull(this.experiments));
+    return this.experiments;
   }
 
   /**
@@ -150,7 +137,7 @@ public final class PackStackPacket extends ShirukaPacket {
    */
   @NotNull
   public String getGameVersion() {
-    return Objects.requireNonNull(this.gameVersion);
+    return this.gameVersion;
   }
 
   /**
@@ -160,7 +147,7 @@ public final class PackStackPacket extends ShirukaPacket {
    */
   @NotNull
   public List<Entry> getResourcePacks() {
-    return Collections.unmodifiableList(Objects.requireNonNull(this.resourcePacks));
+    return this.resourcePacks;
   }
 
   /**

@@ -60,10 +60,7 @@ import net.shiruka.shiruka.network.NoEncryption;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.network.ShirukaPacket;
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
-import net.shiruka.shiruka.network.packets.DisconnectPacket;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.PlayStatusPacket;
+import net.shiruka.shiruka.network.packets.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -251,6 +248,63 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
         }
       });
     });
+  }
+
+  @Override
+  public void resourcePackChunkRequestPacket(@NotNull final ResourcePackChunkRequestPacket packet) {
+    final var packId = packet.getPackId();
+    final var version = packet.getVersion();
+    final var chunkSize = packet.getChunkSize();
+    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
+    if (resourcePack.isEmpty()) {
+      this.disconnect(TranslatedText.get("disconnectionScreen.resourcePack").asString());
+      return;
+    }
+    final var pack = resourcePack.get();
+    final var send = new ResourcePackChunkDataPacket(chunkSize, pack.getChunk(1048576 * chunkSize, 1048576),
+      packId, version, 1048576L * chunkSize);
+    this.sendPacket(send);
+  }
+
+  @Override
+  public void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
+    final var status = packet.getStatus();
+    final var packs = packet.getPacks();
+    switch (status) {
+      case REFUSED:
+        if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
+          this.disconnect(TranslatedText.get("disconnectionScreen.noReason"));
+        }
+        break;
+      case COMPLETED:
+        if (this.loginData == null) {
+          return;
+        }
+        if (this.loginData.getTask() != null &&
+          !Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
+          this.loginData.initializePlayer();
+        } else {
+          this.loginData.setShouldLogin(true);
+        }
+        break;
+      case SEND_PACKS:
+        packs.forEach(pack -> {
+          final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
+          if (optional.isEmpty()) {
+            this.disconnect(TranslatedText.get("disconnectionScreen.resourcePack"));
+            return;
+          }
+          final var loaded = optional.get();
+          this.sendPacket(new ResourcePackDataInfoPacket(loaded));
+        });
+        break;
+      case HAVE_ALL_PACKS:
+        final var packStack = Shiruka.getPackManager().getPackStack();
+        if (packStack instanceof ShirukaPacket) {
+          this.sendPacket((ShirukaPacket) packStack);
+        }
+        break;
+    }
   }
 
   /**

@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.network;
 
-import com.whirvis.jraknet.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
@@ -63,10 +62,10 @@ public final class Protocol {
    * @param handler the handler to handle.
    * @param compressed the compressed to deserialize.
    */
-  public static void deserialize(@NotNull final PacketHandler handler, @NotNull final Packet compressed) {
+  public static void deserialize(@NotNull final PacketHandler handler, @NotNull final ByteBuf compressed) {
     ByteBuf decompressed = null;
     try {
-      decompressed = Protocol.ZLIB.inflate(compressed.buffer(), 12 * 1024 * 1024);
+      decompressed = Protocol.ZLIB.inflate(compressed, 12 * 1024 * 1024);
       while (decompressed.isReadable()) {
         final var length = VarInts.readUnsignedVarInt(decompressed);
         final var buffer = decompressed.readSlice(length);
@@ -77,7 +76,7 @@ public final class Protocol {
         final var packetId = header & 0x3ff;
         Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
         final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
-          String.format("The compressed id %s not found!", packetId)).apply(buffer);
+          String.format("The packet id %s not found!", packetId)).apply(buffer);
         shirukaPacket.setSenderId(header >>> 10 & 3);
         shirukaPacket.setClientId(header >>> 12 & 3);
         shirukaPacket.decode();
@@ -107,7 +106,6 @@ public final class Protocol {
         final var buffer = Unpooled.buffer();
         try {
           final var packetId = packet.getId();
-          Protocol.LOGGER.debug("§7Outgoing packet id -> {}", packetId);
           var header = 0;
           header |= packetId & 0x3ff;
           header |= (packet.getSenderId() & 3) << 10;

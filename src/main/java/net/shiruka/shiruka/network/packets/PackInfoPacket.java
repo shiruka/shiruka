@@ -25,14 +25,11 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents pack info packets.
@@ -42,33 +39,24 @@ public final class PackInfoPacket extends ShirukaPacket {
   /**
    * the behavior pack infos.
    */
-  @Nullable
-  private List<Entry> behaviorPackInfos;
+  @NotNull
+  private final List<Entry> behaviorPackInfos;
 
   /**
    * the forced to accept.
    */
-  private boolean forcedToAccept;
+  private final boolean forcedToAccept;
 
   /**
    * the resource pack infos.
    */
-  @Nullable
-  private List<Entry> resourcePackInfos;
+  @NotNull
+  private final List<Entry> resourcePackInfos;
 
   /**
    * the scripting enabled.
    */
-  private boolean scriptingEnabled;
-
-  /**
-   * ctor.
-   *
-   * @param original the original.
-   */
-  public PackInfoPacket(@NotNull final ByteBuf original) {
-    super(ShirukaPacket.ID_PACK_INFO, original);
-  }
+  private final boolean scriptingEnabled;
 
   /**
    * ctor.
@@ -96,8 +84,8 @@ public final class PackInfoPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.buffer().writeBoolean(this.forcedToAccept);
-    this.buffer().writeBoolean(this.scriptingEnabled);
+    this.writeBoolean(this.forcedToAccept);
+    this.writeBoolean(this.scriptingEnabled);
     this.writeArrayShortLE(this.getBehaviorPackInfos(), this::writeEntry);
     this.writeArrayShortLE(this.getResourcePackInfos(), this::writeResourcePackEntry);
   }
@@ -109,7 +97,7 @@ public final class PackInfoPacket extends ShirukaPacket {
    */
   @NotNull
   public List<Entry> getBehaviorPackInfos() {
-    return Objects.requireNonNull(this.behaviorPackInfos);
+    return this.behaviorPackInfos;
   }
 
   /**
@@ -119,7 +107,7 @@ public final class PackInfoPacket extends ShirukaPacket {
    */
   @NotNull
   public List<Entry> getResourcePackInfos() {
-    return Collections.unmodifiableList(Objects.requireNonNull(this.resourcePackInfos));
+    return this.resourcePackInfos;
   }
 
   /**

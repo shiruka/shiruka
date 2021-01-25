@@ -26,83 +26,87 @@
 package net.shiruka.shiruka.network.packets;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.util.AsciiString;
 import java.util.Objects;
+import java.util.UUID;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a packet that sends by clients to request a login process.
+ * a class that represents resource pack chunk request packets.
  */
-public final class LoginPacket extends ShirukaPacket {
+public final class ResourcePackChunkRequestPacket extends ShirukaPacket {
 
   /**
-   * the chain data.
+   * the chunk size.
+   */
+  private int chunkSize;
+
+  /**
+   * the pack id.
    */
   @Nullable
-  private AsciiString chainData;
+  private UUID packId;
 
   /**
-   * the protocol version.
-   */
-  private int protocolVersion;
-
-  /**
-   * the skin data.
+   * the version.
    */
   @Nullable
-  private AsciiString skinData;
+  private String version;
 
   /**
    * ctor.
    *
    * @param original the original.
    */
-  public LoginPacket(@NotNull final ByteBuf original) {
-    super(ShirukaPacket.ID_LOGIN, original);
+  public ResourcePackChunkRequestPacket(@NotNull final ByteBuf original) {
+    super(ShirukaPacket.ID_RESOURCE_PACK_CHUNK_REQUEST, original);
   }
 
   @Override
   public void decode() {
-    this.protocolVersion = this.readInt();
-    final var jwt = this.buffer().readSlice((int) this.readUnsignedVarInt());
-    this.chainData = ShirukaPacket.readLEAsciiString(jwt);
-    this.skinData = ShirukaPacket.readLEAsciiString(jwt);
+    final var packInfo = this.readString().split("_");
+    this.packId = UUID.fromString(packInfo[0]);
+    if (packInfo.length > 1) {
+      this.version = packInfo[1];
+    } else {
+      this.version = null;
+    }
+    this.chunkSize = this.readIntLE();
   }
 
   @Override
   public void handle(@NotNull final PacketHandler handler) {
-    handler.loginPacket(this);
+    handler.resourcePackChunkRequestPacket(this);
   }
 
   /**
-   * obtains the chain data.
+   * obtains the chunk size.
    *
-   * @return chain data.
+   * @return chunk size.
+   */
+  public int getChunkSize() {
+    return this.chunkSize;
+  }
+
+  /**
+   * obtains the pack id.
+   *
+   * @return pack id.
    */
   @NotNull
-  public AsciiString getChainData() {
-    return Objects.requireNonNull(this.chainData);
+  public UUID getPackId() {
+    return Objects.requireNonNull(this.packId);
   }
 
   /**
-   * obtains the protocol version.
+   * obtains the version.
    *
-   * @return protocol version.
+   * @return version.
    */
-  public int getProtocolVersion() {
-    return this.protocolVersion;
-  }
-
-  /**
-   * obtains the skin data.
-   *
-   * @return skin data.
-   */
-  @NotNull
-  public AsciiString getSkinData() {
-    return Objects.requireNonNull(this.skinData);
+  @Nullable
+  public String getVersion() {
+    return this.version;
   }
 }

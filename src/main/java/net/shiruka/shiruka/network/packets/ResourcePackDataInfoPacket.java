@@ -23,48 +23,58 @@
  *
  */
 
-package net.shiruka.shiruka.network;
+package net.shiruka.shiruka.network.packets;
 
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.api.pack.Pack;
+import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine packet handlers.
+ * a class that represents resource pack data info packets.
  */
-public interface PacketHandler {
+public final class ResourcePackDataInfoPacket extends ShirukaPacket {
 
   /**
-   * handles the client cache status packet.
-   *
-   * @param packet the packet to handle.
+   * the maximum chunk size.
    */
-  default void clientCacheStatusPacket(@NotNull final ClientCacheStatusPacket packet) {
+  private static final int MAX_CHUNK_SIZE = 1048576;
+
+  /**
+   * the pack.
+   */
+  @NotNull
+  private final Pack pack;
+
+  /**
+   * ctor.
+   *
+   * @param pack the pack.
+   */
+  public ResourcePackDataInfoPacket(@NotNull final Pack pack) {
+    super(ShirukaPacket.ID_RESOURCE_PACK_DATA_INFO);
+    this.pack = pack;
+  }
+
+  @Override
+  public void encode() {
+    this.writeString(this.pack.getId().toString() + '_' + this.pack.getVersion());
+    this.writeIntLE(ResourcePackDataInfoPacket.MAX_CHUNK_SIZE);
+    this.writeIntLE((int) (this.pack.getSize() / ResourcePackDataInfoPacket.MAX_CHUNK_SIZE));
+    this.writeLongLE(this.pack.getSize());
+    final var hash = this.pack.getHash();
+    this.writeUnsignedInt(hash.length);
+    this.buffer().writeBytes(hash);
+    this.writeBoolean(false);
+    this.writeByte(this.pack.getType().getId());
   }
 
   /**
-   * handles the login packet.
+   * obtains the pack.
    *
-   * @param packet the packet to handle.
+   * @return pack.
    */
-  default void loginPacket(@NotNull final LoginPacket packet) {
-  }
-
-  /**
-   * handles the resource pack chunk request packet.
-   *
-   * @param packet the packet to handle.
-   */
-  default void resourcePackChunkRequestPacket(@NotNull final ResourcePackChunkRequestPacket packet) {
-  }
-
-  /**
-   * handles the resource pack response packet.
-   *
-   * @param packet the packet to handle.
-   */
-  default void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
+  @NotNull
+  public Pack getPack() {
+    return this.pack;
   }
 }

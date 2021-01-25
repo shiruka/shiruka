@@ -29,7 +29,10 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.function.Function;
-import net.shiruka.shiruka.network.packets.*;
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -45,9 +48,8 @@ public final class PacketRegistry {
   static {
     PACKETS = new Object2ObjectOpenHashMap<>();
     PacketRegistry.put(1, LoginPacket::new);
-    PacketRegistry.put(2, PlayStatusPacket::new);
-    PacketRegistry.put(6, PackInfoPacket::new);
-    PacketRegistry.put(7, PackStackPacket::new);
+    PacketRegistry.put(8, ResourcePackResponsePacket::new);
+    PacketRegistry.put(84, ResourcePackChunkRequestPacket::new);
     PacketRegistry.put(129, ClientCacheStatusPacket::new);
   }
 

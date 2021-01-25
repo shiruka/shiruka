@@ -27,118 +27,18 @@ package net.shiruka.shiruka.network;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import net.shiruka.api.base.Vector;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an utility class to write/read {@link DataInput} and {@link DataOutput}.
+ * a class that helps developers to read/write {@link ByteBuf}.
  */
 public final class VarInts {
-
-  /**
-   * The default character encoding for protocol Strings.
-   */
-  private static final Charset NET_CHARSET = StandardCharsets.UTF_8;
 
   /**
    * ctor.
    */
   private VarInts() {
-  }
-
-  /**
-   * transfers all of the next readable bytes from the buffer into a new byte array.
-   *
-   * @param buf the buffer to transfer from.
-   *
-   * @return the an array containing the bytes of the buffer.
-   */
-  public static byte[] arr(@NotNull final ByteBuf buf) {
-    return VarInts.arr(buf, buf.readableBytes());
-  }
-
-  /**
-   * transfers the specified length of bytes from the buffer into a new byte array.
-   *
-   * @param buf the buffer to transfer from.
-   * @param len the length of bytes to transfer.
-   *
-   * @return the new byte array.
-   */
-  public static byte[] arr(@NotNull final ByteBuf buf, final int len) {
-    final var bytes = new byte[len];
-    buf.readBytes(bytes);
-    return bytes;
-  }
-
-  /**
-   * converts the given angle into protocol format.
-   *
-   * @param angle the angle to convert.
-   *
-   * @return the protocol format.
-   */
-  public static byte convertAngle(final float angle) {
-    return (byte) (angle / 1.40625);
-  }
-
-  /**
-   * reads the integer from the given input.
-   *
-   * @param input the input to read.
-   *
-   * @return the given input's integer value.
-   *
-   * @throws IOException if something went wrong when reading to the input.
-   */
-  public static int readInt(@NotNull final DataInput input) throws IOException {
-    final var n = (int) VarInts.decodeUnsigned(input);
-    return n >>> 1 ^ -(n & 1);
-  }
-
-  /**
-   * reads the long from the given input.
-   *
-   * @param input the input to read.
-   *
-   * @return the given input's long value.
-   *
-   * @throws IOException if something went wrong when reading the input.
-   */
-  public static long readLong(@NotNull final DataInput input) throws IOException {
-    final var n = VarInts.decodeUnsigned(input);
-    return n >>> 1 ^ -(n & 1);
-  }
-
-  /**
-   * reads the next String value from the byte stream represented by the given buffer.
-   *
-   * @param buf the buffer which to read the String.
-   *
-   * @return the next String value.
-   */
-  public static String readString(final ByteBuf buf) {
-    final var len = VarInts.readVarInt(buf);
-    final var stringData = VarInts.arr(buf, len);
-    return new String(stringData, VarInts.NET_CHARSET);
-  }
-
-  /**
-   * reads the integer from the given input.
-   *
-   * @param input the input to read.
-   *
-   * @return the given input's integer value.
-   *
-   * @throws IOException if something went wrong when reading the input.
-   */
-  public static int readUnsignedInt(@NotNull final DataInput input) throws IOException {
-    return (int) VarInts.decodeUnsigned(input);
   }
 
   /**
@@ -188,7 +88,7 @@ public final class VarInts {
    *
    * @return the next VarLong value.
    */
-  public static long readVarlong(@NotNull final ByteBuf buf) {
+  public static long readVarLong(@NotNull final ByteBuf buf) {
     var result = 0L;
     var indent = 0;
     var b = (long) buf.readByte();
@@ -203,19 +103,6 @@ public final class VarInts {
   }
 
   /**
-   * reads the next vector and creates a new Vector instance.
-   *
-   * @param buf the buffer to read from.
-   *
-   * @return a new vector.
-   */
-  @NotNull
-  public static Vector readVector(@NotNull final ByteBuf buf) {
-    final var pos = buf.readLong();
-    return new Vector(pos >> 38, pos >> 26 & 0xFFF, pos << 38 >> 38);
-  }
-
-  /**
    * writes the given bytes into the given buffer.
    *
    * @param buffer the buffer to write.
@@ -227,29 +114,6 @@ public final class VarInts {
   }
 
   /**
-   * writes the given long into the given output.
-   *
-   * @param output the output to write.
-   * @param longInteger the long integer to write.
-   *
-   * @throws IOException if something went wrong when writing to the output.
-   */
-  public static void writeLong(@NotNull final DataOutput output, final long longInteger) throws IOException {
-    VarInts.encodeUnsigned(output, longInteger << 1 ^ longInteger >> 63);
-  }
-
-  /**
-   * encodes the given String into the given buffer using the Minecraft protocol format.
-   *
-   * @param buf the buffer which to write.
-   * @param s the String to write.
-   */
-  public static void writeString(@NotNull final ByteBuf buf, @NotNull final String s) {
-    VarInts.writeVarInt(buf, s.length());
-    buf.writeBytes(s.getBytes(VarInts.NET_CHARSET));
-  }
-
-  /**
    * writes the given length into the given buffer.
    *
    * @param buffer the buffer to write.
@@ -257,18 +121,6 @@ public final class VarInts {
    */
   public static void writeUnsignedInt(@NotNull final ByteBuf buffer, final long length) {
     VarInts.encodeUnsigned(buffer, length);
-  }
-
-  /**
-   * writes the given integer into the given output.
-   *
-   * @param output the output to write.
-   * @param integer the integer to write.
-   *
-   * @throws IOException if something went wrong when writing to the output.
-   */
-  public static void writeUnsignedInt(@NotNull final DataOutput output, final long integer) throws IOException {
-    VarInts.encodeUnsigned(output, integer);
   }
 
   /**
@@ -313,27 +165,7 @@ public final class VarInts {
   }
 
   /**
-   * decodes the long value from the given input.
-   *
-   * @param input the input to decode.
-   *
-   * @return decoded lon value from the given input.
-   *
-   * @throws IOException if something went wrong when decoding the given input.
-   */
-  private static long decodeUnsigned(@NotNull final DataInput input) throws IOException {
-    var result = 0;
-    for (var shift = 0; shift < 64; shift += 7) {
-      final var b = input.readByte();
-      result |= (long) (b & 0x7F) << shift;
-      if ((b & 0x80) == 0) {
-        return result;
-      }
-    }
-    throw new ArithmeticException("VarInt was too large");
-  }
-
-  /**
+   * /**
    * encodes the given length into the buffer.
    *
    * @param buffer the buffer to encode.
@@ -347,25 +179,6 @@ public final class VarInts {
       }
       buffer.writeByte((byte) ((int) length & 0x7F | 0x80));
       length >>>= 7;
-    }
-  }
-
-  /**
-   * encodes the given value into the output.
-   *
-   * @param output the output to encode.
-   * @param value the value to encode.
-   *
-   * @throws IOException if something went wrong when encoding to the output.
-   */
-  private static void encodeUnsigned(@NotNull final DataOutput output, long value) throws IOException {
-    while (true) {
-      if ((value & ~0x7FL) == 0) {
-        output.writeByte((int) value);
-        return;
-      }
-      output.writeByte((byte) ((int) value & 0x7F | 0x80));
-      value >>>= 7;
     }
   }
 }

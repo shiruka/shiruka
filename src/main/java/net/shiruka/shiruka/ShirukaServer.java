@@ -484,7 +484,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     }
     if (packet.getId() == 0xfe) {
       packet.buffer().markReaderIndex();
-      Protocol.deserialize(handler, packet);
+      Protocol.deserialize(handler, packet.buffer());
     }
   }
 

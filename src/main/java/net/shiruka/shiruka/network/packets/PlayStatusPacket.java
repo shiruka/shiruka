@@ -25,11 +25,8 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import io.netty.buffer.ByteBuf;
-import java.util.Objects;
 import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a packet that sends to clients to notify connection's play status..
@@ -39,17 +36,8 @@ public final class PlayStatusPacket extends ShirukaPacket {
   /**
    * the status.
    */
-  @Nullable
-  private Status status;
-
-  /**
-   * ctor.
-   *
-   * @param original the original.
-   */
-  public PlayStatusPacket(@NotNull final ByteBuf original) {
-    super(ShirukaPacket.ID_PLAY_STATUS, original);
-  }
+  @NotNull
+  private final Status status;
 
   /**
    * ctor.
@@ -63,7 +51,7 @@ public final class PlayStatusPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.writeInt(Objects.requireNonNull(this.status).ordinal());
+    this.writeInt(this.status.ordinal());
   }
 
   /**
@@ -73,7 +61,7 @@ public final class PlayStatusPacket extends ShirukaPacket {
    */
   @NotNull
   public Status getStatus() {
-    return Objects.requireNonNull(this.status);
+    return this.status;
   }
 
   /**

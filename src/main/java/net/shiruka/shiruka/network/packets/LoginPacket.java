@@ -25,12 +25,13 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import com.whirvis.jraknet.RakNetPacket;
+import com.whirvis.jraknet.Packet;
 import io.netty.util.AsciiString;
+import java.util.Objects;
 import net.shiruka.shiruka.network.PacketHandler;
-import net.shiruka.shiruka.network.packet.ShirukaPacket;
-import net.shiruka.shiruka.network.util.PacketHelper;
+import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a packet that sends by clients to request a login process.
@@ -40,6 +41,7 @@ public final class LoginPacket extends ShirukaPacket {
   /**
    * the chain data.
    */
+  @Nullable
   private AsciiString chainData;
 
   /**
@@ -50,21 +52,31 @@ public final class LoginPacket extends ShirukaPacket {
   /**
    * the skin data.
    */
+  @Nullable
   private AsciiString skinData;
 
   /**
    * ctor.
+   *
+   * @param original the original.
    */
-  public LoginPacket(@NotNull final RakNetPacket packet) throws IllegalArgumentException {
-    super(ShirukaPacket.ID_LOGIN, packet);
+  public LoginPacket(@NotNull final Packet original) {
+    super(ShirukaPacket.ID_LOGIN, original);
+  }
+
+  /**
+   * ctor.
+   */
+  public LoginPacket() {
+    super(ShirukaPacket.ID_LOGIN);
   }
 
   @Override
   public void decode() {
-    this.protocolVersion = this.readInt();
+    this.setProtocolVersion(this.readInt());
     final var jwt = this.buffer().readSlice((int) this.readUnsignedVarInt());
-    this.chainData = PacketHelper.readLEAsciiString(jwt);
-    this.skinData = PacketHelper.readLEAsciiString(jwt);
+    this.setChainData(ShirukaPacket.readLEAsciiString(jwt));
+    this.setSkinData(ShirukaPacket.readLEAsciiString(jwt));
   }
 
   @Override
@@ -79,7 +91,16 @@ public final class LoginPacket extends ShirukaPacket {
    */
   @NotNull
   public AsciiString getChainData() {
-    return this.chainData;
+    return Objects.requireNonNull(this.chainData);
+  }
+
+  /**
+   * sets the chain data.
+   *
+   * @param chainData the chain data to set.
+   */
+  public void setChainData(@NotNull final AsciiString chainData) {
+    this.chainData = chainData;
   }
 
   /**
@@ -92,12 +113,30 @@ public final class LoginPacket extends ShirukaPacket {
   }
 
   /**
+   * sets the protocol version.
+   *
+   * @param protocolVersion the protocol version to set.
+   */
+  public void setProtocolVersion(final int protocolVersion) {
+    this.protocolVersion = protocolVersion;
+  }
+
+  /**
    * obtains the skin data.
    *
    * @return skin data.
    */
   @NotNull
   public AsciiString getSkinData() {
-    return this.skinData;
+    return Objects.requireNonNull(this.skinData);
+  }
+
+  /**
+   * sets the skin data.
+   *
+   * @param skinData the skin data to set.
+   */
+  public void setSkinData(@NotNull final AsciiString skinData) {
+    this.skinData = skinData;
   }
 }

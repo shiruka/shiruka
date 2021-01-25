@@ -38,10 +38,10 @@ import org.jetbrains.annotations.Nullable;
 public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent implements PlayerPreLoginEvent {
 
   /**
-   * the login data.
+   * the chain data.
    */
   @NotNull
-  private final LoginData loginData;
+  private final ChainData chainData;
 
   /**
    * the kick message.
@@ -52,37 +52,37 @@ public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent impl
   /**
    * ctor.
    *
-   * @param loginData the login data.
+   * @param chainData the chain data.
    * @param kickMessage the kick message.
    */
-  public SimplePlayerPreLoginEvent(@NotNull final LoginData loginData, @Nullable final Text kickMessage) {
-    this.loginData = loginData;
+  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData, @Nullable final Text kickMessage) {
+    this.chainData = chainData;
     this.kickMessage = kickMessage;
   }
 
   /**
    * ctor.
    *
-   * @param loginData the login data.
+   * @param chainData the chain data.
    */
-  public SimplePlayerPreLoginEvent(@NotNull final LoginData loginData) {
-    this(loginData, null);
+  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData) {
+    this(chainData, null);
   }
 
   @NotNull
   @Override
-  public Optional<Text> kickMessage() {
+  public ChainData getChainData() {
+    return this.chainData;
+  }
+
+  @NotNull
+  @Override
+  public Optional<Text> getKickMessage() {
     return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public void kickMessage(@Nullable final Text message) {
+  public void setKickMessage(@Nullable final Text message) {
     this.kickMessage = message;
-  }
-
-  @NotNull
-  @Override
-  public LoginData loginData() {
-    return this.loginData;
   }
 }

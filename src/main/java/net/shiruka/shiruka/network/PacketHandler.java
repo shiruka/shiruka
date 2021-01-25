@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.network;
 
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,14 @@ import org.jetbrains.annotations.NotNull;
  * an interface to determine packet handlers.
  */
 public interface PacketHandler {
+
+  /**
+   * handles the client cache status packet.
+   *
+   * @param packet the packet to handle.
+   */
+  default void clientCacheStatusPacket(@NotNull final ClientCacheStatusPacket packet) {
+  }
 
   /**
    * handles the login packet.

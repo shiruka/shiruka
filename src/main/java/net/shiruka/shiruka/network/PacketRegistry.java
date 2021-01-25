@@ -23,65 +23,47 @@
  *
  */
 
-package net.shiruka.shiruka.network.packet;
+package net.shiruka.shiruka.network;
 
 import com.whirvis.jraknet.Packet;
-import net.shiruka.shiruka.network.PacketHandler;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.PlayStatusPacket;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.util.Map;
+import java.util.function.Function;
+import net.shiruka.shiruka.network.packets.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a generic abstract packet for Shiru ka packets.
+ * a class that represents packet registry.
  */
-public abstract class ShirukaPacket extends Packet {
+public final class PacketRegistry {
 
   /**
-   * the id of the {@link LoginPacket}.
+   * the packets.
    */
-  public static final int ID_LOGIN = 1;
+  public static final Map<Integer, Function<Packet, ShirukaPacket>> PACKETS;
+
+  static {
+    PACKETS = new Object2ObjectOpenHashMap<>();
+    PacketRegistry.put(1, LoginPacket::new);
+    PacketRegistry.put(2, PlayStatusPacket::new);
+    PacketRegistry.put(6, PackInfoPacket::new);
+    PacketRegistry.put(7, PackStackPacket::new);
+    PacketRegistry.put(135, ClientCacheStatusPacket::new);
+  }
 
   /**
-   * the id of the {@link PlayStatusPacket}.
+   * the ctor.
    */
-  public static final int ID_PLAY_STATUS = 2;
+  private PacketRegistry() {
+  }
 
   /**
-   * the id.
-   */
-  private final int id;
-
-  /**
-   * ctor.
+   * puts the given {@code id} to the {@link #PACKETS}
    *
-   * @param id the id.
+   * @param id the id to put.
+   * @param packetFunction the packet supplier to put.
    */
-  protected ShirukaPacket(final int id) {
-    this.id = id;
-  }
-
-  public void decode() {
-    // ignored.
-  }
-
-  public void encode() {
-    // ignored.
-  }
-
-  /**
-   * obtains the id.
-   *
-   * @return id.
-   */
-  public int getId() {
-    return this.id;
-  }
-
-  /**
-   * handles the packet.
-   *
-   * @param handler the handler to handle.
-   */
-  public void handle(@NotNull final PacketHandler handler) {
+  private static void put(final int id, @NotNull final Function<Packet, ShirukaPacket> packetFunction) {
+    PacketRegistry.PACKETS.put(id, packetFunction);
   }
 }

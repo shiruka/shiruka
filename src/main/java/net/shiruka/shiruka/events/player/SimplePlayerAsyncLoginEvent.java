@@ -47,10 +47,10 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   private final List<Consumer<Player>> actions = new ArrayList<>();
 
   /**
-   * the login data.
+   * the chain data.
    */
   @NotNull
-  private final LoginData loginData;
+  private final ChainData chainData;
 
   /**
    * the kick message.
@@ -67,53 +67,53 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   /**
    * ctor.
    *
-   * @param loginData the login data.
+   * @param chainData the login data.
    */
-  public SimplePlayerAsyncLoginEvent(@NotNull final LoginData loginData) {
-    this.loginData = loginData;
+  public SimplePlayerAsyncLoginEvent(@NotNull final ChainData chainData) {
+    this.chainData = chainData;
   }
 
   @Override
-  public void add(@NotNull final Consumer<Player> o) {
-    this.actions.add(o);
+  public void addAction(@NotNull final Consumer<Player> action) {
+    this.actions.add(action);
   }
 
   @NotNull
   @Override
-  public List<Consumer<Player>> objects() {
+  public List<Consumer<Player>> getActions() {
     return Collections.unmodifiableList(this.actions);
   }
 
   @Override
-  public void remove(@NotNull final Consumer<Player> o) {
-    this.actions.remove(o);
+  public void removeAction(@NotNull final Consumer<Player> action) {
+    this.actions.remove(action);
   }
 
   @NotNull
   @Override
-  public Optional<Text> kickMessage() {
+  public ChainData getChainData() {
+    return this.chainData;
+  }
+
+  @NotNull
+  @Override
+  public Optional<Text> getKickMessage() {
     return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public void kickMessage(@Nullable final Text message) {
+  public void setKickMessage(@Nullable final Text message) {
     this.kickMessage = message;
   }
 
   @NotNull
   @Override
-  public LoginData loginData() {
-    return this.loginData;
-  }
-
-  @NotNull
-  @Override
-  public LoginResult loginResult() {
+  public LoginResult getLoginResult() {
     return this.loginResult;
   }
 
   @Override
-  public void loginResult(@NotNull final LoginResult result) {
+  public void setLoginResult(@NotNull final LoginResult result) {
     this.loginResult = result;
   }
 }

@@ -68,8 +68,8 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final LoginDataEvent.LoginData loginData) {
-    return new SimplePlayerAsyncLoginEvent(loginData);
+  public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final LoginDataEvent.ChainData chainData) {
+    return new SimplePlayerAsyncLoginEvent(chainData);
   }
 
   @NotNull
@@ -81,9 +81,9 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.LoginData loginData,
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.ChainData chainData,
                                             @Nullable final Text kickMessage) {
-    return new SimplePlayerPreLoginEvent(loginData, kickMessage);
+    return new SimplePlayerPreLoginEvent(chainData, kickMessage);
   }
 
   @Override

@@ -25,23 +25,92 @@
 
 package net.shiruka.shiruka.network.packets;
 
-import com.whirvis.jraknet.RakNetPacket;
-import net.shiruka.shiruka.network.packet.ShirukaPacket;
+import com.whirvis.jraknet.Packet;
+import java.util.Objects;
+import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * a packet that sends to clients to notify connection's play status.
+ * a packet that sends to clients to notify connection's play status..
  */
 public final class PlayStatusPacket extends ShirukaPacket {
 
   /**
-   * ctor.
+   * the status.
    */
-  public PlayStatusPacket(@NotNull final RakNetPacket packet) throws IllegalArgumentException {
-    super(ShirukaPacket.ID_PLAY_STATUS, packet);
+  @Nullable
+  private Status status;
+
+  /**
+   * ctor.
+   *
+   * @param original the original.
+   */
+  public PlayStatusPacket(@NotNull final Packet original) {
+    super(ShirukaPacket.ID_PLAY_STATUS, original);
+  }
+
+  /**
+   * ctor.
+   *
+   * @param status the status.
+   */
+  public PlayStatusPacket(@NotNull final Status status) {
+    super(ShirukaPacket.ID_PLAY_STATUS);
+    this.status = status;
   }
 
   @Override
   public void encode() {
+    this.writeInt(Objects.requireNonNull(this.status).ordinal());
+  }
+
+  /**
+   * obtains the status.
+   *
+   * @return status.
+   */
+  @NotNull
+  public Status getStatus() {
+    return Objects.requireNonNull(this.status);
+  }
+
+  /**
+   * an enum class to determine play status.
+   */
+  public enum Status {
+    /**
+     * sent after Login has been successfully decoded and the player has logged in.
+     */
+    LOGIN_SUCCESS,
+    /**
+     * displays "Could not connect: Outdated client!".
+     */
+    LOGIN_FAILED_CLIENT_OLD,
+    /**
+     * displays "Could not connect: Outdated server!".
+     */
+    LOGIN_FAILED_SERVER_OLD,
+    /**
+     * sent after world data to spawn the player.
+     */
+    PLAYER_SPAWN,
+    /**
+     * displays "Unable to connect to world. Your school does not have access to this server.".
+     */
+    LOGIN_FAILED_INVALID_TENANT,
+    /**
+     * displays "The server is not running Minecraft: Education Edition. Failed to connect.".
+     */
+    LOGIN_FAILED_EDITION_MISMATCH_EDU_TO_VANILLA,
+    /**
+     * displays "The server is running an incompatible edition of Minecraft. Failed to connect.".
+     */
+    LOGIN_FAILED_EDITION_MISMATCH_VANILLA_TO_EDU,
+    /**
+     * displays "Wow this server is popular! Check back later to see if space opens up. Server Full".
+     */
+    FAILED_SERVER_FULL_SUB_CLIENT
   }
 }

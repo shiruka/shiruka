@@ -63,7 +63,7 @@ import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.network.PacketHandler;
-import net.shiruka.shiruka.network.protocol.Protocol;
+import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
@@ -88,16 +88,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the logger.
    */
   public static final Logger LOGGER = LogManager.getLogger("Shiruka");
-
-  /**
-   * the protocol version of the Minecraft game.
-   */
-  public static final short MINECRAFT_PROTOCOL_VERSION = 422;
-
-  /**
-   * the version of the Minecraft game.
-   */
-  public static final String MINECRAFT_VERSION = "1.16.201";
 
   /**
    * obtains the Shiru ka server's version
@@ -449,7 +439,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
       return;
     }
     if (this.connectingPlayers.containsKey(address)) {
-      this.players.get(address)
+      this.connectingPlayers.get(address)
         .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
       return;
     }

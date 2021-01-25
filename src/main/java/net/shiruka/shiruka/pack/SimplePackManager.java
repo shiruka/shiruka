@@ -36,9 +36,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import net.shiruka.api.pack.*;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.network.util.Misc;
+import net.shiruka.shiruka.network.packets.PackInfoPacket;
+import net.shiruka.shiruka.network.packets.PackStackPacket;
 import net.shiruka.shiruka.pack.loader.RplDirectory;
 import net.shiruka.shiruka.pack.loader.RplZip;
 import net.shiruka.shiruka.pack.pack.ResourcePack;
@@ -64,7 +66,7 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs path.
    */
-  private static final Path PACKS_PATH = Misc.HOME_PATH.resolve("packs");
+  private static final Path PACKS_PATH = ShirukaMain.HOME_PATH.resolve("packs");
 
   /**
    * the loaders.
@@ -79,14 +81,12 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs info packet.
    */
-  private final AtomicReference<PackInfoPacket> packInfo = new AtomicReference<>(new PackInfoPacket(
-    new ObjectArrayList<>(), false, new ObjectArrayList<>(), false));
+  private final AtomicReference<PackInfoPacket> packInfo = new AtomicReference<>(new PackInfoPacket());
 
   /**
    * the pack stack packet.
    */
-  private final AtomicReference<PackStackPacket> packStack = new AtomicReference<>(new PackStackPacket(
-    new ObjectArrayList<>(), new ObjectArrayList<>(), false, false, "", new ObjectArrayList<>()));
+  private final AtomicReference<PackStackPacket> packStack = new AtomicReference<>(new PackStackPacket());
 
   /**
    * the packs.

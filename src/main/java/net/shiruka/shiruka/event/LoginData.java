@@ -31,7 +31,6 @@ import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.events.LoginDataEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
-import net.shiruka.api.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
@@ -39,9 +38,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation of {@link PlayerPreLoginEvent.LoginData}.
+ * a class that represents login data.
  */
-public final class SimpleLoginData implements LoginDataEvent.LoginData {
+public final class LoginData {
 
   /**
    * the chain data.
@@ -85,15 +84,14 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
    * @param player the player.
    * @param username the username.
    */
-  public SimpleLoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final ShirukaPlayer player,
-                         @NotNull final Text username) {
+  public LoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final ShirukaPlayer player,
+                   @NotNull final Text username) {
     this.chainData = chainData;
     this.username = username;
     this.player = player;
   }
 
   @NotNull
-  @Override
   public LoginDataEvent.ChainData chainData() {
     return this.chainData;
   }
@@ -127,13 +125,13 @@ public final class SimpleLoginData implements LoginDataEvent.LoginData {
     if (this.player.getConnection().isDisconnected()) {
       return;
     }
-    if (this.asyncLogin.loginResult() == LoginResultEvent.LoginResult.KICK) {
-      this.player.disconnect(this.asyncLogin.kickMessage().orElse(null));
+    if (this.asyncLogin.getLoginResult() == LoginResultEvent.LoginResult.KICK) {
+      this.player.disconnect(this.asyncLogin.getKickMessage().orElse(null));
       return;
     }
-    final var profile = new GameProfile(this.username, this.chainData.uniqueId(), this.chainData.xuid());
-    this.player.onLogin();
-    this.asyncLogin.objects().forEach(action -> action.accept(this.player));
+    final var profile = new GameProfile(this.username, this.chainData.getUniqueId(), this.chainData.getXUniqueId());
+    this.player.onLogin(this, profile);
+    this.asyncLogin.getActions().forEach(action -> action.accept(this.player));
   }
 
   /**

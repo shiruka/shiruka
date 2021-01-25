@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package to cover all interfaces, enums and, uncategorized classes.
+ * the package that contains network classes.
  */
 package net.shiruka.shiruka.network;

@@ -22,7 +22,45 @@
  * SOFTWARE.
  *
  */
+
+package net.shiruka.shiruka.network.packets;
+
+import net.shiruka.shiruka.network.ShirukaPacket;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * the package to cover utility classes.
+ * a packet that disconnects the sent client.
  */
-package net.shiruka.shiruka.network.util;
+public final class DisconnectPacket extends ShirukaPacket {
+
+  /**
+   * the kick message.
+   */
+  @NotNull
+  private final String kickMessage;
+
+  /**
+   * the message skipped.
+   */
+  private final boolean messageSkipped;
+
+  /**
+   * ctor.
+   *
+   * @param kickMessage the kick message.
+   * @param messageSkipped the message skipped.
+   */
+  public DisconnectPacket(@NotNull final String kickMessage, final boolean messageSkipped) {
+    super(ShirukaPacket.ID_DISCONNECT);
+    this.kickMessage = kickMessage;
+    this.messageSkipped = messageSkipped;
+  }
+
+  @Override
+  public void encode() {
+    this.writeBoolean(this.messageSkipped);
+    if (!this.messageSkipped) {
+      this.writeString(this.kickMessage);
+    }
+  }
+}

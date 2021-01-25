@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.network.util;
+package net.shiruka.shiruka.network;
 
 import com.nukkitx.natives.util.Natives;
 import com.nukkitx.natives.zlib.Deflater;
@@ -40,14 +40,9 @@ import org.jetbrains.annotations.NotNull;
 public final class Zlib {
 
   /**
-   * the default.
-   */
-  public static final Zlib DEFAULT = new Zlib(false);
-
-  /**
    * the raw.
    */
-  public static final Zlib RAW = new Zlib(true);
+  static final Zlib RAW = new Zlib(true);
 
   /**
    * the chunk.
@@ -83,15 +78,15 @@ public final class Zlib {
    * @param compressed the compressed to deflate.
    * @param level the level to deflate.
    */
-  public void deflate(@NotNull final ByteBuf uncompressed, @NotNull final Packet compressed, final int level) {
+  void deflate(@NotNull final Packet uncompressed, @NotNull final Packet compressed, final int level) {
     ByteBuf destination = null;
     ByteBuf source = null;
     try {
-      if (!uncompressed.isDirect()) {
+      if (!uncompressed.buffer().isDirect()) {
         source = ByteBufAllocator.DEFAULT.ioBuffer();
-        source.writeBytes(uncompressed);
+        source.writeBytes(uncompressed.buffer());
       } else {
-        source = uncompressed;
+        source = uncompressed.buffer();
       }
       if (!compressed.buffer().isDirect()) {
         destination = ByteBufAllocator.DEFAULT.ioBuffer();
@@ -112,7 +107,7 @@ public final class Zlib {
         compressed.buffer().writeBytes(destination);
       }
     } finally {
-      if (source != null && source != uncompressed) {
+      if (source != null && source != uncompressed.buffer()) {
         source.release();
       }
       if (destination != null && destination != compressed.buffer()) {
@@ -132,9 +127,9 @@ public final class Zlib {
    * @throws DataFormatException if inflated data exceeds maximum size.
    */
   @NotNull
-  public ByteBuf inflate(@NotNull final Packet packet, final int maxSize) throws DataFormatException {
+  Packet inflate(@NotNull final Packet packet, final int maxSize) throws DataFormatException {
     ByteBuf source = null;
-    final var decompressed = ByteBufAllocator.DEFAULT.ioBuffer();
+    final var decompressed = new Packet(ByteBufAllocator.DEFAULT.ioBuffer());
     final var buffer = packet.buffer();
     try {
       if (!buffer.isDirect()) {
@@ -149,11 +144,11 @@ public final class Zlib {
       inflater.setInput(source.internalNioBuffer(source.readerIndex(), source.readableBytes()));
       inflater.finished();
       while (!inflater.finished()) {
-        decompressed.ensureWritable(Zlib.CHUNK);
-        final var index = decompressed.writerIndex();
-        final var written = inflater.inflate(decompressed.internalNioBuffer(index, Zlib.CHUNK));
-        decompressed.writerIndex(index + written);
-        if (maxSize > 0 && decompressed.writerIndex() >= maxSize) {
+        decompressed.buffer().ensureWritable(Zlib.CHUNK);
+        final var index = decompressed.buffer().writerIndex();
+        final var written = inflater.inflate(decompressed.buffer().internalNioBuffer(index, Zlib.CHUNK));
+        decompressed.buffer().writerIndex(index + written);
+        if (maxSize > 0 && decompressed.buffer().writerIndex() >= maxSize) {
           throw new DataFormatException("Inflated data exceeds maximum size!");
         }
       }

@@ -27,7 +27,10 @@ package net.shiruka.shiruka.config;
 
 import static net.shiruka.api.config.Paths.*;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.ConfigPath;
 import net.shiruka.api.config.config.PathableConfig;

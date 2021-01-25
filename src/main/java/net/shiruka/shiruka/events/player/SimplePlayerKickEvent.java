@@ -72,12 +72,12 @@ public final class SimplePlayerKickEvent extends SimpleCancellableEvent implemen
 
   @NotNull
   @Override
-  public Optional<Text> kickMessage() {
+  public Optional<Text> getKickMessage() {
     return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public void kickMessage(@Nullable final Text message) {
+  public void setKickMessage(@Nullable final Text message) {
     this.kickMessage = message;
   }
 }

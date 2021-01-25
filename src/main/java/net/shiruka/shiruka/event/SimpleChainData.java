@@ -413,98 +413,98 @@ public final class SimpleChainData implements LoginDataEvent.ChainData {
   }
 
   @Override
-  public int currentInputMode() {
+  public int getCurrentInputMode() {
     return this.currentInputMode;
   }
 
   @Override
-  public int defaultInputMode() {
+  public int getDefaultInputMode() {
     return this.defaultInputMode;
   }
 
   @NotNull
   @Override
-  public String deviceId() {
+  public String getDeviceId() {
     return SimpleChainData.get(this.deviceId);
   }
 
   @NotNull
   @Override
-  public String deviceModel() {
+  public String getDeviceModel() {
     return SimpleChainData.get(this.deviceModel);
   }
 
   @Override
-  public int deviceOS() {
+  public int getDeviceOS() {
     return this.deviceOS;
   }
 
   @NotNull
   @Override
-  public String gameVersion() {
+  public String getGameVersion() {
     return SimpleChainData.get(this.gameVersion);
   }
 
   @Override
-  public int guiScale() {
+  public int getGuiScale() {
     return this.guiScale;
   }
 
   @Override
-  public long id() {
+  public long getId() {
     return this.id;
   }
 
   @NotNull
   @Override
-  public String languageCode() {
+  public String getLanguageCode() {
     return SimpleChainData.get(this.languageCode);
   }
 
   @NotNull
   @Override
-  public String publicKey() {
+  public String getPublicKey() {
     return SimpleChainData.get(this.publicKey);
   }
 
   @NotNull
   @Override
-  public String serverAddress() {
+  public String getServerAddress() {
     return SimpleChainData.get(this.serverAddress);
   }
 
   @NotNull
   @Override
-  public Skin skin() {
+  public Skin getSkin() {
     return SimpleChainData.get(this.skin);
   }
 
   @Override
-  public int uiProfile() {
+  public int getUiProfile() {
     return this.uiProfile;
   }
 
   @NotNull
   @Override
-  public UUID uniqueId() {
+  public UUID getUniqueId() {
     return SimpleChainData.get(this.uniqueId);
   }
 
   @NotNull
   @Override
-  public String username() {
+  public String getUsername() {
     return SimpleChainData.get(this.username);
-  }
-
-  @Override
-  public boolean xboxAuthed() {
-    return this.xboxAuthed;
   }
 
   @NotNull
   @Override
-  public String xuid() {
+  public String getXUniqueId() {
     return SimpleChainData.get(this.xuid);
+  }
+
+  @Override
+  public boolean getXboxAuthed() {
+    return this.xboxAuthed;
   }
 
   /**

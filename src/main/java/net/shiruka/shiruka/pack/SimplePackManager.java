@@ -36,9 +36,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import net.shiruka.api.pack.*;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.ShirukaMain;
+import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.network.packets.PacketOutPackInfo;
-import net.shiruka.shiruka.network.packets.PacketOutPackStack;
+import net.shiruka.shiruka.network.packets.PackInfoPacket;
+import net.shiruka.shiruka.network.packets.PackStackPacket;
+import net.shiruka.shiruka.pack.loader.RplDirectory;
+import net.shiruka.shiruka.pack.loader.RplZip;
+import net.shiruka.shiruka.pack.pack.ResourcePack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +64,11 @@ public final class SimplePackManager implements PackManager {
   private static final Path MANIFEST_PATH = Paths.get("manifest.json");
 
   /**
+   * the packs path.
+   */
+  private static final Path PACKS_PATH = ShirukaMain.HOME_PATH.resolve("packs");
+
+  /**
    * the loaders.
    */
   private final Map<Class<? extends PackLoader>, PackLoader.Factory> loaderFactories = new HashMap<>();
@@ -71,14 +81,12 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs info packet.
    */
-  private final AtomicReference<PacketOutPackInfo> packInfo = new AtomicReference<>(new PacketOutPackInfo(
-    new ObjectArrayList<>(), false, new ObjectArrayList<>(), false));
+  private final AtomicReference<PackInfoPacket> packInfo = new AtomicReference<>(new PackInfoPacket());
 
   /**
    * the pack stack packet.
    */
-  private final AtomicReference<PacketOutPackStack> packStack = new AtomicReference<>(new PacketOutPackStack(
-    new ObjectArrayList<>(), new ObjectArrayList<>(), false, false, "", new ObjectArrayList<>()));
+  private final AtomicReference<PackStackPacket> packStack = new AtomicReference<>(new PackStackPacket());
 
   /**
    * the packs.
@@ -107,16 +115,16 @@ public final class SimplePackManager implements PackManager {
     this.checkClosed();
     final var mustAccept = (boolean) ServerConfig.FORCE_RESOURCES.getValue()
       .orElse(false);
-    this.packInfo.set(new PacketOutPackInfo(Collections.emptyList(),
+    this.packInfo.set(new PackInfoPacket(Collections.emptyList(),
       mustAccept,
       new ObjectArrayList<>(this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PacketOutPackInfo.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
+          new PackInfoPacket.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
             false, false, ""))
         .collect(Collectors.toList())),
       false));
-    this.packStack.set(new PacketOutPackStack(
+    this.packStack.set(new PackStackPacket(
       Collections.emptyList(),
       Collections.emptyList(),
       true,
@@ -125,7 +133,7 @@ public final class SimplePackManager implements PackManager {
       this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PacketOutPackStack.Entry(pack.getId().toString(), pack.getVersion().toString(), ""))
+          new PackStackPacket.Entry(pack.getId().toString(), pack.getVersion().toString(), ""))
         .collect(Collectors.toList())));
     this.closed = true;
   }
@@ -290,6 +298,25 @@ public final class SimplePackManager implements PackManager {
   public void registerPack(@NotNull final PackManifest.PackType type, @NotNull final Pack.Factory factory) {
     Preconditions.checkArgument(this.packFactories.putIfAbsent(type, factory) == null,
       "The pack factory is already registered!");
+  }
+
+  /**
+   * reloads packs.
+   */
+  public void reloadPacks() {
+    ShirukaServer.LOGGER.debug("§7Reloading packs.");
+    this.registerLoader(RplZip.class, RplZip.FACTORY);
+    this.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
+    this.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);
+    if (Files.notExists(SimplePackManager.PACKS_PATH)) {
+      try {
+        Files.createDirectory(SimplePackManager.PACKS_PATH);
+      } catch (final IOException e) {
+        throw new IllegalStateException("Unable to create packs directory");
+      }
+    }
+    this.loadPacks(SimplePackManager.PACKS_PATH);
+    this.closeRegistration();
   }
 
   /**

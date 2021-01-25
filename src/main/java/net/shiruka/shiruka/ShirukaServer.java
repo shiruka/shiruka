@@ -25,32 +25,29 @@
 
 package net.shiruka.shiruka;
 
-import java.io.IOException;
+import com.whirvis.jraknet.RakNetPacket;
+import com.whirvis.jraknet.identifier.MinecraftIdentifier;
+import com.whirvis.jraknet.peer.RakNetClientPeer;
+import com.whirvis.jraknet.server.RakNetServer;
+import com.whirvis.jraknet.server.RakNetServerListener;
+import com.whirvis.jraknet.server.ServerPing;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
-import net.shiruka.api.base.GameMode;
 import net.shiruka.api.command.CommandManager;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
-import net.shiruka.api.pack.PackManifest;
 import net.shiruka.api.permission.PermissionManager;
 import net.shiruka.api.plugin.PluginManager;
 import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
-import net.shiruka.api.server.ServerDescription;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
 import net.shiruka.shiruka.command.SimpleCommandManager;
@@ -62,15 +59,9 @@ import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
-import net.shiruka.shiruka.network.impl.ShirukaServerListener;
-import net.shiruka.shiruka.network.server.ServerListener;
-import net.shiruka.shiruka.network.server.ServerSocket;
-import net.shiruka.shiruka.network.util.Constants;
-import net.shiruka.shiruka.network.util.Misc;
+import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
-import net.shiruka.shiruka.pack.loader.RplDirectory;
-import net.shiruka.shiruka.pack.loader.RplZip;
-import net.shiruka.shiruka.pack.pack.ResourcePack;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
 import net.shiruka.shiruka.scheduler.SimpleScheduler;
@@ -83,7 +74,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an implementation for {@link Server}.
  */
-public final class ShirukaServer implements Server {
+public final class ShirukaServer implements Server, RakNetServerListener {
 
   /**
    * the internal plugin of Shiru ka.
@@ -101,15 +92,15 @@ public final class ShirukaServer implements Server {
   public static final String VERSION = "1.0.0-SNAPSHOT";
 
   /**
-   * the packs path.
-   */
-  private static final Path PACKS_PATH = Misc.HOME_PATH.resolve("packs");
-
-  /**
    * the command manager.
    */
   @NotNull
   private final SimpleCommandManager commandManager;
+
+  /**
+   * the connecting players.
+   */
+  private final Map<InetSocketAddress, ShirukaPlayer> connectingPlayers = new ConcurrentHashMap<>();
 
   /**
    * the console.
@@ -122,12 +113,6 @@ public final class ShirukaServer implements Server {
    */
   @NotNull
   private final SimpleConsoleCommandSender consoleCommandSender;
-
-  /**
-   * the server's description.
-   */
-  @NotNull
-  private final ServerDescription description;
 
   /**
    * the event manager.
@@ -190,7 +175,12 @@ public final class ShirukaServer implements Server {
    * the socket.
    */
   @NotNull
-  private final ServerSocket socket;
+  private final RakNetServer socket;
+
+  /**
+   * the start time.
+   */
+  private final long startTime;
 
   /**
    * the stop lock.
@@ -231,12 +221,13 @@ public final class ShirukaServer implements Server {
    * @param serverLanguage the server language.
    * @param socket the socket.
    */
-  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final Locale serverLanguage,
-                @NotNull final Function<ServerListener, ServerSocket> socket) {
+  ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
+                @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
+    this.startTime = startTime;
     this.tick = new ShirukaTick(this);
     this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
     this.console = console.apply(this);
-    this.socket = socket.apply(new ShirukaServerListener(this));
+    this.socket = socket;
     this.serverThread = Thread.currentThread();
     this.commandManager = new SimpleCommandManager();
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
@@ -247,7 +238,6 @@ public final class ShirukaServer implements Server {
     this.pluginManager = new SimplePluginManager();
     this.scheduler = new SimpleScheduler();
     this.worldManager = new SimpleWorldManager();
-    this.description = this.createDefaultDescription();
   }
 
   /**
@@ -256,7 +246,7 @@ public final class ShirukaServer implements Server {
    * @param player the player to add.
    */
   public void addPlayer(@NotNull final ShirukaPlayer player) {
-    this.players.put(player.getPlayerConnection().getConnection().getAddress(), player);
+    this.players.put(player.getConnection().getAddress(), player);
   }
 
   @NotNull
@@ -296,15 +286,6 @@ public final class ShirukaServer implements Server {
     return this.players.size();
   }
 
-  @NotNull
-  @Override
-  public ServerDescription getServerDescription(final boolean forceUpdate) {
-    if (forceUpdate) {
-      return this.updateDescription();
-    }
-    return this.description;
-  }
-
   @Override
   public boolean isInShutdownState() {
     return !this.running.get();
@@ -337,10 +318,10 @@ public final class ShirukaServer implements Server {
   }
 
   @Override
-  public void startServer(final long startTime) {
+  public void startServer() {
     this.registerImplementations();
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.starting"));
-    this.reloadPacks();
+    this.packManager.reloadPacks();
     this.running.set(true);
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
     // @todo #1:60m Load plugins here.
@@ -352,7 +333,7 @@ public final class ShirukaServer implements Server {
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
     this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
-    final var end = System.currentTimeMillis() - startTime;
+    final var end = System.currentTimeMillis() - this.startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
   }
@@ -370,6 +351,26 @@ public final class ShirukaServer implements Server {
   @Override
   public <I> void unregisterInterface(@NotNull final Class<I> cls) {
     this.interfaces.remove(cls);
+  }
+
+  /**
+   * obtains the connecting players.
+   *
+   * @return connecting players.
+   */
+  @NotNull
+  public Collection<ShirukaPlayer> getConnectingPlayers() {
+    return Collections.unmodifiableCollection(this.connectingPlayers.values());
+  }
+
+  /**
+   * obtains the online players.
+   *
+   * @return online players.
+   */
+  @NotNull
+  public Collection<ShirukaPlayer> getPlayers() {
+    return Collections.unmodifiableCollection(this.players.values());
   }
 
   /**
@@ -431,29 +432,69 @@ public final class ShirukaServer implements Server {
     return this.isStopped;
   }
 
+  @Override
+  public void onStart(final RakNetServer server) {
+    this.startServer();
+  }
+
+  @Override
+  public void onPing(final RakNetServer server, final ServerPing ping) {
+    final var identifier = (MinecraftIdentifier) ping.getIdentifier();
+    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    identifier.setServerName(motd);
+    identifier.setWorldName(worldName);
+    identifier.setOnlinePlayerCount(this.players.size());
+  }
+
+  @Override
+  public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
+    final var address = peer.getAddress();
+    if (this.players.containsKey(address)) {
+      this.players.get(address)
+        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
+      return;
+    }
+    if (this.connectingPlayers.containsKey(address)) {
+      this.connectingPlayers.get(address)
+        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
+      return;
+    }
+    this.connectingPlayers.put(address, new ShirukaPlayer(peer));
+  }
+
+  @Override
+  public void onDisconnect(final RakNetServer server, final InetSocketAddress address, final RakNetClientPeer peer,
+                           final String reason) {
+    this.connectingPlayers.remove(address);
+    this.players.remove(address);
+  }
+
+  @Override
+  public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
+                            final int channel) {
+    final PacketHandler handler;
+    final var address = peer.getAddress();
+    if (this.players.containsKey(address)) {
+      handler = this.players.get(address);
+    } else if (this.connectingPlayers.containsKey(address)) {
+      handler = this.connectingPlayers.get(address);
+    } else {
+      return;
+    }
+    if (packet.getId() == 0xfe) {
+      packet.buffer().markReaderIndex();
+      Protocol.deserialize(handler, packet.buffer());
+    }
+  }
+
   /**
    * removes the given player from {@link #players}.
    *
    * @param player the player to remove.
    */
   public void removePlayer(@NotNull final ShirukaPlayer player) {
-    this.players.remove(player.getPlayerConnection().getConnection().getAddress());
-  }
-
-  /**
-   * creates a default server description instance from the server config values.
-   *
-   * @return a newly created server description instance.
-   */
-  @NotNull
-  private ServerDescription createDefaultDescription() {
-    final var gameMode = GameMode.fromType(ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("survival"))
-      .orElse(GameMode.SURVIVAL);
-    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    return new ServerDescription(gameMode, maxPlayers, Constants.MINECRAFT_PROTOCOL_VERSION, this.socket.getUniqueId(),
-      Constants.MINECRAFT_VERSION, motd, ServerDescription.Edition.MCPE, this.players.size(), worldName);
+    this.players.remove(player.getConnection().getAddress());
   }
 
   /**
@@ -472,25 +513,6 @@ public final class ShirukaServer implements Server {
   }
 
   /**
-   * reloads packs.
-   */
-  private void reloadPacks() {
-    ShirukaServer.LOGGER.debug("§7Reloading packs.");
-    this.packManager.registerLoader(RplZip.class, RplZip.FACTORY);
-    this.packManager.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
-    this.packManager.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);
-    if (Files.notExists(ShirukaServer.PACKS_PATH)) {
-      try {
-        Files.createDirectory(ShirukaServer.PACKS_PATH);
-      } catch (final IOException e) {
-        throw new IllegalStateException("Unable to create packs directory");
-      }
-    }
-    this.packManager.loadPacks(ShirukaServer.PACKS_PATH);
-    this.packManager.closeRegistration();
-  }
-
-  /**
    * stops the server.
    */
   private void stop0() {
@@ -502,20 +524,5 @@ public final class ShirukaServer implements Server {
       this.running.set(false);
     }
     this.shutdownThread = Thread.currentThread();
-  }
-
-  /**
-   * updates the server description and returns it.
-   *
-   * @return updated server description.
-   */
-  @NotNull
-  private ServerDescription updateDescription() {
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    this.description.setDescription(motd);
-    this.description.setPlayerCount(this.players.size());
-    this.description.setWorldName(worldName);
-    return this.description;
   }
 }

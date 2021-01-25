@@ -29,7 +29,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import net.shiruka.shiruka.network.util.VarInts;
+import net.shiruka.shiruka.nbt.VarInts;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -90,6 +90,7 @@ public final class Languages {
   public static void addLoadedLanguage(@NotNull final String locale) {
     if (Languages.setLoadedLanguage(locale)) {
       Languages.loadVariables(locale);
+      ServerConfig.get().ifPresent(Config::save);
     }
   }
 

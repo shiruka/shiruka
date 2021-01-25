@@ -44,17 +44,12 @@ public abstract class SimpleCancellableEvent implements Cancellable {
   }
 
   @Override
-  public final void cancel() {
-    this.cancelled = true;
-  }
-
-  @Override
-  public final boolean cancelled() {
+  public final boolean isCancelled() {
     return this.cancelled;
   }
 
   @Override
-  public final void dontCancel() {
-    this.cancelled = false;
+  public final void setCancelled(final boolean cancelled) {
+    this.cancelled = cancelled;
   }
 }

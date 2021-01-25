@@ -130,7 +130,7 @@ public final class LoginData {
       return;
     }
     final var profile = new GameProfile(this.username, this.chainData.getUniqueId(), this.chainData.getXUniqueId());
-    this.player.onLogin(this, profile);
+    this.player.onLogin(profile);
     this.asyncLogin.getActions().forEach(action -> action.accept(this.player));
   }
 

@@ -106,7 +106,7 @@ public final class PackStackPacket extends ShirukaPacket {
     this.writeBoolean(this.forcedToAccept);
     this.writeArray(this.getBehaviorPacks(), this::writeEntry);
     this.writeArray(this.getResourcePacks(), this::writeEntry);
-    VarInts.writeString(this.buffer(),this.getGameVersion());
+    VarInts.writeString(this.buffer(), this.getGameVersion());
     this.writeExperiments(this.getExperiments());
     this.writeBoolean(this.experimentsPreviouslyToggled);
   }

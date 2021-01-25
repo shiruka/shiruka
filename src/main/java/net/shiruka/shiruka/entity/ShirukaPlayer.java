@@ -224,7 +224,7 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
           this.disconnect(TranslatedText.get("disconnectionScreen.invalidSkin"));
           return;
         }
-        final var loginData = new LoginData(chainData, this, () -> ChatColor.clean(username));
+        this.loginData = new LoginData(chainData, this, () -> ChatColor.clean(username));
         final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData, () -> "Some reason.");
         preLogin.callEvent();
         if (preLogin.isCancelled()) {
@@ -232,12 +232,12 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
           return;
         }
         final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
-        loginData.setAsyncLogin(asyncLogin);
-        loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
+        this.loginData.setAsyncLogin(asyncLogin);
+        this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
           asyncLogin.callEvent();
           Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-            if (loginData.shouldLogin()) {
-              loginData.initializePlayer();
+            if (this.loginData.shouldLogin()) {
+              this.loginData.initializePlayer();
             }
           });
         }));
@@ -475,11 +475,9 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
   /**
    * runs when the player pass the login packet.
    *
-   * @param loginData the login data to set.
    * @param profile the profile to set.
    */
-  public void onLogin(@Nullable final LoginData loginData, @NotNull final GameProfile profile) {
-    this.loginData = loginData;
+  public void onLogin(@NotNull final GameProfile profile) {
     this.profile = profile;
   }
 

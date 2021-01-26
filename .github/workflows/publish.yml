@@ -15,7 +15,7 @@ jobs:
         with:
           java-version: 11
 
-      - run: mvn clean install
+      - run: mvn clean install -ntp -B
 
       - uses: actions/upload-artifact@v2
         with:

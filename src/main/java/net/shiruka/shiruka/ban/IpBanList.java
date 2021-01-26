@@ -23,65 +23,49 @@
  *
  */
 
-package net.shiruka.shiruka.config;
+package net.shiruka.shiruka.ban;
 
-import java.io.File;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.ConfigPath;
-import net.shiruka.api.config.Paths;
-import net.shiruka.api.config.config.PathableConfig;
+import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
+import net.shiruka.api.base.BanEntry;
+import net.shiruka.api.base.BanList;
+import net.shiruka.api.text.Text;
+import net.shiruka.shiruka.config.IpBanConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * list of server operators.
+ * an implementation of {@link BanList} for IP bans.
  */
-public final class OpsConfig extends PathableConfig {
+public final class IpBanList implements BanList {
 
-  /**
-   * op list of the server.
-   */
-  public static final ConfigPath<List<UUID>> OPS = Paths.listUniqueIdPath("ops", List.of());
-
-  /**
-   * the instance.
-   */
-  @Nullable
-  private static OpsConfig instance;
-
-  /**
-   * ctor.
-   *
-   * @param origin the origin.
-   */
-  private OpsConfig(@NotNull final Config origin) {
-    super(origin);
-  }
-
-  /**
-   * obtains the instance.
-   *
-   * @return instance.
-   */
   @NotNull
-  public static OpsConfig getInstance() {
-    return Objects.requireNonNull(OpsConfig.instance);
+  @Override
+  public Optional<BanEntry> addBan(@NotNull final String target, @Nullable final Text reason,
+                                   @Nullable final Date expires, @Nullable final String source) {
+    return Optional.empty();
   }
 
-  /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(OpsConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        OpsConfig.instance = config;
-      });
+  @NotNull
+  @Override
+  public Set<BanEntry> getBanEntries() {
+    return null;
+  }
+
+  @NotNull
+  @Override
+  public Optional<BanEntry> getBanEntry(@NotNull final String target) {
+    return IpBanConfig.getBanEntry(target);
+  }
+
+  @Override
+  public boolean isBanned(@NotNull final String target) {
+    return IpBanConfig.isBanned(target);
+  }
+
+  @Override
+  public void pardon(@NotNull final String target) {
+    IpBanConfig.remove(target);
   }
 }

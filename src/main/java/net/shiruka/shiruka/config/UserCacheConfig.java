@@ -28,12 +28,14 @@ package net.shiruka.shiruka.config;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.ConfigPath;
 import net.shiruka.api.config.config.PathableConfig;
 import net.shiruka.shiruka.base.GameProfileEntry;
 import net.shiruka.shiruka.config.paths.ApGameProfileEntries;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * list of server operators.
@@ -47,12 +49,28 @@ public final class UserCacheConfig extends PathableConfig {
     new ApGameProfileEntries("profiles", new ArrayList<>());
 
   /**
+   * the instance.
+   */
+  @Nullable
+  private static UserCacheConfig instance;
+
+  /**
    * ctor.
    *
    * @param origin the origin.
    */
   private UserCacheConfig(@NotNull final Config origin) {
     super(origin);
+  }
+
+  /**
+   * obtians the instance.
+   *
+   * @return instance.
+   */
+  @NotNull
+  public static UserCacheConfig getInstance() {
+    return Objects.requireNonNull(UserCacheConfig.instance);
   }
 
   /**
@@ -63,6 +81,9 @@ public final class UserCacheConfig extends PathableConfig {
   public static void init(@NotNull final File file) {
     Config.fromFile(file)
       .map(UserCacheConfig::new)
-      .ifPresent(Config::save);
+      .ifPresent(config -> {
+        config.save();
+        UserCacheConfig.instance = config;
+      });
   }
 }

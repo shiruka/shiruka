@@ -23,65 +23,61 @@
  *
  */
 
-package net.shiruka.shiruka.config;
+package net.shiruka.shiruka.ban;
 
-import java.io.File;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.ConfigPath;
-import net.shiruka.api.config.Paths;
-import net.shiruka.api.config.config.PathableConfig;
+import java.util.Date;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * list of server operators.
+ * a class that represents ip ban entries.
  */
-public final class OpsConfig extends PathableConfig {
-
-  /**
-   * op list of the server.
-   */
-  public static final ConfigPath<List<UUID>> OPS = Paths.listUniqueIdPath("ops", List.of());
-
-  /**
-   * the instance.
-   */
-  @Nullable
-  private static OpsConfig instance;
+public final class IpBanEntry extends BaseBanEntry<String> {
 
   /**
    * ctor.
    *
-   * @param origin the origin.
+   * @param map the map.
    */
-  private OpsConfig(@NotNull final Config origin) {
-    super(origin);
+  public IpBanEntry(@NotNull final Map<String, Object> map) {
+    super(IpBanEntry.getKey(map), map);
   }
 
   /**
-   * obtains the instance.
-   *
-   * @return instance.
+   * ctor.
+   * @param key the key.
+   * @param created the created.
+   * @param source the source.
+   * @param expires the expires.
+   * @param reason the reason.
    */
+  public IpBanEntry(@NotNull final String key, @Nullable final Date created, @Nullable final String source,
+                    @Nullable final Date expires, @Nullable final String reason) {
+    super(key, created, source, expires, reason);
+  }
+
+  /**
+   * gets the key from the given {@code map.}
+   *
+   * @param map the map to get.
+   *
+   * @return the key.
+   */
+  @Nullable
+  private static String getKey(@NotNull final Map<String, Object> map) {
+    return map.containsKey("ip")
+      ? map.get("ip").toString()
+      : null;
+  }
+
   @NotNull
-  public static OpsConfig getInstance() {
-    return Objects.requireNonNull(OpsConfig.instance);
-  }
-
-  /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(OpsConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        OpsConfig.instance = config;
-      });
+  @Override
+  public Map<String, Object> serialize() {
+    final var map = super.serialize();
+    if (this.getKey() != null) {
+      map.put("ip", this.getKey());
+    }
+    return map;
   }
 }

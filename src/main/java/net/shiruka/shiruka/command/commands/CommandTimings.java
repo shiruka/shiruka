@@ -82,8 +82,7 @@ public final class CommandTimings extends CommandHelper {
    */
   private static boolean checkTimingsOn(@NotNull final CommandContext context) {
     if (!Timings.isTimingsEnabled()) {
-      // @todo #1:15m Add translation for `shiruka.command.commands.timings.check_timings_on.enable_timings`.
-      context.getSender().sendMessage("Please enable timings by typing /timings on");
+      CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.check_timings_on.enable_timings");
       return false;
     }
     return true;
@@ -97,22 +96,19 @@ public final class CommandTimings extends CommandHelper {
       .requires(sender -> this.testPermission(sender, CommandTimings.PERMISSION))
       .then(Commands.defaultArg("usage", termArg("help", "usage"), "help")
         .executes(context -> {
-          // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.help`.
-          context.getSender().sendMessage("§e/timings <reset|report|on|off|verbon|verboff>");
+          CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.register.help");
           return of();
         }))
       .then(literal("on")
         .executes(context -> {
           Timings.setTimingsEnabled(true);
-          // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.timings_enabled`.
-          context.getSender().sendMessage("§aEnabled Timings & Reset");
+          CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.register.timings_enabled");
           return of();
         }))
       .then(literal("off")
         .executes(context -> {
           Timings.setTimingsEnabled(false);
-          // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.timings_disabled`.
-          context.getSender().sendMessage("§cDisabled Timings");
+          CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.register.timings_disabled");
           return of();
         }))
       .then(literal("verbon")
@@ -121,8 +117,7 @@ public final class CommandTimings extends CommandHelper {
             return empty();
           }
           Timings.setVerboseTimingsEnabled(true);
-          // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.verbose_enabled`.
-          context.getSender().sendMessage("§aEnabled Verbose Timings");
+          CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.register.verbose_enabled");
           return of();
         }))
       .then(literal("verboff")
@@ -132,8 +127,7 @@ public final class CommandTimings extends CommandHelper {
           }
           final var now = System.currentTimeMillis();
           Timings.setVerboseTimingsEnabled(false);
-          // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.verbose_disabled`.
-          context.getSender().sendMessage("§cDisabled Verbose Timings");
+          CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.register.verbose_disabled");
           return of();
         }))
       .then(literal("reset")
@@ -142,12 +136,10 @@ public final class CommandTimings extends CommandHelper {
           final var now = System.currentTimeMillis();
           if (now - this.lastResetAttempt < 30000) {
             TimingsManager.reset();
-            // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.timings_reset`.
-            sender.sendMessage("§cTimings reset. Please wait 5-10 minutes before using /timings report.");
+            CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.register.timings_reset");
           } else {
             this.lastResetAttempt = now;
-            // @todo #1:15m Add translation for `shiruka.command.commands.timings.register.reset_fail`.
-            sender.sendMessage("§cWARNING: Timings v2 should not be reset. If you are encountering lag, please wait 3 minutes and then issue a report. The best timings will include 10+ minutes, with data before and after your lag period. If you really want to reset, run this command again within 30 seconds.");
+            CommandHelper.sendTranslated(context, "shiruka.command.commands.timings.register.reset_fail");
           }
           return of();
         }))

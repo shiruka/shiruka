@@ -61,6 +61,7 @@ public final class IpBanConfig extends PathableConfig {
 
   /**
    * adds the given {@code entry} to the section.
+   *
    * @param entry the entry to add.
    */
   public static void addEntry(@NotNull final IpBanEntry entry) {

@@ -46,6 +46,7 @@ public final class IpBanEntry extends BaseBanEntry<String> {
 
   /**
    * ctor.
+   *
    * @param key the key.
    * @param created the created.
    * @param source the source.

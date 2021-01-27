@@ -88,6 +88,8 @@ public final class ResourcePackResponsePacket extends ShirukaPacket {
 
   /**
    * obtains the status.
+   *
+   * @return status.
    */
   @NotNull
   public Status getStatus() {

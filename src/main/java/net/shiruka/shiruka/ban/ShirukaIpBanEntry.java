@@ -27,6 +27,7 @@ package net.shiruka.shiruka.ban;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Optional;
 import net.shiruka.api.base.BanEntry;
 import net.shiruka.shiruka.config.IpBanConfig;
@@ -103,7 +104,7 @@ public final class ShirukaIpBanEntry implements BanEntry {
   public void setExpiration(@Nullable final Date expiration) {
     if (expiration == null) {
       this.expiration = null;
-    } else if (expiration.getTime() == new Date(0, Calendar.JANUARY, 0, 0, 0, 0).getTime()) {
+    } else if (expiration.getTime() == new GregorianCalendar(0, Calendar.JANUARY, 0, 0, 0, 0).getTimeInMillis()) {
       this.expiration = null;
     } else {
       this.expiration = (Date) expiration.clone();

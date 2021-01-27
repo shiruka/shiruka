@@ -30,20 +30,18 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Optional;
 import net.shiruka.api.base.BanEntry;
-import net.shiruka.shiruka.config.IpBanConfig;
+import net.shiruka.api.base.GameProfile;
+import net.shiruka.shiruka.config.ProfileBanConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * an implementation of {@link BanEntry} for IP bans.
- */
-public final class ShirukaIpBanEntry implements BanEntry {
+public final class ShirukaProfileBanEntry implements BanEntry {
 
   /**
-   * the target.
+   * the profile.
    */
   @NotNull
-  private final String target;
+  private final GameProfile profile;
 
   /**
    * the created.
@@ -72,11 +70,11 @@ public final class ShirukaIpBanEntry implements BanEntry {
   /**
    * ctor.
    *
-   * @param target the target.
+   * @param profile the profile.
    * @param entry the entry.
    */
-  public ShirukaIpBanEntry(@NotNull final String target, @NotNull final IpBanEntry entry) {
-    this.target = target;
+  public ShirukaProfileBanEntry(@NotNull final GameProfile profile, @NotNull final ProfileBanEntry entry) {
+    this.profile = profile;
     this.created = new Date(entry.getCreated().getTime());
     this.source = entry.getSource();
     this.expiration = entry.getExpires() != null ? new Date(entry.getExpires().getTime()) : null;
@@ -136,11 +134,12 @@ public final class ShirukaIpBanEntry implements BanEntry {
   @NotNull
   @Override
   public String getTarget() {
-    return this.target;
+    return this.profile.getName().asString();
   }
 
   @Override
   public void save() {
-    IpBanConfig.addBanEntry(new IpBanEntry(this.target, this.created, this.source, this.expiration, this.reason));
+    final var entry = new ProfileBanEntry(this.profile, this.created, this.source, this.expiration, this.reason);
+    ProfileBanConfig.addBanEntry(entry);
   }
 }

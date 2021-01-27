@@ -31,48 +31,56 @@ import java.util.Set;
 import net.shiruka.api.base.BanEntry;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.config.IpBanConfig;
+import net.shiruka.shiruka.ban.ProfileBanEntry;
+import net.shiruka.shiruka.ban.ShirukaProfileBanEntry;
+import net.shiruka.shiruka.config.ProfileBanConfig;
+import net.shiruka.shiruka.config.UserCacheConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * an implementation of {@link BanList} for IP bans.
+ * an implementation of {@link BanList} for profile bans.
  */
-public final class IpBanList implements BanList {
+public final class ProfileBanList implements BanList {
 
   @NotNull
   @Override
   public Optional<BanEntry> addBan(@NotNull final String target, @Nullable final Text reason,
                                    @Nullable final Date expires, @Nullable final String source) {
-    final var entry = new IpBanEntry(
-      target,
+    final var optional = UserCacheConfig.getProfile(target);
+    if (optional.isEmpty()) {
+      return Optional.empty();
+    }
+    final var profile = optional.get();
+    final var entry = new ProfileBanEntry(
+      profile,
       new Date(),
       source == null || source.isBlank() ? null : source,
       expires,
       reason == null || reason.asString().isBlank() ? null : reason.asString());
-    IpBanConfig.addBanEntry(entry);
-    return Optional.of(new ShirukaIpBanEntry(target, entry));
+    ProfileBanConfig.addBanEntry(entry);
+    return Optional.of(new ShirukaProfileBanEntry(profile, entry));
   }
 
   @NotNull
   @Override
   public Set<BanEntry> getBanEntries() {
-    return IpBanConfig.getBanEntries();
+    return ProfileBanConfig.getBanEntries();
   }
 
   @NotNull
   @Override
   public Optional<BanEntry> getBanEntry(@NotNull final String target) {
-    return IpBanConfig.getBanEntry(target);
+    return ProfileBanConfig.getBanEntry(target);
   }
 
   @Override
   public boolean isBanned(@NotNull final String target) {
-    return IpBanConfig.isBanned(target);
+    return ProfileBanConfig.isBanned(target);
   }
 
   @Override
   public void pardon(@NotNull final String target) {
-    IpBanConfig.remove(target);
+    ProfileBanConfig.remove(target);
   }
 }

@@ -26,8 +26,6 @@
 package net.shiruka.shiruka.config;
 
 import java.io.File;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,28 +34,28 @@ import java.util.stream.Collectors;
 import net.shiruka.api.base.BanEntry;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.config.PathableConfig;
-import net.shiruka.shiruka.ban.IpBanEntry;
-import net.shiruka.shiruka.ban.ShirukaIpBanEntry;
+import net.shiruka.shiruka.ban.ProfileBanEntry;
+import net.shiruka.shiruka.ban.ShirukaProfileBanEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents ip ban config.
  */
-public final class IpBanConfig extends PathableConfig {
+public final class ProfileBanConfig extends PathableConfig {
 
   /**
    * the instance.
    */
   @Nullable
-  private static IpBanConfig instance;
+  private static ProfileBanConfig instance;
 
   /**
    * ctor.
    *
    * @param origin the origin.
    */
-  private IpBanConfig(@NotNull final Config origin) {
+  private ProfileBanConfig(@NotNull final Config origin) {
     super(origin);
   }
 
@@ -66,9 +64,10 @@ public final class IpBanConfig extends PathableConfig {
    *
    * @param entry the entry to add.
    */
-  public static void addBanEntry(@NotNull final IpBanEntry entry) {
+  public static void addBanEntry(@NotNull final ProfileBanEntry entry) {
     Optional.ofNullable(entry.getKey()).ifPresent(key ->
-      IpBanConfig.getInstance().saveAfterDo(config -> config.set(key, entry.serialize())));
+      ProfileBanConfig.getInstance().saveAfterDo(config ->
+        config.set(key.getUniqueId().toString(), entry.serialize())));
   }
 
   /**
@@ -78,8 +77,8 @@ public final class IpBanConfig extends PathableConfig {
    */
   @NotNull
   public static Set<BanEntry> getBanEntries() {
-    return IpBanConfig.getInstance().getConfiguration().getKeys(false).stream()
-      .flatMap(key -> IpBanConfig.getBanEntry(key).stream())
+    return ProfileBanConfig.getInstance().getConfiguration().getKeys(false).stream()
+      .flatMap(key -> ProfileBanConfig.getBanEntry(key).stream())
       .collect(Collectors.toSet());
   }
 
@@ -88,17 +87,22 @@ public final class IpBanConfig extends PathableConfig {
    *
    * @param target the target to get.
    *
-   * @return ip ban entry instance.
+   * @return profile ban entry instance.
    */
   @NotNull
   public static Optional<BanEntry> getBanEntry(@NotNull final String target) {
+    final var optional = UserCacheConfig.getProfile(target);
+    if (optional.isEmpty()) {
+      return Optional.empty();
+    }
+    final var profile = optional.get();
     //noinspection unchecked
-    return IpBanConfig.getInstance().get(target)
+    return ProfileBanConfig.getInstance().get(target)
       .filter(o -> o instanceof Map<?, ?>)
       .map(o -> (Map<String, Object>) o)
-      .map(IpBanEntry::new)
+      .map(ProfileBanEntry::new)
       .filter(entry -> !entry.hasExpired())
-      .map(entry -> new ShirukaIpBanEntry(target, entry));
+      .map(entry -> new ShirukaProfileBanEntry(profile, entry));
   }
 
   /**
@@ -107,8 +111,8 @@ public final class IpBanConfig extends PathableConfig {
    * @return instance.
    */
   @NotNull
-  public static IpBanConfig getInstance() {
-    return Objects.requireNonNull(IpBanConfig.instance);
+  public static ProfileBanConfig getInstance() {
+    return Objects.requireNonNull(ProfileBanConfig.instance);
   }
 
   /**
@@ -118,10 +122,10 @@ public final class IpBanConfig extends PathableConfig {
    */
   public static void init(@NotNull final File file) {
     Config.fromFile(file)
-      .map(IpBanConfig::new)
+      .map(ProfileBanConfig::new)
       .ifPresent(config -> {
         config.save();
-        IpBanConfig.instance = config;
+        ProfileBanConfig.instance = config;
       });
   }
 
@@ -132,19 +136,8 @@ public final class IpBanConfig extends PathableConfig {
    *
    * @return {@code true} if the target is banned, {@code false} otherwise.
    */
-  public static boolean isBanned(@NotNull final InetSocketAddress target) {
-    return IpBanConfig.getInstance().get(IpBanConfig.convert(target)).isPresent();
-  }
-
-  /**
-   * checks if the given target is banned.
-   *
-   * @param target the target to check.
-   *
-   * @return {@code true} if the target is banned, {@code false} otherwise.
-   */
   public static boolean isBanned(@NotNull final String target) {
-    return IpBanConfig.isBanned(InetSocketAddress.createUnresolved(target, 0));
+    return ProfileBanConfig.getInstance().getConfiguration().contains(target);
   }
 
   /**
@@ -153,25 +146,6 @@ public final class IpBanConfig extends PathableConfig {
    * @param target the target to remove.
    */
   public static void remove(@NotNull final String target) {
-    IpBanConfig.getInstance().saveAfterDo(config -> config.remove(target));
-  }
-
-  /**
-   * converts the given {@code address} to string.
-   *
-   * @param address the address to convert.
-   *
-   * @return converted address string.
-   */
-  @NotNull
-  private static String convert(@NotNull final SocketAddress address) {
-    var var1 = address.toString();
-    if (var1.contains("/")) {
-      var1 = var1.substring(var1.indexOf(47) + 1);
-    }
-    if (var1.contains(":")) {
-      var1 = var1.substring(0, var1.indexOf(58));
-    }
-    return var1;
+    ProfileBanConfig.getInstance().saveAfterDo(config -> config.remove(target));
   }
 }

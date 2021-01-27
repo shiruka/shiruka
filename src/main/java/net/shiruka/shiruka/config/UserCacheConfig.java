@@ -26,14 +26,12 @@
 package net.shiruka.shiruka.config;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.config.Config;
-import net.shiruka.api.config.ConfigPath;
 import net.shiruka.api.config.config.PathableConfig;
-import net.shiruka.shiruka.base.GameProfileEntry;
-import net.shiruka.shiruka.config.paths.ApGameProfileEntries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,12 +39,6 @@ import org.jetbrains.annotations.Nullable;
  * list of server operators.
  */
 public final class UserCacheConfig extends PathableConfig {
-
-  /**
-   * the entries.
-   */
-  public static final ConfigPath<List<GameProfileEntry>> ENTRIES =
-    new ApGameProfileEntries("profiles", new ArrayList<>());
 
   /**
    * the instance.
@@ -71,6 +63,36 @@ public final class UserCacheConfig extends PathableConfig {
   @NotNull
   public static UserCacheConfig getInstance() {
     return Objects.requireNonNull(UserCacheConfig.instance);
+  }
+
+  /**
+   * gives the profile instance from the given {@code name}.
+   *
+   * @param name the name to get.
+   */
+  @NotNull
+  public static Optional<GameProfile> getProfileByName(@NotNull final String name) {
+    return Optional.empty();
+  }
+
+  /**
+   * gives the profile instance from the given {@code xboxUniqueId}.
+   *
+   * @param xboxUniqueId the xboxUniqueId to get.
+   */
+  @NotNull
+  public static Optional<GameProfile> getProfileByXboxUniqueId(@NotNull final String xboxUniqueId) {
+    return Optional.empty();
+  }
+
+  /**
+   * gives the profile instance from the given {@code uniqueId}.
+   *
+   * @param uniqueId the uniqueId to get.
+   */
+  @NotNull
+  public static Optional<GameProfile> getProfileByUniqueId(@NotNull final UUID uniqueId) {
+    return Optional.empty();
   }
 
   /**

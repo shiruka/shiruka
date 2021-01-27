@@ -27,21 +27,23 @@ package net.shiruka.shiruka.ban;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
+import net.shiruka.api.base.GameProfile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a class that represents ip ban entries.
+ * a class that represents profile ban entries.
  */
-public final class IpBanEntry extends BaseBanEntry<String> {
+public final class ProfileBanEntry extends BaseBanEntry<GameProfile> {
 
   /**
    * ctor.
    *
    * @param map the map.
    */
-  public IpBanEntry(@NotNull final Map<String, Object> map) {
-    super(IpBanEntry.getKey(map), map);
+  public ProfileBanEntry(@NotNull final Map<String, Object> map) {
+    super(ProfileBanEntry.getKey(map), map);
   }
 
   /**
@@ -53,8 +55,8 @@ public final class IpBanEntry extends BaseBanEntry<String> {
    * @param expires the expires.
    * @param reason the reason.
    */
-  public IpBanEntry(@NotNull final String key, @Nullable final Date created, @Nullable final String source,
-                    @Nullable final Date expires, @Nullable final String reason) {
+  public ProfileBanEntry(@NotNull final GameProfile key, @Nullable final Date created, @Nullable final String source,
+                         @Nullable final Date expires, @Nullable final String reason) {
     super(key, created, source, expires, reason);
   }
 
@@ -66,18 +68,21 @@ public final class IpBanEntry extends BaseBanEntry<String> {
    * @return the key.
    */
   @Nullable
-  private static String getKey(@NotNull final Map<String, Object> map) {
-    return map.containsKey("ip")
-      ? map.get("ip").toString()
-      : null;
+  private static GameProfile getKey(@NotNull final Map<String, Object> map) {
+    final var name = map.get("name");
+    final var uniqueId = map.get("unique-id");
+    final var xboxId = map.get("xbox-id");
+    if (name == null || uniqueId == null || xboxId == null) {
+      return null;
+    }
+    return new GameProfile(name::toString, UUID.fromString(uniqueId.toString()), xboxId.toString());
   }
-
   @NotNull
   @Override
-  public Map<String, Object> serialize() {
+  public  Map<String, Object> serialize() {
     final var map = super.serialize();
     if (this.getKey() != null) {
-      map.put("ip", this.getKey());
+      map.put("profile", getKey());
     }
     return map;
   }

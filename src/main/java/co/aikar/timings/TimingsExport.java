@@ -197,7 +197,7 @@ public class TimingsExport extends Thread {
       ))));
     // Information on the users Config
     parent.put("config", createObject(
-      pair("shiruka", TimingsExport.mapAsJSON(ServerConfig.get().orElseThrow().getConfiguration(), null))
+      pair("shiruka", TimingsExport.mapAsJSON(ServerConfig.getInstance().getConfiguration(), null))
     ));
     new TimingsExport(listeners, parent, history).start();
   }

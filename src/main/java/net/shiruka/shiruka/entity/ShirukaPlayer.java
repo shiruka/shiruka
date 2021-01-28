@@ -32,6 +32,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.internal.PlatformDependent;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -339,6 +340,37 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
     }
   }
 
+  @NotNull
+  @Override
+  public InetSocketAddress getAddress() {
+    return this.connection.getAddress();
+  }
+
+  @NotNull
+  @Override
+  public LoginDataEvent.ChainData getChainData() {
+    return Objects.requireNonNull(this.loginData, "not initialized player").chainData();
+  }
+
+  @Override
+  public long getPing() {
+    return this.ping.get();
+  }
+
+  @NotNull
+  @Override
+  public GameProfile getProfile() {
+    return Objects.requireNonNull(this.profile, "not initialized player");
+  }
+
+  @Override
+  public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
+                      final boolean isAdmin) {
+    final var event = Shiruka.getEventManager().playerKick(this, reason);
+    event.callEvent();
+    return !event.isCancelled();
+  }
+
   @Nullable
   @Override
   public Location getBedSpawnLocation() {
@@ -388,31 +420,6 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
 
   @Override
   public void setWhitelisted(final boolean value) {
-  }
-
-  @NotNull
-  @Override
-  public LoginDataEvent.ChainData getChainData() {
-    return Objects.requireNonNull(this.loginData, "not initialized player").chainData();
-  }
-
-  @Override
-  public long getPing() {
-    return this.ping.get();
-  }
-
-  @NotNull
-  @Override
-  public GameProfile getProfile() {
-    return Objects.requireNonNull(this.profile, "not initialized player");
-  }
-
-  @Override
-  public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
-                      final boolean isAdmin) {
-    final var event = Shiruka.getEventManager().playerKick(this, reason);
-    event.callEvent();
-    return !event.isCancelled();
   }
 
   /**

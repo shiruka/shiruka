@@ -135,7 +135,7 @@ public final class GameProfileEntry {
     final var profile = new HashMap<String, Object>();
     profile.put("name", this.profile.getName().asString());
     profile.put("unique-id", this.profile.getUniqueId().toString());
-    profile.put("xbox-id", this.profile.getXboxUniqueId());
+    profile.put("xbox-unique-id", this.profile.getXboxUniqueId());
     map.put("profile", profile);
     map.put("expires-on", DateFormat.getInstance().format(this.expiresOn));
     return map;

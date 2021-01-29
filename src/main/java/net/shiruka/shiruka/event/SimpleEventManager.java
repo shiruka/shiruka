@@ -30,10 +30,10 @@ import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.Listener;
 import net.shiruka.api.event.method.MethodAdapter;
 import net.shiruka.api.event.method.SimpleMethodAdapter;
+import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.Event;
 import net.shiruka.api.events.EventManager;
 import net.shiruka.api.events.KickEvent;
-import net.shiruka.api.events.LoginDataEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.events.player.PlayerKickEvent;
 import net.shiruka.api.events.player.PlayerPreLoginEvent;
@@ -68,7 +68,7 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final LoginDataEvent.ChainData chainData) {
+  public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final ChainDataEvent.ChainData chainData) {
     return new SimplePlayerAsyncLoginEvent(chainData);
   }
 
@@ -81,7 +81,7 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerPreLoginEvent playerPreLogin(@NotNull final LoginDataEvent.ChainData chainData,
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final ChainDataEvent.ChainData chainData,
                                             @Nullable final Text kickMessage) {
     return new SimplePlayerPreLoginEvent(chainData, kickMessage);
   }

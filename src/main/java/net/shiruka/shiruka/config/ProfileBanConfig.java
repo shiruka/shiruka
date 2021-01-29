@@ -91,7 +91,7 @@ public final class ProfileBanConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<BanEntry> getBanEntry(@NotNull final String target) {
-    final var optional = UserCacheConfig.getProfile(target);
+    final var optional = UserCacheConfig.getProfileByXboxUniqueId(target);
     if (optional.isEmpty()) {
       return Optional.empty();
     }

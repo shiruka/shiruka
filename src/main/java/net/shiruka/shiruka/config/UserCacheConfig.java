@@ -69,6 +69,8 @@ public final class UserCacheConfig extends PathableConfig {
    * gives the profile instance from the given {@code name}.
    *
    * @param name the name to get.
+   *
+   * @return game profile instance.
    */
   @NotNull
   public static Optional<GameProfile> getProfileByName(@NotNull final String name) {
@@ -76,22 +78,26 @@ public final class UserCacheConfig extends PathableConfig {
   }
 
   /**
-   * gives the profile instance from the given {@code xboxUniqueId}.
+   * gives the profile instance from the given {@code uniqueId}.
    *
-   * @param xboxUniqueId the xboxUniqueId to get.
+   * @param uniqueId the uniqueId to get.
+   *
+   * @return game profile instance.
    */
   @NotNull
-  public static Optional<GameProfile> getProfileByXboxUniqueId(@NotNull final String xboxUniqueId) {
+  public static Optional<GameProfile> getProfileByUniqueId(@NotNull final UUID uniqueId) {
     return Optional.empty();
   }
 
   /**
-   * gives the profile instance from the given {@code uniqueId}.
+   * gives the profile instance from the given {@code xboxUniqueId}.
    *
-   * @param uniqueId the uniqueId to get.
+   * @param xboxUniqueId the xboxUniqueId to get.
+   *
+   * @return game profile instance.
    */
   @NotNull
-  public static Optional<GameProfile> getProfileByUniqueId(@NotNull final UUID uniqueId) {
+  public static Optional<GameProfile> getProfileByXboxUniqueId(@NotNull final String xboxUniqueId) {
     return Optional.empty();
   }
 

@@ -79,6 +79,8 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
    * ctor.
    *
    * @param connection the connection.
+   * @param loginData the login data.
+   * @param profile the profile.
    */
   public ShirukaPlayer(@NotNull final PlayerConnection connection, @NotNull final LoginData loginData,
                        @NotNull final GameProfile profile) {

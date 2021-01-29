@@ -40,7 +40,6 @@ import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.command.CommandManager;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
-import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
@@ -279,7 +278,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @NotNull
   @Override
-  public Collection<? extends Player> getOnlinePlayers() {
+  public Collection<? extends ShirukaPlayer> getOnlinePlayers() {
     return this.players.values();
   }
 
@@ -363,16 +362,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   public Collection<PlayerConnection> getConnectingPlayers() {
     return Collections.unmodifiableCollection(this.connectingPlayers.values());
-  }
-
-  /**
-   * obtains the online players.
-   *
-   * @return online players.
-   */
-  @NotNull
-  public Collection<ShirukaPlayer> getPlayers() {
-    return Collections.unmodifiableCollection(this.players.values());
   }
 
   /**

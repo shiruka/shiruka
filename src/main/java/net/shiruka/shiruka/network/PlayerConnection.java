@@ -34,7 +34,6 @@ import io.netty.util.internal.PlatformDependent;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
@@ -275,9 +274,9 @@ public final class PlayerConnection implements PacketHandler {
    *
    * @return player.
    */
-  @NotNull
+  @Nullable
   public ShirukaPlayer getPlayer() {
-    return Objects.requireNonNull(this.player, "not initialized!");
+    return this.player;
   }
 
   /**
@@ -360,10 +359,10 @@ public final class PlayerConnection implements PacketHandler {
   @NotNull
   private Text translate0(@Nullable final Text reason, @NotNull final Text fallback) {
     final Text finalReason;
-    if (reason == null) {
+    if (reason == null || this.player == null) {
       finalReason = fallback;
     } else if (reason instanceof TranslatedText) {
-      finalReason = () -> ((TranslatedText) reason).translate(this.getPlayer()).orElse(reason.asString());
+      finalReason = () -> ((TranslatedText) reason).translate(this.player).orElse(reason.asString());
     } else {
       finalReason = reason;
     }

@@ -77,12 +77,13 @@ public final class ProfileBanEntry extends BaseBanEntry<GameProfile> {
     }
     return new GameProfile(name::toString, UUID.fromString(uniqueId.toString()), xboxId.toString());
   }
+
   @NotNull
   @Override
-  public  Map<String, Object> serialize() {
+  public Map<String, Object> serialize() {
     final var map = super.serialize();
     if (this.getKey() != null) {
-      map.put("profile", getKey());
+      map.put("profile", this.getKey());
     }
     return map;
   }

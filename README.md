@@ -4,7 +4,7 @@
 <h3 align="center">
   <a href="http://docs.shiruka.net">Documentation</a>
 /
-  <a href="https://github.com/shiruka/shiruka/discussions">Discussions</a> 
+  <a href="https://discord.gg/VacpRnazaS">Discussions</a> 
 /
   <a href="https://crowdin.com/project/shiru-ka">Translation</a>
 </h3>

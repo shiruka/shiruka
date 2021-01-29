@@ -85,7 +85,7 @@ public final class GameProfileEntry {
       final var profile = (Map<String, Object>) map.get("profile");
       final var name = (String) profile.get("name");
       final var uniqueId = (String) profile.get("unique-id");
-      final var xboxId = (String) profile.get("xbox-id");
+      final var xboxId = (String) profile.get("xbox-unique-id");
       final var gameProfile = new GameProfile(() -> name, UUID.fromString(uniqueId), xboxId);
       final var expiresOn = DateFormat.getInstance().parse((String) map.get("expires-on"));
       return Optional.of(new GameProfileEntry(expiresOn, gameProfile));

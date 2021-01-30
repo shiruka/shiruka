@@ -134,7 +134,7 @@ public final class ShirukaConsoleParser {
       .defaultsTo(new File("ops.hjson"))
       .describedAs("Ops file");
     USER_CACHE = ShirukaConsoleParser.PARSER
-      .acceptsAll(Arrays.asList("U", "usercache"), "User cache file to use")
+      .acceptsAll(Arrays.asList("UC", "usercache"), "User cache file to use")
       .withRequiredArg()
       .ofType(File.class)
       .defaultsTo(new File("user_cache.hjson"))

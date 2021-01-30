@@ -319,8 +319,7 @@ public final class ShirukaTick implements Runnable {
       this.server.getScheduler().mainThreadHeartbeat(this.ticks);
     }
     this.midTickLoadChunks();
-    this.server.getConnectingPlayers().forEach(ShirukaPlayer::tick);
-    this.server.getPlayers().forEach(ShirukaPlayer::tick);
+    this.server.getOnlinePlayers().forEach(ShirukaPlayer::tick);
   }
 
   /**

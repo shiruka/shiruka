@@ -28,12 +28,13 @@ package net.shiruka.shiruka.event;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import net.shiruka.api.base.GameProfile;
-import net.shiruka.api.events.LoginDataEvent;
+import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,13 +47,13 @@ public final class LoginData {
    * the chain data.
    */
   @NotNull
-  private final LoginDataEvent.ChainData chainData;
+  private final ChainDataEvent.ChainData chainData;
 
   /**
    * the player.
    */
   @NotNull
-  private final ShirukaPlayer player;
+  private final PlayerConnection connection;
 
   /**
    * the should login.
@@ -81,18 +82,18 @@ public final class LoginData {
    * ctor.
    *
    * @param chainData the chain data.
-   * @param player the player.
+   * @param connection the connection.
    * @param username the username.
    */
-  public LoginData(@NotNull final LoginDataEvent.ChainData chainData, @NotNull final ShirukaPlayer player,
+  public LoginData(@NotNull final ChainDataEvent.ChainData chainData, @NotNull final PlayerConnection connection,
                    @NotNull final Text username) {
     this.chainData = chainData;
     this.username = username;
-    this.player = player;
+    this.connection = connection;
   }
 
   @NotNull
-  public LoginDataEvent.ChainData chainData() {
+  public ChainDataEvent.ChainData chainData() {
     return this.chainData;
   }
 
@@ -122,16 +123,16 @@ public final class LoginData {
     if (this.asyncLogin == null) {
       return;
     }
-    if (this.player.getConnection().isDisconnected()) {
+    if (this.connection.getConnection().isDisconnected()) {
       return;
     }
     if (this.asyncLogin.getLoginResult() == LoginResultEvent.LoginResult.KICK) {
-      this.player.disconnect(this.asyncLogin.getKickMessage().orElse(null));
+      this.connection.disconnect(this.asyncLogin.getKickMessage().orElse(null));
       return;
     }
-    final var profile = new GameProfile(this.username, this.chainData.getUniqueId(), this.chainData.getXUniqueId());
-    this.player.onLogin(profile);
-    this.asyncLogin.getActions().forEach(action -> action.accept(this.player));
+    final var profile = new GameProfile(this.username, this.chainData.getUniqueId(), this.chainData.getXboxUniqueId());
+    final var player = new ShirukaPlayer(this.connection, this, profile);
+    this.asyncLogin.getActions().forEach(action -> action.accept(player));
   }
 
   /**

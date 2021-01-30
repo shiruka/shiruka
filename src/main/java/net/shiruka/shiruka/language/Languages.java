@@ -34,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import net.shiruka.api.config.Config;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import org.apache.logging.log4j.LogManager;
@@ -90,7 +89,7 @@ public final class Languages {
   public static void addLoadedLanguage(@NotNull final String locale) {
     if (Languages.setLoadedLanguage(locale)) {
       Languages.loadVariables(locale);
-      ServerConfig.get().ifPresent(Config::save);
+      ServerConfig.getInstance().save();
     }
   }
 
@@ -261,7 +260,7 @@ public final class Languages {
     if (serverLanguage.isPresent() && serverLanguage.get() != Locale.ROOT) {
       final var locale = serverLanguage.get();
       if (Languages.setLoadedLanguage(Languages.toString(locale))) {
-        ServerConfig.get().ifPresent(Config::save);
+        ServerConfig.getInstance().save();
       }
       return locale;
     }
@@ -271,7 +270,7 @@ public final class Languages {
     final var serverLocale = Languages.choosingLanguageLoop();
     ServerConfig.SERVER_LANGUAGE.setValue(serverLocale);
     Languages.setLoadedLanguage(Languages.toString(serverLocale));
-    ServerConfig.get().ifPresent(Config::save);
+    ServerConfig.getInstance().save();
     return serverLocale;
   }
 

@@ -40,7 +40,6 @@ import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.command.CommandManager;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
-import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
@@ -60,6 +59,8 @@ import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.network.PacketUtility;
+import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
@@ -100,7 +101,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the connecting players.
    */
-  private final Map<InetSocketAddress, ShirukaPlayer> connectingPlayers = new ConcurrentHashMap<>();
+  private final Map<InetSocketAddress, PlayerConnection> connectingPlayers = new ConcurrentHashMap<>();
 
   /**
    * the console.
@@ -246,7 +247,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param player the player to add.
    */
   public void addPlayer(@NotNull final ShirukaPlayer player) {
-    this.players.put(player.getConnection().getAddress(), player);
+    this.players.put(player.getConnection().getConnection().getAddress(), player);
   }
 
   @NotNull
@@ -277,7 +278,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @NotNull
   @Override
-  public Collection<? extends Player> getOnlinePlayers() {
+  public Collection<? extends ShirukaPlayer> getOnlinePlayers() {
     return this.players.values();
   }
 
@@ -359,18 +360,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @return connecting players.
    */
   @NotNull
-  public Collection<ShirukaPlayer> getConnectingPlayers() {
+  public Collection<PlayerConnection> getConnectingPlayers() {
     return Collections.unmodifiableCollection(this.connectingPlayers.values());
-  }
-
-  /**
-   * obtains the online players.
-   *
-   * @return online players.
-   */
-  @NotNull
-  public Collection<ShirukaPlayer> getPlayers() {
-    return Collections.unmodifiableCollection(this.players.values());
   }
 
   /**
@@ -452,15 +443,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final var address = peer.getAddress();
     if (this.players.containsKey(address)) {
       this.players.get(address)
+        .getConnection()
         .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
       return;
     }
     if (this.connectingPlayers.containsKey(address)) {
-      this.connectingPlayers.get(address)
-        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
+      PacketUtility.disconnect(this.connectingPlayers.get(address),
+        TranslatedText.get("shiruka.server.on_login.already_logged_in"));
       return;
     }
-    this.connectingPlayers.put(address, new ShirukaPlayer(peer));
+    this.connectingPlayers.put(address, new PlayerConnection(peer));
   }
 
   @Override
@@ -476,7 +468,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final PacketHandler handler;
     final var address = peer.getAddress();
     if (this.players.containsKey(address)) {
-      handler = this.players.get(address);
+      handler = this.players.get(address).getConnection();
     } else if (this.connectingPlayers.containsKey(address)) {
       handler = this.connectingPlayers.get(address);
     } else {
@@ -494,7 +486,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param player the player to remove.
    */
   public void removePlayer(@NotNull final ShirukaPlayer player) {
-    this.players.remove(player.getConnection().getAddress());
+    this.players.remove(player.getConnection().getConnection().getAddress());
   }
 
   /**

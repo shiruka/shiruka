@@ -347,10 +347,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     new Thread(this.console::start).start();
     this.tick.setNextTick(SystemUtils.getMonotonicMillis());
     this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
-    final var end = String.format(
-      Locale.ROOT,
-      "%.3fs",
-      (double) (SystemUtils.getMonotonicNanos() - this.startTime) / 1.0E9D);
+    final var end = System.currentTimeMillis() - this.startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
   }

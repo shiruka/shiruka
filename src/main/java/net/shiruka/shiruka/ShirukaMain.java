@@ -39,9 +39,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.concurrent.ServerThreadPool;
-import net.shiruka.shiruka.config.OpsConfig;
-import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.config.UserCacheConfig;
+import net.shiruka.shiruka.config.*;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.console.ShirukaConsoleParser;
 import net.shiruka.shiruka.language.Languages;
@@ -214,6 +212,8 @@ public final class ShirukaMain {
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
+    IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
+    ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
     ServerThreadPool.init();
     final var ip = ServerConfig.ADDRESS_IP.getValue()
       .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));

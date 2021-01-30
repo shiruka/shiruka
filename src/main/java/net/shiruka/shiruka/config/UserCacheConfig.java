@@ -34,6 +34,7 @@ import net.shiruka.api.config.Config;
 import net.shiruka.api.config.config.PathableConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.simpleyaml.configuration.file.FileConfiguration;
 
 /**
  * list of server operators.
@@ -53,6 +54,16 @@ public final class UserCacheConfig extends PathableConfig {
    */
   private UserCacheConfig(@NotNull final Config origin) {
     super(origin);
+  }
+
+  /**
+   * obtains the instance.
+   *
+   * @return instance.
+   */
+  @NotNull
+  public static FileConfiguration getConfig() {
+    return UserCacheConfig.getInstance().getConfiguration();
   }
 
   /**
@@ -98,9 +109,9 @@ public final class UserCacheConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<GameProfile> getProfileByXboxUniqueId(@NotNull final String xboxUniqueId) {
-    var section = getInstance().getConfiguration().getConfigurationSection(xboxUniqueId);
+    var section = UserCacheConfig.getConfig().getConfigurationSection(xboxUniqueId);
     if (section == null) {
-      section = section.createSection(xboxUniqueId);
+      section = UserCacheConfig.getConfig().createSection(xboxUniqueId);
     }
     return GameProfile.deserialize(section.getMapValues(false));
   }

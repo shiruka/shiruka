@@ -8,10 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ windows-latest, ubuntu-latest ]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -25,10 +22,6 @@ jobs:
 
       - uses: codecov/codecov-action@v1.0.14
 
-  publish:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/upload-artifact@v2
         with:
           name: shiruka

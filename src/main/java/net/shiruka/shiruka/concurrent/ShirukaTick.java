@@ -233,7 +233,6 @@ public final class ShirukaTick implements Runnable {
    */
   @Override
   public void run() {
-    this.nextTick = SystemUtils.getMonotonicMillis();
     final var warnOnOverload = ServerConfig.WARN_ON_OVERLOAD.getValue()
       .orElse(true);
     final var start = System.nanoTime();
@@ -269,6 +268,15 @@ public final class ShirukaTick implements Runnable {
       this.sleepForTick();
       this.hasTicked = true;
     }
+  }
+
+  /**
+   * sets the next tick.
+   *
+   * @param nextTick the next tick to set.
+   */
+  public void setNextTick(final long nextTick) {
+    this.nextTick = nextTick;
   }
 
   /**

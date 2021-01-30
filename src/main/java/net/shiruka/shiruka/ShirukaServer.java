@@ -49,6 +49,8 @@ import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
+import net.shiruka.shiruka.ban.IpBanList;
+import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
@@ -66,6 +68,7 @@ import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
 import net.shiruka.shiruka.scheduler.SimpleScheduler;
+import net.shiruka.shiruka.util.SystemUtils;
 import net.shiruka.shiruka.world.SimpleWorldManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -127,6 +130,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
 
   /**
+   * the ip ban list.
+   */
+  private final BanList ipBanList = new IpBanList();
+
+  /**
    * the language manager.
    */
   @NotNull
@@ -154,6 +162,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   @NotNull
   private final SimplePluginManager pluginManager;
+
+  /**
+   * the profile ban list.
+   */
+  private final BanList profileBanList = new ProfileBanList();
 
   /**
    * if the server is running.
@@ -253,8 +266,10 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   @Override
   public BanList getBanList(@NotNull final BanList.Type type) {
-    // @todo #1:15m create implementations for ip and profile(name) ban list.
-    return null;
+    if (type == BanList.Type.IP) {
+      return this.ipBanList;
+    }
+    return this.profileBanList;
   }
 
   @NotNull
@@ -312,9 +327,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public <I> void registerInterface(@NotNull final Class<I> cls, @NotNull final I implementation) {
-    if (this.interfaces.containsKey(cls)) {
-      return;
-    }
     this.interfaces.put(cls, implementation);
   }
 
@@ -333,8 +345,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
+    this.tick.setNextTick(SystemUtils.getMonotonicMillis());
     this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
-    final var end = System.currentTimeMillis() - this.startTime;
+    final var end = String.format(
+      Locale.ROOT,
+      "%.3fs",
+      (double) (SystemUtils.getMonotonicNanos() - this.startTime) / 1.0E9D);
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
   }

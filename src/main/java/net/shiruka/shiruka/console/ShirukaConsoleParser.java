@@ -62,6 +62,12 @@ public final class ShirukaConsoleParser {
   public static final OptionSpec<Void> HELP;
 
   /**
+   * the ip bans file option spec.
+   */
+  @NotNull
+  public static final OptionSpec<File> IP_BANS;
+
+  /**
    * the ops file option spec.
    */
   @NotNull
@@ -72,6 +78,12 @@ public final class ShirukaConsoleParser {
    */
   @NotNull
   public static final OptionSpec<File> PLUGINS;
+
+  /**
+   * the profile bans file option spec.
+   */
+  @NotNull
+  public static final OptionSpec<File> PROFILE_BANS;
 
   /**
    * the ops file option spec.
@@ -122,10 +134,10 @@ public final class ShirukaConsoleParser {
       .defaultsTo(new File("ops.hjson"))
       .describedAs("Ops file");
     USER_CACHE = ShirukaConsoleParser.PARSER
-      .acceptsAll(Arrays.asList("U", "usercache"), "User cache file to use")
+      .acceptsAll(Arrays.asList("UC", "usercache"), "User cache file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("usercache.hjson"))
+      .defaultsTo(new File("user_cache.hjson"))
       .describedAs("User cache file");
     VERSION = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("V", "version"), "Show the Shiru ka's version");
@@ -135,6 +147,18 @@ public final class ShirukaConsoleParser {
       .ofType(Boolean.class)
       .defaultsTo(true)
       .describedAs("Debug mode");
+    IP_BANS = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("IB", "ipbans"), "Ip bans file to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("ip_bans.hjson"))
+      .describedAs("Ip bans file");
+    PROFILE_BANS = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("PB", "profilebans"), "Profile bans file to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("profile_bans.hjson"))
+      .describedAs("Profile bans file");
   }
 
   /**

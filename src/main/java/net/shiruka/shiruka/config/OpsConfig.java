@@ -26,12 +26,8 @@
 package net.shiruka.shiruka.config;
 
 import java.io.File;
-import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import net.shiruka.api.config.Config;
-import net.shiruka.api.config.ConfigPath;
-import net.shiruka.api.config.Paths;
 import net.shiruka.api.config.config.PathableConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,11 +36,6 @@ import org.jetbrains.annotations.Nullable;
  * list of server operators.
  */
 public final class OpsConfig extends PathableConfig {
-
-  /**
-   * op list of the server.
-   */
-  public static final ConfigPath<List<UUID>> OPS = Paths.listUniqueIdPath("ops", List.of());
 
   /**
    * the instance.

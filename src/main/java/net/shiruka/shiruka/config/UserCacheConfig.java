@@ -98,7 +98,11 @@ public final class UserCacheConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<GameProfile> getProfileByXboxUniqueId(@NotNull final String xboxUniqueId) {
-    return Optional.empty();
+    var section = getInstance().getConfiguration().getConfigurationSection(xboxUniqueId);
+    if (section == null) {
+      section = section.createSection(xboxUniqueId);
+    }
+    return GameProfile.deserialize(section.getMapValues(false));
   }
 
   /**

@@ -45,12 +45,12 @@ public final class ApGameProfileEntries extends ApMapList<GameProfileEntry> {
     super(path, def,
       maps -> Optional.of(maps.stream()
         .map(map -> (Map<String, Object>) map)
-        .map(GameProfileEntry::fromMap)
+        .map(GameProfileEntry::deserialize)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .collect(Collectors.toList())),
       entries -> Optional.of(entries.stream()
-        .map(GameProfileEntry::toMap)
+        .map(GameProfileEntry::serialize)
         .collect(Collectors.toList())));
   }
 }

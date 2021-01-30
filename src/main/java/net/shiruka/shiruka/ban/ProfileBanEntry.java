@@ -27,7 +27,6 @@ package net.shiruka.shiruka.ban;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 import net.shiruka.api.base.GameProfile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,13 +68,7 @@ public final class ProfileBanEntry extends BaseBanEntry<GameProfile> {
    */
   @Nullable
   private static GameProfile getKey(@NotNull final Map<String, Object> map) {
-    final var name = map.get("name");
-    final var uniqueId = map.get("unique-id");
-    final var xboxId = map.get("xbox-id");
-    if (name == null || uniqueId == null || xboxId == null) {
-      return null;
-    }
-    return new GameProfile(name::toString, UUID.fromString(uniqueId.toString()), xboxId.toString());
+    return GameProfile.deserialize(map).orElse(null);
   }
 
   @NotNull
@@ -83,7 +76,7 @@ public final class ProfileBanEntry extends BaseBanEntry<GameProfile> {
   public Map<String, Object> serialize() {
     final var map = super.serialize();
     if (this.getKey() != null) {
-      map.put("profile", this.getKey());
+      map.put("profile", this.getKey().serialize());
     }
     return map;
   }

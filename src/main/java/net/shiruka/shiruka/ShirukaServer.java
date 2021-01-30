@@ -327,9 +327,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public <I> void registerInterface(@NotNull final Class<I> cls, @NotNull final I implementation) {
-    if (this.interfaces.containsKey(cls)) {
-      return;
-    }
     this.interfaces.put(cls, implementation);
   }
 

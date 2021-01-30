@@ -7,4 +7,6 @@
   <a href="https://discord.gg/VacpRnazaS">Discord</a> 
 /
   <a href="https://crowdin.com/project/shiru-ka">Translation</a>
+/
+  <a href="https://nightly.link/shiruka/shiruka/workflows/build/master/shiruka.zip">Download</a>
 </h3>

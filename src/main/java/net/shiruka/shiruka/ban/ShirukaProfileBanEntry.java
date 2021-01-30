@@ -38,6 +38,12 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaProfileBanEntry implements BanEntry {
 
   /**
+   * the zero calendar.
+   */
+  private static final long ZERO_CALENDAR =
+    new GregorianCalendar(0, Calendar.JANUARY, 0, 0, 0, 0).getTimeInMillis();
+
+  /**
    * the profile.
    */
   @NotNull
@@ -102,7 +108,7 @@ public final class ShirukaProfileBanEntry implements BanEntry {
   public void setExpiration(@Nullable final Date expiration) {
     if (expiration == null) {
       this.expiration = null;
-    } else if (expiration.getTime() == new GregorianCalendar(0, Calendar.JANUARY, 0, 0, 0, 0).getTimeInMillis()) {
+    } else if (expiration.getTime() == ShirukaProfileBanEntry.ZERO_CALENDAR) {
       this.expiration = null;
     } else {
       this.expiration = (Date) expiration.clone();

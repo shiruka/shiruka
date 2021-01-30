@@ -40,6 +40,12 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaIpBanEntry implements BanEntry {
 
   /**
+   * the zero calendar.
+   */
+  private static final long ZERO_CALENDAR =
+    new GregorianCalendar(0, Calendar.JANUARY, 0, 0, 0, 0).getTimeInMillis();
+
+  /**
    * the target.
    */
   @NotNull
@@ -104,7 +110,7 @@ public final class ShirukaIpBanEntry implements BanEntry {
   public void setExpiration(@Nullable final Date expiration) {
     if (expiration == null) {
       this.expiration = null;
-    } else if (expiration.getTime() == new GregorianCalendar(0, Calendar.JANUARY, 0, 0, 0, 0).getTimeInMillis()) {
+    } else if (expiration.getTime() == ShirukaIpBanEntry.ZERO_CALENDAR) {
       this.expiration = null;
     } else {
       this.expiration = (Date) expiration.clone();
@@ -141,6 +147,7 @@ public final class ShirukaIpBanEntry implements BanEntry {
 
   @Override
   public void save() {
-    IpBanConfig.addBanEntry(new IpBanEntry(this.target, this.created, this.source, this.expiration, this.reason));
+    final var entry = new IpBanEntry(this.target, this.created, this.source, this.expiration, this.reason);
+    IpBanConfig.addBanEntry(entry);
   }
 }

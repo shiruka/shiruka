@@ -27,7 +27,10 @@ package net.shiruka.shiruka.base;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import net.shiruka.api.base.GameProfile;
 import org.jetbrains.annotations.NotNull;
@@ -79,16 +82,11 @@ public final class GameProfileEntry {
    * @return a new game profile entry instance.
    */
   @NotNull
-  public static Optional<GameProfileEntry> fromMap(@NotNull final Map<String, Object> map) {
+  public static Optional<GameProfileEntry> deserialize(@NotNull final Map<String, Object> map) {
     try {
-      //noinspection unchecked
-      final var profile = (Map<String, Object>) map.get("profile");
-      final var name = (String) profile.get("name");
-      final var uniqueId = (String) profile.get("unique-id");
-      final var xboxId = (String) profile.get("xbox-unique-id");
-      final var gameProfile = new GameProfile(() -> name, UUID.fromString(uniqueId), xboxId);
       final var expiresOn = DateFormat.getInstance().parse((String) map.get("expires-on"));
-      return Optional.of(new GameProfileEntry(expiresOn, gameProfile));
+      return GameProfile.deserialize(map)
+        .map(profile -> new GameProfileEntry(expiresOn, profile));
     } catch (final ParseException e) {
       e.printStackTrace();
     }
@@ -130,13 +128,9 @@ public final class GameProfileEntry {
    * @return serialized entry.
    */
   @NotNull
-  public Map<String, Object> toMap() {
+  public Map<String, Object> serialize() {
     final var map = new HashMap<String, Object>();
-    final var profile = new HashMap<String, Object>();
-    profile.put("name", this.profile.getName().asString());
-    profile.put("unique-id", this.profile.getUniqueId().toString());
-    profile.put("xbox-unique-id", this.profile.getXboxUniqueId());
-    map.put("profile", profile);
+    map.put("profile", this.profile.serialize());
     map.put("expires-on", DateFormat.getInstance().format(this.expiresOn));
     return map;
   }

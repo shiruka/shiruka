@@ -25,6 +25,9 @@ jobs:
 
       - uses: codecov/codecov-action@v1.0.14
 
+  publish:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/upload-artifact@v2
         with:
           name: shiruka

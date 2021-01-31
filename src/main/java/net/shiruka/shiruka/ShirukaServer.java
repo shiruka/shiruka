@@ -96,8 +96,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the command manager.
    */
-  @NotNull
-  private final SimpleCommandManager commandManager;
+  private final SimpleCommandManager commandManager = new SimpleCommandManager();
 
   /**
    * the connecting players.
@@ -119,8 +118,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the event manager.
    */
-  @NotNull
-  private final SimpleEventManager eventManager;
+  private final SimpleEventManager eventManager = new SimpleEventManager();
 
   /**
    * the singleton interface implementations.
@@ -141,14 +139,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the pack manager.
    */
-  @NotNull
-  private final SimplePackManager packManager;
+  private final SimplePackManager packManager = new SimplePackManager();
 
   /**
    * the permission manager.
    */
-  @NotNull
-  private final SimplePermissionManager permissionManager;
+  private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
    * the player list.
@@ -158,8 +154,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the plugin manager.
    */
-  @NotNull
-  private final SimplePluginManager pluginManager;
+  private final SimplePluginManager pluginManager = new SimplePluginManager();
 
   /**
    * the profile ban list.
@@ -174,14 +169,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the scheduler.
    */
-  @NotNull
-  private final SimpleScheduler scheduler;
+  private final SimpleScheduler scheduler = new SimpleScheduler();
 
   /**
    * the server thread.
    */
-  @NotNull
-  private final Thread serverThread;
+  private final Thread serverThread = Thread.currentThread();
 
   /**
    * the socket.
@@ -202,13 +195,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the tick.
    */
-  private final ShirukaTick tick;
+  private final ShirukaTick tick = new ShirukaTick(this);
 
   /**
    * the world manager.
    */
-  @NotNull
-  private final SimpleWorldManager worldManager;
+  private final SimpleWorldManager worldManager = new SimpleWorldManager();
 
   /**
    * the is stopped.
@@ -231,19 +223,10 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
                 @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
     this.startTime = startTime;
-    this.tick = new ShirukaTick(this);
     this.console = console.apply(this);
     this.socket = socket;
-    this.serverThread = Thread.currentThread();
-    this.commandManager = new SimpleCommandManager();
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
-    this.eventManager = new SimpleEventManager();
     this.languageManager = new SimpleLanguageManager(serverLanguage);
-    this.packManager = new SimplePackManager();
-    this.permissionManager = new SimplePermissionManager();
-    this.pluginManager = new SimplePluginManager();
-    this.scheduler = new SimpleScheduler();
-    this.worldManager = new SimpleWorldManager();
   }
 
   /**
@@ -337,9 +320,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
+    this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
+    this.stopServer();
   }
 
   @Override

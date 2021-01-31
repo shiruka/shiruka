@@ -204,8 +204,7 @@ public class SimpleScheduler implements ShirukaScheduler {
           }
           return false;
         }
-      }) {{
-    }};
+      });
     this.handle(task, 0L);
     for (var taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
       if (taskPending == task) {

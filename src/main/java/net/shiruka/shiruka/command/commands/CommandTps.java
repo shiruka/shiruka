@@ -27,10 +27,9 @@ package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
 import static net.shiruka.api.command.Commands.literal;
-import java.util.Arrays;
+import java.util.stream.DoubleStream;
 import net.shiruka.api.text.ChatColor;
 import net.shiruka.shiruka.command.SimpleCommandManager;
-import net.shiruka.shiruka.concurrent.ShirukaTick;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -78,12 +77,12 @@ public final class CommandTps extends CommandHelper {
    */
   @NotNull
   private static String[] getTps() {
-    return Arrays.stream(ShirukaTick.getTps())
+    return DoubleStream.of(20.0d, 20.0d, 20.0d)
       .mapToObj(value -> {
         final ChatColor color;
-        if (value > 18.0) {
+        if (value > 18.0d) {
           color = ChatColor.GREEN;
-        } else if (value > 16.0) {
+        } else if (value > 16.0d) {
           color = ChatColor.YELLOW;
         } else {
           color = ChatColor.RED;

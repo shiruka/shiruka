@@ -45,7 +45,7 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
   /**
    * the console name.
    */
-  private static final String CONSOLE_NAME = "CONSOLE";
+  private static final Text CONSOLE_NAME = () -> "CONSOLE";
 
   /**
    * the console.
@@ -125,7 +125,7 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
   @NotNull
   @Override
   public Text getName() {
-    return () -> SimpleConsoleCommandSender.CONSOLE_NAME;
+    return SimpleConsoleCommandSender.CONSOLE_NAME;
   }
 
   @Override

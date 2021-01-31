@@ -27,6 +27,7 @@ package net.shiruka.shiruka.console;
 
 import java.nio.file.Paths;
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
+import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Completer;
@@ -83,7 +84,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
 
   @Override
   protected void runCommand(@NotNull final String command) {
-    this.server.getTick().addCommand(command);
+    Shiruka.getCommandManager().execute(command);
   }
 
   @Override

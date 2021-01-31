@@ -94,13 +94,14 @@ public final class SimpleAsyncScheduler extends SimpleScheduler {
     }
     this.runners.put(task.getTaskId(), task);
     this.executor.execute(() -> {
+      final var manager = Shiruka.getEventManager();
       try {
         task.run();
       } catch (final RuntimeException e) {
-        Shiruka.getEventManager().serverException(new ServerSchedulerException(e, task)).callEvent();
+        manager.serverException(new ServerSchedulerException(e, task)).callEvent();
         throw e;
       } catch (final Throwable t) {
-        Shiruka.getEventManager().serverException(new ServerSchedulerException(t, task)).callEvent();
+        manager.serverException(new ServerSchedulerException(t, task)).callEvent();
       }
     });
     return true;

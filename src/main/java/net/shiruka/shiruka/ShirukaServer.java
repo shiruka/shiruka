@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.shiruka.api.Server;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.command.CommandManager;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
@@ -320,9 +321,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
+    this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
+    this.stopServer();
   }
 
   @Override

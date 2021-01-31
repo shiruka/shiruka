@@ -227,13 +227,18 @@ public final class ShirukaMain {
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
     final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
-    final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
-    socket.setIdentifier(identifier);
-    final var server = new ShirukaServer(start, ShirukaConsole::new, serverLocale, socket);
-    Shiruka.setServer(server);
-    socket.addListener(server);
-    socket.start();
+    final var serverThread = new Thread(() ->
+      JiraExceptionCatcher.run(() -> {
+        final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
+        final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
+          ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
+        socket.setIdentifier(identifier);
+        final var server = new ShirukaServer(start, ShirukaConsole::new, serverLocale, socket);
+        Shiruka.setServer(server);
+        socket.addListener(server);
+        socket.start();
+      }), "Server thread");
+    serverThread.setPriority(Thread.NORM_PRIORITY + 2);
+    serverThread.start();
   }
 }

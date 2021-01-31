@@ -110,6 +110,11 @@ public final class ShirukaTick implements Runnable {
   public boolean forceTicks;
 
   /**
+   * the average tick time.
+   */
+  private float averageTickTime;
+
+  /**
    * the delayed tasks max next tick time.
    */
   private long delayedTasksMaxNextTickTime;
@@ -213,6 +218,24 @@ public final class ShirukaTick implements Runnable {
   }
 
   /**
+   * obtains the may have delayed tasks.
+   *
+   * @return may have delayed tasks.
+   */
+  public boolean isMayHaveDelayedTasks() {
+    return this.mayHaveDelayedTasks;
+  }
+
+  /**
+   * sets the may have delayed tasks
+   *
+   * @param mayHaveDelayedTasks the may have delayed tasks to set.
+   */
+  public void setMayHaveDelayedTasks(final boolean mayHaveDelayedTasks) {
+    this.mayHaveDelayedTasks = mayHaveDelayedTasks;
+  }
+
+  /**
    * loads the chunks.
    */
   public void midTickLoadChunks() {
@@ -236,7 +259,7 @@ public final class ShirukaTick implements Runnable {
     final var warnOnOverload = ServerConfig.WARN_ON_OVERLOAD.getValue()
       .orElse(true);
     final var start = System.nanoTime();
-    var currentTime = 0L;
+    var currentTime = start;
     var tickSection = start;
     this.lastTick = start - ShirukaTick.TICK_TIME;
     while (this.server.isRunning()) {
@@ -316,6 +339,13 @@ public final class ShirukaTick implements Runnable {
     Shiruka.getEventManager().serverTick(++this.ticks).callEvent();
     this.doTick0();
     this.handleQueuedConsoleCommands();
+    try (final var ignored = MinecraftTimings.processTasksTimer.startTiming()) {
+      this.server.getTaskHandler().executeAll();
+    }
+    final var endTime = System.nanoTime();
+    final var remaining = ShirukaTick.TICK_TIME - (endTime - this.lastTick);
+    final var took = SystemUtils.getMonotonicNanos() - now;
+    this.averageTickTime = this.averageTickTime * 0.8F + (float) took / 1000000.0F * 0.19999999F;
   }
 
   /**

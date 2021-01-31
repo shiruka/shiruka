@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.concurrent.tasks;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,7 +35,7 @@ public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends Asyn
   /**
    * the reentrant count.
    */
-  private final AtomicInteger reentrantCount = new AtomicInteger();
+  private int reentrantCount;
 
   /**
    * ctor.
@@ -49,11 +48,11 @@ public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends Asyn
 
   @Override
   public final void executeTask(@NotNull final R job) {
-    this.reentrantCount.incrementAndGet();
+    this.reentrantCount++;
     try {
       super.executeTask(job);
     } finally {
-      this.reentrantCount.decrementAndGet();
+      this.reentrantCount--;
     }
   }
 
@@ -63,6 +62,6 @@ public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends Asyn
   }
 
   public final boolean isEntered() {
-    return this.reentrantCount.get() != 0;
+    return this.reentrantCount != 0;
   }
 }

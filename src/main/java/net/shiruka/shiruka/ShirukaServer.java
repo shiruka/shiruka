@@ -523,11 +523,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private void stop0() {
     ShirukaServer.LOGGER.info("§eStopping the server.");
     synchronized (this.stopLock) {
-      if (this.running.get()) {
+      if (!this.running.get()) {
         return;
       }
       this.running.set(false);
     }
     this.shutdownThread = Thread.currentThread();
+    this.socket.shutdown();
+    System.exit(0);
   }
 }

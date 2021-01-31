@@ -64,6 +64,13 @@ public final class ShirukaAsyncTaskHandler extends AsyncTaskHandlerReentrant<Tic
     return job.getTick() + 3 < this.tick.getTicks() || this.tick.canSleepForTick();
   }
 
+  @Override
+  public boolean executeNext() {
+    final var flag = this.pollTaskInternal();
+    this.tick.setMayHaveDelayedTasks(flag);
+    return flag;
+  }
+
   @NotNull
   @Override
   public Thread getThread() {
@@ -82,7 +89,28 @@ public final class ShirukaAsyncTaskHandler extends AsyncTaskHandlerReentrant<Tic
   }
 
   @Override
+  public void close() {
+    this.server.stopServer();
+  }
+
+  @Override
   public boolean isNotMainThread() {
     return super.isNotMainThread() && !this.server.isStopped();
+  }
+
+  /**
+   * polls internal tasks.
+   */
+  private boolean pollTaskInternal() {
+    if (super.executeNext()) {
+      return true;
+    }
+    //      final var iterator = this.getWorlds().iterator();
+    //      while (iterator.hasNext()) {
+    //        final var worldServer = (WorldServer) iterator.next();
+    //        if (worldServer.getChunkProvider().runTasks()) {
+    //        }
+    //      }
+    return this.tick.canSleepForTick();
   }
 }

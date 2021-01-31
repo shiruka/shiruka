@@ -132,7 +132,6 @@ public final class ShirukaTick implements Runnable {
         new BigDecimal(different),
         30,
         RoundingMode.HALF_UP);
-      System.out.println(currentTps);
       ShirukaTick.TPS_1.add(currentTps, different);
       ShirukaTick.TPS_5.add(currentTps, different);
       ShirukaTick.TPS_15.add(currentTps, different);

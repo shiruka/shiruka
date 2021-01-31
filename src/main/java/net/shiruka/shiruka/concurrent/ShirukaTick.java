@@ -62,8 +62,14 @@ public final class ShirukaTick implements Runnable {
   @Override
   public void run() {
     while (this.server.isRunning()) {
-      JiraExceptionCatcher.run(() ->
-        Thread.sleep(50L));
+      try {
+        Thread.sleep(50L);
+      } catch (final InterruptedException e) {
+        break;
+      } catch (final Exception e) {
+        JiraExceptionCatcher.serverException(e);
+        break;
+      }
     }
   }
 }

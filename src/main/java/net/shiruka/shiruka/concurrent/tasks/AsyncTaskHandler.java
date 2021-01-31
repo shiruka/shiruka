@@ -29,7 +29,6 @@ import com.google.common.collect.Queues;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.BooleanSupplier;
 import net.shiruka.api.text.TranslatedText;
@@ -55,15 +54,15 @@ public abstract class AsyncTaskHandler<R extends Runnable> implements Mailbox<R>
   private final Queue<R> jobs = Queues.newConcurrentLinkedQueue();
 
   /**
-   * the lock.
-   */
-  private final AtomicInteger lock = new AtomicInteger();
-
-  /**
    * the thread name.
    */
   @NotNull
   private final String threadName;
+
+  /**
+   * the lock.
+   */
+  private int lock;
 
   /**
    * ctor.
@@ -100,7 +99,7 @@ public abstract class AsyncTaskHandler<R extends Runnable> implements Mailbox<R>
    * @param supplier the supplier to check if the next job should execute.
    */
   public final void awaitJobs(@NotNull final BooleanSupplier supplier) {
-    this.lock.incrementAndGet();
+    this.lock++;
     try {
       while (!supplier.getAsBoolean()) {
         if (!this.executeNext()) {
@@ -108,7 +107,7 @@ public abstract class AsyncTaskHandler<R extends Runnable> implements Mailbox<R>
         }
       }
     } finally {
-      this.lock.decrementAndGet();
+      this.lock--;
     }
   }
 
@@ -191,8 +190,7 @@ public abstract class AsyncTaskHandler<R extends Runnable> implements Mailbox<R>
     if (job == null) {
       return false;
     }
-    if (this.lock.get() == 0 &&
-      !this.canExecute(job)) {
+    if (this.lock == 0 && !this.canExecute(job)) {
       return false;
     }
     this.executeTask(this.jobs.remove());

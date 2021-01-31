@@ -80,7 +80,6 @@ public final class ShirukaTick implements Runnable {
         final var end = SystemUtils.getMonotonicNanos();
         final var elapsed = end - start;
         final var tick = (float) Math.min(20, 1000000000 / Math.max(1000000, elapsed));
-        System.out.println(tick);
         final var waitTime = TimeUnit.NANOSECONDS.toMillis(ShirukaTick.TICK_NANOS - elapsed);
         if (waitTime < 0) {
           ShirukaTick.LOGGER.debug("Server running behind " +

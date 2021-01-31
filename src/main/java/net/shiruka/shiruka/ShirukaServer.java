@@ -54,7 +54,6 @@ import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
-import net.shiruka.shiruka.concurrent.tasks.ShirukaAsyncTaskHandler;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
@@ -68,7 +67,6 @@ import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
 import net.shiruka.shiruka.scheduler.SimpleScheduler;
-import net.shiruka.shiruka.util.SystemUtils;
 import net.shiruka.shiruka.world.SimpleWorldManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -202,11 +200,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final Object stopLock = new Object();
 
   /**
-   * the task handler.
-   */
-  private final ShirukaAsyncTaskHandler taskHandler;
-
-  /**
    * the tick.
    */
   private final ShirukaTick tick;
@@ -239,7 +232,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
                 @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
     this.startTime = startTime;
     this.tick = new ShirukaTick(this);
-    this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
     this.console = console.apply(this);
     this.socket = socket;
     this.serverThread = Thread.currentThread();
@@ -345,8 +337,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
-    this.tick.setNextTick(SystemUtils.getMonotonicMillis());
-    this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
     final var end = System.currentTimeMillis() - this.startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
@@ -405,16 +395,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Nullable
   public Thread getShutdownThread() {
     return this.shutdownThread;
-  }
-
-  /**
-   * obtains the task handler.
-   *
-   * @return task handler.
-   */
-  @NotNull
-  public ShirukaAsyncTaskHandler getTaskHandler() {
-    return this.taskHandler;
   }
 
   /**

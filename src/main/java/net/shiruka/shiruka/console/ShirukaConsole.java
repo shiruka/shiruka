@@ -83,7 +83,6 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
 
   @Override
   protected void runCommand(@NotNull final String command) {
-    this.server.getTick().addCommand(command);
   }
 
   @Override

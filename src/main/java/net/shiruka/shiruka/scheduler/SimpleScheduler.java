@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.scheduler;
 
-import co.aikar.timings.MinecraftTimings;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -206,7 +205,6 @@ public class SimpleScheduler implements ShirukaScheduler {
           return false;
         }
       }) {{
-      this.timings = MinecraftTimings.getCancelTasksTimer();
     }};
     this.handle(task, 0L);
     for (var taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
@@ -246,7 +244,6 @@ public class SimpleScheduler implements ShirukaScheduler {
           }
         }
       }) {{
-      this.timings = MinecraftTimings.getCancelTasksTimer(plugin);
     }};
     this.handle(task, 0L);
     for (var taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
@@ -426,16 +423,13 @@ public class SimpleScheduler implements ShirukaScheduler {
         this.runners.remove(task.getTaskId());
       }
     }
-    MinecraftTimings.shirukaSchedulerFinishTimer.startTiming();
     this.pending.addAll(temp);
     temp.clear();
-    MinecraftTimings.shirukaSchedulerFinishTimer.stopTiming();
   }
 
   @Override
   public final void parsePending() {
     if (!this.isAsyncScheduler) {
-      MinecraftTimings.shirukaSchedulerPendingTimer.startTiming();
     }
     var head = this.head;
     var task = head.getNext();
@@ -457,7 +451,6 @@ public class SimpleScheduler implements ShirukaScheduler {
     }
     this.head = lastTask;
     if (!this.isAsyncScheduler) {
-      MinecraftTimings.shirukaSchedulerPendingTimer.stopTiming();
     }
   }
 

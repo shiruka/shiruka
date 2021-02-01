@@ -149,7 +149,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public void tick() {
-    this.connection.handleQueuedPackets();
+    this.connection.tick();
   }
 
   @Override
@@ -284,7 +284,12 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public int hashCode() {
     if (this.hash == 0 || this.hash == 485) {
-      this.hash = 97 * 5 + this.getXboxUniqueId().hashCode();
+      var hashCode = 0;
+      try {
+        hashCode = this.getXboxUniqueId().hashCode();
+      } catch (final Exception e) {
+      }
+      this.hash = 97 * 5 + hashCode;
     }
     return this.hash;
   }
@@ -310,12 +315,17 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * bunch of packets related to starting the game for the player will send here.
    */
   public void initialize() {
-
   }
 
   @Override
   public boolean isOp() {
-    return OpsConfig.getInstance().getConfiguration().contains(this.profile.getXboxUniqueId());
+    try {
+      OpsConfig.getInstance()
+        .getConfiguration()
+        .contains(this.getXboxUniqueId());
+    } catch (final Exception ignored) {
+    }
+    return false;
   }
 
   @Override
@@ -343,7 +353,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   private OpEntry getOpEntry() {
     if (this.opEntry == null) {
-      this.opEntry = new OpEntry(this.profile, ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false));
+      this.opEntry = new OpEntry(this.getProfile(), ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false));
     }
     return this.opEntry;
   }

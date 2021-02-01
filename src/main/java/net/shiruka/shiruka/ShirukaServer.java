@@ -32,7 +32,10 @@ import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -269,7 +272,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   @Override
   public Collection<? extends ShirukaPlayer> getOnlinePlayers() {
-    return this.players.values();
+    synchronized (this.players) {
+      return this.players.values();
+    }
   }
 
   @Override
@@ -349,7 +354,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   @NotNull
   public Collection<PlayerConnection> getConnectingPlayers() {
-    return Collections.unmodifiableCollection(this.connectingPlayers.values());
+    synchronized (this.connectingPlayers) {
+      return this.connectingPlayers.values();
+    }
   }
 
   /**

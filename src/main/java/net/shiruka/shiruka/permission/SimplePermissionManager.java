@@ -25,8 +25,14 @@
 
 package net.shiruka.shiruka.permission;
 
+import com.google.common.collect.ImmutableSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import net.shiruka.api.permission.Permissible;
 import net.shiruka.api.permission.Permission;
 import net.shiruka.api.permission.PermissionManager;
@@ -36,6 +42,24 @@ import org.jetbrains.annotations.NotNull;
  * a simple implementation for {@link PermissionManager}.
  */
 public final class SimplePermissionManager implements PermissionManager {
+
+  /**
+   * the default subscription.
+   */
+  private final Map<Boolean, Map<Permissible, Boolean>> defSubs = new Object2ObjectOpenHashMap<>();
+
+  /**
+   * the default permissions.
+   */
+  private final Map<Boolean, Set<Permission>> defaultPerms = new Object2ObjectLinkedOpenHashMap<>() {{
+    this.put(true, new ObjectLinkedOpenHashSet<>());
+    this.put(false, new ObjectLinkedOpenHashSet<>());
+  }};
+
+  /**
+   * the permission subscriptions.
+   */
+  private final Map<String, Map<Permissible, Boolean>> permSubs = new Object2ObjectOpenHashMap<>();
 
   @Override
   public void addPermission(@NotNull final Permission perm) {
@@ -51,7 +75,7 @@ public final class SimplePermissionManager implements PermissionManager {
   @NotNull
   @Override
   public Set<Permission> getDefaultPermissions(final boolean op) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimplePermissionManager#getDefaultPermissions.");
+    return ImmutableSet.copyOf(this.defaultPerms.get(op));
   }
 
   @NotNull
@@ -89,7 +113,8 @@ public final class SimplePermissionManager implements PermissionManager {
 
   @Override
   public void subscribeToDefaultPerms(final boolean op, @NotNull final Permissible permissible) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimplePermissionManager#subscribeToDefaultPerms.");
+    this.defSubs.computeIfAbsent(op, k -> new WeakHashMap<>())
+      .put(permissible, true);
   }
 
   @Override
@@ -99,11 +124,26 @@ public final class SimplePermissionManager implements PermissionManager {
 
   @Override
   public void unsubscribeFromDefaultPerms(final boolean op, @NotNull final Permissible permissible) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimplePermissionManager#unsubscribeFromDefaultPerms.");
+    final var map = this.defSubs.get(op);
+    if (map == null) {
+      return;
+    }
+    map.remove(permissible);
+    if (map.isEmpty()) {
+      this.defSubs.remove(op);
+    }
   }
 
   @Override
   public void unsubscribeFromPermission(@NotNull final String permission, @NotNull final Permissible permissible) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimplePermissionManager#unsubscribeFromPermission.");
+    final var name = permission.toLowerCase(java.util.Locale.ENGLISH);
+    final var map = this.permSubs.get(name);
+    if (map == null) {
+      return;
+    }
+    map.remove(permissible);
+    if (map.isEmpty()) {
+      this.permSubs.remove(name);
+    }
   }
 }

@@ -64,31 +64,31 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
   @NotNull
   @Override
   public PermissionAttachment addAttachment(@NotNull final Plugin plugin, @NotNull final String name, final boolean value) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, String, boolean).");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, String, boolean).");
   }
 
   @NotNull
   @Override
   public PermissionAttachment addAttachment(@NotNull final Plugin plugin) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin).");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin).");
   }
 
   @NotNull
   @Override
   public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, @NotNull final String name, final boolean value, final long ticks) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, String, boolean, long).");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, String, boolean, long).");
   }
 
   @NotNull
   @Override
   public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, final long ticks) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, long).");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, long).");
   }
 
   @NotNull
   @Override
   public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#getEffectivePermissions.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#getEffectivePermissions.");
   }
 
   @Override
@@ -103,22 +103,22 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
 
   @Override
   public boolean isPermissionSet(@NotNull final String name) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#isPermissionSet(String).");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#isPermissionSet(String).");
   }
 
   @Override
   public boolean isPermissionSet(@NotNull final Permission perm) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#isPermissionSet(Permission).");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#isPermissionSet(Permission).");
   }
 
   @Override
   public void recalculatePermissions() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#recalculatePermissions.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#recalculatePermissions.");
   }
 
   @Override
   public void removeAttachment(@NotNull final PermissionAttachment attachment) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleConsoleCommandSender#removeAttachment.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#removeAttachment.");
   }
 
   @NotNull

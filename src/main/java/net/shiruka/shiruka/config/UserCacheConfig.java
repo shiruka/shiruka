@@ -85,7 +85,7 @@ public final class UserCacheConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<GameProfile> getProfileByName(@NotNull final String name) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement UserCacheConfig#getProfileByName.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement UserCacheConfig#getProfileByName.");
   }
 
   /**
@@ -97,7 +97,7 @@ public final class UserCacheConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<GameProfile> getProfileByUniqueId(@NotNull final UUID uniqueId) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement UserCacheConfig#getProfileByUniqueId.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement UserCacheConfig#getProfileByUniqueId.");
   }
 
   /**

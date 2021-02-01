@@ -73,7 +73,7 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
 
   @Override
   public void remove() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#remove.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#remove.");
   }
 
   @Override
@@ -111,37 +111,37 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   @NotNull
   @Override
   public List<MetadataValue> getMetadata(@NotNull final String key) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#getMetadata.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#getMetadata.");
   }
 
   @Override
   public boolean hasMetadata(@NotNull final String key) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#hasMetadata.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#hasMetadata.");
   }
 
   @Override
   public void removeAllMetadata(@NotNull final String key) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#removeAllMetadata.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#removeAllMetadata.");
   }
 
   @Override
   public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#removeMetadata.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#removeMetadata.");
   }
 
   @Override
   public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#setMetadata.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#setMetadata.");
   }
 
   @NotNull
   @Override
   public Text getName() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#getName.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#getName.");
   }
 
   @Override
   public void tick() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#tick.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#tick.");
   }
 }

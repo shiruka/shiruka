@@ -94,17 +94,17 @@ public final class SimpleCommandManager implements CommandManager {
 
   @Override
   public void register(@NotNull final Plugin plugin, final @NotNull CommandNode... commands) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleCommandManager#register.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleCommandManager#register.");
   }
 
   @NotNull
   @Override
   public Map<String, CommandNode> registered(@NotNull final Plugin plugin) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleCommandManager#registered.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleCommandManager#registered.");
   }
 
   @Override
   public void unregister(@NotNull final String... commands) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleCommandManager#unregister.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleCommandManager#unregister.");
   }
 }

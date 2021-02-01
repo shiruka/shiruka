@@ -223,53 +223,53 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Nullable
   @Override
   public Location getBedSpawnLocation() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getBedSpawnLocation.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getBedSpawnLocation.");
   }
 
   @Override
   public long getFirstPlayed() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getFirstPlayed.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getFirstPlayed.");
   }
 
   @Override
   public long getLastLogin() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getLastLogin.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getLastLogin.");
   }
 
   @Override
   public long getLastSeen() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getLastSeen.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getLastSeen.");
   }
 
   @NotNull
   @Override
   public Optional<Player> getPlayer() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getPlayer.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getPlayer.");
   }
 
   @Override
   public boolean hasPlayedBefore() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#hasPlayedBefore.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#hasPlayedBefore.");
   }
 
   @Override
   public boolean isBanned() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#isBanned.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isBanned.");
   }
 
   @Override
   public boolean isOnline() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#isOnline.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isOnline.");
   }
 
   @Override
   public boolean isWhitelisted() {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#isWhitelisted.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isWhitelisted.");
   }
 
   @Override
   public void setWhitelisted(final boolean value) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#setWhitelisted.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#setWhitelisted.");
   }
 
   /**

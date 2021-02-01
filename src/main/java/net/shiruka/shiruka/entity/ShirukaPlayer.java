@@ -240,9 +240,10 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public long getLastSeen() {
     throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getLastSeen.");
   }
+
   @NotNull
   @Override
-  public  Optional<Player> getPlayer() {
+  public Optional<Player> getPlayer() {
     throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getPlayer.");
   }
 

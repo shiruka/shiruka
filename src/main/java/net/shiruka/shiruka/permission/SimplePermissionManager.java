@@ -34,8 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link PermissionManager}.
- *
- * @todo #1:60m Implement permission manager methods.
  */
 public final class SimplePermissionManager implements PermissionManager {
 

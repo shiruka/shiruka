@@ -67,7 +67,7 @@ public final class UserCacheConfig extends PathableConfig {
   }
 
   /**
-   * obtians the instance.
+   * obtains the instance.
    *
    * @return instance.
    */

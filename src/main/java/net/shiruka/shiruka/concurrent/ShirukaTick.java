@@ -30,7 +30,9 @@ import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import net.shiruka.shiruka.ShirukaServer;
+import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.util.RollingAverage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -175,6 +177,8 @@ public final class ShirukaTick implements Runnable {
   private void doTick() {
     // @todo #1:15m Implement worlds.tick()
     // @todo #1:15m Implement players.tick()
+    this.server.getConnectingPlayers().forEach(PlayerConnection::tick);
+    this.server.getOnlinePlayers().forEach(ShirukaPlayer::tick);
     this.server.getScheduler().mainThreadHeartbeat(++this.ticks);
   }
 }

@@ -219,8 +219,7 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    * @return a new instance of {@link ChainDataEvent.ChainData}.
    */
   @NotNull
-  public static ChainDataEvent.ChainData create(@NotNull final String chainData,
-                                                @NotNull final String skinData) {
+  public static ChainDataEvent.ChainData create(@NotNull final String chainData, @NotNull final String skinData) {
     final var data = new SimpleChainData(chainData, skinData);
     data.initialize();
     return data;

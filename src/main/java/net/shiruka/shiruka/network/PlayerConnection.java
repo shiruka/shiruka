@@ -38,6 +38,7 @@ import java.util.Queue;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.base.Tick;
 import net.shiruka.api.text.ChatColor;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
@@ -55,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents player connections.
  */
-public final class PlayerConnection implements PacketHandler {
+public final class PlayerConnection implements PacketHandler, Tick {
 
   /**
    * the name pattern to check client's usernames.
@@ -280,7 +281,16 @@ public final class PlayerConnection implements PacketHandler {
   }
 
   /**
-   * handles {@link #queuedPackets}.
+   * sets the {@link #player}.
+   *
+   * @param player the player to set.
+   */
+  public void setPlayer(@NotNull final ShirukaPlayer player) {
+    this.player = player;
+  }
+
+  /**
+   * polls all packets in {@link #queuedPackets} and handles them.
    */
   public void handleQueuedPackets() {
     var toBatch = new ObjectArrayList<ShirukaPacket>();
@@ -317,6 +327,11 @@ public final class PlayerConnection implements PacketHandler {
    */
   public void sendPacketImmediately(@NotNull final ShirukaPacket packet) {
     this.sendWrapped(Collections.singleton(packet));
+  }
+
+  @Override
+  public void tick() {
+    this.handleQueuedPackets();
   }
 
   /**

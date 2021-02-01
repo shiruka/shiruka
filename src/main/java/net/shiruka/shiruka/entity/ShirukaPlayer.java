@@ -25,8 +25,10 @@
 
 package net.shiruka.shiruka.entity;
 
+import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.GameProfile;
@@ -53,10 +55,25 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaPlayer extends ShirukaEntity implements Player {
 
   /**
+   * the plugin weak references.
+   */
+  private static final WeakHashMap<Plugin, WeakReference<Plugin>> PLUGIN_WEAK_REFERENCES = new WeakHashMap<>();
+
+  /**
+   * the viewable entities.
+   */
+  protected final Set<ShirukaEntity> viewableEntities = new CopyOnWriteArraySet<>();
+
+  /**
    * the connection.
    */
   @NotNull
   private final PlayerConnection connection;
+
+  /**
+   * the hidden players.
+   */
+  private final Map<UUID, Set<WeakReference<Plugin>>> hiddenPlayers = new HashMap<>();
 
   /**
    * the login data.
@@ -76,6 +93,11 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   private final GameProfile profile;
 
   /**
+   * the hash.
+   */
+  private int hash = 0;
+
+  /**
    * ctor.
    *
    * @param connection the connection.
@@ -87,6 +109,13 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
     this.connection = connection;
     this.loginData = loginData;
     this.profile = profile;
+  }
+
+  @Nullable
+  private static WeakReference<Plugin> getPluginWeakReference(@Nullable final Plugin plugin) {
+    return plugin == null
+      ? null
+      : ShirukaPlayer.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
   }
 
   @NotNull
@@ -149,6 +178,65 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   public void removeAttachment(@NotNull final PermissionAttachment attachment) {
   }
 
+  @Override
+  public boolean addViewer(@NotNull final Player player) {
+    if (this.equals(player)) {
+      return false;
+    }
+    if (!super.addViewer(player)) {
+      return false;
+    }
+    this.showPlayer(null, player);
+    return true;
+  }
+
+  @Override
+  public boolean removeViewer(final @NotNull Player player) {
+    if (this.equals(player) || !(player instanceof ShirukaPlayer)) {
+      return false;
+    }
+    final var result = super.removeViewer(player);
+    final var viewerConnection = ((ShirukaPlayer) player).getConnection();
+//    viewerConnection.sendPacket(getRemovePlayerToList());
+//    if (this.getTeam() != null && this.getTeam().getMembers().size() == 1) {
+//      viewerConnection.sendPacket(this.getTeam().createTeamDestructionPacket());
+//    }
+    return result;
+  }
+
+  @NotNull
+  @Override
+  public List<MetadataValue> getMetadata(@NotNull final String key) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public boolean hasMetadata(@NotNull final String key) {
+    return false;
+  }
+
+  @Override
+  public void removeAllMetadata(@NotNull final String key) {
+  }
+
+  @Override
+  public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
+  }
+
+  @Override
+  public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
+  }
+
+  @Override
+  public void tick() {
+    this.connection.handleQueuedPackets();
+  }
+
+  @Override
+  public boolean canSee(@NotNull final Player player) {
+    return !this.hiddenPlayers.containsKey(player.getUniqueId());
+  }
+
   @NotNull
   @Override
   public InetSocketAddress getAddress() {
@@ -173,10 +261,43 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   }
 
   @Override
+  public void hidePlayer(@Nullable final Plugin plugin, @NotNull final Player player) {
+    if (this.equals(player)) {
+      return;
+    }
+    var hidingPlugins = this.hiddenPlayers.get(player.getUniqueId());
+    if (hidingPlugins != null) {
+      hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+      return;
+    }
+    hidingPlugins = new HashSet<>();
+    hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+    this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
+    this.unregisterPlayer(player);
+  }
+
+  @Override
   public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
     return Shiruka.getEventManager().playerKick(this, reason)
       .callEvent();
+  }
+
+  @Override
+  public void showPlayer(@Nullable final Plugin plugin, @NotNull final Player player) {
+    if (this.equals(player)) {
+      return;
+    }
+    final var hidingPlugins = this.hiddenPlayers.get(player.getUniqueId());
+    if (hidingPlugins == null) {
+      return;
+    }
+    hidingPlugins.remove(ShirukaPlayer.getPluginWeakReference(plugin));
+    if (!hidingPlugins.isEmpty()) {
+      return;
+    }
+    this.hiddenPlayers.remove(player.getUniqueId());
+    this.registerPlayer(player);
   }
 
   @Nullable
@@ -240,32 +361,27 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
     return this.connection;
   }
 
-  @NotNull
   @Override
-  public List<MetadataValue> getMetadata(@NotNull final String key) {
-    return Collections.emptyList();
+  public int hashCode() {
+    if (this.hash == 0 || this.hash == 485) {
+      this.hash = 97 * 5 + this.getXboxUniqueId().hashCode();
+    }
+    return this.hash;
   }
 
   @Override
-  public boolean hasMetadata(@NotNull final String key) {
-    return false;
+  public boolean equals(final Object obj) {
+    if (!(obj instanceof Player)) {
+      return false;
+    }
+    final var other = (Player) obj;
+    return this.getXboxUniqueId().equals(other.getXboxUniqueId()) &&
+      this.getEntityId() == other.getEntityId();
   }
 
   @Override
-  public void removeAllMetadata(@NotNull final String key) {
-  }
-
-  @Override
-  public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
-  }
-
-  @Override
-  public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
-  }
-
-  @Override
-  public void tick() {
-    this.connection.handleQueuedPackets();
+  public String toString() {
+    return "ShirukaPlayer{" + "name=" + this.getName().asString() + '}';
   }
 
   @Override
@@ -279,5 +395,28 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
 
   @Override
   public void sendMessage(@NotNull final String message) {
+  }
+
+  private void registerPlayer(@NotNull final Player player) {
+//    var tracker = world.getChunkProvider().playerChunkMap;
+//    connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.ADD_PLAYER, player));
+//    var entry = tracker.trackedEntities.get(player.getEntityId());
+//    if (entry != null && !entry.trackedPlayers.contains(this)) {
+//      entry.updatePlayer(this);
+//    }
+  }
+
+  private void unregisterPlayer(@NotNull final Player player) {
+//    if (!(player instanceof ShirukaPlayer)) {
+//      return;
+//    }
+//    final var shirukaPlayer = (ShirukaPlayer) player;
+//    var entry = world.getChunkProvider().playerChunkMap.trackedEntities.get(shirukaPlayer.getEntityId());
+//    if (entry != null) {
+//      entry.clear(this);
+//    }
+//    if (shirukaPlayer.sentListPacket) {
+//      connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, shirukaPlayer));
+//    }
   }
 }

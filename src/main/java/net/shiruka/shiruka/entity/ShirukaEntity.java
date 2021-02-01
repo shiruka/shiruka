@@ -25,17 +25,87 @@
 
 package net.shiruka.shiruka.entity;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.shiruka.api.entity.Entity;
+import net.shiruka.api.entity.Player;
 import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
+import net.shiruka.shiruka.base.ShirukaViewable;
+import net.shiruka.shiruka.network.packets.EntityRemovePacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * an abstract implementation for {@link Entity}.
  */
-public abstract class ShirukaEntity implements Entity {
+public abstract class ShirukaEntity implements Entity, ShirukaViewable {
+
+  /**
+   * the last entity id.
+   */
+  private static final AtomicInteger LAST_ENTITY_ID = new AtomicInteger();
+
+  /**
+   * the viewers.
+   */
+  protected final Set<Player> viewers = new CopyOnWriteArraySet<>();
+
+  /**
+   * the entity id.
+   */
+  private final long entityId;
+
+  /**
+   * ctor.
+   */
+  protected ShirukaEntity() {
+    this.entityId = ShirukaEntity.LAST_ENTITY_ID.incrementAndGet();
+  }
+
+  @Override
+  public final long getEntityId() {
+    return this.entityId;
+  }
+
+  @Override
+  public void remove() {
+  }
+
+  @Override
+  public boolean addViewer(@NotNull final Player player) {
+    final var result = this.viewers.add(player);
+    if (!result) {
+      return false;
+    }
+    if (player instanceof ShirukaPlayer) {
+      ((ShirukaPlayer) player).viewableEntities.add(this);
+    }
+    return true;
+  }
+
+  @NotNull
+  @Override
+  public Set<Player> getViewers() {
+    return Collections.unmodifiableSet(this.viewers);
+  }
+
+  @Override
+  public boolean removeViewer(@NotNull final Player player) {
+    if (!this.viewers.remove(player)) {
+      return false;
+    }
+    if (player instanceof ShirukaPlayer) {
+      final var packet = new EntityRemovePacket(this.entityId);
+      final var shirukaPlayer = (ShirukaPlayer) player;
+      shirukaPlayer.getConnection().sendPacket(packet);
+      shirukaPlayer.viewableEntities.remove(this);
+    }
+    return true;
+  }
 
   @NotNull
   @Override
@@ -64,10 +134,6 @@ public abstract class ShirukaEntity implements Entity {
   @Override
   public Text getName() {
     return null;
-  }
-
-  @Override
-  public void remove() {
   }
 
   @Override

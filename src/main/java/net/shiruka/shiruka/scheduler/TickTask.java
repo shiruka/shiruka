@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.scheduler;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.command;
 
-import java.util.Collections;
 import java.util.Map;
 import net.shiruka.api.command.CommandDispatcher;
 import net.shiruka.api.command.CommandException;
@@ -94,16 +93,18 @@ public final class SimpleCommandManager implements CommandManager {
   }
 
   @Override
-  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commands) {
+  public void register(@NotNull final Plugin plugin, final @NotNull CommandNode... commands) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleCommandManager#register.");
   }
 
   @NotNull
   @Override
   public Map<String, CommandNode> registered(@NotNull final Plugin plugin) {
-    return Collections.emptyMap();
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleCommandManager#registered.");
   }
 
   @Override
   public void unregister(@NotNull final String... commands) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimpleCommandManager#unregister.");
   }
 }

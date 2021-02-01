@@ -64,7 +64,6 @@ public final class ShirukaAsyncTask extends ShirukaTask {
   ShirukaAsyncTask(final int id, @NotNull final Consumer<ShirukaTask> task, @NotNull final Plugin plugin,
                    final long delay, @NotNull final IntConsumer removeFunction) {
     super(id, task, plugin, delay);
-    //noinspection AssignmentOrReturnOfFieldWithMutableType
     this.removeFunction = removeFunction;
   }
 

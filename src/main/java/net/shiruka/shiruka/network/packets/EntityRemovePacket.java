@@ -23,48 +23,41 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.network.packets;
 
-import org.jetbrains.annotations.NotNull;
+import net.shiruka.shiruka.network.ShirukaPacket;
 
 /**
- * a class that represents tick tasks.
+ * sent by the server to remove an entity that currently exists in the world from the client-side.
  */
-public final class TickTask implements Runnable {
+public final class EntityRemovePacket extends ShirukaPacket {
 
   /**
-   * the job.
+   * the entity id.
    */
-  @NotNull
-  private final Runnable job;
-
-  /**
-   * the job.
-   */
-  private final int tick;
+  private final long entityId;
 
   /**
    * ctor.
    *
-   * @param job the job.
-   * @param tick the tick.
+   * @param entityId the entity id.
    */
-  public TickTask(@NotNull final Runnable job, final int tick) {
-    this.job = job;
-    this.tick = tick;
-  }
-
-  /**
-   * obtains the tick.
-   *
-   * @return tick.
-   */
-  public int getTick() {
-    return this.tick;
+  public EntityRemovePacket(final long entityId) {
+    super(ShirukaPacket.ID_REMOVE_ENTITY);
+    this.entityId = entityId;
   }
 
   @Override
-  public void run() {
-    this.job.run();
+  public void encode() {
+    this.writeLong(this.entityId);
+  }
+
+  /**
+   * obtains the entity id.
+   *
+   * @return entity id.
+   */
+  public long getEntityId() {
+    return this.entityId;
   }
 }

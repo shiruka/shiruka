@@ -49,10 +49,10 @@ public final class Zlib {
   private static final int CHUNK = 8192;
 
   /**
-   * the deflated.
+   * the deflated local.
    */
   @NotNull
-  private final ThreadLocal<Deflater> deflaterLocal;
+  private final ThreadLocal<Deflater> deflatedLocal;
 
   /**
    * the inflated.
@@ -67,7 +67,7 @@ public final class Zlib {
    */
   private Zlib(final boolean raw) {
     this.inflaterLocal = ThreadLocal.withInitial(() -> Natives.ZLIB.get().create(raw));
-    this.deflaterLocal = ThreadLocal.withInitial(() -> Natives.ZLIB.get().create(7, raw));
+    this.deflatedLocal = ThreadLocal.withInitial(() -> Natives.ZLIB.get().create(7, raw));
   }
 
   /**
@@ -92,7 +92,7 @@ public final class Zlib {
       } else {
         destination = compressed;
       }
-      final var deflated = this.deflaterLocal.get();
+      final var deflated = this.deflatedLocal.get();
       deflated.reset();
       deflated.setLevel(level);
       deflated.setInput(source.internalNioBuffer(source.readerIndex(), source.readableBytes()));

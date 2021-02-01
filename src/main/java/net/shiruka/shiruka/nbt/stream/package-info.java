@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains {@link java.io.DataInput} and {@link java.io.DataOutput} implementstions.
+ * the package that contains {@link java.io.DataInput} and {@link java.io.DataOutput} implementations.
  */
 package net.shiruka.shiruka.nbt.stream;

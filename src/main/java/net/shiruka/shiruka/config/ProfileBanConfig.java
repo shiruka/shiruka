@@ -98,7 +98,7 @@ public final class ProfileBanConfig extends PathableConfig {
     final var profile = optional.get();
     //noinspection unchecked
     return ProfileBanConfig.getInstance().get(target)
-      .filter(o -> o instanceof Map<?, ?>)
+      .filter(Map.class::isInstance)
       .map(o -> (Map<String, Object>) o)
       .map(ProfileBanEntry::new)
       .filter(entry -> !entry.hasExpired())

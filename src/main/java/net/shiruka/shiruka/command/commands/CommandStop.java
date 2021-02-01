@@ -81,7 +81,7 @@ public final class CommandStop extends CommandHelper {
   /**
    * registers the stop command.
    */
-  public void register() {
+  private void register() {
     SimpleCommandManager.registerInternal(literal(CommandStop.COMMAND)
       .describe(CommandStop.DESCRIPTION)
       .requires(commandSender -> this.testPermission(commandSender, CommandStop.PERMISSION))

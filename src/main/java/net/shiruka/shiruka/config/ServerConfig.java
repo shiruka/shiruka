@@ -116,6 +116,13 @@ public final class ServerConfig extends PathableConfig {
     "whether to use Mojang auth to check players.");
 
   /**
+   * ops pass player limit to join the server.
+   */
+  public static final ConfigPath<Boolean> OPS_PASS_PLAYER_LIMIT = commented(booleanPath(
+    "ops-pass-player-limit", true),
+    "Ops will able to join the server which is full.");
+
+  /**
    * server's ipv4 port.
    */
   public static final ConfigPath<Integer> PORT = commented(integerPath(

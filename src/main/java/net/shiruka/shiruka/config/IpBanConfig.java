@@ -94,7 +94,7 @@ public final class IpBanConfig extends PathableConfig {
   public static Optional<BanEntry> getBanEntry(@NotNull final String target) {
     //noinspection unchecked
     return IpBanConfig.getInstance().get(target)
-      .filter(o -> o instanceof Map<?, ?>)
+      .filter(Map.class::isInstance)
       .map(o -> (Map<String, Object>) o)
       .map(IpBanEntry::new)
       .filter(entry -> !entry.hasExpired())

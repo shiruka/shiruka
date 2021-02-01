@@ -31,7 +31,7 @@ import net.shiruka.shiruka.concurrent.ShirukaTick;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents rolling avarage.
+ * a class that represents rolling average.
  */
 public final class RollingAverage {
 
@@ -123,9 +123,9 @@ public final class RollingAverage {
   }
 
   /**
-   * obtains the avarage.
+   * obtains the average.
    *
-   * @return avarage.
+   * @return average.
    */
   public double getAverage() {
     return this.total.divide(RollingAverage.toDecimal(this.time), 30, RoundingMode.HALF_UP).doubleValue();

@@ -70,6 +70,11 @@ public abstract class ShirukaPacket extends Packet {
   protected static final int ID_PLAY_STATUS = 2;
 
   /**
+   * the id of the {@link EntityRemovePacket}.
+   */
+  protected static final int ID_REMOVE_ENTITY = 14;
+
+  /**
    * the id of the {@link ResourcePackChunkDataPacket}.
    */
   protected static final int ID_RESOURCE_PACK_CHUNK_DATA = 83;

@@ -79,7 +79,8 @@ public final class ShirukaTick implements Runnable {
   /**
    * the tps base.
    */
-  private static final BigDecimal TPS_BASE = new BigDecimal(1E9).multiply(new BigDecimal(ShirukaTick.SAMPLE_INTERVAL));
+  private static final BigDecimal TPS_BASE = new BigDecimal("1E9")
+    .multiply(new BigDecimal(ShirukaTick.SAMPLE_INTERVAL));
 
   /**
    * the current tick.
@@ -172,6 +173,8 @@ public final class ShirukaTick implements Runnable {
    * does the tick operations.
    */
   private void doTick() {
+    // @todo #1:15m Implement worlds.tick()
+    // @todo #1:15m Implement players.tick()
     this.server.getScheduler().mainThreadHeartbeat(++this.ticks);
   }
 }

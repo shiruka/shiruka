@@ -23,38 +23,48 @@
  *
  */
 
-package net.shiruka.shiruka.console;
+package net.shiruka.shiruka.scheduler;
 
-import java.util.List;
-import net.shiruka.api.Server;
 import org.jetbrains.annotations.NotNull;
-import org.jline.reader.Candidate;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 
 /**
- * an implementation for {@link Completer} to auto complete console commands.
+ * a class that represents tick tasks.
  */
-final class ConsoleCommandCompleter implements Completer {
+public final class TickTask implements Runnable {
 
   /**
-   * the server instance.
+   * the job.
    */
   @NotNull
-  private final Server server;
+  private final Runnable job;
+
+  /**
+   * the job.
+   */
+  private final int tick;
 
   /**
    * ctor.
    *
-   * @param server the server.
+   * @param job the job.
+   * @param tick the tick.
    */
-  ConsoleCommandCompleter(@NotNull final Server server) {
-    this.server = server;
+  public TickTask(@NotNull final Runnable job, final int tick) {
+    this.job = job;
+    this.tick = tick;
+  }
+
+  /**
+   * obtains the tick.
+   *
+   * @return tick.
+   */
+  public int getTick() {
+    return this.tick;
   }
 
   @Override
-  public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ConsoleCommandCompleter#complete.");
+  public void run() {
+    this.job.run();
   }
 }

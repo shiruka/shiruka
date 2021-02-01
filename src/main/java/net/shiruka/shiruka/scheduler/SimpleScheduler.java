@@ -242,8 +242,8 @@ public class SimpleScheduler implements ShirukaScheduler {
             }
           }
         }
-      }) {{
-    }};
+      }) {
+    };
     this.handle(task, 0L);
     for (var taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
       if (taskPending == task) {
@@ -267,7 +267,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     final var workers = new ArrayList<TaskWorker>();
     this.runners.values().stream()
       .filter(taskObj -> !taskObj.isSync())
-      .map(taskObj -> (ShirukaAsyncTask) taskObj)
+      .map(ShirukaAsyncTask.class::cast)
       .forEach(task -> {
         synchronized (task.getWorkers()) {
           workers.addAll(task.getWorkers());
@@ -368,7 +368,7 @@ public class SimpleScheduler implements ShirukaScheduler {
                                   final long period) {
     final var entry = SimpleScheduler.handle0(plugin, delay, period);
     final var task = new ShirukaAsyncTask(this.nextId(), job::accept, plugin, entry.getKey(),
-      this.asyncScheduler.runners);
+      this.asyncScheduler.runners::remove);
     return this.handle(task, entry.getValue());
   }
 
@@ -429,6 +429,7 @@ public class SimpleScheduler implements ShirukaScheduler {
   @Override
   public final void parsePending() {
     if (!this.isAsyncScheduler) {
+      // ignored.
     }
     var head = this.head;
     var task = head.getNext();
@@ -450,6 +451,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     }
     this.head = lastTask;
     if (!this.isAsyncScheduler) {
+      // ignored.
     }
   }
 

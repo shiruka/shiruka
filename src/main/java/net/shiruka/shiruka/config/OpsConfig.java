@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.Objects;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.config.PathableConfig;
+import net.shiruka.shiruka.base.OpEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +54,17 @@ public final class OpsConfig extends PathableConfig {
   }
 
   /**
+   * adds the given {@code entry} to the op list.
+   *
+   * @param entry the entry to add.
+   */
+  public static void addOp(@NotNull final OpEntry entry) {
+    OpsConfig.getInstance().getConfiguration().set(
+      entry.getProfile().getXboxUniqueId(),
+      entry.serialize());
+  }
+
+  /**
    * obtains the instance.
    *
    * @return instance.
@@ -74,5 +86,14 @@ public final class OpsConfig extends PathableConfig {
         config.save();
         OpsConfig.instance = config;
       });
+  }
+
+  /**
+   * remove the given {@code entry} from the op list.
+   *
+   * @param entry the entry to remove.
+   */
+  public static void removeOp(@NotNull final OpEntry entry) {
+    OpsConfig.getInstance().getConfiguration().remove(entry.getProfile().getXboxUniqueId());
   }
 }

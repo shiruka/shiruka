@@ -23,38 +23,42 @@
  *
  */
 
-package net.shiruka.shiruka.console;
+package net.shiruka.shiruka.base;
 
-import java.util.List;
-import net.shiruka.api.Server;
+import java.util.Arrays;
+import net.shiruka.api.base.Viewable;
+import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
-import org.jline.reader.Candidate;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 
 /**
- * an implementation for {@link Completer} to auto complete console commands.
+ * an abstract implementation of {@link Viewable}.
  */
-final class ConsoleCommandCompleter implements Completer {
+public interface ShirukaViewable extends Viewable {
 
   /**
-   * the server instance.
-   */
-  @NotNull
-  private final Server server;
-
-  /**
-   * ctor.
+   * Sends a packet to all viewers and the viewable element if it is a player.
    *
-   * @param server the server.
+   * @param packet the packet to send
    */
-  ConsoleCommandCompleter(@NotNull final Server server) {
-    this.server = server;
+  default void sendPacketToViewersAndSelf(@NotNull final ShirukaPacket packet) {
+    if (this instanceof ShirukaPlayer) {
+      ((ShirukaPlayer) this).getConnection().sendPacket(packet);
+    }
+    this.sendPacketsToViewers(packet);
   }
 
-  @Override
-  public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
-    throw new UnsupportedOperationException("@todo #1:10m Implement ConsoleCommandCompleter#complete.");
+  /**
+   * sends multiple packets to all viewers.
+   *
+   * @param packets the packets to send.
+   */
+  default void sendPacketsToViewers(@NotNull final ShirukaPacket... packets) {
+    this.getViewers().stream()
+      .filter(ShirukaPlayer.class::isInstance)
+      .map(ShirukaPlayer.class::cast)
+      .forEach(player ->
+        Arrays.stream(packets).forEach(packet ->
+          player.getConnection().sendPacket(packet)));
   }
 }

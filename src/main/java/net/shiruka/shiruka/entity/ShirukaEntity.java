@@ -73,6 +73,7 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
 
   @Override
   public void remove() {
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#remove.");
   }
 
   @Override
@@ -141,5 +142,6 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
 
   @Override
   public void tick() {
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#tick.");
   }
 }

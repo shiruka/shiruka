@@ -398,9 +398,9 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   }
 
   private void registerPlayer(@NotNull final Player player) {
-//    var tracker = world.getChunkProvider().playerChunkMap;
-//    connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.ADD_PLAYER, player));
-//    var entry = tracker.trackedEntities.get(player.getEntityId());
+//    final var tracker = world.getChunkProvider().playerChunkMap;
+//    this.connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.ADD_PLAYER, player));
+//    final var entry = tracker.trackedEntities.get(player.getEntityId());
 //    if (entry != null && !entry.trackedPlayers.contains(this)) {
 //      entry.updatePlayer(this);
 //    }
@@ -411,12 +411,12 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
 //      return;
 //    }
 //    final var shirukaPlayer = (ShirukaPlayer) player;
-//    var entry = world.getChunkProvider().playerChunkMap.trackedEntities.get(shirukaPlayer.getEntityId());
+//    final var entry = world.getChunkProvider().playerChunkMap.trackedEntities.get(shirukaPlayer.getEntityId());
 //    if (entry != null) {
 //      entry.clear(this);
 //    }
 //    if (shirukaPlayer.sentListPacket) {
-//      connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, shirukaPlayer));
+//      this.connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, shirukaPlayer));
 //    }
   }
 }

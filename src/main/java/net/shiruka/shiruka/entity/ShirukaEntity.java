@@ -133,6 +133,7 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
     throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#setMetadata.");
   }
 
+  @NotNull
   @Override
   public Text getName() {
     throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#getName.");

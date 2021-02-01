@@ -429,6 +429,7 @@ public class SimpleScheduler implements ShirukaScheduler {
   @Override
   public final void parsePending() {
     if (!this.isAsyncScheduler) {
+      // ignored.
     }
     var head = this.head;
     var task = head.getNext();
@@ -450,6 +451,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     }
     this.head = lastTask;
     if (!this.isAsyncScheduler) {
+      // ignored.
     }
   }
 

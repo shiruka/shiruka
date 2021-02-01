@@ -199,8 +199,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
-    return Shiruka.getEventManager().playerKick(this, reason)
-      .callEvent();
+    return Shiruka.getEventManager().playerKick(this, reason).callEvent();
   }
 
   @Override
@@ -303,6 +302,15 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public String toString() {
     return "ShirukaPlayer{" + "name=" + this.getName().asString() + '}';
+  }
+
+  /**
+   * runs when the player just created.
+   * <p>
+   * bunch of packets related to starting the game for the player will send here.
+   */
+  public void initialize() {
+
   }
 
   @Override

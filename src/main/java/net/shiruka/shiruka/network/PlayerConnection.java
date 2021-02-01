@@ -280,6 +280,15 @@ public final class PlayerConnection implements PacketHandler {
   }
 
   /**
+   * sets the {@link #player}.
+   *
+   * @param player the player to set.
+   */
+  public void setPlayer(@NotNull final ShirukaPlayer player) {
+    this.player = player;
+  }
+
+  /**
    * handles {@link #queuedPackets}.
    */
   public void handleQueuedPackets() {

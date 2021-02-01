@@ -55,8 +55,8 @@ public interface ShirukaViewable extends Viewable {
    */
   default void sendPacketsToViewers(@NotNull final ShirukaPacket... packets) {
     this.getViewers().stream()
-      .filter(player -> player instanceof ShirukaPlayer)
-      .map(player -> (ShirukaPlayer) player)
+      .filter(ShirukaPlayer.class::isInstance)
+      .map(ShirukaPlayer.class::cast)
       .forEach(player ->
         Arrays.stream(packets).forEach(packet ->
           player.getConnection().sendPacket(packet)));

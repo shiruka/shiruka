@@ -206,11 +206,7 @@ public final class SimplePackManager implements PackManager {
     final var module = manifest.getModules().get(0);
     final var factory = this.packFactories.get(module.getType());
     Preconditions.checkNotNull(factory, "Unsupported pack type %s", module.getType());
-    final var uuid = manifest.getHeader().getUuid();
-    final var pack = factory.create(loader, manifest, module);
-    this.packs.put(uuid + "_" + manifest.getHeader().getVersion(), pack);
-    this.packsById.put(uuid, pack);
-    loader.getPreparedFile();
+    this.putPack(manifest, loader, factory, module);
   }
 
   @Override
@@ -277,11 +273,7 @@ public final class SimplePackManager implements PackManager {
         SimplePackManager.LOGGER.warn("Unsupported pack type {}", module.getType());
         continue;
       }
-      final var uuid = manifest.getHeader().getUuid();
-      final var pack = factory.create(loader, manifest, module);
-      this.packs.put(uuid + "_" + manifest.getHeader().getVersion(), pack);
-      this.packsById.put(uuid, pack);
-      loader.getPreparedFile();
+      this.putPack(manifest, loader, factory, module);
     }
     SimplePackManager.LOGGER.debug(TranslatedText.get("shiruka.pack.pack_manager.load_packs.success",
       manifestMap.size()));
@@ -326,5 +318,22 @@ public final class SimplePackManager implements PackManager {
    */
   private void checkClosed() {
     Preconditions.checkState(!this.closed, "PackManager registration is closed!");
+  }
+
+  /**
+   * puts the given manifest into the {@link #packs} and {@link #packsById}.
+   *
+   * @param manifest the manifest to put.
+   * @param loader the loader to put.
+   * @param factory the factory to put.
+   * @param module the module to put.
+   */
+  private void putPack(@NotNull final PackManifest manifest, @NotNull final PackLoader loader, @NotNull final Pack.Factory factory,
+                       @NotNull final PackManifest.Module module) {
+    final var uuid = manifest.getHeader().getUuid();
+    final var pack = factory.create(loader, manifest, module);
+    this.packs.put(uuid + "_" + manifest.getHeader().getVersion(), pack);
+    this.packsById.put(uuid, pack);
+    loader.getPreparedFile();
   }
 }

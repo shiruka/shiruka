@@ -110,30 +110,32 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   @NotNull
   @Override
   public List<MetadataValue> getMetadata(@NotNull final String key) {
-    return null;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#getMetadata.");
   }
 
   @Override
   public boolean hasMetadata(@NotNull final String key) {
-    return false;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#hasMetadata.");
   }
 
   @Override
   public void removeAllMetadata(@NotNull final String key) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#removeAllMetadata.");
   }
 
   @Override
   public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#removeMetadata.");
   }
 
   @Override
   public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#setMetadata.");
   }
 
-  @NotNull
   @Override
   public Text getName() {
-    return null;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaEntity#getName.");
   }
 
   @Override

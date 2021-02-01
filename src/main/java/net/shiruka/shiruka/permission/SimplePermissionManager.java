@@ -41,63 +41,71 @@ public final class SimplePermissionManager implements PermissionManager {
 
   @Override
   public void addPermission(@NotNull final Permission perm) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#addPermission.");
   }
 
   @NotNull
   @Override
   public Set<Permissible> getDefaultPermSubscriptions(final boolean op) {
-    return null;
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#getDefaultPermSubscriptions.");
   }
 
   @NotNull
   @Override
   public Set<Permission> getDefaultPermissions(final boolean op) {
-    return null;
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#getDefaultPermissions.");
   }
 
   @NotNull
   @Override
   public Optional<Permission> getPermission(@NotNull final String name) {
-    return Optional.empty();
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#getPermission.");
   }
 
   @NotNull
   @Override
   public Set<Permissible> getPermissionSubscriptions(@NotNull final String permission) {
-    return null;
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#getPermissionSubscriptions.");
   }
 
   @NotNull
   @Override
   public Set<Permission> getPermissions() {
-    return null;
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#getPermissions.");
   }
 
   @Override
   public void recalculatePermissionDefaults(@NotNull final Permission perm) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#recalculatePermissionDefaults.");
   }
 
   @Override
   public void removePermission(@NotNull final Permission perm) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#removePermission(Permission).");
   }
 
   @Override
   public void removePermission(@NotNull final String name) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#removePermission(String).");
   }
 
   @Override
   public void subscribeToDefaultPerms(final boolean op, @NotNull final Permissible permissible) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#subscribeToDefaultPerms.");
   }
 
   @Override
   public void subscribeToPermission(@NotNull final String permission, @NotNull final Permissible permissible) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#subscribeToPermission.");
   }
 
   @Override
   public void unsubscribeFromDefaultPerms(final boolean op, @NotNull final Permissible permissible) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#unsubscribeFromDefaultPerms.");
   }
 
   @Override
   public void unsubscribeFromPermission(@NotNull final String permission, @NotNull final Permissible permissible) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement SimplePermissionManager#unsubscribeFromPermission.");
   }
 }

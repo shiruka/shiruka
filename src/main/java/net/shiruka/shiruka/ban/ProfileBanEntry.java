@@ -76,7 +76,7 @@ public final class ProfileBanEntry extends BaseBanEntry<GameProfile> {
   public Map<String, Object> serialize() {
     final var map = super.serialize();
     if (this.getKey() != null) {
-      map.put("profile", this.getKey().serialize());
+      map.putAll(this.getKey().serialize());
     }
     return map;
   }

@@ -27,6 +27,7 @@ package net.shiruka.shiruka.scheduler;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import javax.security.auth.callback.ConfirmationCallback;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.TaskWorker;
@@ -41,7 +42,7 @@ public final class ShirukaAsyncTask extends ShirukaTask {
    * the runners.
    */
   @NotNull
-  private final Map<Integer, ShirukaTask> runners;
+  private final IntConsumer removeFunction;
 
   /**
    * the workers.
@@ -55,12 +56,13 @@ public final class ShirukaAsyncTask extends ShirukaTask {
    * @param task the task.
    * @param plugin the plugin.
    * @param delay the delay.
-   * @param runners the runners.
+   * @param removeFunction the runners.
    */
   ShirukaAsyncTask(final int id, @NotNull final Consumer<ShirukaTask> task, @NotNull final Plugin plugin,
-                   final long delay, @NotNull final Map<Integer, ShirukaTask> runners) {
+                   final long delay, @NotNull final IntConsumer removeFunction) {
     super(id, task, plugin, delay);
-    this.runners = runners;
+    //noinspection AssignmentOrReturnOfFieldWithMutableType
+    this.removeFunction = removeFunction;
   }
 
   /**
@@ -137,7 +139,7 @@ public final class ShirukaAsyncTask extends ShirukaTask {
           }
         } finally {
           if (this.getPeriod() < 0 && this.workers.isEmpty()) {
-            this.runners.remove(this.getTaskId());
+            this.removeFunction.accept(this.getTaskId());
           }
         }
       }
@@ -149,7 +151,7 @@ public final class ShirukaAsyncTask extends ShirukaTask {
     synchronized (this.workers) {
       this.setPeriod(ShirukaTask.PERIOD_CANCEL);
       if (this.workers.isEmpty()) {
-        this.runners.remove(this.getTaskId());
+        this.removeFunction.accept(this.getTaskId());
       }
     }
   }

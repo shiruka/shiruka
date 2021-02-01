@@ -36,12 +36,11 @@ import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.KickEvent;
-import net.shiruka.api.metadata.MetadataValue;
-import net.shiruka.api.permission.Permission;
-import net.shiruka.api.permission.PermissionAttachment;
-import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
+import net.shiruka.shiruka.base.OpEntry;
+import net.shiruka.shiruka.config.OpsConfig;
+import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.event.LoginData;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
@@ -49,10 +48,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link Player}.
- *
- * @todo #1:60m Implement ShirukaPlayer's methods.
  */
-public final class ShirukaPlayer extends ShirukaEntity implements Player {
+public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   /**
    * the plugin weak references.
@@ -98,6 +95,12 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   private int hash = 0;
 
   /**
+   * the lazy initiated op entry instance.
+   */
+  @Nullable
+  private OpEntry opEntry;
+
+  /**
    * ctor.
    *
    * @param connection the connection.
@@ -116,66 +119,6 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
     return plugin == null
       ? null
       : ShirukaPlayer.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
-  }
-
-  @NotNull
-  @Override
-  public PermissionAttachment addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
-                                            final boolean value) {
-    return null;
-  }
-
-  @NotNull
-  @Override
-  public PermissionAttachment addAttachment(@NotNull final Plugin plugin) {
-    return null;
-  }
-
-  @NotNull
-  @Override
-  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
-                                                      final boolean value, final long ticks) {
-    return Optional.empty();
-  }
-
-  @NotNull
-  @Override
-  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, final long ticks) {
-    return Optional.empty();
-  }
-
-  @NotNull
-  @Override
-  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-    return null;
-  }
-
-  @Override
-  public boolean hasPermission(@NotNull final String name) {
-    return false;
-  }
-
-  @Override
-  public boolean hasPermission(@NotNull final Permission perm) {
-    return false;
-  }
-
-  @Override
-  public boolean isPermissionSet(@NotNull final String name) {
-    return false;
-  }
-
-  @Override
-  public boolean isPermissionSet(@NotNull final Permission perm) {
-    return false;
-  }
-
-  @Override
-  public void recalculatePermissions() {
-  }
-
-  @Override
-  public void removeAttachment(@NotNull final PermissionAttachment attachment) {
   }
 
   @Override
@@ -202,29 +145,6 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
 //      viewerConnection.sendPacket(this.getTeam().createTeamDestructionPacket());
 //    }
     return result;
-  }
-
-  @NotNull
-  @Override
-  public List<MetadataValue> getMetadata(@NotNull final String key) {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public boolean hasMetadata(@NotNull final String key) {
-    return false;
-  }
-
-  @Override
-  public void removeAllMetadata(@NotNull final String key) {
-  }
-
-  @Override
-  public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
-  }
-
-  @Override
-  public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
   }
 
   @Override
@@ -303,52 +223,52 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
   @Nullable
   @Override
   public Location getBedSpawnLocation() {
-    return null;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getBedSpawnLocation.");
   }
 
   @Override
   public long getFirstPlayed() {
-    return 0;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getFirstPlayed.");
   }
 
   @Override
   public long getLastLogin() {
-    return 0;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getLastLogin.");
   }
 
   @Override
   public long getLastSeen() {
-    return 0;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getLastSeen.");
   }
-
   @NotNull
   @Override
-  public Optional<Player> getPlayer() {
-    return Optional.empty();
+  public  Optional<Player> getPlayer() {
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#getPlayer.");
   }
 
   @Override
   public boolean hasPlayedBefore() {
-    return false;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#hasPlayedBefore.");
   }
 
   @Override
   public boolean isBanned() {
-    return false;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#isBanned.");
   }
 
   @Override
   public boolean isOnline() {
-    return false;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#isOnline.");
   }
 
   @Override
   public boolean isWhitelisted() {
-    return false;
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#isWhitelisted.");
   }
 
   @Override
   public void setWhitelisted(final boolean value) {
+    throw new UnsupportedOperationException("@todo #1:10m Implement ShirukaPlayer#setWhitelisted.");
   }
 
   /**
@@ -386,15 +306,37 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player {
 
   @Override
   public boolean isOp() {
-    return false;
+    return OpsConfig.getInstance().getConfiguration().contains(this.profile.getXboxUniqueId());
   }
 
   @Override
   public void setOp(final boolean value) {
+    if (value == this.isOp()) {
+      return;
+    }
+    if (value) {
+      OpsConfig.addOp(this.getOpEntry());
+    } else {
+      OpsConfig.removeOp(this.getOpEntry());
+    }
+    this.permissible.recalculatePermissions();
   }
 
   @Override
   public void sendMessage(@NotNull final String message) {
+  }
+
+  /**
+   * creates a new {@link OpEntry} instance.
+   *
+   * @return a newly created op entry instance.
+   */
+  @NotNull
+  private OpEntry getOpEntry() {
+    if (this.opEntry == null) {
+      this.opEntry = new OpEntry(this.profile, ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false));
+    }
+    return this.opEntry;
   }
 
   private void registerPlayer(@NotNull final Player player) {

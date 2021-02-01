@@ -79,7 +79,8 @@ public final class ShirukaTick implements Runnable {
   /**
    * the tps base.
    */
-  private static final BigDecimal TPS_BASE = new BigDecimal(1E9).multiply(new BigDecimal(ShirukaTick.SAMPLE_INTERVAL));
+  private static final BigDecimal TPS_BASE = new BigDecimal("1E9")
+    .multiply(new BigDecimal(ShirukaTick.SAMPLE_INTERVAL));
 
   /**
    * the current tick.

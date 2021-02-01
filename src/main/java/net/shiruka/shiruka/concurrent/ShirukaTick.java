@@ -172,6 +172,8 @@ public final class ShirukaTick implements Runnable {
    * does the tick operations.
    */
   private void doTick() {
+    // worlds.tick()
+    // players.tick()
     this.server.getScheduler().mainThreadHeartbeat(++this.ticks);
   }
 }

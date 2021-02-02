@@ -107,12 +107,8 @@
       <id>natives</id>
     </repository>
     <repository>
-      <url>http://repo.shiruka.net/snapshots/</url>
+      <url>https://repo.shiruka.net/snapshots/</url>
       <id>shiruka-snapshots</id>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
     </repository>
   </repositories>
   <dependencies>

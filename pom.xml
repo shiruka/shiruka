@@ -198,7 +198,7 @@
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.4.2</version>
+      <version>9.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

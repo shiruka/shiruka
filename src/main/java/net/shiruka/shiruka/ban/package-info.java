@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains aikar's timings library.
+ * the package that contains ban list implementations.
  */
-package co.aikar.timings;
+package net.shiruka.shiruka.ban;

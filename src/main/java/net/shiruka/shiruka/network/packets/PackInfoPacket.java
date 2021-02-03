@@ -101,7 +101,7 @@ public final class PackInfoPacket extends ShirukaPacket {
   }
 
   /**
-   * obtians the resource pack infos.
+   * obtains the resource pack infos.
    *
    * @return resource pack infos.
    */

@@ -30,11 +30,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.Objects;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.ConfigPath;
 import net.shiruka.api.config.config.PathableConfig;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * this class contains the constant values whenever the server loads the properties file in order to shortcut access to
@@ -115,6 +116,13 @@ public final class ServerConfig extends PathableConfig {
     "whether to use Mojang auth to check players.");
 
   /**
+   * ops pass player limit to join the server.
+   */
+  public static final ConfigPath<Boolean> OPS_PASS_PLAYER_LIMIT = commented(booleanPath(
+    "ops-pass-player-limit", true),
+    "Ops will able to join the server which is full.");
+
+  /**
    * server's ipv4 port.
    */
   public static final ConfigPath<Integer> PORT = commented(integerPath(
@@ -157,6 +165,12 @@ public final class ServerConfig extends PathableConfig {
     "if its \"true\" players that are not in the white list can't join the server.");
 
   /**
+   * the instance.
+   */
+  @Nullable
+  private static ServerConfig instance;
+
+  /**
    * ctor.
    *
    * @param origin the origin.
@@ -166,13 +180,13 @@ public final class ServerConfig extends PathableConfig {
   }
 
   /**
-   * obtains the server config instance.
+   * obtains the instance.
    *
-   * @return config instance.
+   * @return instance.
    */
   @NotNull
-  public static Optional<Config> get() {
-    return ServerConfig.ADDRESS_IP.getConfig();
+  public static Config getInstance() {
+    return Objects.requireNonNull(ServerConfig.instance);
   }
 
   /**
@@ -183,6 +197,9 @@ public final class ServerConfig extends PathableConfig {
   public static void init(@NotNull final File file) {
     Config.fromFile(file)
       .map(ServerConfig::new)
-      .ifPresent(Config::save);
+      .ifPresent(config -> {
+        config.save();
+        ServerConfig.instance = config;
+      });
   }
 }

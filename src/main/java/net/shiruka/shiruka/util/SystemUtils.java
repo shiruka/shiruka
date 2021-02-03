@@ -50,7 +50,7 @@ public final class SystemUtils {
    * @return monotonic millis.
    */
   public static long getMonotonicMillis() {
-    return SystemUtils.getMonotonicNanos() / 1000000L;
+    return System.nanoTime() / 1000000L;
   }
 
   /**

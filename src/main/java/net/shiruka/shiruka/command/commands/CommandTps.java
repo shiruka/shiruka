@@ -81,9 +81,9 @@ public final class CommandTps extends CommandHelper {
     return Arrays.stream(ShirukaTick.getTps())
       .mapToObj(value -> {
         final ChatColor color;
-        if (value > 18.0) {
+        if (value > 18.0d) {
           color = ChatColor.GREEN;
-        } else if (value > 16.0) {
+        } else if (value > 16.0d) {
           color = ChatColor.YELLOW;
         } else {
           color = ChatColor.RED;

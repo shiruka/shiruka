@@ -8,10 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ windows-latest, ubuntu-latest ]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -20,7 +17,12 @@ jobs:
           java-version: 11
 
       - run: |
-          mvn clean install
-          mvn test -Pcoverage jacoco:report
+          mvn clean install -ntp -B
+          mvn test -Pcoverage jacoco:report -ntp -B
 
       - uses: codecov/codecov-action@v1.0.14
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: shiruka
+          path: target/shiruka.jar

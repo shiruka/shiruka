@@ -40,18 +40,18 @@ public final class SimpleWorldManager implements WorldManager {
   @NotNull
   @Override
   public ChunkData createChunkData(@NotNull final World world) {
-    return null;
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createChunkData.");
   }
 
   @NotNull
   @Override
   public ChunkData createNativeChunkData(@NotNull final World world, final int x, final int z) {
-    return null;
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createNativeChunkData.");
   }
 
   @NotNull
   @Override
   public Optional<World> createWorld(@NotNull final WorldCreator worldCreator) {
-    return Optional.empty();
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createWorld.");
   }
 }

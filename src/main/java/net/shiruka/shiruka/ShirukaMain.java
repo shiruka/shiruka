@@ -38,10 +38,7 @@ import java.util.stream.Stream;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.shiruka.api.Shiruka;
-import net.shiruka.shiruka.concurrent.ServerThreadPool;
-import net.shiruka.shiruka.config.OpsConfig;
-import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.config.UserCacheConfig;
+import net.shiruka.shiruka.config.*;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.console.ShirukaConsoleParser;
 import net.shiruka.shiruka.language.Languages;
@@ -214,7 +211,8 @@ public final class ShirukaMain {
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
-    ServerThreadPool.init();
+    IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
+    ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
     final var ip = ServerConfig.ADDRESS_IP.getValue()
       .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
     final var port = ServerConfig.PORT.getValue()
@@ -227,13 +225,18 @@ public final class ShirukaMain {
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
     final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
-    final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
-    socket.setIdentifier(identifier);
-    final var server = new ShirukaServer(start, ShirukaConsole::new, serverLocale, socket);
-    Shiruka.setServer(server);
-    socket.addListener(server);
-    socket.start();
+    final var serverThread = new Thread(() ->
+      JiraExceptionCatcher.run(() -> {
+        final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
+        final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
+          ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
+        socket.setIdentifier(identifier);
+        final var server = new ShirukaServer(start, ShirukaConsole::new, serverLocale, socket);
+        Shiruka.setServer(server);
+        socket.addListener(server);
+        socket.start();
+      }), "Server thread");
+    serverThread.setPriority(Thread.NORM_PRIORITY + 2);
+    serverThread.start();
   }
 }

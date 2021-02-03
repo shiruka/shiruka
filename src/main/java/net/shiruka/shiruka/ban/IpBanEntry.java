@@ -23,46 +23,62 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent.tasks;
+package net.shiruka.shiruka.ban;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Date;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * an abstract implementation for {@link AsyncTaskHandler} which
+ * a class that represents ip ban entries.
  */
-public abstract class AsyncTaskHandlerReentrant<R extends Runnable> extends AsyncTaskHandler<R> {
-
-  /**
-   * the reentrant count.
-   */
-  private final AtomicInteger reentrantCount = new AtomicInteger();
+public final class IpBanEntry extends BaseBanEntry<String> {
 
   /**
    * ctor.
    *
-   * @param threadName the thread name.
+   * @param map the map.
    */
-  protected AsyncTaskHandlerReentrant(@NotNull final String threadName) {
-    super(threadName);
+  public IpBanEntry(@NotNull final Map<String, Object> map) {
+    super(IpBanEntry.getKey(map), map);
   }
 
+  /**
+   * ctor.
+   *
+   * @param key the key.
+   * @param created the created.
+   * @param source the source.
+   * @param expires the expires.
+   * @param reason the reason.
+   */
+  public IpBanEntry(@NotNull final String key, @Nullable final Date created, @Nullable final String source,
+                    @Nullable final Date expires, @Nullable final String reason) {
+    super(key, created, source, expires, reason);
+  }
+
+  /**
+   * gets the key from the given {@code map}.
+   *
+   * @param map the map to get.
+   *
+   * @return the key.
+   */
+  @Nullable
+  private static String getKey(@NotNull final Map<String, Object> map) {
+    return map.containsKey("ip")
+      ? map.get("ip").toString()
+      : null;
+  }
+
+  @NotNull
   @Override
-  public final void executeTask(@NotNull final R job) {
-    this.reentrantCount.incrementAndGet();
-    try {
-      super.executeTask(job);
-    } finally {
-      this.reentrantCount.decrementAndGet();
+  public Map<String, Object> serialize() {
+    final var map = super.serialize();
+    if (this.getKey() != null) {
+      map.put("ip", this.getKey());
     }
-  }
-
-  @Override
-  public boolean isNotMainThread() {
-    return this.isEntered() || super.isNotMainThread();
-  }
-
-  public final boolean isEntered() {
-    return this.reentrantCount.get() != 0;
+    return map;
   }
 }

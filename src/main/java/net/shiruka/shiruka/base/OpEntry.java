@@ -25,35 +25,20 @@
 
 package net.shiruka.shiruka.base;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import net.shiruka.api.base.GameProfile;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents entry of game profiles.
+ * a class that represents op entries.
  */
-public final class GameProfileEntry {
+public final class OpEntry {
 
   /**
-   * the count.
+   * the bypasses player limit.
    */
-  private static final AtomicLong COUNT = new AtomicLong();
-
-  /**
-   * the count.
-   */
-  private final long count;
-
-  /**
-   * the expires on.
-   */
-  @NotNull
-  private final Date expiresOn;
+  private final boolean bypassesPlayerLimit;
 
   /**
    * the profile.
@@ -64,51 +49,31 @@ public final class GameProfileEntry {
   /**
    * ctor.
    *
-   * @param expiresOn the expires on.
    * @param profile the profile.
+   * @param bypassesPlayerLimit the bypasses player limit.
    */
-  private GameProfileEntry(@NotNull final Date expiresOn, @NotNull final GameProfile profile) {
-    this.count = GameProfileEntry.COUNT.getAndIncrement();
-    this.expiresOn = (Date) expiresOn.clone();
+  public OpEntry(@NotNull final GameProfile profile, final boolean bypassesPlayerLimit) {
     this.profile = profile;
+    this.bypassesPlayerLimit = bypassesPlayerLimit;
   }
 
   /**
-   * creates a new game profile entry instance from given {@code map}.
+   * creates a new op entry instance from given {@code map}.
    *
    * @param map the map to create.
    *
-   * @return a new game profile entry instance.
+   * @return a new op entry instance.
    */
   @NotNull
-  public static Optional<GameProfileEntry> deserialize(@NotNull final Map<String, Object> map) {
+  public static Optional<OpEntry> deserialize(@NotNull final Map<String, Object> map) {
     try {
-      final var expiresOn = DateFormat.getInstance().parse((String) map.get("expires-on"));
+      final var bypassesPlayerLimit = (boolean) map.get("bypasses-player-limit");
       return GameProfile.deserialize(map)
-        .map(profile -> new GameProfileEntry(expiresOn, profile));
-    } catch (final ParseException e) {
+        .map(profile -> new OpEntry(profile, bypassesPlayerLimit));
+    } catch (final Exception e) {
       e.printStackTrace();
     }
     return Optional.empty();
-  }
-
-  /**
-   * obtains the count.
-   *
-   * @return count.
-   */
-  public long getCount() {
-    return this.count;
-  }
-
-  /**
-   * obtains the expires on.
-   *
-   * @return expires on.
-   */
-  @NotNull
-  public Date getExpiresOn() {
-    return (Date) this.expiresOn.clone();
   }
 
   /**
@@ -122,6 +87,15 @@ public final class GameProfileEntry {
   }
 
   /**
+   * obtains the bypasses player limit.
+   *
+   * @return bypasses player limit.
+   */
+  public boolean isBypassesPlayerLimit() {
+    return this.bypassesPlayerLimit;
+  }
+
+  /**
    * converts {@code this} to a {@link Map}.
    *
    * @return serialized entry.
@@ -129,7 +103,7 @@ public final class GameProfileEntry {
   @NotNull
   public Map<String, Object> serialize() {
     final var map = this.profile.serialize();
-    map.put("expires-on", DateFormat.getInstance().format(this.expiresOn));
+    map.put("bypasses-player-limit", this.bypassesPlayerLimit);
     return map;
   }
 }

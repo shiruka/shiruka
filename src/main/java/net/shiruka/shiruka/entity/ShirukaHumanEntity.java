@@ -23,121 +23,100 @@
  *
  */
 
-package net.shiruka.shiruka.command;
+package net.shiruka.shiruka.entity;
 
 import java.util.Optional;
 import java.util.Set;
-import net.shiruka.api.command.sender.ConsoleCommandSender;
+import net.shiruka.api.entity.HumanEntity;
+import net.shiruka.api.permission.PermissibleBase;
 import net.shiruka.api.permission.Permission;
 import net.shiruka.api.permission.PermissionAttachment;
 import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
-import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.console.ShirukaConsole;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * a simple console implementation for {@link ConsoleCommandSender}.
- */
-public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
+public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanEntity {
 
   /**
-   * the console name.
+   * the permissible.
    */
-  private static final Text CONSOLE_NAME = () -> "CONSOLE";
+  protected final PermissibleBase permissible = new PermissibleBase(this);
 
   /**
-   * the console.
+   * the op.
    */
-  @NotNull
-  private final ShirukaConsole console;
-
-  /**
-   * ctor.
-   *
-   * @param console the console.
-   */
-  public SimpleConsoleCommandSender(@NotNull final ShirukaConsole console) {
-    this.console = console;
-  }
+  private boolean op;
 
   @NotNull
   @Override
-  public PermissionAttachment addAttachment(@NotNull final Plugin plugin, @NotNull final String name, final boolean value) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, String, boolean).");
+  public PermissionAttachment addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
+                                            final boolean value) {
+    return this.permissible.addAttachment(plugin, name, value);
   }
 
   @NotNull
   @Override
   public PermissionAttachment addAttachment(@NotNull final Plugin plugin) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin).");
+    return this.permissible.addAttachment(plugin);
   }
 
   @NotNull
   @Override
-  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, @NotNull final String name, final boolean value, final long ticks) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, String, boolean, long).");
+  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
+                                                      final boolean value, final long ticks) {
+    return this.permissible.addAttachment(plugin, name, value, ticks);
   }
 
   @NotNull
   @Override
   public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, final long ticks) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#addAttachment(Plugin, long).");
+    return this.permissible.addAttachment(plugin, ticks);
   }
 
   @NotNull
   @Override
   public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#getEffectivePermissions.");
+    return this.permissible.getEffectivePermissions();
   }
 
   @Override
   public boolean hasPermission(@NotNull final String name) {
-    return true;
+    return this.permissible.hasPermission(name);
   }
 
   @Override
   public boolean hasPermission(@NotNull final Permission perm) {
-    return true;
+    return this.permissible.hasPermission(perm);
   }
 
   @Override
   public boolean isPermissionSet(@NotNull final String name) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#isPermissionSet(String).");
+    return this.permissible.isPermissionSet(name);
   }
 
   @Override
   public boolean isPermissionSet(@NotNull final Permission perm) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#isPermissionSet(Permission).");
+    return this.permissible.isPermissionSet(perm);
   }
 
   @Override
   public void recalculatePermissions() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#recalculatePermissions.");
+    this.permissible.recalculatePermissions();
   }
 
   @Override
   public void removeAttachment(@NotNull final PermissionAttachment attachment) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleConsoleCommandSender#removeAttachment.");
-  }
-
-  @NotNull
-  @Override
-  public Text getName() {
-    return SimpleConsoleCommandSender.CONSOLE_NAME;
+    this.permissible.removeAttachment(attachment);
   }
 
   @Override
   public boolean isOp() {
-    return true;
+    return this.op;
   }
 
   @Override
   public void setOp(final boolean value) {
-  }
-
-  @Override
-  public void sendMessage(@NotNull final String message) {
-    System.out.println(message);
+    this.op = value;
+    this.permissible.recalculatePermissions();
   }
 }

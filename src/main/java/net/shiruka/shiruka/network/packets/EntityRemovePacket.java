@@ -23,33 +23,41 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent.tasks;
+package net.shiruka.shiruka.network.packets;
 
-import org.jetbrains.annotations.NotNull;
+import net.shiruka.shiruka.network.ShirukaPacket;
 
 /**
- * an interface to determine mailboxes.
- *
- * @param <R> type of the job.
+ * sent by the server to remove an entity that currently exists in the world from the client-side.
  */
-public interface Mailbox<R> extends AutoCloseable {
+public final class EntityRemovePacket extends ShirukaPacket {
 
   /**
-   * adds the given {@code job} into the job list.
-   *
-   * @param job the job to add.
+   * the entity id.
    */
-  void addJob(@NotNull R job);
+  private final long entityId;
+
+  /**
+   * ctor.
+   *
+   * @param entityId the entity id.
+   */
+  public EntityRemovePacket(final long entityId) {
+    super(ShirukaPacket.ID_REMOVE_ENTITY);
+    this.entityId = entityId;
+  }
 
   @Override
-  default void close() {
+  public void encode() {
+    this.writeLong(this.entityId);
   }
 
   /**
-   * obtains the thread name.
+   * obtains the entity id.
    *
-   * @return thread name.
+   * @return entity id.
    */
-  @NotNull
-  String getThreadName();
+  public long getEntityId() {
+    return this.entityId;
+  }
 }

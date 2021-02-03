@@ -55,6 +55,6 @@ final class ConsoleCommandCompleter implements Completer {
 
   @Override
   public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
-    final var buffer = line.line();
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ConsoleCommandCompleter#complete.");
   }
 }

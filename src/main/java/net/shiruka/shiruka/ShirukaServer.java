@@ -32,7 +32,10 @@ import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -40,7 +43,6 @@ import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.command.CommandManager;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
-import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
@@ -50,16 +52,19 @@ import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
+import net.shiruka.shiruka.ban.IpBanList;
+import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
-import net.shiruka.shiruka.concurrent.tasks.ShirukaAsyncTaskHandler;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.network.PacketUtility;
+import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
@@ -94,13 +99,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the command manager.
    */
-  @NotNull
-  private final SimpleCommandManager commandManager;
+  private final SimpleCommandManager commandManager = new SimpleCommandManager();
 
   /**
    * the connecting players.
    */
-  private final Map<InetSocketAddress, ShirukaPlayer> connectingPlayers = new ConcurrentHashMap<>();
+  private final Map<InetSocketAddress, PlayerConnection> connectingPlayers = new ConcurrentHashMap<>();
 
   /**
    * the console.
@@ -117,13 +121,17 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the event manager.
    */
-  @NotNull
-  private final SimpleEventManager eventManager;
+  private final SimpleEventManager eventManager = new SimpleEventManager();
 
   /**
    * the singleton interface implementations.
    */
   private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
+
+  /**
+   * the ip ban list.
+   */
+  private final BanList ipBanList = new IpBanList();
 
   /**
    * the language manager.
@@ -134,14 +142,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the pack manager.
    */
-  @NotNull
-  private final SimplePackManager packManager;
+  private final SimplePackManager packManager = new SimplePackManager();
 
   /**
    * the permission manager.
    */
-  @NotNull
-  private final SimplePermissionManager permissionManager;
+  private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
    * the player list.
@@ -151,8 +157,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the plugin manager.
    */
-  @NotNull
-  private final SimplePluginManager pluginManager;
+  private final SimplePluginManager pluginManager = new SimplePluginManager();
+
+  /**
+   * the profile ban list.
+   */
+  private final BanList profileBanList = new ProfileBanList();
 
   /**
    * if the server is running.
@@ -162,14 +172,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the scheduler.
    */
-  @NotNull
-  private final SimpleScheduler scheduler;
+  private final SimpleScheduler scheduler = new SimpleScheduler();
 
   /**
    * the server thread.
    */
-  @NotNull
-  private final Thread serverThread;
+  private final Thread serverThread = Thread.currentThread();
 
   /**
    * the socket.
@@ -188,20 +196,14 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final Object stopLock = new Object();
 
   /**
-   * the task handler.
-   */
-  private final ShirukaAsyncTaskHandler taskHandler;
-
-  /**
    * the tick.
    */
-  private final ShirukaTick tick;
+  private final ShirukaTick tick = new ShirukaTick(this);
 
   /**
    * the world manager.
    */
-  @NotNull
-  private final SimpleWorldManager worldManager;
+  private final SimpleWorldManager worldManager = new SimpleWorldManager();
 
   /**
    * the is stopped.
@@ -224,20 +226,10 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
                 @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
     this.startTime = startTime;
-    this.tick = new ShirukaTick(this);
-    this.taskHandler = new ShirukaAsyncTaskHandler(this, this.tick);
     this.console = console.apply(this);
     this.socket = socket;
-    this.serverThread = Thread.currentThread();
-    this.commandManager = new SimpleCommandManager();
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
-    this.eventManager = new SimpleEventManager();
     this.languageManager = new SimpleLanguageManager(serverLanguage);
-    this.packManager = new SimplePackManager();
-    this.permissionManager = new SimplePermissionManager();
-    this.pluginManager = new SimplePluginManager();
-    this.scheduler = new SimpleScheduler();
-    this.worldManager = new SimpleWorldManager();
   }
 
   /**
@@ -246,14 +238,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param player the player to add.
    */
   public void addPlayer(@NotNull final ShirukaPlayer player) {
-    this.players.put(player.getConnection().getAddress(), player);
+    this.players.put(player.getConnection().getConnection().getAddress(), player);
   }
 
   @NotNull
   @Override
   public BanList getBanList(@NotNull final BanList.Type type) {
-    // @todo #1:15m create implementations for ip and profile(name) ban list.
-    return null;
+    if (type == BanList.Type.IP) {
+      return this.ipBanList;
+    }
+    return this.profileBanList;
   }
 
   @NotNull
@@ -277,8 +271,10 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @NotNull
   @Override
-  public Collection<? extends Player> getOnlinePlayers() {
-    return this.players.values();
+  public Collection<? extends ShirukaPlayer> getOnlinePlayers() {
+    synchronized (this.players) {
+      return this.players.values();
+    }
   }
 
   @Override
@@ -311,9 +307,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public <I> void registerInterface(@NotNull final Class<I> cls, @NotNull final I implementation) {
-    if (this.interfaces.containsKey(cls)) {
-      return;
-    }
     this.interfaces.put(cls, implementation);
   }
 
@@ -332,10 +325,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
-    this.scheduler.mainThreadHeartbeat(this.tick.getTicks());
+    this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
     ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
+    this.stopServer();
   }
 
   @Override
@@ -359,18 +353,10 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @return connecting players.
    */
   @NotNull
-  public Collection<ShirukaPlayer> getConnectingPlayers() {
-    return Collections.unmodifiableCollection(this.connectingPlayers.values());
-  }
-
-  /**
-   * obtains the online players.
-   *
-   * @return online players.
-   */
-  @NotNull
-  public Collection<ShirukaPlayer> getPlayers() {
-    return Collections.unmodifiableCollection(this.players.values());
+  public Collection<PlayerConnection> getConnectingPlayers() {
+    synchronized (this.connectingPlayers) {
+      return this.connectingPlayers.values();
+    }
   }
 
   /**
@@ -401,16 +387,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Nullable
   public Thread getShutdownThread() {
     return this.shutdownThread;
-  }
-
-  /**
-   * obtains the task handler.
-   *
-   * @return task handler.
-   */
-  @NotNull
-  public ShirukaAsyncTaskHandler getTaskHandler() {
-    return this.taskHandler;
   }
 
   /**
@@ -452,15 +428,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final var address = peer.getAddress();
     if (this.players.containsKey(address)) {
       this.players.get(address)
+        .getConnection()
         .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
       return;
     }
     if (this.connectingPlayers.containsKey(address)) {
-      this.connectingPlayers.get(address)
-        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
+      PacketUtility.disconnect(this.connectingPlayers.get(address),
+        TranslatedText.get("shiruka.server.on_login.already_logged_in"));
       return;
     }
-    this.connectingPlayers.put(address, new ShirukaPlayer(peer));
+    this.connectingPlayers.put(address, new PlayerConnection(peer));
   }
 
   @Override
@@ -476,7 +453,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final PacketHandler handler;
     final var address = peer.getAddress();
     if (this.players.containsKey(address)) {
-      handler = this.players.get(address);
+      handler = this.players.get(address).getConnection();
     } else if (this.connectingPlayers.containsKey(address)) {
       handler = this.connectingPlayers.get(address);
     } else {
@@ -494,7 +471,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param player the player to remove.
    */
   public void removePlayer(@NotNull final ShirukaPlayer player) {
-    this.players.remove(player.getConnection().getAddress());
+    this.players.remove(player.getConnection().getConnection().getAddress());
   }
 
   /**
@@ -518,11 +495,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private void stop0() {
     ShirukaServer.LOGGER.info("§eStopping the server.");
     synchronized (this.stopLock) {
-      if (this.running.get()) {
+      if (!this.running.get()) {
         return;
       }
       this.running.set(false);
     }
     this.shutdownThread = Thread.currentThread();
+    this.socket.shutdown();
+    System.exit(0);
   }
 }

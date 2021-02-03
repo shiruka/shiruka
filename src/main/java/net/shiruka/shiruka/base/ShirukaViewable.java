@@ -23,48 +23,42 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.base;
 
+import java.util.Arrays;
+import net.shiruka.api.base.Viewable;
+import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents tick tasks.
+ * an abstract implementation of {@link Viewable}.
  */
-public final class TickTask implements Runnable {
+public interface ShirukaViewable extends Viewable {
 
   /**
-   * the job.
-   */
-  @NotNull
-  private final Runnable job;
-
-  /**
-   * the job.
-   */
-  private final int tick;
-
-  /**
-   * ctor.
+   * Sends a packet to all viewers and the viewable element if it is a player.
    *
-   * @param job the job.
-   * @param tick the tick.
+   * @param packet the packet to send
    */
-  public TickTask(@NotNull final Runnable job, final int tick) {
-    this.job = job;
-    this.tick = tick;
+  default void sendPacketToViewersAndSelf(@NotNull final ShirukaPacket packet) {
+    if (this instanceof ShirukaPlayer) {
+      ((ShirukaPlayer) this).getConnection().sendPacket(packet);
+    }
+    this.sendPacketsToViewers(packet);
   }
 
   /**
-   * obtains the tick.
+   * sends multiple packets to all viewers.
    *
-   * @return tick.
+   * @param packets the packets to send.
    */
-  public int getTick() {
-    return this.tick;
-  }
-
-  @Override
-  public void run() {
-    this.job.run();
+  default void sendPacketsToViewers(@NotNull final ShirukaPacket... packets) {
+    this.getViewers().stream()
+      .filter(ShirukaPlayer.class::isInstance)
+      .map(ShirukaPlayer.class::cast)
+      .forEach(player ->
+        Arrays.stream(packets).forEach(packet ->
+          player.getConnection().sendPacket(packet)));
   }
 }

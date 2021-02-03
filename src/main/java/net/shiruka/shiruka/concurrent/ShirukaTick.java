@@ -25,19 +25,15 @@
 
 package net.shiruka.shiruka.concurrent;
 
-import co.aikar.timings.MinecraftTimings;
-import co.aikar.timings.TimingsManager;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import net.shiruka.api.Shiruka;
-import net.shiruka.api.text.TranslatedText;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.util.RollingAverage;
-import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -53,11 +49,6 @@ public final class ShirukaTick implements Runnable {
   public static final int TPS = 20;
 
   /**
-   * the tick time.
-   */
-  public static final int TICK_TIME = 1000000000 / ShirukaTick.TPS;
-
-  /**
    * the logger.
    */
   private static final Logger LOGGER = LogManager.getLogger("ShirukaTick");
@@ -66,6 +57,11 @@ public final class ShirukaTick implements Runnable {
    * the sample interval.
    */
   private static final int SAMPLE_INTERVAL = 20;
+
+  /**
+   * the amount of time taken by a single tick.
+   */
+  private static final long TICK_NANOS = TimeUnit.SECONDS.toNanos(1) / 20;
 
   /**
    * tps for 1 minute.
@@ -91,68 +87,13 @@ public final class ShirukaTick implements Runnable {
   /**
    * the current tick.
    */
-  public static int currentTick = 0;
-
-  /**
-   * the console command queue.
-   */
-  private final Queue<String> consoleCommandQueue = new ConcurrentLinkedQueue<>();
+  private static int currentTick = 0;
 
   /**
    * the server.
    */
   @NotNull
   private final ShirukaServer server;
-
-  /**
-   * the force ticks.
-   */
-  public boolean forceTicks;
-
-  /**
-   * the delayed tasks max next tick time.
-   */
-  private long delayedTasksMaxNextTickTime;
-
-  /**
-   * the has ticked.
-   */
-  private boolean hasTicked;
-
-  /**
-   * is oversleep.
-   */
-  private boolean isOversleep = false;
-
-  /**
-   * the last overload time.
-   */
-  private long lastOverloadTime;
-
-  /**
-   * the last ticking.
-   */
-  private long lastTick = 0;
-
-  /**
-   * the may have delayed task.
-   */
-  private boolean mayHaveDelayedTasks;
-
-  /**
-   * the mid tick chunks tasks ran.
-   */
-  private int midTickChunksTasksRan;
-
-  /**
-   * the mid tick last ran.
-   */
-  private long midTickLastRan;
-
-  /**
-   * the next tick.
-   */
-  private long nextTick;
 
   /**
    * the ticks.
@@ -182,49 +123,22 @@ public final class ShirukaTick implements Runnable {
   }
 
   /**
-   * adds the given {@code command}.
+   * calculates the tps of the server.
    *
-   * @param command the command to add.
+   * @param start the start to calculate.
+   * @param tickSection the tick section to calculate.
    */
-  public void addCommand(@NotNull final String command) {
-    this.consoleCommandQueue.add(command);
-  }
-
-  /**
-   * checks if the thread can sleep for tick.
-   *
-   * @return {@code true} if the thread can sleep for tick.
-   */
-  public boolean canSleepForTick() {
-    if (this.isOversleep) {
-      return this.mayHaveDelayedTasks && SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
-    }
-    final var check = this.mayHaveDelayedTasks ? this.delayedTasksMaxNextTickTime : this.nextTick;
-    return this.forceTicks || this.server.getTaskHandler().isEntered() || SystemUtils.getMonotonicMillis() < check;
-  }
-
-  /**
-   * obtains the ticks.
-   *
-   * @return ticks.
-   */
-  public int getTicks() {
-    return this.ticks;
-  }
-
-  /**
-   * loads the chunks.
-   */
-  public void midTickLoadChunks() {
-    if (!this.server.getTaskHandler().isMainThread() ||
-      System.nanoTime() - this.midTickLastRan < 1000000) {
-      return;
-    }
-    try (final var ignored = MinecraftTimings.midTickChunkTasks.startTiming()) {
-//      for (final var value : this.server.getWorlds()) {
-//        value.getChunkProvider().serverThreadQueue.midTickLoadChunks();
-//      }
-      this.midTickLastRan = System.nanoTime();
+  private static void calculateTps(final long start, @NotNull final AtomicLong tickSection) {
+    if (++ShirukaTick.currentTick % ShirukaTick.SAMPLE_INTERVAL == 0) {
+      final var different = start - tickSection.get();
+      final var currentTps = ShirukaTick.TPS_BASE.divide(
+        new BigDecimal(different),
+        30,
+        RoundingMode.HALF_UP);
+      ShirukaTick.TPS_1.add(currentTps, different);
+      ShirukaTick.TPS_5.add(currentTps, different);
+      ShirukaTick.TPS_15.add(currentTps, different);
+      tickSection.set(start);
     }
   }
 
@@ -233,116 +147,38 @@ public final class ShirukaTick implements Runnable {
    */
   @Override
   public void run() {
-    this.nextTick = SystemUtils.getMonotonicMillis();
-    final var warnOnOverload = ServerConfig.WARN_ON_OVERLOAD.getValue()
-      .orElse(true);
-    final var start = System.nanoTime();
-    var currentTime = 0L;
-    var tickSection = start;
-    this.lastTick = start - ShirukaTick.TICK_TIME;
+    final var tickSection = new AtomicLong(System.nanoTime());
     while (this.server.isRunning()) {
-      final var tickTime = (currentTime = System.nanoTime()) / (1000L * 1000L) - this.nextTick;
-      if (tickTime > 5000L && this.nextTick - this.lastOverloadTime >= 30000L) {
-        final var waitTime = tickTime / 50L;
-        if (warnOnOverload) {
-          ShirukaTick.LOGGER.warn(TranslatedText.get("shiruka.concurrent.tick.run.overload", tickTime, waitTime));
-        }
-        this.nextTick += waitTime * 50L;
-        this.lastOverloadTime = this.nextTick;
-      }
-      if (++ShirukaTick.currentTick % ShirukaTick.SAMPLE_INTERVAL == 0) {
-        final var diff = currentTime - tickSection;
-        final var currentTps = ShirukaTick.TPS_BASE.divide(new BigDecimal(diff), 30, RoundingMode.HALF_UP);
-        ShirukaTick.TPS_1.add(currentTps, diff);
-        ShirukaTick.TPS_5.add(currentTps, diff);
-        ShirukaTick.TPS_15.add(currentTps, diff);
-        tickSection = currentTime;
-      }
-      this.midTickChunksTasksRan = 0;
-      this.lastTick = currentTime;
-      this.nextTick += 50L;
-      try (final var ignored = TimingsManager.FULL_SERVER_TICK.startTiming()) {
+      try {
+        final var start = System.nanoTime();
+        ShirukaTick.calculateTps(start, tickSection);
         this.doTick();
+        final var end = System.nanoTime();
+        final var elapsed = end - start;
+        final var waitTime = TimeUnit.NANOSECONDS.toMillis(ShirukaTick.TICK_NANOS - elapsed);
+        if (waitTime < 0) {
+          ShirukaTick.LOGGER.debug("Server running behind " +
+            -waitTime + "ms, skipped " + -waitTime / ShirukaTick.TICK_NANOS + " ticks");
+        } else {
+          Thread.sleep(waitTime);
+        }
+      } catch (final InterruptedException e) {
+        break;
+      } catch (final Exception e) {
+        JiraExceptionCatcher.serverException(e);
+        break;
       }
-      this.mayHaveDelayedTasks = true;
-      this.delayedTasksMaxNextTickTime = Math.max(SystemUtils.getMonotonicMillis() + 50L, this.nextTick);
-      this.sleepForTick();
-      this.hasTicked = true;
     }
   }
 
   /**
-   * checks if the thread can oversleep.
-   *
-   * @return {@code true} if the thread can oversleep.
-   */
-  private boolean canOversleep() {
-    return this.mayHaveDelayedTasks &&
-      SystemUtils.getMonotonicMillis() < this.delayedTasksMaxNextTickTime;
-  }
-
-  /**
-   * checks if thread can sleep for tick no oversleep.
-   *
-   * @return {@code true} if thread can sleep for tick no oversleep.
-   */
-  private boolean canSleepForTickNoOversleep() {
-    return this.forceTicks ||
-      this.server.getTaskHandler().isEntered() ||
-      SystemUtils.getMonotonicMillis() < this.nextTick;
-  }
-
-  /**
-   * runs the game's elements.
+   * does the tick operations.
    */
   private void doTick() {
-    final var now = SystemUtils.getMonotonicNanos();
-    this.isOversleep = true;
-    try (final var ignored = MinecraftTimings.serverOversleep.startTiming()) {
-      this.server.getTaskHandler().awaitJobs(() -> {
-        this.midTickLoadChunks();
-        return !this.canOversleep();
-      });
-      this.isOversleep = false;
-    }
-    Shiruka.getEventManager().serverTick(++this.ticks).callEvent();
-    this.doTick0();
-    this.handleQueuedConsoleCommands();
-  }
-
-  /**
-   * runs the game's elements.
-   */
-  private void doTick0() {
-    this.midTickLoadChunks();
-    try (final var ignored = MinecraftTimings.shirukaSchedulerTimer.startTiming()) {
-      this.server.getScheduler().mainThreadHeartbeat(this.ticks);
-    }
-    this.midTickLoadChunks();
-    this.server.getConnectingPlayers().forEach(ShirukaPlayer::tick);
-    this.server.getPlayers().forEach(ShirukaPlayer::tick);
-  }
-
-  /**
-   * handles queued console commands.
-   */
-  private void handleQueuedConsoleCommands() {
-    try (final var ignored = MinecraftTimings.serverCommandTimer.startTiming()) {
-      String command;
-      while ((command = this.consoleCommandQueue.poll()) != null) {
-        final var sender = Shiruka.getConsoleCommandSender();
-        final var event = Shiruka.getEventManager().serverCommand(sender, command);
-        if (event.callEvent()) {
-          Shiruka.getCommandManager().execute(event.getCommand(), sender);
-        }
-      }
-    }
-  }
-
-  /**
-   * sleeps for tick.
-   */
-  private void sleepForTick() {
-    this.server.getTaskHandler().awaitJobs(() -> !this.canSleepForTickNoOversleep());
+    // @todo #1:15m Implement worlds.tick()
+    // @todo #1:15m Implement players.tick()
+    this.server.getConnectingPlayers().forEach(PlayerConnection::tick);
+    this.server.getOnlinePlayers().forEach(ShirukaPlayer::tick);
+    this.server.getScheduler().mainThreadHeartbeat(++this.ticks);
   }
 }

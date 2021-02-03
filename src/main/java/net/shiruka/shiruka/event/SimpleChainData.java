@@ -41,7 +41,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
-import net.shiruka.api.events.LoginDataEvent;
+import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.geometry.AnimatedTextureType;
 import net.shiruka.api.geometry.AnimationData;
 import net.shiruka.api.geometry.ImageData;
@@ -50,9 +50,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation of {@link LoginDataEvent.ChainData}.
+ * a simple implementation of {@link ChainDataEvent.ChainData}.
  */
-public final class SimpleChainData implements LoginDataEvent.ChainData {
+public final class SimpleChainData implements ChainDataEvent.ChainData {
 
   /**
    * the key of chain.
@@ -216,11 +216,10 @@ public final class SimpleChainData implements LoginDataEvent.ChainData {
    * @param chainData the chain data to create.
    * @param skinData the skin data to create.
    *
-   * @return a new instance of {@link LoginDataEvent.ChainData}.
+   * @return a new instance of {@link ChainDataEvent.ChainData}.
    */
   @NotNull
-  public static LoginDataEvent.ChainData create(@NotNull final String chainData,
-                                                @NotNull final String skinData) {
+  public static ChainDataEvent.ChainData create(@NotNull final String chainData, @NotNull final String skinData) {
     final var data = new SimpleChainData(chainData, skinData);
     data.initialize();
     return data;
@@ -496,15 +495,15 @@ public final class SimpleChainData implements LoginDataEvent.ChainData {
     return SimpleChainData.get(this.username);
   }
 
-  @NotNull
-  @Override
-  public String getXUniqueId() {
-    return SimpleChainData.get(this.xuid);
-  }
-
   @Override
   public boolean getXboxAuthed() {
     return this.xboxAuthed;
+  }
+
+  @NotNull
+  @Override
+  public String getXboxUniqueId() {
+    return SimpleChainData.get(this.xuid);
   }
 
   /**

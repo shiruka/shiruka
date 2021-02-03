@@ -26,13 +26,12 @@
 package net.shiruka.shiruka.config;
 
 import java.io.File;
-import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 import net.shiruka.api.config.Config;
-import net.shiruka.api.config.ConfigPath;
-import net.shiruka.api.config.Paths;
 import net.shiruka.api.config.config.PathableConfig;
+import net.shiruka.shiruka.base.OpEntry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * list of server operators.
@@ -40,9 +39,10 @@ import org.jetbrains.annotations.NotNull;
 public final class OpsConfig extends PathableConfig {
 
   /**
-   * op list of the server.
+   * the instance.
    */
-  public static final ConfigPath<List<UUID>> OPS = Paths.listUniqueIdPath("ops", List.of());
+  @Nullable
+  private static OpsConfig instance;
 
   /**
    * ctor.
@@ -54,6 +54,27 @@ public final class OpsConfig extends PathableConfig {
   }
 
   /**
+   * adds the given {@code entry} to the op list.
+   *
+   * @param entry the entry to add.
+   */
+  public static void addOp(@NotNull final OpEntry entry) {
+    OpsConfig.getInstance().getConfiguration().set(
+      entry.getProfile().getXboxUniqueId(),
+      entry.serialize());
+  }
+
+  /**
+   * obtains the instance.
+   *
+   * @return instance.
+   */
+  @NotNull
+  public static OpsConfig getInstance() {
+    return Objects.requireNonNull(OpsConfig.instance);
+  }
+
+  /**
    * initiates the server config to the given file.
    *
    * @param file the file to create.
@@ -61,6 +82,18 @@ public final class OpsConfig extends PathableConfig {
   public static void init(@NotNull final File file) {
     Config.fromFile(file)
       .map(OpsConfig::new)
-      .ifPresent(Config::save);
+      .ifPresent(config -> {
+        config.save();
+        OpsConfig.instance = config;
+      });
+  }
+
+  /**
+   * remove the given {@code entry} from the op list.
+   *
+   * @param entry the entry to remove.
+   */
+  public static void removeOp(@NotNull final OpEntry entry) {
+    OpsConfig.getInstance().getConfiguration().remove(entry.getProfile().getXboxUniqueId());
   }
 }

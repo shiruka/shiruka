@@ -4,7 +4,9 @@
 <h3 align="center">
   <a href="http://docs.shiruka.net">Documentation</a>
 /
-  <a href="https://github.com/shiruka/shiruka/discussions">Discussions</a> 
+  <a href="https://discord.gg/VacpRnazaS">Discord</a> 
+/
+  <a href="https://crowdin.com/project/shiru-ka">Translation</a>
+/
+  <a href="https://nightly.link/shiruka/shiruka/workflows/build/master/shiruka.zip">Download</a>
 </h3>
-
-<p align="center"><a href="https://www.jetbrains.com/?from=shiruka"><img src="logo/JETBRAINS.svg" width="75px"/></a></p>

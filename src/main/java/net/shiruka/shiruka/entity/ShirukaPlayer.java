@@ -25,67 +25,58 @@
 
 package net.shiruka.shiruka.entity;
 
-import com.google.common.base.Preconditions;
-import com.whirvis.jraknet.peer.RakNetClientPeer;
-import com.whirvis.jraknet.protocol.Reliability;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.util.internal.PlatformDependent;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.lang.ref.WeakReference;
+import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
-import java.util.zip.Deflater;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
+import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.KickEvent;
-import net.shiruka.api.events.LoginDataEvent;
-import net.shiruka.api.metadata.MetadataValue;
-import net.shiruka.api.permission.Permission;
-import net.shiruka.api.permission.PermissionAttachment;
-import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
-import net.shiruka.api.text.ChatColor;
 import net.shiruka.api.text.Text;
-import net.shiruka.api.text.TranslatedText;
-import net.shiruka.shiruka.ShirukaMain;
-import net.shiruka.shiruka.ShirukaServer;
+import net.shiruka.shiruka.base.OpEntry;
+import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.event.LoginData;
-import net.shiruka.shiruka.event.SimpleChainData;
-import net.shiruka.shiruka.language.Languages;
-import net.shiruka.shiruka.network.NoEncryption;
-import net.shiruka.shiruka.network.PacketHandler;
-import net.shiruka.shiruka.network.Protocol;
-import net.shiruka.shiruka.network.ShirukaPacket;
-import net.shiruka.shiruka.network.packets.*;
+import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * an implementation for {@link Player}.
- *
- * @todo #1:60m Implement ShirukaPlayer's methods.
  */
-public final class ShirukaPlayer extends ShirukaEntity implements Player, PacketHandler {
+public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   /**
-   * the disconnected with no reason.
+   * the plugin weak references.
    */
-  private static final Text DISCONNECTED_NO_REASON = TranslatedText.get("disconnect.disconnected");
+  private static final WeakHashMap<Plugin, WeakReference<Plugin>> PLUGIN_WEAK_REFERENCES = new WeakHashMap<>();
 
   /**
-   * the name pattern to check client's usernames.
+   * the viewable entities.
    */
-  private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
+  protected final Set<ShirukaEntity> viewableEntities = new CopyOnWriteArraySet<>();
 
   /**
    * the connection.
    */
   @NotNull
-  private final RakNetClientPeer connection;
+  private final PlayerConnection connection;
+
+  /**
+   * the hidden players.
+   */
+  private final Map<UUID, Set<WeakReference<Plugin>>> hiddenPlayers = new HashMap<>();
+
+  /**
+   * the login data.
+   */
+  @NotNull
+  private final LoginData loginData;
 
   /**
    * the ping.
@@ -93,306 +84,88 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
   private final AtomicInteger ping = new AtomicInteger();
 
   /**
-   * the queued packets.
-   */
-  private final Queue<ShirukaPacket> queuedPackets = PlatformDependent.newMpscQueue();
-
-  /**
-   * the blob cache support.
-   */
-  private boolean blobCacheSupport;
-
-  /**
-   * the login data.
-   */
-  @Nullable
-  private LoginData loginData;
-
-  /**
    * the profile.
    */
+  @NotNull
+  private final GameProfile profile;
+
+  /**
+   * the hash.
+   */
+  private int hash = 0;
+
+  /**
+   * the lazy initiated op entry instance.
+   */
   @Nullable
-  private GameProfile profile;
+  private OpEntry opEntry;
 
   /**
    * ctor.
    *
    * @param connection the connection.
+   * @param loginData the login data.
+   * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final RakNetClientPeer connection) {
+  public ShirukaPlayer(@NotNull final PlayerConnection connection, @NotNull final LoginData loginData,
+                       @NotNull final GameProfile profile) {
     this.connection = connection;
-  }
-
-  @NotNull
-  @Override
-  public PermissionAttachment addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
-                                            final boolean value) {
-    return null;
-  }
-
-  @NotNull
-  @Override
-  public PermissionAttachment addAttachment(@NotNull final Plugin plugin) {
-    return null;
-  }
-
-  @NotNull
-  @Override
-  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, @NotNull final String name,
-                                                      final boolean value, final long ticks) {
-    return Optional.empty();
-  }
-
-  @NotNull
-  @Override
-  public Optional<PermissionAttachment> addAttachment(@NotNull final Plugin plugin, final long ticks) {
-    return Optional.empty();
-  }
-
-  @NotNull
-  @Override
-  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-    return null;
-  }
-
-  @Override
-  public boolean hasPermission(@NotNull final String name) {
-    return false;
-  }
-
-  @Override
-  public boolean hasPermission(@NotNull final Permission perm) {
-    return false;
-  }
-
-  @Override
-  public boolean isPermissionSet(@NotNull final String name) {
-    return false;
-  }
-
-  @Override
-  public boolean isPermissionSet(@NotNull final Permission perm) {
-    return false;
-  }
-
-  @Override
-  public void recalculatePermissions() {
-  }
-
-  @Override
-  public void removeAttachment(@NotNull final PermissionAttachment attachment) {
-  }
-
-  @Override
-  public void clientCacheStatusPacket(@NotNull final ClientCacheStatusPacket packet) {
-    this.blobCacheSupport = packet.isBlobCacheSupport();
-  }
-
-  @Override
-  public void loginPacket(@NotNull final LoginPacket packet) {
-    // @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
-    final var protocolVersion = packet.getProtocolVersion();
-    final var encodedChainData = packet.getChainData().toString();
-    final var encodedSkinData = packet.getSkinData().toString();
-    if (protocolVersion < ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-      final var playStatusPacket = new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD);
-      this.sendPacket(playStatusPacket);
-      return;
-    }
-    if (protocolVersion > ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-      final var playStatusPacket = new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD);
-      this.sendPacket(playStatusPacket);
-      return;
-    }
-    Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
-      final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
-      Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-        Languages.addLoadedLanguage(chainData.getLanguageCode());
-        if (!chainData.getXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
-          this.disconnect(TranslatedText.get("disconnectionScreen.notAuthenticated"));
-          return;
-        }
-        final var username = chainData.getUsername();
-        final var matcher = ShirukaPlayer.NAME_PATTERN.matcher(username);
-        if (!matcher.matches() ||
-          username.equalsIgnoreCase("rcon") ||
-          username.equalsIgnoreCase("console")) {
-          this.disconnect(TranslatedText.get("disconnectionScreen.invalidName"));
-          return;
-        }
-        if (!chainData.getSkin().isValid()) {
-          this.disconnect(TranslatedText.get("disconnectionScreen.invalidSkin"));
-          return;
-        }
-        this.loginData = new LoginData(chainData, this, () -> ChatColor.clean(username));
-        final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData, () -> "Some reason.");
-        preLogin.callEvent();
-        if (preLogin.isCancelled()) {
-          this.disconnect(preLogin.getKickMessage().orElse(null));
-          return;
-        }
-        final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
-        this.loginData.setAsyncLogin(asyncLogin);
-        this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
-          asyncLogin.callEvent();
-          Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-            if (this.loginData.shouldLogin()) {
-              this.loginData.initializePlayer();
-            }
-          });
-        }));
-        this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
-        final var packInfo = Shiruka.getPackManager().getPackInfo();
-        if (packInfo instanceof ShirukaPacket) {
-          this.sendPacket((ShirukaPacket) packInfo);
-        }
-      });
-    });
-  }
-
-  @Override
-  public void resourcePackChunkRequestPacket(@NotNull final ResourcePackChunkRequestPacket packet) {
-    final var packId = packet.getPackId();
-    final var version = packet.getVersion();
-    final var chunkSize = packet.getChunkSize();
-    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
-    if (resourcePack.isEmpty()) {
-      this.disconnect(TranslatedText.get("disconnectionScreen.resourcePack").asString());
-      return;
-    }
-    final var pack = resourcePack.get();
-    final var send = new ResourcePackChunkDataPacket(chunkSize, pack.getChunk(1048576 * chunkSize, 1048576),
-      packId, version, 1048576L * chunkSize);
-    this.sendPacket(send);
-  }
-
-  @Override
-  public void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
-    final var status = packet.getStatus();
-    final var packs = packet.getPacks();
-    switch (status) {
-      case REFUSED:
-        if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
-          this.disconnect(TranslatedText.get("disconnectionScreen.noReason"));
-        }
-        break;
-      case COMPLETED:
-        if (this.loginData == null) {
-          return;
-        }
-        if (this.loginData.getTask() != null &&
-          !Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
-          this.loginData.initializePlayer();
-        } else {
-          this.loginData.setShouldLogin(true);
-        }
-        break;
-      case SEND_PACKS:
-        packs.forEach(pack -> {
-          final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
-          if (optional.isEmpty()) {
-            this.disconnect(TranslatedText.get("disconnectionScreen.resourcePack"));
-            return;
-          }
-          final var loaded = optional.get();
-          this.sendPacket(new ResourcePackDataInfoPacket(loaded));
-        });
-        break;
-      case HAVE_ALL_PACKS:
-        final var packStack = Shiruka.getPackManager().getPackStack();
-        if (packStack instanceof ShirukaPacket) {
-          this.sendPacket((ShirukaPacket) packStack);
-        }
-        break;
-    }
-  }
-
-  /**
-   * disconnects the connection.
-   */
-  public void disconnect() {
-    this.disconnect((Text) null);
-  }
-
-  /**
-   * disconnects the connection.
-   *
-   * @param reason the reason to disconnect.
-   */
-  public void disconnect(@Nullable final Text reason) {
-    Preconditions.checkState(this.connection.isConnected(), "not connected");
-    final var message = this.translate0(reason, ShirukaPlayer.DISCONNECTED_NO_REASON).asString();
-    final var disconnectPacket = new DisconnectPacket(message, reason == null);
-    this.sendPacket(disconnectPacket);
-  }
-
-  /**
-   * disconnects the connection.
-   *
-   * @param reason the reason to disconnect.
-   */
-  public void disconnect(@Nullable final String reason) {
-    if (reason == null) {
-      this.disconnect();
-    } else {
-      this.disconnect(() -> reason);
-    }
+    this.loginData = loginData;
+    this.profile = profile;
   }
 
   @Nullable
-  @Override
-  public Location getBedSpawnLocation() {
-    return null;
+  private static WeakReference<Plugin> getPluginWeakReference(@Nullable final Plugin plugin) {
+    return plugin == null
+      ? null
+      : ShirukaPlayer.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
   }
 
   @Override
-  public long getFirstPlayed() {
-    return 0;
+  public boolean addViewer(@NotNull final Player player) {
+    if (this.equals(player)) {
+      return false;
+    }
+    if (!super.addViewer(player)) {
+      return false;
+    }
+    this.showPlayer(null, player);
+    return true;
   }
 
   @Override
-  public long getLastLogin() {
-    return 0;
+  public boolean removeViewer(final @NotNull Player player) {
+    if (this.equals(player) || !(player instanceof ShirukaPlayer)) {
+      return false;
+    }
+    final var result = super.removeViewer(player);
+    final var viewerConnection = ((ShirukaPlayer) player).getConnection();
+//    viewerConnection.sendPacket(getRemovePlayerToList());
+//    if (this.getTeam() != null && this.getTeam().getMembers().size() == 1) {
+//      viewerConnection.sendPacket(this.getTeam().createTeamDestructionPacket());
+//    }
+    return result;
   }
 
   @Override
-  public long getLastSeen() {
-    return 0;
-  }
-
-  @NotNull
-  @Override
-  public Optional<Player> getPlayer() {
-    return Optional.empty();
+  public void tick() {
+    this.connection.tick();
   }
 
   @Override
-  public boolean hasPlayedBefore() {
-    return false;
-  }
-
-  @Override
-  public boolean isBanned() {
-    return false;
-  }
-
-  @Override
-  public boolean isOnline() {
-    return false;
-  }
-
-  @Override
-  public boolean isWhitelisted() {
-    return false;
-  }
-
-  @Override
-  public void setWhitelisted(final boolean value) {
+  public boolean canSee(@NotNull final Player player) {
+    return !this.hiddenPlayers.containsKey(player.getUniqueId());
   }
 
   @NotNull
   @Override
-  public LoginDataEvent.ChainData getChainData() {
+  public InetSocketAddress getAddress() {
+    return this.connection.getConnection().getAddress();
+  }
+
+  @NotNull
+  @Override
+  public ChainDataEvent.ChainData getChainData() {
     return Objects.requireNonNull(this.loginData, "not initialized player").chainData();
   }
 
@@ -408,11 +181,94 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
   }
 
   @Override
+  public void hidePlayer(@Nullable final Plugin plugin, @NotNull final Player player) {
+    if (this.equals(player)) {
+      return;
+    }
+    var hidingPlugins = this.hiddenPlayers.get(player.getUniqueId());
+    if (hidingPlugins != null) {
+      hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+      return;
+    }
+    hidingPlugins = new HashSet<>();
+    hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+    this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
+    this.unregisterPlayer(player);
+  }
+
+  @Override
   public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
-    final var event = Shiruka.getEventManager().playerKick(this, reason);
-    event.callEvent();
-    return !event.isCancelled();
+    return Shiruka.getEventManager().playerKick(this, reason).callEvent();
+  }
+
+  @Override
+  public void showPlayer(@Nullable final Plugin plugin, @NotNull final Player player) {
+    if (this.equals(player)) {
+      return;
+    }
+    final var hidingPlugins = this.hiddenPlayers.get(player.getUniqueId());
+    if (hidingPlugins == null) {
+      return;
+    }
+    hidingPlugins.remove(ShirukaPlayer.getPluginWeakReference(plugin));
+    if (!hidingPlugins.isEmpty()) {
+      return;
+    }
+    this.hiddenPlayers.remove(player.getUniqueId());
+    this.registerPlayer(player);
+  }
+
+  @Nullable
+  @Override
+  public Location getBedSpawnLocation() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getBedSpawnLocation.");
+  }
+
+  @Override
+  public long getFirstPlayed() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getFirstPlayed.");
+  }
+
+  @Override
+  public long getLastLogin() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getLastLogin.");
+  }
+
+  @Override
+  public long getLastSeen() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getLastSeen.");
+  }
+
+  @NotNull
+  @Override
+  public Optional<Player> getPlayer() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getPlayer.");
+  }
+
+  @Override
+  public boolean hasPlayedBefore() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#hasPlayedBefore.");
+  }
+
+  @Override
+  public boolean isBanned() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isBanned.");
+  }
+
+  @Override
+  public boolean isOnline() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isOnline.");
+  }
+
+  @Override
+  public boolean isWhitelisted() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isWhitelisted.");
+  }
+
+  @Override
+  public void setWhitelisted(final boolean value) {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#setWhitelisted.");
   }
 
   /**
@@ -421,64 +277,68 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
    * @return connection.
    */
   @NotNull
-  public RakNetClientPeer getConnection() {
+  public PlayerConnection getConnection() {
     return this.connection;
   }
 
+  @Override
+  public int hashCode() {
+    if (this.hash == 0 || this.hash == 485) {
+      var hashCode = 0;
+      try {
+        hashCode = this.getXboxUniqueId().hashCode();
+      } catch (final Exception e) {
+      }
+      this.hash = 97 * 5 + hashCode;
+    }
+    return this.hash;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (!(obj instanceof Player)) {
+      return false;
+    }
+    final var other = (Player) obj;
+    return this.getXboxUniqueId().equals(other.getXboxUniqueId()) &&
+      this.getEntityId() == other.getEntityId();
+  }
+
+  @Override
+  public String toString() {
+    return "ShirukaPlayer{" + "name=" + this.getName().asString() + '}';
+  }
+
   /**
-   * obtains the login data.
-   *
-   * @return login data.
+   * runs when the player just created.
+   * <p>
+   * bunch of packets related to starting the game for the player will send here.
    */
-  @Nullable
-  public LoginData getLoginData() {
-    return this.loginData;
-  }
-
-  @NotNull
-  @Override
-  public List<MetadataValue> getMetadata(@NotNull final String key) {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public boolean hasMetadata(@NotNull final String key) {
-    return false;
-  }
-
-  @Override
-  public void removeAllMetadata(@NotNull final String key) {
-  }
-
-  @Override
-  public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
-  }
-
-  @Override
-  public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
-  }
-
-  @Override
-  public void tick() {
-    this.handleQueuedPackets();
+  public void initialize() {
   }
 
   @Override
   public boolean isOp() {
+    try {
+      OpsConfig.getInstance()
+        .getConfiguration()
+        .contains(this.getXboxUniqueId());
+    } catch (final Exception ignored) {
+    }
     return false;
   }
 
   @Override
   public void setOp(final boolean value) {
-  }
-
-  /**
-   * runs when the player pass the login packet.
-   *
-   * @param profile the profile to set.
-   */
-  public void onLogin(@NotNull final GameProfile profile) {
-    this.profile = profile;
+    if (value == this.isOp()) {
+      return;
+    }
+    if (value) {
+      OpsConfig.addOp(this.getOpEntry());
+    } else {
+      OpsConfig.removeOp(this.getOpEntry());
+    }
+    this.permissible.recalculatePermissions();
   }
 
   @Override
@@ -486,92 +346,38 @@ public final class ShirukaPlayer extends ShirukaEntity implements Player, Packet
   }
 
   /**
-   * sends the given {@code packet} to {@link #connection}.
+   * creates a new {@link OpEntry} instance.
    *
-   * @param packet the packet to send.
-   */
-  public void sendPacket(@NotNull final ShirukaPacket packet) {
-    this.queuedPackets.add(packet);
-  }
-
-  /**
-   * sends the given {@code packet} to {@link #connection}.
-   *
-   * @param packet the packet to send.
-   */
-  public void sendPacketImmediately(@NotNull final ShirukaPacket packet) {
-    this.sendWrapped(Collections.singleton(packet));
-  }
-
-  /**
-   * handles {@link #queuedPackets}.
-   */
-  private void handleQueuedPackets() {
-    var toBatch = new ObjectArrayList<ShirukaPacket>();
-    @Nullable ShirukaPacket packet;
-    while ((packet = this.queuedPackets.poll()) != null) {
-      if (!packet.getClass().isAnnotationPresent(NoEncryption.class)) {
-        toBatch.add(packet);
-        continue;
-      }
-      if (!toBatch.isEmpty()) {
-        this.sendWrapped(toBatch);
-        toBatch = new ObjectArrayList<>();
-      }
-      this.sendWrapped(Collections.singleton(packet));
-    }
-    if (!toBatch.isEmpty()) {
-      this.sendWrapped(toBatch);
-    }
-  }
-
-  /**
-   * sends the wrapped packets to the connection.
-   *
-   * @param packets the packets to send.
-   */
-  private void sendWrapped(@NotNull final Collection<ShirukaPacket> packets) {
-    final var compressed = Unpooled.buffer();
-    try {
-      Protocol.serialize(compressed, packets, Deflater.DEFAULT_COMPRESSION);
-      this.sendWrapped(compressed);
-    } catch (final Exception e) {
-      Shiruka.getLogger().error("Unable to compress packets", e);
-    } finally {
-      compressed.release();
-    }
-  }
-
-  /**
-   * sends the given compressed packet to the connection.
-   *
-   * @param compressed the compressed packet to send.
-   */
-  private synchronized void sendWrapped(@NotNull final ByteBuf compressed) {
-    final var packet = Unpooled.buffer(compressed.readableBytes() + 9);
-    packet.writeByte(0xfe);
-    packet.writeBytes(compressed);
-    this.connection.sendMessage(Reliability.RELIABLE_ORDERED, packet);
-  }
-
-  /**
-   * the internal simple translation..
-   *
-   * @param reason the reason to translate.
-   * @param fallback the fallback to translate.
-   *
-   * @return translated string..
+   * @return a newly created op entry instance.
    */
   @NotNull
-  private Text translate0(@Nullable final Text reason, @NotNull final Text fallback) {
-    final Text finalReason;
-    if (reason == null) {
-      finalReason = fallback;
-    } else if (reason instanceof TranslatedText) {
-      finalReason = () -> ((TranslatedText) reason).translate(this).orElse(reason.asString());
-    } else {
-      finalReason = reason;
+  private OpEntry getOpEntry() {
+    if (this.opEntry == null) {
+      this.opEntry = new OpEntry(this.getProfile(), ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false));
     }
-    return finalReason;
+    return this.opEntry;
+  }
+
+  private void registerPlayer(@NotNull final Player player) {
+//    final var tracker = world.getChunkProvider().playerChunkMap;
+//    this.connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.ADD_PLAYER, player));
+//    final var entry = tracker.trackedEntities.get(player.getEntityId());
+//    if (entry != null && !entry.trackedPlayers.contains(this)) {
+//      entry.updatePlayer(this);
+//    }
+  }
+
+  private void unregisterPlayer(@NotNull final Player player) {
+//    if (!(player instanceof ShirukaPlayer)) {
+//      return;
+//    }
+//    final var shirukaPlayer = (ShirukaPlayer) player;
+//    final var entry = world.getChunkProvider().playerChunkMap.trackedEntities.get(shirukaPlayer.getEntityId());
+//    if (entry != null) {
+//      entry.clear(this);
+//    }
+//    if (shirukaPlayer.sentListPacket) {
+//      this.connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, shirukaPlayer));
+//    }
   }
 }

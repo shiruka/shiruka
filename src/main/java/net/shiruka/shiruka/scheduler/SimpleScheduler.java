@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.scheduler;
 
-import co.aikar.timings.MinecraftTimings;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -205,9 +204,7 @@ public class SimpleScheduler implements ShirukaScheduler {
           }
           return false;
         }
-      }) {{
-      this.timings = MinecraftTimings.getCancelTasksTimer();
-    }};
+      });
     this.handle(task, 0L);
     for (var taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
       if (taskPending == task) {
@@ -245,9 +242,8 @@ public class SimpleScheduler implements ShirukaScheduler {
             }
           }
         }
-      }) {{
-      this.timings = MinecraftTimings.getCancelTasksTimer(plugin);
-    }};
+      }) {
+    };
     this.handle(task, 0L);
     for (var taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
       if (taskPending == task) {
@@ -271,7 +267,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     final var workers = new ArrayList<TaskWorker>();
     this.runners.values().stream()
       .filter(taskObj -> !taskObj.isSync())
-      .map(taskObj -> (ShirukaAsyncTask) taskObj)
+      .map(ShirukaAsyncTask.class::cast)
       .forEach(task -> {
         synchronized (task.getWorkers()) {
           workers.addAll(task.getWorkers());
@@ -372,7 +368,7 @@ public class SimpleScheduler implements ShirukaScheduler {
                                   final long period) {
     final var entry = SimpleScheduler.handle0(plugin, delay, period);
     final var task = new ShirukaAsyncTask(this.nextId(), job::accept, plugin, entry.getKey(),
-      this.asyncScheduler.runners);
+      this.asyncScheduler.runners::remove);
     return this.handle(task, entry.getValue());
   }
 
@@ -426,16 +422,14 @@ public class SimpleScheduler implements ShirukaScheduler {
         this.runners.remove(task.getTaskId());
       }
     }
-    MinecraftTimings.shirukaSchedulerFinishTimer.startTiming();
     this.pending.addAll(temp);
     temp.clear();
-    MinecraftTimings.shirukaSchedulerFinishTimer.stopTiming();
   }
 
   @Override
   public final void parsePending() {
     if (!this.isAsyncScheduler) {
-      MinecraftTimings.shirukaSchedulerPendingTimer.startTiming();
+      // ignored.
     }
     var head = this.head;
     var task = head.getNext();
@@ -457,7 +451,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     }
     this.head = lastTask;
     if (!this.isAsyncScheduler) {
-      MinecraftTimings.shirukaSchedulerPendingTimer.stopTiming();
+      // ignored.
     }
   }
 

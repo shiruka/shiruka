@@ -25,9 +25,6 @@
 
 package net.shiruka.shiruka.scheduler;
 
-import co.aikar.timings.MinecraftTimings;
-import co.aikar.timings.NullTimingHandler;
-import co.aikar.timings.Timing;
 import java.util.function.Consumer;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.plugin.Plugin;
@@ -84,12 +81,6 @@ public class ShirukaTask implements Task, Runnable {
   private final Consumer<ShirukaTask> task;
 
   /**
-   * the timings.
-   */
-  @NotNull
-  public Timing timings;
-
-  /**
    * the next task.
    */
   @Nullable
@@ -119,11 +110,6 @@ public class ShirukaTask implements Task, Runnable {
     this.task = task;
     this.owner = owner;
     this.period = period;
-    if (task != null) {
-      this.timings = MinecraftTimings.getPluginTaskTimings(this, period);
-    } else {
-      this.timings = NullTimingHandler.NULL;
-    }
   }
 
   /**
@@ -138,7 +124,6 @@ public class ShirukaTask implements Task, Runnable {
     this.task = task;
     this.owner = ShirukaServer.INTERNAL_PLUGIN;
     this.period = ShirukaTask.PERIOD_NO_REPEATING;
-    this.timings = MinecraftTimings.getInternalTaskName(taskName);
   }
 
   /**
@@ -250,10 +235,8 @@ public class ShirukaTask implements Task, Runnable {
 
   @Override
   public void run() {
-    try (final var ignored = this.timings.startTiming()) {
-      if (this.task != null) {
-        this.task.accept(this);
-      }
+    if (this.task != null) {
+      this.task.accept(this);
     }
   }
 

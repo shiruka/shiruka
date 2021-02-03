@@ -85,14 +85,14 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   public static final InternalShirukaPlugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
 
   /**
-   * the logger.
-   */
-  public static final Logger LOGGER = LogManager.getLogger("Shiruka");
-
-  /**
    * obtains the Shiru ka server's version
    */
   public static final String VERSION = "1.0.0-SNAPSHOT";
+
+  /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LogManager.getLogger("Shiruka");
 
   /**
    * the command manager.
@@ -306,21 +306,21 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public void startServer() {
     this.registerImplementations();
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.starting"));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.starting"));
     this.packManager.reloadPacks();
     this.running.set(true);
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
     // @todo #1:60m Load plugins here.
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.enabling_plugin"));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.enabling_plugin"));
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
-    ShirukaServer.LOGGER.info("§eLoading worlds.");
+    this.getLogger().info("§eLoading worlds.");
     // this.worldManager.loadAll();
-    ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
+    this.getLogger().info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
     this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
     this.stopServer();
   }
@@ -331,7 +331,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     try {
       this.stop0();
     } catch (final Throwable throwable) {
-      ShirukaServer.LOGGER.error(TranslatedText.get("shiruka.server.stop_server.stopping_exception"), throwable);
+      this.getLogger().error(TranslatedText.get("shiruka.server.stop_server.stopping_exception"), throwable);
     }
   }
 
@@ -461,7 +461,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * stops the server.
    */
   private void stop0() {
-    ShirukaServer.LOGGER.info("§eStopping the server.");
+    this.getLogger().info("§eStopping the server.");
     synchronized (this.stopLock) {
       if (!this.running.get()) {
         return;

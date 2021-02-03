@@ -400,7 +400,7 @@ public class SimpleScheduler implements ShirukaScheduler {
             Objects.requireNonNull(task.getOwner(), "task's owner")
               .getDescription().getFullName());
           if (task.getOwner() == ShirukaServer.INTERNAL_PLUGIN) {
-            ShirukaServer.LOGGER.error(msg, throwable);
+            Shiruka.getLogger().error(msg, throwable);
           } else {
             task.getOwner().getLogger().warn(msg, throwable);
           }

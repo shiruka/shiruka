@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka;
 
+import com.google.common.base.Preconditions;
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
@@ -35,7 +36,6 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -92,7 +92,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Shiruka");
+  private static final Logger LOGGER = LogManager.getLogger("Shiru ka");
 
   /**
    * the command manager.
@@ -246,9 +246,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   @Override
   public <I> I getInterface(@NotNull final Class<I> cls) {
+    final var implementation = this.interfaces.get(cls);
+    Preconditions.checkArgument(implementation != null,
+      "Implementation not found for %s!", cls.toString());
     //noinspection unchecked
-    return (I) Objects.requireNonNull(this.interfaces.get(cls),
-      String.format("Implementation not found for %s!", cls.toString()));
+    return (I) implementation;
   }
 
   @NotNull

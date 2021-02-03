@@ -60,14 +60,14 @@ import org.jetbrains.annotations.Nullable;
 public final class PlayerConnection implements PacketHandler, Tick {
 
   /**
-   * the name pattern to check client's usernames.
-   */
-  private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
-
-  /**
    * the maximum login per tick.
    */
   private static final int MAX_LOGIN_PER_TICK = ServerConfig.MAX_LOGIN_PER_TICK.getValue().orElse(3);
+
+  /**
+   * the name pattern to check client's usernames.
+   */
+  private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
 
   /**
    * the join attempts this tick.
@@ -191,6 +191,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
 
   @Override
   public void violationWarningPacket(@NotNull final ViolationWarningPacket packet) {
+    Shiruka.getLogger().error("Something went wrong when reading a packet!");
   }
 
   /**
@@ -317,6 +318,10 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * handles the login packet.
    */
   private void loginPacket0(@NotNull final LoginPacket packet) {
+    if (Shiruka.isStopping()) {
+      this.disconnect(TranslatedText.get("shiruka.network.player_connection_login_packet_0.restart_message"));
+      return;
+    }
     // @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
     final var protocolVersion = packet.getProtocolVersion();
     final var encodedChainData = packet.getChainData().toString();

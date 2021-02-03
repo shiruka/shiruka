@@ -98,15 +98,15 @@ public final class ShirukaTick implements Runnable {
   public static int currentTick = 0;
 
   /**
-   * the pending.
-   */
-  public final Queue<RakNetClientPeer> pending = new ConcurrentLinkedQueue<>();
-
-  /**
    * the connected players.
    */
   public final Map<InetSocketAddress, PlayerConnection> connectedPlayers =
     Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+
+  /**
+   * the pending.
+   */
+  public final Queue<RakNetClientPeer> pending = new ConcurrentLinkedQueue<>();
 
   /**
    * the server.

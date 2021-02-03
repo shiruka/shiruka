@@ -316,13 +316,14 @@ public final class PlayerConnection implements PacketHandler, Tick {
 
   /**
    * handles the login packet.
+   *
+   * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
    */
   private void loginPacket0(@NotNull final LoginPacket packet) {
     if (Shiruka.isStopping()) {
       this.disconnect(TranslatedText.get("shiruka.network.player_connection_login_packet_0.restart_message"));
       return;
     }
-    // @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
     final var protocolVersion = packet.getProtocolVersion();
     final var encodedChainData = packet.getChainData().toString();
     final var encodedSkinData = packet.getSkinData().toString();

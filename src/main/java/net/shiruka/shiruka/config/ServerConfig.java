@@ -102,6 +102,13 @@ public final class ServerConfig extends PathableConfig {
     "loaded languages of the Shiru ka. (automatically updated.)");
 
   /**
+   * the maximum login handling per tick.
+   */
+  public static final ConfigPath<Integer> MAX_LOGIN_PER_TICK = commented(integerPath(
+    "max-login-per-tick", 3),
+    "determines the maximum login process, that will handle, per tick.");
+
+  /**
    * whether to check for netty memory leaks during runtime
    */
   public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR = commented(booleanPath(

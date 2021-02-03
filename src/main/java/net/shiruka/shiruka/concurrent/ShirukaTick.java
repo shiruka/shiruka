@@ -25,14 +25,22 @@
 
 package net.shiruka.shiruka.concurrent;
 
+import com.whirvis.jraknet.peer.RakNetClientPeer;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
+import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.util.RollingAverage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,7 +95,18 @@ public final class ShirukaTick implements Runnable {
   /**
    * the current tick.
    */
-  private static int currentTick = 0;
+  public static int currentTick = 0;
+
+  /**
+   * the connected players.
+   */
+  public final Map<InetSocketAddress, PlayerConnection> connectedPlayers =
+    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+
+  /**
+   * the pending.
+   */
+  public final Queue<RakNetClientPeer> pending = new ConcurrentLinkedQueue<>();
 
   /**
    * the server.
@@ -176,9 +195,26 @@ public final class ShirukaTick implements Runnable {
    */
   private void doTick() {
     // @todo #1:15m Implement worlds.tick()
-    // @todo #1:15m Implement players.tick()
-    this.server.getConnectingPlayers().forEach(PlayerConnection::tick);
-    this.server.getOnlinePlayers().forEach(ShirukaPlayer::tick);
+    RakNetClientPeer peer;
+    while ((peer = this.pending.poll()) != null) {
+      this.connectedPlayers.put(peer.getAddress(), new PlayerConnection(peer));
+    }
+    final var iterator = this.connectedPlayers.values().iterator();
+    while (iterator.hasNext()) {
+      final var connection = iterator.next();
+      if (connection.getConnection().isDisconnected()) {
+        iterator.remove();
+        continue;
+      }
+      try {
+        connection.tick();
+      } catch (final Exception e) {
+        final var packet = new DisconnectPacket(
+          TranslatedText.get("shiruka.concurrent.tick.do_tick").asString(),
+          false);
+        connection.sendPacketImmediately(packet);
+      }
+    }
     this.server.getScheduler().mainThreadHeartbeat(++this.ticks);
   }
 }

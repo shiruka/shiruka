@@ -149,7 +149,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public void tick() {
-    this.connection.tick();
   }
 
   @Override

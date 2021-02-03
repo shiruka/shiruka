@@ -34,10 +34,10 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.pack.*;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaMain;
-import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.network.packets.PackInfoPacket;
 import net.shiruka.shiruka.network.packets.PackStackPacket;
@@ -296,7 +296,7 @@ public final class SimplePackManager implements PackManager {
    * reloads packs.
    */
   public void reloadPacks() {
-    ShirukaServer.LOGGER.debug("§7Reloading packs.");
+    Shiruka.getLogger().debug("§7Reloading packs.");
     this.registerLoader(RplZip.class, RplZip.FACTORY);
     this.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
     this.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);

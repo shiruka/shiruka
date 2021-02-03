@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka;
 
+import com.google.common.base.Preconditions;
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
@@ -35,7 +36,6 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -63,8 +63,6 @@ import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.network.PacketHandler;
-import net.shiruka.shiruka.network.PacketUtility;
-import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
@@ -87,24 +85,19 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   public static final InternalShirukaPlugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
 
   /**
-   * the logger.
-   */
-  public static final Logger LOGGER = LogManager.getLogger("Shiruka");
-
-  /**
    * obtains the Shiru ka server's version
    */
   public static final String VERSION = "1.0.0-SNAPSHOT";
 
   /**
+   * the logger.
+   */
+  private static final Logger LOGGER = LogManager.getLogger("Shiru ka");
+
+  /**
    * the command manager.
    */
   private final SimpleCommandManager commandManager = new SimpleCommandManager();
-
-  /**
-   * the connecting players.
-   */
-  private final Map<InetSocketAddress, PlayerConnection> connectingPlayers = new ConcurrentHashMap<>();
 
   /**
    * the console.
@@ -253,9 +246,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   @Override
   public <I> I getInterface(@NotNull final Class<I> cls) {
+    final var implementation = this.interfaces.get(cls);
+    Preconditions.checkArgument(implementation != null,
+      "Implementation not found for %s!", cls.toString());
     //noinspection unchecked
-    return (I) Objects.requireNonNull(this.interfaces.get(cls),
-      String.format("Implementation not found for %s!", cls.toString()));
+    return (I) implementation;
   }
 
   @NotNull
@@ -313,21 +308,21 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public void startServer() {
     this.registerImplementations();
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.starting"));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.starting"));
     this.packManager.reloadPacks();
     this.running.set(true);
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
     // @todo #1:60m Load plugins here.
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.enabling_plugin"));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.enabling_plugin"));
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
-    ShirukaServer.LOGGER.info("§eLoading worlds.");
+    this.getLogger().info("§eLoading worlds.");
     // this.worldManager.loadAll();
-    ShirukaServer.LOGGER.info("§eEnabling plugins after the loading worlds.");
+    this.getLogger().info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
     new Thread(this.console::start).start();
     this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
-    ShirukaServer.LOGGER.info(TranslatedText.get("shiruka.server.start_server.done", end));
+    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.done", end));
     this.tick.run();
     this.stopServer();
   }
@@ -338,25 +333,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     try {
       this.stop0();
     } catch (final Throwable throwable) {
-      ShirukaServer.LOGGER.error(TranslatedText.get("shiruka.server.stop_server.stopping_exception"), throwable);
+      this.getLogger().error(TranslatedText.get("shiruka.server.stop_server.stopping_exception"), throwable);
     }
   }
 
   @Override
   public <I> void unregisterInterface(@NotNull final Class<I> cls) {
     this.interfaces.remove(cls);
-  }
-
-  /**
-   * obtains the connecting players.
-   *
-   * @return connecting players.
-   */
-  @NotNull
-  public Collection<PlayerConnection> getConnectingPlayers() {
-    synchronized (this.connectingPlayers) {
-      return this.connectingPlayers.values();
-    }
   }
 
   /**
@@ -425,25 +408,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    final var address = peer.getAddress();
-    if (this.players.containsKey(address)) {
-      this.players.get(address)
-        .getConnection()
-        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
-      return;
-    }
-    if (this.connectingPlayers.containsKey(address)) {
-      PacketUtility.disconnect(this.connectingPlayers.get(address),
-        TranslatedText.get("shiruka.server.on_login.already_logged_in"));
-      return;
-    }
-    this.connectingPlayers.put(address, new PlayerConnection(peer));
+    this.tick.pending.add(peer);
   }
 
   @Override
   public void onDisconnect(final RakNetServer server, final InetSocketAddress address, final RakNetClientPeer peer,
                            final String reason) {
-    this.connectingPlayers.remove(address);
     this.players.remove(address);
   }
 
@@ -454,8 +424,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final var address = peer.getAddress();
     if (this.players.containsKey(address)) {
       handler = this.players.get(address).getConnection();
-    } else if (this.connectingPlayers.containsKey(address)) {
-      handler = this.connectingPlayers.get(address);
+    } else if (this.tick.connectedPlayers.containsKey(address)) {
+      handler = this.tick.connectedPlayers.get(address);
     } else {
       return;
     }
@@ -493,7 +463,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * stops the server.
    */
   private void stop0() {
-    ShirukaServer.LOGGER.info("§eStopping the server.");
+    this.getLogger().info("§eStopping the server.");
     synchronized (this.stopLock) {
       if (!this.running.get()) {
         return;

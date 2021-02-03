@@ -31,12 +31,12 @@ import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.shiruka.api.Server;
@@ -63,7 +63,6 @@ import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.network.PacketHandler;
-import net.shiruka.shiruka.network.PacketUtility;
 import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
@@ -100,6 +99,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the command manager.
    */
   private final SimpleCommandManager commandManager = new SimpleCommandManager();
+
+  /**
+   * the connected players.
+   */
+  private final List<RakNetClientPeer> connectedPlayers = ObjectLists.synchronize(new ObjectArrayList<>());
 
   /**
    * the connecting players.
@@ -143,6 +147,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the pack manager.
    */
   private final SimplePackManager packManager = new SimplePackManager();
+
+  /**
+   * the pending.
+   */
+  private final Queue<RakNetClientPeer> pending = new ConcurrentLinkedQueue<>();
 
   /**
    * the permission manager.
@@ -230,6 +239,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.socket = socket;
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
     this.languageManager = new SimpleLanguageManager(serverLanguage);
+  }
+
+  /**
+   * adds the {@link #pending} into the {@link #connectedPlayers}.
+   */
+  public void addPending() {
+    RakNetClientPeer manager;
+    while ((manager = this.pending.poll()) != null) {
+      this.connectedPlayers.add(manager);
+    }
   }
 
   /**
@@ -425,19 +444,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    final var address = peer.getAddress();
-    if (this.players.containsKey(address)) {
-      this.players.get(address)
-        .getConnection()
-        .disconnect(TranslatedText.get("shiruka.server.on_login.already_logged_in"));
-      return;
-    }
-    if (this.connectingPlayers.containsKey(address)) {
-      PacketUtility.disconnect(this.connectingPlayers.get(address),
-        TranslatedText.get("shiruka.server.on_login.already_logged_in"));
-      return;
-    }
-    this.connectingPlayers.put(address, new PlayerConnection(peer));
+    this.pending.add(peer);
   }
 
   @Override

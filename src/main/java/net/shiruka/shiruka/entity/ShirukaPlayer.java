@@ -314,6 +314,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * bunch of packets related to starting the game for the player will send here.
    */
   public void initialize() {
+
   }
 
   @Override

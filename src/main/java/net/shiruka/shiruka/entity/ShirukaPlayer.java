@@ -102,12 +102,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private final AtomicInteger ping = new AtomicInteger();
 
   /**
-   * the profile.
-   */
-  @NotNull
-  private final GameProfile profile;
-
-  /**
    * the hash.
    */
   private int hash = 0;
@@ -127,9 +121,9 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   public ShirukaPlayer(@NotNull final PlayerConnection connection, @NotNull final LoginData loginData,
                        @NotNull final GameProfile profile) {
+    super(profile);
     this.connection = connection;
     this.loginData = loginData;
-    this.profile = profile;
   }
 
   @Nullable
@@ -165,12 +159,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return result;
   }
 
-  @NotNull
-  @Override
-  public Text getName() {
-    return this.profile.getName();
-  }
-
   @Override
   public void tick() {
   }
@@ -197,12 +185,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return this.ping.get();
   }
 
-  @NotNull
-  @Override
-  public GameProfile getProfile() {
-    return this.profile;
-  }
-
   @Override
   public void hidePlayer(@Nullable final Plugin plugin, @NotNull final Player player) {
     if (this.equals(player)) {
@@ -222,7 +204,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
-    return Shiruka.getEventManager().playerKick(this, reason).callEvent();
+    final var done = Shiruka.getEventManager().playerKick(this, reason).callEvent();
+    if (done) {
+      this.connection.disconnect(reasonString);
+    }
+    return done;
   }
 
   @Override
@@ -340,7 +326,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.kick(KickEvent.Reason.SERVER_FULL, ShirukaPlayer.SERVER_FULL_REASON, false)) {
       return;
     }
-    if (this.isWhitelisted()) {
+    if (!this.isWhitelisted()) {
       this.kick(KickEvent.Reason.NOT_WHITELISTED, ShirukaPlayer.WHITELIST_ON_REASON);
       return;
     }
@@ -356,13 +342,9 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public boolean isOp() {
-    try {
-      OpsConfig.getInstance()
-        .getConfiguration()
-        .contains(this.getXboxUniqueId());
-    } catch (final Exception ignored) {
-    }
-    return false;
+    return OpsConfig.getInstance()
+      .getConfiguration()
+      .contains(this.getXboxUniqueId());
   }
 
   @Override

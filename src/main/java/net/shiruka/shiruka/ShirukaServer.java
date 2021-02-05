@@ -446,6 +446,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     }
   }
 
+  @Override
+  public void onHandlerException(final RakNetServer server, final InetSocketAddress address,
+                                 final Throwable throwable) {
+    throwable.printStackTrace();
+  }
+
   /**
    * removes the given player from {@link #players}.
    *

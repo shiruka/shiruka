@@ -209,10 +209,7 @@ public final class ShirukaTick implements Runnable {
       try {
         connection.tick();
       } catch (final Exception e) {
-        final var packet = new DisconnectPacket(
-          TranslatedText.get("shiruka.concurrent.tick.do_tick.login_error").asString(),
-          false);
-        connection.sendPacketImmediately(packet);
+        connection.disconnect(TranslatedText.get("shiruka.concurrent.tick.do_tick.login_error"));
         JiraExceptionCatcher.serverException(e);
       }
     }

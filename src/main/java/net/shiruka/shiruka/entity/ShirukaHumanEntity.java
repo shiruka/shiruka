@@ -27,12 +27,14 @@ package net.shiruka.shiruka.entity;
 
 import java.util.Optional;
 import java.util.Set;
+import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.entity.HumanEntity;
 import net.shiruka.api.permission.PermissibleBase;
 import net.shiruka.api.permission.Permission;
 import net.shiruka.api.permission.PermissionAttachment;
 import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
+import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanEntity {
@@ -40,12 +42,28 @@ public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanE
   /**
    * the permissible.
    */
-  protected final PermissibleBase permissible = new PermissibleBase(this);
+  protected final PermissibleBase permissible;
+
+  /**
+   * the profile.
+   */
+  @NotNull
+  private final GameProfile profile;
 
   /**
    * the op.
    */
   private boolean op;
+
+  /**
+   * ctor.
+   *
+   * @param profile the profile.
+   */
+  protected ShirukaHumanEntity(@NotNull final GameProfile profile) {
+    this.profile = profile;
+    this.permissible = new PermissibleBase(this);
+  }
 
   @NotNull
   @Override
@@ -107,6 +125,17 @@ public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanE
   @Override
   public void removeAttachment(@NotNull final PermissionAttachment attachment) {
     this.permissible.removeAttachment(attachment);
+  }
+
+  @NotNull
+  @Override
+  public Text getName() {
+    return this.getProfile().getName();
+  }
+
+  @NotNull
+  public GameProfile getProfile() {
+    return this.profile;
   }
 
   @Override

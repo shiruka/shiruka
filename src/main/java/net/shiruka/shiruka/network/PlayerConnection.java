@@ -222,8 +222,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
   public void disconnect(@Nullable final Text reason) {
     Preconditions.checkState(this.connection.isConnected(), "not connected");
     final var message = this.translate0(reason, PacketUtility.DISCONNECTED_NO_REASON).asString();
-    final var disconnectPacket = new DisconnectPacket(message, reason == null);
-    this.sendPacket(disconnectPacket);
+    this.sendPacketImmediately(new DisconnectPacket(message, reason == null));
   }
 
   /**

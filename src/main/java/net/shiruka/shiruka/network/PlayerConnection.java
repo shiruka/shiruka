@@ -44,11 +44,11 @@ import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.ShirukaServer;
+import net.shiruka.shiruka.base.LoginData;
+import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
-import net.shiruka.shiruka.event.LoginData;
-import net.shiruka.shiruka.event.SimpleChainData;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.network.packets.*;
 import org.jetbrains.annotations.NotNull;
@@ -222,8 +222,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
   public void disconnect(@Nullable final Text reason) {
     Preconditions.checkState(this.connection.isConnected(), "not connected");
     final var message = this.translate0(reason, PacketUtility.DISCONNECTED_NO_REASON).asString();
-    final var disconnectPacket = new DisconnectPacket(message, reason == null);
-    this.sendPacket(disconnectPacket);
+    this.sendPacketImmediately(new DisconnectPacket(message, reason == null));
   }
 
   /**

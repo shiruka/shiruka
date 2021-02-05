@@ -213,6 +213,7 @@ public final class ShirukaMain {
     UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
     IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
     ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
+    WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
     final var ip = ServerConfig.ADDRESS_IP.getValue()
       .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
     final var port = ServerConfig.PORT.getValue()

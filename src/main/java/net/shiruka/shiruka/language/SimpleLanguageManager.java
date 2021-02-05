@@ -29,7 +29,6 @@ import com.google.common.base.Preconditions;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Properties;
 import net.shiruka.api.language.LanguageManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -83,12 +82,9 @@ public final class SimpleLanguageManager implements LanguageManager {
   @Override
   public String translate(@NotNull final Locale locale, @NotNull final String key, @NotNull final Object... params) {
     this.check(key);
-    final Properties properties;
-    if (key.startsWith("shiruka.")) {
-      properties = Languages.getShirukaVariables(locale);
-    } else {
-      properties = Languages.getVanillaVariables(locale);
+    if (key.startsWith("shiruka")) {
+      return MessageFormat.format(Languages.getShirukaVariables(locale).getProperty(key), params);
     }
-    return MessageFormat.format(properties.getProperty(key), params);
+    return String.format(Languages.getVanillaVariables(locale).getProperty(key), params);
   }
 }

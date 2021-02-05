@@ -58,6 +58,7 @@ import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.config.WhitelistConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
@@ -283,6 +284,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
+  public boolean isInWhitelist(@NotNull final String xboxUniqueId) {
+    return WhitelistConfig.isInWhitelist(xboxUniqueId);
+  }
+
+  @Override
   public boolean isPrimaryThread() {
     final var current = Thread.currentThread();
     return current.equals(this.serverThread) || current.equals(this.shutdownThread);
@@ -298,6 +304,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     synchronized (this.stopLock) {
       return this.isStopped;
     }
+  }
+
+  @Override
+  public boolean isWhitelistOn() {
+    return ServerConfig.WHITE_LIST.getValue().orElse(false);
   }
 
   @Override
@@ -433,6 +444,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
       packet.buffer().markReaderIndex();
       Protocol.deserialize(handler, packet.buffer());
     }
+  }
+
+  @Override
+  public void onHandlerException(final RakNetServer server, final InetSocketAddress address,
+                                 final Throwable throwable) {
+    throwable.printStackTrace();
   }
 
   /**

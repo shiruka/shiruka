@@ -99,7 +99,7 @@ public final class ServerConfig extends PathableConfig {
    */
   public static final ConfigPath<List<String>> LOADED_LANGUAGES = commented(listStringPath(
     "loaded-languages", new ArrayList<>()),
-    "loaded languages of the Shiru ka. (automatically updated.)");
+    "loaded languages of the Shiru ka. (will update automatically)");
 
   /**
    * the maximum login handling per tick.

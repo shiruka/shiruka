@@ -40,7 +40,6 @@ import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
-import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.util.RollingAverage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -209,10 +208,8 @@ public final class ShirukaTick implements Runnable {
       try {
         connection.tick();
       } catch (final Exception e) {
-        final var packet = new DisconnectPacket(
-          TranslatedText.get("shiruka.concurrent.tick.do_tick").asString(),
-          false);
-        connection.sendPacketImmediately(packet);
+        connection.disconnect(TranslatedText.get("shiruka.concurrent.tick.do_tick.login_error"));
+        JiraExceptionCatcher.serverException(e);
       }
     }
     this.server.getScheduler().mainThreadHeartbeat(++this.ticks);

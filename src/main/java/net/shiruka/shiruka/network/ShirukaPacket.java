@@ -95,6 +95,11 @@ public abstract class ShirukaPacket extends Packet {
   protected static final int ID_RESOURCE_PACK_RESPONSE = 8;
 
   /**
+   * the id of the {@link StartGamePacket}.
+   */
+  protected static final int ID_START_GAME = 11;
+
+  /**
    * the id of the {@link ViolationWarningPacket}.
    */
   protected static final int ID_VIOLATION_WARNING = 156;

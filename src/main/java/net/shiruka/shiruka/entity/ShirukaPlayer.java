@@ -38,10 +38,11 @@ import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.KickEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
+import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.event.LoginData;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,9 +53,26 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   /**
+   * the banned reason.
+   */
+  private static final TranslatedText BANNED_REASON =
+    TranslatedText.get("shiruka.entity.shiruka_player.initialize.banned");
+
+  /**
    * the plugin weak references.
    */
   private static final WeakHashMap<Plugin, WeakReference<Plugin>> PLUGIN_WEAK_REFERENCES = new WeakHashMap<>();
+
+  /**
+   * the server full reason.
+   */
+  private static final TranslatedText SERVER_FULL_REASON = TranslatedText.get("disconnectionScreen.serverFull");
+
+  /**
+   * the whitelist on reason.
+   */
+  private static final TranslatedText WHITELIST_ON_REASON =
+    TranslatedText.get("shiruka.entity.shiruka_player.initialize.whitelist.on");
 
   /**
    * the viewable entities.
@@ -84,12 +102,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private final AtomicInteger ping = new AtomicInteger();
 
   /**
-   * the profile.
-   */
-  @NotNull
-  private final GameProfile profile;
-
-  /**
    * the hash.
    */
   private int hash = 0;
@@ -109,9 +121,9 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   public ShirukaPlayer(@NotNull final PlayerConnection connection, @NotNull final LoginData loginData,
                        @NotNull final GameProfile profile) {
+    super(profile);
     this.connection = connection;
     this.loginData = loginData;
-    this.profile = profile;
   }
 
   @Nullable
@@ -173,12 +185,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return this.ping.get();
   }
 
-  @NotNull
-  @Override
-  public GameProfile getProfile() {
-    return Objects.requireNonNull(this.profile, "not initialized player");
-  }
-
   @Override
   public void hidePlayer(@Nullable final Plugin plugin, @NotNull final Player player) {
     if (this.equals(player)) {
@@ -198,7 +204,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
-    return Shiruka.getEventManager().playerKick(this, reason).callEvent();
+    final var done = Shiruka.getEventManager().playerKick(this, reason).callEvent();
+    if (done) {
+      this.connection.disconnect(reasonString);
+    }
+    return done;
   }
 
   @Override
@@ -251,18 +261,13 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   }
 
   @Override
-  public boolean isBanned() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isBanned.");
-  }
-
-  @Override
   public boolean isOnline() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isOnline.");
   }
 
   @Override
   public boolean isWhitelisted() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isWhitelisted.");
+    return !this.isOp() && Shiruka.getServer().isInWhitelist(this);
   }
 
   @Override
@@ -280,15 +285,16 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return this.connection;
   }
 
+  @NotNull
+  @Override
+  public UUID getUniqueId() {
+    return this.getProfile().getUniqueId();
+  }
+
   @Override
   public int hashCode() {
     if (this.hash == 0 || this.hash == 485) {
-      var hashCode = 0;
-      try {
-        hashCode = this.getXboxUniqueId().hashCode();
-      } catch (final Exception e) {
-      }
-      this.hash = 97 * 5 + hashCode;
+      this.hash = 97 * 5 + this.getXboxUniqueId().hashCode();
     }
     return this.hash;
   }
@@ -314,17 +320,32 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * bunch of packets related to starting the game for the player will send here.
    */
   public void initialize() {
+    final var server = Shiruka.getServer();
+    if (!this.canBypassPlayerLimit() &&
+      server.getPlayerCount() >= server.getMaxPlayerCount() &&
+      this.kick(KickEvent.Reason.SERVER_FULL, ShirukaPlayer.SERVER_FULL_REASON, false)) {
+      return;
+    }
+    if (!this.isWhitelisted()) {
+      this.kick(KickEvent.Reason.NOT_WHITELISTED, ShirukaPlayer.WHITELIST_ON_REASON);
+      return;
+    }
+    if (this.isNameBanned()) {
+      this.kick(KickEvent.Reason.NAME_BANNED, ShirukaPlayer.BANNED_REASON);
+      return;
+    }
+    if (this.isIpBanned()) {
+      this.kick(KickEvent.Reason.IP_BANNED, ShirukaPlayer.BANNED_REASON);
+      return;
+    }
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }
 
   @Override
   public boolean isOp() {
-    try {
-      OpsConfig.getInstance()
-        .getConfiguration()
-        .contains(this.getXboxUniqueId());
-    } catch (final Exception ignored) {
-    }
-    return false;
+    return OpsConfig.getInstance()
+      .getConfiguration()
+      .contains(this.getXboxUniqueId());
   }
 
   @Override
@@ -341,7 +362,26 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   }
 
   @Override
+  public void sendMessage(@NotNull final TranslatedText message) {
+    final var translated = message.translate(this);
+    if (translated.isPresent()) {
+      this.sendMessage(translated.get());
+    } else {
+      this.sendMessage(message.asString());
+    }
+  }
+
+  @Override
   public void sendMessage(@NotNull final String message) {
+  }
+
+  /**
+   * checks if the player can bypass the player limit.
+   *
+   * @return {@code true} if the player can bypass the player limit.
+   */
+  private boolean canBypassPlayerLimit() {
+    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
   }
 
   /**

@@ -40,7 +40,6 @@ import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
-import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.util.RollingAverage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

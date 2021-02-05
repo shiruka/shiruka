@@ -38,6 +38,7 @@ import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.KickEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
+import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
@@ -314,7 +315,16 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * bunch of packets related to starting the game for the player will send here.
    */
   public void initialize() {
-
+    final var server = Shiruka.getServer();
+    if (!this.canBypassPlayerLimit() &&
+      server.getPlayerCount() >= server.getMaxPlayerCount() &&
+      this.kick(KickEvent.Reason.SERVER_FULL, TranslatedText.get("disconnectionScreen.serverFull"), false)) {
+      return;
+    }
+    if (!this.isOp() && server.isInWhitelist(this)) {
+      this.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedText.get("shiruka.entity.shiruka_player.white_list.on"));
+      return;
+    }
   }
 
   @Override
@@ -343,6 +353,15 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public void sendMessage(@NotNull final String message) {
+  }
+
+  /**
+   * checks if the player can bypass the player limit.
+   *
+   * @return {@code true} if the player can bypass the player limit.
+   */
+  private boolean canBypassPlayerLimit() {
+    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
   }
 
   /**

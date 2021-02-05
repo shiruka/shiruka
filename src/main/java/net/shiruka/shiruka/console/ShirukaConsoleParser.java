@@ -98,6 +98,12 @@ public final class ShirukaConsoleParser {
   public static final OptionSpec<Void> VERSION;
 
   /**
+   * the whitelist file option spec.
+   */
+  @NotNull
+  public static final OptionSpec<File> WHITE_LIST;
+
+  /**
    * the option parser.
    */
   @NotNull
@@ -159,6 +165,12 @@ public final class ShirukaConsoleParser {
       .ofType(File.class)
       .defaultsTo(new File("profile_bans.hjson"))
       .describedAs("Profile bans file");
+    WHITE_LIST = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("W", "whitelist"), "Whitelist file to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("whitelist.hjson"))
+      .describedAs("Whitelist file");
   }
 
   /**

@@ -283,6 +283,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
+  public boolean isInWhiteList(@NotNull final String xboxUniqueId) {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaServer#isInWhiteList.");
+  }
+
+  @Override
   public boolean isPrimaryThread() {
     final var current = Thread.currentThread();
     return current.equals(this.serverThread) || current.equals(this.shutdownThread);
@@ -298,6 +303,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     synchronized (this.stopLock) {
       return this.isStopped;
     }
+  }
+
+  @Override
+  public boolean isWhitelistOn() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaServer#isWhitelistOn.");
   }
 
   @Override

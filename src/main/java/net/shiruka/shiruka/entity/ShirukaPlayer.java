@@ -338,6 +338,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.kick(KickEvent.Reason.IP_BANNED, ShirukaPlayer.BANNED_REASON);
       return;
     }
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }
 
   @Override

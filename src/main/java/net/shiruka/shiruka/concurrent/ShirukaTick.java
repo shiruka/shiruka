@@ -213,6 +213,7 @@ public final class ShirukaTick implements Runnable {
           TranslatedText.get("shiruka.concurrent.tick.do_tick.login_error").asString(),
           false);
         connection.sendPacketImmediately(packet);
+        JiraExceptionCatcher.serverException(e);
       }
     }
     this.server.getScheduler().mainThreadHeartbeat(++this.ticks);

@@ -58,6 +58,17 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private static final TranslatedText BANNED_REASON =
     TranslatedText.get("shiruka.entity.shiruka_player.initialize.banned");
 
+
+  @Override
+  public void sendMessage(@NotNull final TranslatedText message) {
+    final var translated = message.translate(this);
+    if (translated.isPresent()) {
+      this.sendMessage(translated.get());
+    } else {
+      this.sendMessage(message.asString());
+    }
+  }
+
   /**
    * the plugin weak references.
    */

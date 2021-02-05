@@ -284,7 +284,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public boolean isInWhiteList(@NotNull final String xboxUniqueId) {
+  public boolean isInWhitelist(@NotNull final String xboxUniqueId) {
     return WhitelistConfig.isInWhitelist(xboxUniqueId);
   }
 

@@ -345,7 +345,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.kick(KickEvent.Reason.IP_BANNED, ShirukaPlayer.BANNED_REASON);
       return;
     }
-
   }
 
   @Override

@@ -40,11 +40,6 @@ import org.jetbrains.annotations.NotNull;
 public abstract class ShirukaPacket extends Packet {
 
   /**
-   * the id of the {@link StartGamePacket}.
-   */
-  protected static final int ID_START_GAME=11;
-
-  /**
    * the id of the {@link ClientCacheStatusPacket}.
    */
   protected static final int ID_CLIENT_CACHE_STATUS = 129;
@@ -98,6 +93,11 @@ public abstract class ShirukaPacket extends Packet {
    * the id of the {@link ResourcePackResponsePacket}.
    */
   protected static final int ID_RESOURCE_PACK_RESPONSE = 8;
+
+  /**
+   * the id of the {@link StartGamePacket}.
+   */
+  protected static final int ID_START_GAME = 11;
 
   /**
    * the id of the {@link ViolationWarningPacket}.

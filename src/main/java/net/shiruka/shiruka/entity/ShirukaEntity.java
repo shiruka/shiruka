@@ -137,6 +137,9 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   @NotNull
   @Override
   public Text getName() {
+    if (this instanceof Player) {
+      return ((Player) this).getName();
+    }
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#getName.");
   }
 

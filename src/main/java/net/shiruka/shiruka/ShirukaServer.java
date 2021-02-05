@@ -58,6 +58,7 @@ import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.config.WhitelistConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
@@ -284,7 +285,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public boolean isInWhiteList(@NotNull final String xboxUniqueId) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaServer#isInWhiteList.");
+    return WhitelistConfig.isInWhitelist(xboxUniqueId);
   }
 
   @Override
@@ -307,7 +308,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public boolean isWhitelistOn() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaServer#isWhitelistOn.");
+    return ServerConfig.WHITE_LIST.getValue().orElse(false);
   }
 
   @Override

@@ -53,9 +53,26 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   /**
+   * the banned reason.
+   */
+  private static final TranslatedText BANNED_REASON =
+    TranslatedText.get("shiruka.entity.shiruka_player.initialize.banned");
+
+  /**
    * the plugin weak references.
    */
   private static final WeakHashMap<Plugin, WeakReference<Plugin>> PLUGIN_WEAK_REFERENCES = new WeakHashMap<>();
+
+  /**
+   * the server full reason.
+   */
+  private static final TranslatedText SERVER_FULL_REASON = TranslatedText.get("disconnectionScreen.serverFull");
+
+  /**
+   * the whitelist on reason.
+   */
+  private static final TranslatedText WHITELIST_ON_REASON =
+    TranslatedText.get("shiruka.entity.shiruka_player.initialize.whitelist.on");
 
   /**
    * the viewable entities.
@@ -252,18 +269,13 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   }
 
   @Override
-  public boolean isBanned() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isBanned.");
-  }
-
-  @Override
   public boolean isOnline() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isOnline.");
   }
 
   @Override
   public boolean isWhitelisted() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#isWhitelisted.");
+    return !this.isOp() && Shiruka.getServer().isInWhitelist(this);
   }
 
   @Override
@@ -318,13 +330,22 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     final var server = Shiruka.getServer();
     if (!this.canBypassPlayerLimit() &&
       server.getPlayerCount() >= server.getMaxPlayerCount() &&
-      this.kick(KickEvent.Reason.SERVER_FULL, TranslatedText.get("disconnectionScreen.serverFull"), false)) {
+      this.kick(KickEvent.Reason.SERVER_FULL, ShirukaPlayer.SERVER_FULL_REASON, false)) {
       return;
     }
-    if (!this.isOp() && server.isInWhitelist(this)) {
-      this.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedText.get("shiruka.entity.shiruka_player.white_list.on"));
+    if (this.isWhitelisted()) {
+      this.kick(KickEvent.Reason.NOT_WHITELISTED, ShirukaPlayer.WHITELIST_ON_REASON);
       return;
     }
+    if (this.isNameBanned()) {
+      this.kick(KickEvent.Reason.NAME_BANNED, ShirukaPlayer.BANNED_REASON);
+      return;
+    }
+    if (this.isIpBanned()) {
+      this.kick(KickEvent.Reason.IP_BANNED, ShirukaPlayer.BANNED_REASON);
+      return;
+    }
+
   }
 
   @Override

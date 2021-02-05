@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.event;
+package net.shiruka.shiruka.base;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;

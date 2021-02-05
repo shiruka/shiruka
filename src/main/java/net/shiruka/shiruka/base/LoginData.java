@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.event;
+package net.shiruka.shiruka.base;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;

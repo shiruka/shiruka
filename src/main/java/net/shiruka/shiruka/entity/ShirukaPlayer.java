@@ -58,17 +58,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private static final TranslatedText BANNED_REASON =
     TranslatedText.get("shiruka.entity.shiruka_player.initialize.banned");
 
-
-  @Override
-  public void sendMessage(@NotNull final TranslatedText message) {
-    final var translated = message.translate(this);
-    if (translated.isPresent()) {
-      this.sendMessage(translated.get());
-    } else {
-      this.sendMessage(message.asString());
-    }
-  }
-
   /**
    * the plugin weak references.
    */
@@ -176,6 +165,12 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return result;
   }
 
+  @NotNull
+  @Override
+  public Text getName() {
+    return this.profile.getName();
+  }
+
   @Override
   public void tick() {
   }
@@ -205,7 +200,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   @Override
   public GameProfile getProfile() {
-    return Objects.requireNonNull(this.profile, "not initialized player");
+    return this.profile;
   }
 
   @Override
@@ -304,15 +299,16 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return this.connection;
   }
 
+  @NotNull
+  @Override
+  public UUID getUniqueId() {
+    return this.getProfile().getUniqueId();
+  }
+
   @Override
   public int hashCode() {
     if (this.hash == 0 || this.hash == 485) {
-      var hashCode = 0;
-      try {
-        hashCode = this.getXboxUniqueId().hashCode();
-      } catch (final Exception e) {
-      }
-      this.hash = 97 * 5 + hashCode;
+      this.hash = 97 * 5 + this.getXboxUniqueId().hashCode();
     }
     return this.hash;
   }
@@ -380,6 +376,16 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       OpsConfig.removeOp(this.getOpEntry());
     }
     this.permissible.recalculatePermissions();
+  }
+
+  @Override
+  public void sendMessage(@NotNull final TranslatedText message) {
+    final var translated = message.translate(this);
+    if (translated.isPresent()) {
+      this.sendMessage(translated.get());
+    } else {
+      this.sendMessage(message.asString());
+    }
   }
 
   @Override

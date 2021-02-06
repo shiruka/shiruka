@@ -28,7 +28,8 @@ package net.shiruka.shiruka.command.commands;
 import static net.shiruka.api.command.CommandResult.of;
 import static net.shiruka.api.command.Commands.literal;
 import net.shiruka.api.Shiruka;
-import net.shiruka.shiruka.command.SimpleCommandManager;
+import net.shiruka.api.command.builder.LiteralBuilder;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents stop command.
@@ -36,24 +37,9 @@ import net.shiruka.shiruka.command.SimpleCommandManager;
 public final class CommandStop extends CommandHelper {
 
   /**
-   * the command.
-   */
-  private static final String COMMAND = "stop";
-
-  /**
    * the confirm sub command.
    */
   private static final String CONFIRM_SUB_COMMAND = "confirm";
-
-  /**
-   * the description.
-   */
-  private static final String DESCRIPTION = "Stops the server.";
-
-  /**
-   * the instance.
-   */
-  private static final CommandStop INSTANCE = new CommandStop();
 
   /**
    * the message key from the Shiru ka's language properties file.
@@ -61,38 +47,34 @@ public final class CommandStop extends CommandHelper {
   private static final String MESSAGE = "shiruka.command.commands.command_stop.register.add_confirm";
 
   /**
-   * the permission.
-   */
-  private static final String PERMISSION = "shiruka.command.stop";
-
-  /**
    * ctor.
    */
   private CommandStop() {
+    super("stop", "Stops the server.", "shiruka.command.stop");
   }
 
   /**
    * registers the stop command.
    */
   public static void init() {
-    CommandStop.INSTANCE.register();
+    new CommandStop().register();
   }
 
   /**
    * registers the stop command.
    */
-  private void register() {
-    SimpleCommandManager.registerInternal(literal(CommandStop.COMMAND)
-      .describe(CommandStop.DESCRIPTION)
-      .requires(commandSender -> this.testPermission(commandSender, CommandStop.PERMISSION))
+  @NotNull
+  @Override
+  protected LiteralBuilder build() {
+    return super.build()
       .executes(context -> {
-        CommandHelper.sendTranslated(context, CommandStop.MESSAGE);
+        this.sendTranslated(context, CommandStop.MESSAGE);
         return of();
       })
       .then(literal(CommandStop.CONFIRM_SUB_COMMAND)
         .executes(context -> {
           Shiruka.getServer().stopServer();
           return of();
-        })));
+        }));
   }
 }

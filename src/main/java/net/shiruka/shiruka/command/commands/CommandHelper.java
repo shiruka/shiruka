@@ -26,10 +26,13 @@
 package net.shiruka.shiruka.command.commands;
 
 import java.util.stream.Stream;
+import net.shiruka.api.command.Commands;
+import net.shiruka.api.command.builder.LiteralBuilder;
 import net.shiruka.api.command.context.CommandContext;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.command.SimpleCommandManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +40,24 @@ import org.jetbrains.annotations.Nullable;
  * an abstract class that helps developers to create commands easily.
  */
 abstract class CommandHelper {
+
+  /**
+   * the command.
+   */
+  @NotNull
+  private final String command;
+
+  /**
+   * the description.
+   */
+  @NotNull
+  private final String description;
+
+  /**
+   * the permission.
+   */
+  @NotNull
+  private final String permission;
 
   /**
    * the permission message.
@@ -48,14 +69,35 @@ abstract class CommandHelper {
   protected Text permissionMessage;
 
   /**
+   * ctor.
+   *
+   * @param command the command.
+   * @param description the description.
+   * @param permission the permission.
+   */
+  CommandHelper(@NotNull final String command, @NotNull final String description,
+                @NotNull final String permission) {
+    this.command = command;
+    this.description = description;
+    this.permission = permission;
+  }
+
+  /**
+   * registers the command.
+   */
+  protected final void register() {
+    SimpleCommandManager.registerInternal(this.build());
+  }
+
+  /**
    * sends a {@link TranslatedText} to the given {@code sender}.
    *
    * @param sender the sender to send.
    * @param key the key to send.
    * @param params the params to send.
    */
-  protected static void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
-                                       @NotNull final Object... params) {
+  protected final void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
+                                      @NotNull final Object... params) {
     sender.sendMessage(TranslatedText.get(key, params));
   }
 
@@ -66,28 +108,14 @@ abstract class CommandHelper {
    * @param key the key to send.
    * @param params the params to send.
    */
-  protected static void sendTranslated(@NotNull final CommandContext context, @NotNull final String key,
-                                       @NotNull final Object... params) {
-    CommandHelper.sendTranslated(context.getSender(), key, params);
-  }
-
-  /**
-   * tests the given {@code target}'s permission for the given {@code permissions}.
-   *
-   * @param target the target to test.
-   * @param permissions the permissions to test.
-   *
-   * @return {@code true} if the target has the given {@code permissions}.
-   */
-  protected static boolean testPermissionSilent(@NotNull final CommandSender target,
-                                                @NotNull final String... permissions) {
-    return Stream.of(permissions)
-      .allMatch(target::hasPermission);
+  protected final void sendTranslated(@NotNull final CommandContext context, @NotNull final String key,
+                                      @NotNull final Object... params) {
+    this.sendTranslated(context.getSender(), key, params);
   }
 
   /**
    * tests the given {@code target}'s permission for the given {@code permissions} and, if the target has not the given
-   * {@code permissions} sends {@link #permissionMessage} if its not null otherwise sends
+   * {@code permissions} sends {@link #permissionMessage} if its not null, otherwise sends
    * {@code shiruka.command.commands.helper.test_permission} properties on the language files.
    *
    * @param target the target to test.
@@ -98,7 +126,7 @@ abstract class CommandHelper {
    * @see #testPermissionSilent(CommandSender, String...)
    */
   protected final boolean testPermission(@NotNull final CommandSender target, @NotNull final String... permissions) {
-    if (CommandHelper.testPermissionSilent(target, permissions)) {
+    if (this.testPermissionSilent(target, permissions)) {
       return true;
     }
     if (this.permissionMessage == null) {
@@ -109,5 +137,28 @@ abstract class CommandHelper {
         target.sendMessage(this.permissionMessage, permission));
     }
     return false;
+  }
+
+  /**
+   * tests the given {@code target}'s permission for the given {@code permissions}.
+   *
+   * @param target the target to test.
+   * @param permissions the permissions to test.
+   *
+   * @return {@code true} if the target has the given {@code permissions}.
+   */
+  protected final boolean testPermissionSilent(@NotNull final CommandSender target,
+                                               @NotNull final String... permissions) {
+    return Stream.of(permissions).allMatch(target::hasPermission);
+  }
+
+  /**
+   * builds the command.
+   */
+  @NotNull
+  protected LiteralBuilder build() {
+    return Commands.literal(this.command)
+      .describe(this.description)
+      .requires(commandSender -> this.testPermission(commandSender, this.permission));
   }
 }

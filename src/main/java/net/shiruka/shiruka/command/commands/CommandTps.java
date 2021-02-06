@@ -26,10 +26,9 @@
 package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
-import static net.shiruka.api.command.Commands.literal;
 import java.util.Arrays;
+import net.shiruka.api.command.builder.LiteralBuilder;
 import net.shiruka.api.text.ChatColor;
-import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,36 +38,23 @@ import org.jetbrains.annotations.NotNull;
 public final class CommandTps extends CommandHelper {
 
   /**
-   * the description.
-   */
-  private static final String DESCRIPTION = "Gets the current ticks per second for the server.";
-
-  /**
-   * the instance.
-   */
-  private static final CommandTps INSTANCE = new CommandTps();
-
-  /**
    * the message key from the Shiru ka's language properties file.
    */
   private static final String MESSAGE = "shiruka.command.commands.tps.register.show_tps";
 
   /**
-   * the permission.
-   */
-  private static final String PERMISSION = "shiruka.command.tps";
-
-  /**
    * ctor.
    */
   private CommandTps() {
+    super("tps", "Gets the current ticks per second for the server.",
+      "shiruka.command.tps");
   }
 
   /**
    * registers the stop command.
    */
   public static void init() {
-    CommandTps.INSTANCE.register();
+    new CommandTps().register();
   }
 
   /**
@@ -97,14 +83,14 @@ public final class CommandTps extends CommandHelper {
   /**
    * registers the command.
    */
-  private void register() {
-    SimpleCommandManager.registerInternal(literal("tps")
-      .describe(CommandTps.DESCRIPTION)
-      .requires(commandSender -> this.testPermission(commandSender, CommandTps.PERMISSION))
+  @NotNull
+  @Override
+  protected LiteralBuilder build() {
+    return super.build()
       .executes(context -> {
         final var tpsAvg = CommandTps.getTps();
-        CommandHelper.sendTranslated(context, CommandTps.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
+        this.sendTranslated(context, CommandTps.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
         return of();
-      }));
+      });
   }
 }

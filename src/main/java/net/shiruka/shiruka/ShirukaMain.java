@@ -60,7 +60,7 @@ public final class ShirukaMain {
   /**
    * the protocol version of the Minecraft game.
    */
-  public static final short MINECRAFT_PROTOCOL_VERSION = 422;
+  public static final short MINECRAFT_PROTOCOL_VERSION = 428;
 
   /**
    * the version of the Minecraft game.

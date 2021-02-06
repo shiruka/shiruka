@@ -267,7 +267,9 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public boolean isWhitelisted() {
-    return !this.isOp() && Shiruka.getServer().isInWhitelist(this);
+    return this.isOp() ||
+      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
+      Shiruka.getServer().isInWhitelist(this);
   }
 
   @Override

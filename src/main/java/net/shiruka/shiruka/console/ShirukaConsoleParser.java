@@ -137,13 +137,13 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("O", "ops"), "Ops file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("ops.hjson"))
+      .defaultsTo(new File("ops.json"))
       .describedAs("Ops file");
     USER_CACHE = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("UC", "usercache"), "User cache file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("user_cache.hjson"))
+      .defaultsTo(new File("user_cache.json"))
       .describedAs("User cache file");
     VERSION = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("V", "version"), "Show the Shiru ka's version");
@@ -157,19 +157,19 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("IB", "ipbans"), "Ip bans file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("ip_bans.hjson"))
+      .defaultsTo(new File("ip_bans.json"))
       .describedAs("Ip bans file");
     PROFILE_BANS = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("PB", "profilebans"), "Profile bans file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("profile_bans.hjson"))
+      .defaultsTo(new File("profile_bans.json"))
       .describedAs("Profile bans file");
     WHITE_LIST = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("W", "whitelist"), "Whitelist file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("whitelist.hjson"))
+      .defaultsTo(new File("whitelist.json"))
       .describedAs("Whitelist file");
   }
 

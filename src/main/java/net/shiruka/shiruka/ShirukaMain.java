@@ -220,12 +220,12 @@ public final class ShirukaMain {
       .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
     final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
       .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
-    final var serverLocale = Languages.startSequence();
-    final var start = System.currentTimeMillis();
     final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
     final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    final var serverLocale = Languages.startSequence();
+    final var start = System.currentTimeMillis();
     final var serverThread = new Thread(() ->
       JiraExceptionCatcher.run(() -> {
         final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);

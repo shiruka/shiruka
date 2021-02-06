@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import java.util.zip.Deflater;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.Tick;
+import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.text.ChatColor;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
@@ -477,6 +478,11 @@ public final class PlayerConnection implements PacketHandler, Tick {
           PlayerConnection.this.loginData.setAsyncLogin(asyncLogin);
           PlayerConnection.this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
             asyncLogin.callEvent();
+            if (asyncLogin.getLoginResult() == LoginResultEvent.LoginResult.KICK) {
+              Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
+                PlayerConnection.this.disconnect(asyncLogin.getKickMessage().orElse(null)));
+              return;
+            }
             Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
               if (PlayerConnection.this.loginData.shouldLogin()) {
                 PlayerConnection.this.loginData.initializePlayer();

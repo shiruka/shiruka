@@ -398,6 +398,11 @@ public final class PlayerConnection implements PacketHandler, Tick {
     @Nullable
     private LoginPacket latestLoginPacket;
 
+    /**
+     * the login timeout counter.
+     */
+    private int loginTimeoutCounter;
+
     @Override
     public void loginPacket(@NotNull final LoginPacket packet) {
       this.latestLoginPacket = packet;
@@ -412,6 +417,9 @@ public final class PlayerConnection implements PacketHandler, Tick {
       if (this.latestLoginPacket != null) {
         this.loginPacket0(this.latestLoginPacket);
         this.latestLoginPacket = null;
+      }
+      if (this.loginTimeoutCounter++ >= 600) {
+        PlayerConnection.this.disconnect(TranslatedText.get("shiruka.network.player_connection.tick.slow_login"));
       }
     }
 
@@ -442,7 +450,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
         Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
           Languages.addLoadedLanguage(chainData.getLanguageCode());
-          if (!chainData.getXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(false)) {
+          if (!chainData.getXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(true)) {
             PlayerConnection.this.disconnect(TranslatedText.get("disconnectionScreen.notAuthenticated"));
             return;
           }

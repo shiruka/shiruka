@@ -71,6 +71,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
 
   /**
+   * the restart reason.
+   */
+  private static final TranslatedText RESTART_REASON =
+    TranslatedText.get("shiruka.network.player_connection.restart_message");
+
+  /**
    * the join attempts this tick.
    */
   private static int joinAttemptsThisTick;
@@ -399,6 +405,10 @@ public final class PlayerConnection implements PacketHandler, Tick {
 
     @Override
     public void tick() {
+      if (!Shiruka.getServer().isRunning()) {
+        PlayerConnection.this.disconnect(PlayerConnection.RESTART_REASON);
+        return;
+      }
       if (this.latestLoginPacket != null) {
         this.loginPacket0(this.latestLoginPacket);
         this.latestLoginPacket = null;
@@ -412,7 +422,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
      */
     private void loginPacket0(@NotNull final LoginPacket packet) {
       if (Shiruka.isStopping()) {
-        PlayerConnection.this.disconnect(TranslatedText.get("shiruka.network.player_connection_login_packet_0.restart_message"));
+        PlayerConnection.this.disconnect(PlayerConnection.RESTART_REASON);
         return;
       }
       final var protocolVersion = packet.getProtocolVersion();

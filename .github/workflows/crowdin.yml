@@ -1,3 +1,5 @@
+name: crowdin
+
 on:
   pull_request:
     types: opened
@@ -8,6 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: crowdin action
+      - uses: crowdin/github-action@1.0.17
         with:
           pull_request_labels: 'automerge'

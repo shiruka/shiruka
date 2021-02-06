@@ -390,8 +390,8 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * @return {@code true} if the player can bypass the whitelist and join the server.
    */
   private boolean canBypassWhitelist() {
-    return !this.isOp() &&
-      ServerConfig.WHITE_LIST.getValue().orElse(false) &&
+    return this.isOp() ||
+      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
       this.isWhitelisted();
   }
 

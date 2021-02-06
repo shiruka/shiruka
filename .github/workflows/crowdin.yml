@@ -1,0 +1,13 @@
+on:
+  pull_request:
+    types: opened
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: crowdin action
+        with:
+          pull_request_labels: 'automerge'

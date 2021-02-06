@@ -154,6 +154,8 @@ abstract class CommandHelper {
 
   /**
    * builds the command.
+   *
+   * @return the built command builder.
    */
   @NotNull
   protected LiteralBuilder build() {

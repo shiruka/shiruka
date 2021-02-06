@@ -83,21 +83,14 @@ abstract class CommandHelper {
   }
 
   /**
-   * registers the command.
-   */
-  protected final void register() {
-    SimpleCommandManager.registerInternal(this.build());
-  }
-
-  /**
    * sends a {@link TranslatedText} to the given {@code sender}.
    *
    * @param sender the sender to send.
    * @param key the key to send.
    * @param params the params to send.
    */
-  protected final void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
-                                      @NotNull final Object... params) {
+  protected static void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
+                                       @NotNull final Object... params) {
     sender.sendMessage(TranslatedText.get(key, params));
   }
 
@@ -108,9 +101,29 @@ abstract class CommandHelper {
    * @param key the key to send.
    * @param params the params to send.
    */
-  protected final void sendTranslated(@NotNull final CommandContext context, @NotNull final String key,
-                                      @NotNull final Object... params) {
-    this.sendTranslated(context.getSender(), key, params);
+  protected static void sendTranslated(@NotNull final CommandContext context, @NotNull final String key,
+                                       @NotNull final Object... params) {
+    CommandHelper.sendTranslated(context.getSender(), key, params);
+  }
+
+  /**
+   * tests the given {@code target}'s permission for the given {@code permissions}.
+   *
+   * @param target the target to test.
+   * @param permissions the permissions to test.
+   *
+   * @return {@code true} if the target has the given {@code permissions}.
+   */
+  protected static boolean testPermissionSilent(@NotNull final CommandSender target,
+                                                @NotNull final String... permissions) {
+    return Stream.of(permissions).allMatch(target::hasPermission);
+  }
+
+  /**
+   * registers the command.
+   */
+  protected final void register() {
+    SimpleCommandManager.registerInternal(this.build());
   }
 
   /**
@@ -126,7 +139,7 @@ abstract class CommandHelper {
    * @see #testPermissionSilent(CommandSender, String...)
    */
   protected final boolean testPermission(@NotNull final CommandSender target, @NotNull final String... permissions) {
-    if (this.testPermissionSilent(target, permissions)) {
+    if (CommandHelper.testPermissionSilent(target, permissions)) {
       return true;
     }
     if (this.permissionMessage == null) {
@@ -137,19 +150,6 @@ abstract class CommandHelper {
         target.sendMessage(this.permissionMessage, permission));
     }
     return false;
-  }
-
-  /**
-   * tests the given {@code target}'s permission for the given {@code permissions}.
-   *
-   * @param target the target to test.
-   * @param permissions the permissions to test.
-   *
-   * @return {@code true} if the target has the given {@code permissions}.
-   */
-  protected final boolean testPermissionSilent(@NotNull final CommandSender target,
-                                               @NotNull final String... permissions) {
-    return Stream.of(permissions).allMatch(target::hasPermission);
   }
 
   /**

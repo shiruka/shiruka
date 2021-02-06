@@ -68,7 +68,7 @@ public final class CommandStop extends CommandHelper {
   protected LiteralBuilder build() {
     return super.build()
       .executes(context -> {
-        this.sendTranslated(context, CommandStop.MESSAGE);
+        CommandHelper.sendTranslated(context, CommandStop.MESSAGE);
         return of();
       })
       .then(literal(CommandStop.CONFIRM_SUB_COMMAND)

@@ -89,7 +89,7 @@ public final class CommandTps extends CommandHelper {
     return super.build()
       .executes(context -> {
         final var tpsAvg = CommandTps.getTps();
-        this.sendTranslated(context, CommandTps.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
+        CommandHelper.sendTranslated(context, CommandTps.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
         return of();
       });
   }

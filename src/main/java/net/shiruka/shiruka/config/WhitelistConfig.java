@@ -84,6 +84,7 @@ public final class WhitelistConfig extends PathableConfig {
    * @return {@code true} if the xbox unique id is in the whitelist.
    */
   public static boolean isInWhitelist(@NotNull final String xboxUniqueId) {
-    return WhitelistConfig.getInstance().getConfiguration().contains(xboxUniqueId);
+    return ServerConfig.WHITE_LIST.getValue().orElse(false) &&
+      WhitelistConfig.getInstance().getConfiguration().contains(xboxUniqueId);
   }
 }

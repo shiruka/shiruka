@@ -233,7 +233,7 @@ public final class Languages {
     shirukaKeys.load(shirukaResource);
     shirukaKeys.keySet().forEach(o ->
       Languages.SHIRUKA_KEYS.add((String) o));
-    final var vanillaResource = new InputStreamReader(Languages.getResource("lang/vanilla/en_US.lang"),
+    final var vanillaResource = new InputStreamReader(Languages.getResource("lang/vanilla/en_US.properties"),
       StandardCharsets.UTF_8);
     final var vanillaKeys = new Properties();
     vanillaKeys.load(vanillaResource);

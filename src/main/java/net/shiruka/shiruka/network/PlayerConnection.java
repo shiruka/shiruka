@@ -88,10 +88,27 @@ public final class PlayerConnection implements PacketHandler, Tick {
     TranslatedText.get("disconnectionScreen.notAuthenticated");
 
   /**
+   * the no reason.
+   */
+  private static final TranslatedText NO_REASON = TranslatedText.get("disconnectionScreen.noReason");
+
+  /**
+   * the resource pack reason.
+   */
+  private static final TranslatedText RESOURCE_PACK_REASON =
+    TranslatedText.get("disconnectionScreen.resourcePack");
+
+  /**
    * the restart reason.
    */
   private static final TranslatedText RESTART_REASON =
     TranslatedText.get("shiruka.network.player_connection.restart_message");
+
+  /**
+   * the slot login reason.
+   */
+  private static final TranslatedText SLOW_LOGIN_REASON =
+    TranslatedText.get("shiruka.network.player_connection.tick.slow_login");
 
   /**
    * the join attempts this tick.
@@ -162,7 +179,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
     final var chunkSize = packet.getChunkSize();
     final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
     if (resourcePack.isEmpty()) {
-      this.disconnect(TranslatedText.get("disconnectionScreen.resourcePack").asString());
+      this.disconnect(PlayerConnection.RESOURCE_PACK_REASON.asString());
       return;
     }
     final var pack = resourcePack.get();
@@ -178,7 +195,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
     switch (status) {
       case REFUSED:
         if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
-          this.disconnect(TranslatedText.get("disconnectionScreen.noReason"));
+          this.disconnect(PlayerConnection.NO_REASON);
         }
         break;
       case COMPLETED:
@@ -196,7 +213,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         packs.forEach(pack -> {
           final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
           if (optional.isEmpty()) {
-            this.disconnect(TranslatedText.get("disconnectionScreen.resourcePack"));
+            this.disconnect(PlayerConnection.RESOURCE_PACK_REASON);
             return;
           }
           final var loaded = optional.get();
@@ -445,7 +462,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         this.loginPacket0(this.latestLoginPacket);
       }
       if (this.loginTimeoutCounter++ >= 600) {
-        PlayerConnection.this.disconnect(TranslatedText.get("shiruka.network.player_connection.tick.slow_login"));
+        PlayerConnection.this.disconnect(PlayerConnection.SLOW_LOGIN_REASON);
       }
     }
 

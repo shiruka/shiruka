@@ -147,17 +147,18 @@ public final class ShirukaTick implements Runnable {
    * @param tickSection the tick section to calculate.
    */
   private static void calculateTps(final long start, @NotNull final AtomicLong tickSection) {
-    if (++ShirukaTick.currentTick % ShirukaTick.SAMPLE_INTERVAL == 0) {
-      final var different = start - tickSection.get();
-      final var currentTps = ShirukaTick.TPS_BASE.divide(
-        new BigDecimal(different),
-        30,
-        RoundingMode.HALF_UP);
-      ShirukaTick.TPS_1.add(currentTps, different);
-      ShirukaTick.TPS_5.add(currentTps, different);
-      ShirukaTick.TPS_15.add(currentTps, different);
-      tickSection.set(start);
+    if (++ShirukaTick.currentTick % ShirukaTick.SAMPLE_INTERVAL != 0) {
+      return;
     }
+    final var different = start - tickSection.get();
+    final var currentTps = ShirukaTick.TPS_BASE.divide(
+      new BigDecimal(different),
+      30,
+      RoundingMode.HALF_UP);
+    ShirukaTick.TPS_1.add(currentTps, different);
+    ShirukaTick.TPS_5.add(currentTps, different);
+    ShirukaTick.TPS_15.add(currentTps, different);
+    tickSection.set(start);
   }
 
   /**

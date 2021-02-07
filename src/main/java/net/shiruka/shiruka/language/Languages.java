@@ -280,16 +280,14 @@ public final class Languages {
    * @param locale the locale to load.
    */
   private static void loadVariables(@NotNull final String locale) {
-    final var shirukaFile = "lang/shiruka/" + locale + ".properties";
-    final var vanillaFile = "lang/vanilla/" + locale + ".properties";
-    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(locale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource(shirukaFile), StandardCharsets.UTF_8);
-      JiraExceptionCatcher.run(() -> properties.load(stream));
-    });
-    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties -> {
-      final var stream = new InputStreamReader(Languages.getResource(vanillaFile), StandardCharsets.UTF_8);
-      JiraExceptionCatcher.run(() -> properties.load(stream));
-    });
+    final var shirukaFile = String.format("lang/shiruka/%s.properties", locale);
+    final var vanillaFile = String.format("lang/vanilla/%s.properties", locale);
+    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(locale)).ifPresent(properties ->
+      JiraExceptionCatcher.run(() ->
+      properties.load(new InputStreamReader(Languages.getResource(shirukaFile), StandardCharsets.UTF_8))));
+    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties ->
+      JiraExceptionCatcher.run(() ->
+        properties.load(new InputStreamReader(Languages.getResource(vanillaFile), StandardCharsets.UTF_8))));
   }
 
   /**

@@ -27,6 +27,7 @@ package net.shiruka.shiruka.language;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -280,14 +281,18 @@ public final class Languages {
    * @param locale the locale to load.
    */
   private static void loadVariables(@NotNull final String locale) {
-    final var shirukaFile = String.format("lang/shiruka/%s.properties", locale);
-    final var vanillaFile = String.format("lang/vanilla/%s.properties", locale);
+    final var shirukaStream = new InputStreamReader(
+      Languages.getResource(String.format("lang/shiruka/%s.properties", locale)),
+      StandardCharsets.UTF_8);
+    final var vanillaStream = new InputStreamReader(
+      Languages.getResource(String.format("lang/vanilla/%s.properties", locale)),
+      StandardCharsets.UTF_8);
     Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(locale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
-      properties.load(new InputStreamReader(Languages.getResource(shirukaFile), StandardCharsets.UTF_8))));
+        properties.load(shirukaStream)));
     Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
-        properties.load(new InputStreamReader(Languages.getResource(vanillaFile), StandardCharsets.UTF_8))));
+        properties.load(vanillaStream)));
   }
 
   /**
@@ -302,7 +307,7 @@ public final class Languages {
       return false;
     }
     final var value = ServerConfig.LOADED_LANGUAGES.getValue()
-      .orElse(new ArrayList<>());
+      .orElse(new ObjectArrayList<>());
     if (value.contains(locale)) {
       return false;
     }

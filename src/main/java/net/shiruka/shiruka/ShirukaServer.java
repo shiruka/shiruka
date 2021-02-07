@@ -182,7 +182,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the start time.
    */
-  private final long startTime;
+  private final long startTime = System.currentTimeMillis();
 
   /**
    * the stop lock.
@@ -217,9 +217,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param serverLanguage the server language.
    * @param socket the socket.
    */
-  ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
+  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console,
                 @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
-    this.startTime = startTime;
     this.console = console.apply(this);
     this.socket = socket;
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);

@@ -51,12 +51,12 @@ public final class JiraExceptionCatcher {
     try {
       run.call();
     } catch (final Throwable e) {
+      JiraExceptionCatcher.serverException(e);
       try {
         Shiruka.getServer().stopServer();
       } catch (final Exception ignored) {
         System.exit(1);
       }
-      JiraExceptionCatcher.serverException(e);
     }
   }
 

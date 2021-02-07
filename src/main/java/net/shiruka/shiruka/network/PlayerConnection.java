@@ -61,11 +61,15 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PlayerConnection implements PacketHandler, Tick {
 
-  public static final @NotNull TranslatedText INVALID_NAME_REASON = TranslatedText.get("disconnectionScreen.invalidName");
+  /**
+   * the invalid name reason.
+   */
+  private static final TranslatedText INVALID_NAME_REASON = TranslatedText.get("disconnectionScreen.invalidName");
 
-  public static final @NotNull TranslatedText INVALID_SKIN_REASON = TranslatedText.get("disconnectionScreen.invalidSkin");
-
-  public static final @NotNull TranslatedText NOT_AUTHENTICATED_REASON = TranslatedText.get("disconnectionScreen.notAuthenticated");
+  /**
+   * the invalid skin reason.
+   */
+  private static final TranslatedText INVALID_SKIN_REASON = TranslatedText.get("disconnectionScreen.invalidSkin");
 
   /**
    * the maximum login per tick.
@@ -76,6 +80,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * the name pattern to check client's usernames.
    */
   private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
+
+  /**
+   * the not authenticated reason.
+   */
+  private static final TranslatedText NOT_AUTHENTICATED_REASON =
+    TranslatedText.get("disconnectionScreen.notAuthenticated");
 
   /**
    * the restart reason.

@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.nbt;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -343,7 +342,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setList(@NotNull final K key, @NotNull final ObjectList<Tag> value) {
+  default void setList(@NotNull final K key, @NotNull final List<Tag> value) {
     this.set(key, Tag.createList(value));
   }
 

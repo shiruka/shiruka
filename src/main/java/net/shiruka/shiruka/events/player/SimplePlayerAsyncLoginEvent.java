@@ -26,8 +26,7 @@
 package net.shiruka.shiruka.events.player;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -45,7 +44,7 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   /**
    * the actions that will run after player initialization.
    */
-  private final ObjectList<Consumer<Player>> actions = new ObjectArrayList<>();
+  private final List<Consumer<Player>> actions = new ObjectArrayList<>();
 
   /**
    * the chain data.
@@ -82,7 +81,7 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   @NotNull
   @Override
   public List<Consumer<Player>> getActions() {
-    return ObjectLists.unmodifiable(this.actions);
+    return Collections.unmodifiableList(this.actions);
   }
 
   @Override

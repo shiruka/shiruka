@@ -27,8 +27,6 @@ package net.shiruka.shiruka.nbt.list;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -55,7 +53,7 @@ public final class ListTagBasic implements ListTag {
    * the original.
    */
   @NotNull
-  private ObjectList<Tag> original;
+  private List<Tag> original;
 
   /**
    * ctor.
@@ -63,8 +61,8 @@ public final class ListTagBasic implements ListTag {
    * @param original the original.
    * @param listType the list type.
    */
-  public ListTagBasic(@NotNull final ObjectList<Tag> original, final byte listType) {
-    this.original = ObjectLists.unmodifiable(original);
+  public ListTagBasic(@NotNull final List<Tag> original, final byte listType) {
+    this.original = Collections.unmodifiableList(original);
     this.listType = listType;
     this.hashCode = original.hashCode();
   }
@@ -105,7 +103,7 @@ public final class ListTagBasic implements ListTag {
   @NotNull
   @Override
   public List<Tag> all() {
-    return ObjectLists.unmodifiable(this.original);
+    return Collections.unmodifiableList(this.original);
   }
 
   @Override

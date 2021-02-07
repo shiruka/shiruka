@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.shiruka.shiruka.config.ServerConfig;
@@ -129,14 +128,13 @@ public final class Languages {
    * @throws IOException if something went wrong when reading the file.
    */
   @NotNull
-  public static CompletableFuture<Locale> startSequence() throws IOException {
+  public static Locale startSequence() throws IOException {
     Languages.clean();
     Languages.loadAvailableLanguages();
     Languages.loadKeys();
-    return Languages.loadServerLanguage().thenApply(locale -> {
-      Languages.loadLoadedLanguages();
-      return locale;
-    });
+    final var locale = Languages.loadServerLanguage();
+    Languages.loadLoadedLanguages();
+    return locale;
   }
 
   /**
@@ -170,7 +168,7 @@ public final class Languages {
    * @return chosen language.
    */
   @NotNull
-  private static CompletableFuture<Locale> choosingLanguageLoop() {
+  private static Locale choosingLanguageLoop() {
     final var scanner = new Scanner(System.in);
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
@@ -178,7 +176,7 @@ public final class Languages {
       Languages.LOGGER.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
-    return CompletableFuture.completedFuture(Languages.toLocale(chosenLanguage));
+    return Languages.toLocale(chosenLanguage);
   }
 
   /**
@@ -258,23 +256,22 @@ public final class Languages {
    * @return server language.
    */
   @NotNull
-  private static CompletableFuture<Locale> loadServerLanguage() {
+  private static Locale loadServerLanguage() {
     final var serverLanguage = ServerConfig.SERVER_LANGUAGE.getValue();
     if (serverLanguage.isPresent() && serverLanguage.get() != Locale.ROOT) {
       final var locale = serverLanguage.get();
       if (Languages.setLoadedLanguage(Languages.toString(locale))) {
         ServerConfig.getInstance().save();
       }
-      return CompletableFuture.completedFuture(locale);
+      return locale;
     }
     Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.LOGGER.info("§7" + s));
     Languages.LOGGER.info("§aChoose one of the available languages");
-    return Languages.choosingLanguageLoop().thenApply(locale -> {
-      ServerConfig.SERVER_LANGUAGE.setValue(locale);
-      Languages.setLoadedLanguage(Languages.toString(locale));
-      ServerConfig.getInstance().save();
-      return locale;
-    });
+    final var locale = Languages.choosingLanguageLoop();
+    ServerConfig.SERVER_LANGUAGE.setValue(locale);
+    Languages.setLoadedLanguage(Languages.toString(locale));
+    ServerConfig.getInstance().save();
+    return locale;
   }
 
   /**

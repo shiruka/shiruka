@@ -60,7 +60,7 @@ public final class JiraExceptionCatcher {
    *
    * @param e the exception to catch.
    */
-  public static void serverException(@NotNull final Exception e) {
+  public static void serverException(@NotNull final Throwable e) {
     final var url = "https://github.com/shiruka/shiruka/issues/new";
     final var environment = "Shiru ka Version: " + ShirukaServer.VERSION + "\n" +
       "Operating System: " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ")\n" +

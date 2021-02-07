@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.util.ThrowableRunnable;
 import net.shiruka.shiruka.config.*;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.console.ShirukaConsoleParser;
@@ -51,7 +52,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.io.IoBuilder;
-import org.cactoos.Proc;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -85,6 +85,11 @@ public final class ShirukaMain {
   private static final Logger LOGGER = LogManager.getLogger("ShirukaMain");
 
   /**
+   * the server locale.
+   */
+  private static Locale SERVER_LOCALE = Locale.ENGLISH;
+
+  /**
    * the parsed arguments.
    */
   @NotNull
@@ -93,7 +98,7 @@ public final class ShirukaMain {
   /**
    * the server runnable.
    */
-  private final Proc<Locale> serverRunnable = locale -> {
+  private final ThrowableRunnable serverRunnable = () -> {
     final var startTime = System.currentTimeMillis();
     this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
     OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
@@ -102,7 +107,7 @@ public final class ShirukaMain {
     ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
     WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
     final var socket = ShirukaMain.createSocket();
-    final var server = new ShirukaServer(startTime, ShirukaConsole::new, locale, socket);
+    final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.SERVER_LOCALE, socket);
     Shiruka.setServer(server);
     socket.addListener(server);
     socket.start();
@@ -252,13 +257,10 @@ public final class ShirukaMain {
    */
   private void exec() throws Exception {
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
-    Languages.startSequence().thenAccept(locale -> {
-      final var thread = new Thread(() ->
-        JiraExceptionCatcher.run(() ->
-          this.serverRunnable.exec(locale)),
-        "Server thread");
-      thread.setPriority(Thread.NORM_PRIORITY + 2);
-      thread.start();
-    });
+    ShirukaMain.SERVER_LOCALE = Languages.startSequence().get();
+    final var thread = new Thread(this.serverRunnable, "Server thread");
+    thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
+    thread.setPriority(Thread.NORM_PRIORITY + 2);
+    thread.start();
   }
 }

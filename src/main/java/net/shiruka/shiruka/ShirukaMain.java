@@ -102,7 +102,7 @@ public final class ShirukaMain {
    *
    * @param args the args to run.
    */
-  public static void main(final String[] args) throws Exception {
+  public static void main(final String[] args) {
     final var parsed = ShirukaConsoleParser.parse(args);
     if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
       ShirukaConsoleParser.printHelpOn();
@@ -139,7 +139,8 @@ public final class ShirukaMain {
     final var rootLogger = LogManager.getRootLogger();
     System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
-    new ShirukaMain(parsed).exec();
+    final var main = new ShirukaMain(parsed);
+    JiraExceptionCatcher.run(main::exec);
   }
 
   /**
@@ -207,30 +208,31 @@ public final class ShirukaMain {
    */
   private void exec() throws Exception {
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
-    this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
-    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
-    UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
-    IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
-    ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
-    WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
-    final var ip = ServerConfig.ADDRESS_IP.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
-    final var port = ServerConfig.PORT.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
-    final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
-    final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
-    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
-    final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
-    socket.setIdentifier(identifier);
     Languages.startSequence().thenAccept(locale -> {
       final var serverThread = new Thread(() ->
         JiraExceptionCatcher.run(() -> {
-          final var server = new ShirukaServer(ShirukaConsole::new, locale, socket);
+          final var startTime = System.currentTimeMillis();
+          this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
+          OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
+          UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
+          IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
+          ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
+          WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
+          final var ip = ServerConfig.ADDRESS_IP.getValue()
+            .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
+          final var port = ServerConfig.PORT.getValue()
+            .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
+          final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
+            .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
+          final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
+          final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
+          final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+          final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+          final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
+          final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
+            ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
+          socket.setIdentifier(identifier);
+          final var server = new ShirukaServer(startTime, ShirukaConsole::new, locale, socket);
           Shiruka.setServer(server);
           socket.addListener(server);
           socket.start();

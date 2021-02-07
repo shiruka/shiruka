@@ -226,7 +226,7 @@ public final class ShirukaMain {
   }
 
   /**
-   * initiates the Shiru ka server.
+   * executes the Shiru ka server.
    *
    * @throws Exception if something went wrong when starting the Shiru ka.
    */

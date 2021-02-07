@@ -258,7 +258,7 @@ public final class ShirukaMain {
    */
   private void exec() throws Exception {
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
-    ShirukaMain.SERVER_LOCALE = Languages.startSequence().get();
+    ShirukaMain.SERVER_LOCALE = Languages.startSequence();
     final var thread = new Thread(this.serverRunnable, "Server thread");
     thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
     thread.setPriority(Thread.NORM_PRIORITY + 2);

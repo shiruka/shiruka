@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.misc;
 
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.util.ThrowableRunnable;
 import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
@@ -50,8 +51,12 @@ public final class JiraExceptionCatcher {
     try {
       run.call();
     } catch (final Throwable e) {
+      try {
+        Shiruka.getServer().stopServer();
+      } catch (final Exception ignored) {
+        System.exit(1);
+      }
       JiraExceptionCatcher.serverException(e);
-      System.exit(1);
     }
   }
 

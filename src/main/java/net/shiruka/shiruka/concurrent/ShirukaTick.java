@@ -175,8 +175,8 @@ public final class ShirukaTick implements Runnable {
         final var elapsed = end - start;
         final var waitTime = TimeUnit.NANOSECONDS.toMillis(ShirukaTick.TICK_NANOS - elapsed);
         if (waitTime < 0) {
-          ShirukaTick.LOGGER.debug("Server running behind " +
-            -waitTime + "ms, skipped " + -waitTime / ShirukaTick.TICK_NANOS + " ticks");
+          ShirukaTick.LOGGER.debug("Server running behind {}ms, skipped {} ticks",
+            -waitTime, -waitTime / ShirukaTick.TICK_NANOS);
         } else {
           Thread.sleep(waitTime);
         }
@@ -190,10 +190,9 @@ public final class ShirukaTick implements Runnable {
   }
 
   /**
-   * does the tick operations.
+   * ticks connection operations.
    */
-  private void doTick() {
-    // @todo #1:15m Implement worlds.tick()
+  private void connectionTick() {
     RakNetClientPeer peer;
     while ((peer = this.pending.poll()) != null) {
       this.connectedPlayers.put(peer.getAddress(), new PlayerConnection(peer));
@@ -212,6 +211,20 @@ public final class ShirukaTick implements Runnable {
         JiraExceptionCatcher.serverException(e);
       }
     }
+  }
+
+  /**
+   * does the tick operations.
+   */
+  private void doTick() {
+    this.worldTick();
+    this.connectionTick();
     this.server.getScheduler().mainThreadHeartbeat(++this.ticks);
+  }
+
+  /**
+   * ticks world operations.
+   */
+  private void worldTick() {
   }
 }

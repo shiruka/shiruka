@@ -25,13 +25,14 @@
 
 package net.shiruka.shiruka.network;
 
+import net.shiruka.api.base.Tick;
 import net.shiruka.shiruka.network.packets.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * an interface to determine packet handlers.
  */
-public interface PacketHandler {
+public interface PacketHandler extends Tick {
 
   /**
    * handles the client cache status packet.
@@ -63,6 +64,10 @@ public interface PacketHandler {
    * @param packet the packet to handle.
    */
   default void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
+  }
+
+  @Override
+  default void tick() {
   }
 
   /**

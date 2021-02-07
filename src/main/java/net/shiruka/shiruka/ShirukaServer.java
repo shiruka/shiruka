@@ -330,7 +330,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     // this.worldManager.loadAll();
     this.getLogger().info("§eEnabling plugins after the loading worlds.");
     // @todo #1:60m enable plugins which set PluginLoadOrder as POST_WORLD.
-    new Thread(this.console::start).start();
+    final var consoleThread = new Thread(this.console::start);
+    consoleThread.setDaemon(true);
+    consoleThread.setUncaughtExceptionHandler((t, e) -> this.getLogger()
+      // @todo #1:5m Add language support for console's uncaught exception handler.
+      .error("Caught previously unhandled exception :", e));
+    consoleThread.start();
     this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
     this.getLogger().info(TranslatedText.get("shiruka.server.start_server.done", end));
@@ -436,7 +441,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     if (this.players.containsKey(address)) {
       handler = this.players.get(address).getConnection();
     } else if (this.tick.connectedPlayers.containsKey(address)) {
-      handler = this.tick.connectedPlayers.get(address);
+      handler = this.tick.connectedPlayers.get(address).getPacketHandler();
     } else {
       return;
     }
@@ -480,13 +485,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * stops the server.
    */
   private void stop0() {
-    this.getLogger().info("§eStopping the server.");
     synchronized (this.stopLock) {
       if (!this.running.get()) {
         return;
       }
       this.running.set(false);
     }
+    this.getLogger().info("§eStopping the server.");
     this.shutdownThread = Thread.currentThread();
     this.socket.shutdown();
     System.exit(0);

@@ -61,6 +61,12 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PlayerConnection implements PacketHandler, Tick {
 
+  public static final @NotNull TranslatedText INVALID_NAME_REASON = TranslatedText.get("disconnectionScreen.invalidName");
+
+  public static final @NotNull TranslatedText INVALID_SKIN_REASON = TranslatedText.get("disconnectionScreen.invalidSkin");
+
+  public static final @NotNull TranslatedText NOT_AUTHENTICATED_REASON = TranslatedText.get("disconnectionScreen.notAuthenticated");
+
   /**
    * the maximum login per tick.
    */
@@ -462,7 +468,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
           Languages.addLoadedLanguage(chainData.getLanguageCode());
           if (!chainData.getXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(true)) {
-            PlayerConnection.this.disconnect(TranslatedText.get("disconnectionScreen.notAuthenticated"));
+            PlayerConnection.this.disconnect(PlayerConnection.NOT_AUTHENTICATED_REASON);
             return;
           }
           final var username = chainData.getUsername();
@@ -470,15 +476,15 @@ public final class PlayerConnection implements PacketHandler, Tick {
           if (!matcher.matches() ||
             username.equalsIgnoreCase("rcon") ||
             username.equalsIgnoreCase("console")) {
-            PlayerConnection.this.disconnect(TranslatedText.get("disconnectionScreen.invalidName"));
+            PlayerConnection.this.disconnect(PlayerConnection.INVALID_NAME_REASON);
             return;
           }
           if (!chainData.getSkin().isValid()) {
-            PlayerConnection.this.disconnect(TranslatedText.get("disconnectionScreen.invalidSkin"));
+            PlayerConnection.this.disconnect(PlayerConnection.INVALID_SKIN_REASON);
             return;
           }
           PlayerConnection.this.loginData = new LoginData(chainData, PlayerConnection.this, () -> ChatColor.clean(username));
-          final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData, () -> "Some reason.");
+          final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData);
           preLogin.callEvent();
           if (preLogin.isCancelled()) {
             PlayerConnection.this.disconnect(preLogin.getKickMessage().orElse(null));

@@ -166,8 +166,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
       return;
     }
     final var pack = resourcePack.get();
-    final var send = new ResourcePackChunkDataPacket(chunkSize, pack.getChunk(1048576 * chunkSize, 1048576),
-      packId, version, 1048576L * chunkSize);
+    final var chunk = pack.getChunk(1048576 * chunkSize, 1048576);
+    final var send = new ResourcePackChunkDataPacket(chunkSize, chunk, packId, version, 1048576L * chunkSize);
     this.sendPacket(send);
   }
 

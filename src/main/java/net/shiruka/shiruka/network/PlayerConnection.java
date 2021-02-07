@@ -427,7 +427,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
       }
       if (this.latestLoginPacket != null) {
         this.loginPacket0(this.latestLoginPacket);
-        this.latestLoginPacket = null;
       }
       if (this.loginTimeoutCounter++ >= 600) {
         PlayerConnection.this.disconnect(TranslatedText.get("shiruka.network.player_connection.tick.slow_login"));
@@ -440,6 +439,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
      * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
      */
     private void loginPacket0(@NotNull final LoginPacket packet) {
+      this.latestLoginPacket = null;
       if (Shiruka.isStopping()) {
         PlayerConnection.this.disconnect(PlayerConnection.RESTART_REASON);
         return;

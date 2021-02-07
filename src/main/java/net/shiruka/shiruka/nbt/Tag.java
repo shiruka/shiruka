@@ -25,9 +25,9 @@
 
 package net.shiruka.shiruka.nbt;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -241,7 +241,7 @@ public interface Tag {
    */
   @NotNull
   static ListTag createList(@NotNull final Tag... original) {
-    return Tag.createList(Arrays.asList(original));
+    return Tag.createList(new ObjectArrayList<>(original));
   }
 
   /**
@@ -252,7 +252,7 @@ public interface Tag {
    * @return an instance of {@link ListTag}.
    */
   @NotNull
-  static ListTag createList(@NotNull final List<Tag> original) {
+  static ListTag createList(@NotNull final ObjectList<Tag> original) {
     return new ListTagBasic(original, original.isEmpty() ? 0 : original.get(0).id());
   }
 

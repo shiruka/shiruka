@@ -50,7 +50,7 @@ public final class ShirukaAsyncTask extends ShirukaTask {
   /**
    * the workers.
    */
-  private final LinkedList<TaskWorker> workers = new LinkedList<>();
+  private final List<TaskWorker> workers = new LinkedList<>();
 
   /**
    * ctor.

@@ -105,7 +105,7 @@ public final class ServerConfig extends PathableConfig {
    * the maximum login handling per tick.
    */
   public static final ConfigPath<Integer> MAX_LOGIN_PER_TICK = commented(integerPath(
-    "max-login-per-tick", 3),
+    "max-login-per-tick", 1),
     "determines the maximum login process, that will handle, per tick.");
 
   /**

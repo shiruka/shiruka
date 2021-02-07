@@ -64,7 +64,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
   /**
    * the maximum login per tick.
    */
-  private static final int MAX_LOGIN_PER_TICK = ServerConfig.MAX_LOGIN_PER_TICK.getValue().orElse(3);
+  private static final int MAX_LOGIN_PER_TICK = ServerConfig.MAX_LOGIN_PER_TICK.getValue().orElse(1);
 
   /**
    * the name pattern to check client's usernames.

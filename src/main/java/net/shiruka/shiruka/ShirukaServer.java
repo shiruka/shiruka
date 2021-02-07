@@ -485,13 +485,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * stops the server.
    */
   private void stop0() {
-    this.getLogger().info("§eStopping the server.");
     synchronized (this.stopLock) {
       if (!this.running.get()) {
         return;
       }
       this.running.set(false);
     }
+    this.getLogger().info("§eStopping the server.");
     this.shutdownThread = Thread.currentThread();
     this.socket.shutdown();
     System.exit(0);

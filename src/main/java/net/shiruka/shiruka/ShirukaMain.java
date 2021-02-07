@@ -102,7 +102,7 @@ public final class ShirukaMain {
    *
    * @param args the args to run.
    */
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws Exception {
     final var parsed = ShirukaConsoleParser.parse(args);
     if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
       ShirukaConsoleParser.printHelpOn();
@@ -139,8 +139,7 @@ public final class ShirukaMain {
     final var rootLogger = LogManager.getRootLogger();
     System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
-    final var main = new ShirukaMain(parsed);
-    JiraExceptionCatcher.run(main::exec);
+    new ShirukaMain(parsed).exec();
   }
 
   /**

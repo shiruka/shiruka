@@ -26,11 +26,11 @@
 package net.shiruka.shiruka.nbt.stream;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.Closeable;
 import java.io.DataInput;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.ListTag;
 import net.shiruka.shiruka.nbt.Tag;
@@ -154,7 +154,7 @@ public final class NBTInputStream implements Closeable {
    */
   @NotNull
   public CompoundTag readCompoundTag() throws IOException {
-    final var tags = new HashMap<String, Tag>();
+    final var tags = new Object2ObjectOpenHashMap<String, Tag>();
     byte id;
     while ((id = this.input.readByte()) != Tag.END.id()) {
       final var key = this.input.readUTF();
@@ -228,7 +228,7 @@ public final class NBTInputStream implements Closeable {
   public ListTag readListTag() throws IOException {
     final var id = this.input.readByte();
     final var length = this.input.readInt();
-    final var tags = new ArrayList<Tag>(length);
+    final var tags = new ObjectArrayList<Tag>(length);
     for (var i = 0; i < length; i++) {
       final var read = this.read(id);
       tags.add(read);

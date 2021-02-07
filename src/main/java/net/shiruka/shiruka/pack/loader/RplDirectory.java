@@ -25,12 +25,12 @@
 
 package net.shiruka.shiruka.pack.loader;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -55,7 +55,7 @@ public final class RplDirectory implements PackLoader {
   /**
    * the temp files.
    */
-  private static final List<Path> TEMP_FILES = new ArrayList<>();
+  private static final List<Path> TEMP_FILES = new ObjectArrayList<>();
 
   /**
    * the path.

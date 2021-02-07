@@ -222,6 +222,13 @@ public final class ShirukaMain {
   }
 
   /**
+   * payloads the some of classes.
+   */
+  private static void payloadClasses() throws Exception {
+    Class.forName("net.shiruka.shiruka.network.PacketRegistry");
+  }
+
+  /**
    * creates and returns the server file/d.
    *
    * @param spec the spec to create.
@@ -257,6 +264,7 @@ public final class ShirukaMain {
    * @throws Exception if something went wrong when starting the Shiru ka.
    */
   private void exec() throws Exception {
+    ShirukaMain.payloadClasses();
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     ShirukaMain.SERVER_LOCALE = Languages.startSequence();
     final var thread = new Thread(this.serverRunnable, "Server thread");

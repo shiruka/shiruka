@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.pack;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -71,7 +72,7 @@ public final class SimplePackManager implements PackManager {
   /**
    * the loaders.
    */
-  private final Map<Class<? extends PackLoader>, PackLoader.Factory> loaderFactories = new HashMap<>();
+  private final Map<Class<? extends PackLoader>, PackLoader.Factory> loaderFactories = new Object2ObjectOpenHashMap<>();
 
   /**
    * the packs.
@@ -91,12 +92,12 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs.
    */
-  private final Map<String, Pack> packs = new HashMap<>();
+  private final Map<String, Pack> packs = new Object2ObjectOpenHashMap<>();
 
   /**
    * the packs by id.
    */
-  private final Map<UUID, Pack> packsById = new HashMap<>();
+  private final Map<UUID, Pack> packsById = new Object2ObjectOpenHashMap<>();
 
   /**
    * the closed.
@@ -120,8 +121,14 @@ public final class SimplePackManager implements PackManager {
       new ObjectArrayList<>(this.packs.values().stream()
         .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
         .map(pack ->
-          new PackInfoPacket.Entry("", "", pack.getId().toString(), pack.getSize(), pack.getVersion().toString(),
-            false, false, ""))
+          new PackInfoPacket.Entry(
+            "",
+            "",
+            pack.getId().toString(), pack.getSize(),
+            pack.getVersion().toString(),
+            false,
+            false,
+            ""))
         .collect(Collectors.toList())),
       false));
     this.packStack.set(new PackStackPacket(
@@ -213,7 +220,7 @@ public final class SimplePackManager implements PackManager {
   public void loadPacks(@NotNull final Path directory) {
     this.checkClosed();
     Preconditions.checkArgument(Files.isDirectory(directory), "%s is not a directory", directory);
-    final var loaders = new ArrayList<PackLoader>();
+    final var loaders = new ObjectArrayList<PackLoader>();
     try (final var stream = Files.newDirectoryStream(directory)) {
       for (final var entry : stream) {
         final var loader = this.getLoader(entry);
@@ -225,8 +232,8 @@ public final class SimplePackManager implements PackManager {
     } catch (final IOException e) {
       SimplePackManager.LOGGER.error("", e);
     }
-    final var manifestMap = new HashMap<UUID, PackManifest>();
-    final var loaderMap = new HashMap<UUID, PackLoader>();
+    final var manifestMap = new Object2ObjectOpenHashMap<UUID, PackManifest>();
+    final var loaderMap = new Object2ObjectOpenHashMap<UUID, PackLoader>();
     loaders.forEach(loader -> {
       final var optional = this.getManifest(loader);
       if (optional.isEmpty()) {
@@ -238,7 +245,7 @@ public final class SimplePackManager implements PackManager {
       loaderMap.put(uuid, loader);
     });
     loaders.clear();
-    final var missingDependencies = new ArrayList<PackManifest>();
+    final var missingDependencies = new ObjectArrayList<PackManifest>();
     var missingDependency = false;
     do {
       missingDependency = false;

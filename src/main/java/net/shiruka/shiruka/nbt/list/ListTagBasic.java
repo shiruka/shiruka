@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.nbt.list;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -191,7 +192,7 @@ public final class ListTagBasic implements ListTag {
   }
 
   private void edit(@NotNull final Consumer<List<Tag>> consumer, final byte type) {
-    final var tags = new ArrayList<>(this.original);
+    final var tags = new ObjectArrayList<>(this.original);
     consumer.accept(tags);
     if (type != -1 && this.listType == Tag.END.id()) {
       this.original = tags;

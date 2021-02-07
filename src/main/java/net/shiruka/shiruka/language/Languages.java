@@ -27,13 +27,15 @@ package net.shiruka.shiruka.language;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
@@ -49,17 +51,17 @@ public final class Languages {
   /**
    * the available languages.
    */
-  static final Collection<String> AVAILABLE_LANGUAGES = new HashSet<>();
+  static final Set<String> AVAILABLE_LANGUAGES = new ObjectOpenHashSet<>();
 
   /**
    * the shiruka keys.
    */
-  static final Collection<String> SHIRUKA_KEYS = new HashSet<>();
+  static final Set<String> SHIRUKA_KEYS = new ObjectOpenHashSet<>();
 
   /**
    * the vanilla keys.
    */
-  static final Collection<String> VANILLA_KEYS = new HashSet<>();
+  static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
 
   /**
    * the logger.
@@ -69,12 +71,14 @@ public final class Languages {
   /**
    * the shiruka variables.
    */
-  private static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
+  private static final Map<String, Properties> SHIRUKA_VARIABLES =
+    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
    * the vanilla variables.
    */
-  private static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
+  private static final Map<String, Properties> VANILLA_VARIABLES =
+    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
    * ctor.
@@ -211,13 +215,14 @@ public final class Languages {
    * @throws IOException if something went wrong when reading the file.
    */
   private static void loadAvailableLanguages() throws IOException {
-    final var resource = Languages.getResource("lang/languages.json");
-    final var stream = new InputStreamReader(resource, StandardCharsets.UTF_8);
-    final var parse = Json.parse(stream);
-    final var languages = parse.asArray();
-    Languages.AVAILABLE_LANGUAGES.addAll(languages.values().stream()
-      .map(JsonValue::asString)
-      .collect(Collectors.toUnmodifiableSet()));
+    Languages.AVAILABLE_LANGUAGES.addAll(
+      Json.parse(
+        new InputStreamReader(
+          Languages.getResource("lang/languages.json"),
+          StandardCharsets.UTF_8))
+        .asArray().values().stream()
+        .map(JsonValue::asString)
+        .collect(Collectors.toUnmodifiableSet()));
     Languages.AVAILABLE_LANGUAGES.forEach(s -> {
       Languages.SHIRUKA_VARIABLES.put(s, new Properties());
       Languages.VANILLA_VARIABLES.put(s, new Properties());

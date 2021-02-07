@@ -87,6 +87,7 @@ public final class ShirukaMain {
   /**
    * the server locale.
    */
+  @NotNull
   private static Locale SERVER_LOCALE = Locale.ENGLISH;
 
   /**

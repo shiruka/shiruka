@@ -25,10 +25,10 @@
 
 package net.shiruka.shiruka.ban;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -213,7 +213,7 @@ public abstract class BaseBanEntry<K> {
 
   @NotNull
   public Map<String, Object> serialize() {
-    final var map = new HashMap<String, Object>();
+    final var map = new Object2ObjectOpenHashMap<String, Object>();
     map.put("created", BaseBanEntry.DATE_FORMAT.format(this.created));
     map.put("source", this.source);
     map.put("expires", this.expires == null ? "forever" : BaseBanEntry.DATE_FORMAT.format(this.expires));

@@ -25,8 +25,8 @@
 
 package net.shiruka.shiruka.nbt;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -241,7 +241,7 @@ public interface Tag {
    */
   @NotNull
   static ListTag createList(@NotNull final Tag... original) {
-    return Tag.createList(Arrays.asList(original));
+    return Tag.createList(new ObjectArrayList<>(original));
   }
 
   /**

@@ -25,8 +25,8 @@
 
 package net.shiruka.shiruka.nbt.compound;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import net.shiruka.shiruka.nbt.CompoundTag;
@@ -50,14 +50,14 @@ public final class CompoundTagBasic implements CompoundTag {
    * @param original the original map.
    */
   public CompoundTagBasic(@NotNull final Map<String, Tag> original) {
-    this.original = new HashMap<>(original);
+    this.original = new Object2ObjectOpenHashMap<>(original);
   }
 
   /**
    * ctor.
    */
   public CompoundTagBasic() {
-    this(new HashMap<>());
+    this(new Object2ObjectOpenHashMap<>());
   }
 
   @NotNull

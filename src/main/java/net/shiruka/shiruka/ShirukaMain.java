@@ -33,6 +33,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 import joptsimple.OptionSet;
@@ -50,6 +51,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.io.IoBuilder;
+import org.cactoos.Proc;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -87,6 +89,24 @@ public final class ShirukaMain {
    */
   @NotNull
   private final OptionSet options;
+
+  /**
+   * the server runnable.
+   */
+  private final Proc<Locale> serverRunnable = locale -> {
+    final var startTime = System.currentTimeMillis();
+    this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
+    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
+    UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
+    IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
+    ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
+    WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
+    final var socket = ShirukaMain.createSocket();
+    final var server = new ShirukaServer(startTime, ShirukaConsole::new, locale, socket);
+    Shiruka.setServer(server);
+    socket.addListener(server);
+    socket.start();
+  };
 
   /**
    * ctor.
@@ -234,20 +254,9 @@ public final class ShirukaMain {
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     Languages.startSequence().thenAccept(locale -> {
       final var thread = new Thread(() ->
-        JiraExceptionCatcher.run(() -> {
-          final var startTime = System.currentTimeMillis();
-          this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
-          OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
-          UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
-          IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
-          ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
-          WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
-          final var socket = ShirukaMain.createSocket();
-          final var server = new ShirukaServer(startTime, ShirukaConsole::new, locale, socket);
-          Shiruka.setServer(server);
-          socket.addListener(server);
-          socket.start();
-        }), "Server thread");
+        JiraExceptionCatcher.run(() ->
+          this.serverRunnable.exec(locale)),
+        "Server thread");
       thread.setPriority(Thread.NORM_PRIORITY + 2);
       thread.start();
     });

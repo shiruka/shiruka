@@ -213,6 +213,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * ctor.
    *
+   * @param startTime the start time.
    * @param console the console.
    * @param serverLanguage the server language.
    * @param socket the socket.
@@ -415,10 +416,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public void onPing(final RakNetServer server, final ServerPing ping) {
     final var identifier = (MinecraftIdentifier) ping.getIdentifier();
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    identifier.setServerName(motd);
-    identifier.setWorldName(worldName);
+    identifier.setServerName(ServerConfig.DESCRIPTION_MOTD.getValue().orElse(""));
+    identifier.setWorldName(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world"));
     identifier.setOnlinePlayerCount(this.players.size());
   }
 

@@ -43,13 +43,13 @@ public final class JiraExceptionCatcher {
   }
 
   /**
-   * runs and catches the exceptions and uses {@link #serverException(Throwable)} to report it.
+   * runs and catches the exceptions and uses {@link #serverException(Throwable)} to report it then closes the server.
    *
-   * @param run the runnable to run.
+   * @param throwableRunnable the throwable runnable to run.
    */
-  public static void run(@NotNull final ThrowableRunnable run) {
+  public static void run(@NotNull final ThrowableRunnable throwableRunnable) {
     try {
-      run.call();
+      throwableRunnable.call();
     } catch (final Throwable e) {
       JiraExceptionCatcher.serverException(e);
       try {

@@ -233,7 +233,7 @@ public final class ShirukaMain {
   private void exec() throws Exception {
     ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
     Languages.startSequence().thenAccept(locale -> {
-      final var serverThread = new Thread(() ->
+      final var thread = new Thread(() ->
         JiraExceptionCatcher.run(() -> {
           final var startTime = System.currentTimeMillis();
           this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
@@ -248,8 +248,8 @@ public final class ShirukaMain {
           socket.addListener(server);
           socket.start();
         }), "Server thread");
-      serverThread.setPriority(Thread.NORM_PRIORITY + 2);
-      serverThread.start();
+      thread.setPriority(Thread.NORM_PRIORITY + 2);
+      thread.start();
     });
   }
 }

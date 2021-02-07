@@ -144,6 +144,30 @@ public final class ShirukaMain {
   }
 
   /**
+   * creates a new server socket from the server config values.
+   *
+   * @return a newly created server socket.
+   */
+  @NotNull
+  private static RakNetServer createSocket() {
+    final var ip = ServerConfig.ADDRESS_IP.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
+    final var port = ServerConfig.PORT.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
+    final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
+    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
+    final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
+    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
+    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
+      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
+    socket.setIdentifier(identifier);
+    return socket;
+  }
+
+  /**
    * creates and returns the server file/d.
    *
    * @param file the file to create.
@@ -218,20 +242,7 @@ public final class ShirukaMain {
           IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
           ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
           WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
-          final var ip = ServerConfig.ADDRESS_IP.getValue()
-            .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
-          final var port = ServerConfig.PORT.getValue()
-            .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
-          final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
-            .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
-          final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
-          final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
-          final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-          final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-          final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
-          final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-            ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
-          socket.setIdentifier(identifier);
+          final var socket = ShirukaMain.createSocket();
           final var server = new ShirukaServer(startTime, ShirukaConsole::new, locale, socket);
           Shiruka.setServer(server);
           socket.addListener(server);

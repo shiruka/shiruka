@@ -262,6 +262,25 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   /**
+   * obtains the packet handler.
+   *
+   * @return packet handler.
+   */
+  @NotNull
+  public PacketHandler getPacketHandler() {
+    return this.packetHandler.get();
+  }
+
+  /**
+   * sets the {@link #packetHandler}.
+   *
+   * @param handler the handler to set.
+   */
+  public void setPacketHandler(@NotNull final PacketHandler handler) {
+    this.packetHandler.set(handler);
+  }
+
+  /**
    * obtains the player.
    *
    * @return player.
@@ -321,15 +340,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
    */
   public void sendPacketImmediately(@NotNull final ShirukaPacket packet) {
     this.sendWrapped(Collections.singleton(packet));
-  }
-
-  /**
-   * sets the {@link #packetHandler}.
-   *
-   * @param handler the handler to set.
-   */
-  public void setPacketHandler(@NotNull final PacketHandler handler) {
-    this.packetHandler.set(handler);
   }
 
   /**

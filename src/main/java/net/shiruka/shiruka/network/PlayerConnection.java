@@ -30,11 +30,11 @@ import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.protocol.Reliability;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.util.internal.PlatformDependent;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
@@ -139,7 +139,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
   /**
    * the queued packets.
    */
-  private final Queue<ShirukaPacket> queuedPackets = PlatformDependent.newMpscQueue();
+  private final PriorityQueue<ShirukaPacket> queuedPackets = new ObjectArrayFIFOQueue<>();
 
   /**
    * the blob cache support.
@@ -340,8 +340,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
       return;
     }
     var toBatch = new ObjectArrayList<ShirukaPacket>();
-    @Nullable ShirukaPacket packet;
-    while ((packet = this.queuedPackets.poll()) != null) {
+    while (!this.queuedPackets.isEmpty()) {
+      final var packet = this.queuedPackets.dequeue();
       if (!packet.getClass().isAnnotationPresent(NoEncryption.class)) {
         toBatch.add(packet);
         continue;
@@ -363,7 +363,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * @param packet the packet to send.
    */
   public void sendPacket(@NotNull final ShirukaPacket packet) {
-    this.queuedPackets.add(packet);
+    this.queuedPackets.enqueue(packet);
   }
 
   /**

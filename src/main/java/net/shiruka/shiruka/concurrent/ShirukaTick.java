@@ -176,7 +176,7 @@ public final class ShirukaTick implements Runnable {
         final var elapsed = end - start;
         final var waitTime = TimeUnit.NANOSECONDS.toMillis(ShirukaTick.TICK_NANOS - elapsed);
         if (waitTime < 0) {
-          ShirukaTick.LOGGER.debug("Server running behind {}ms, skipped {} ticks",
+          ShirukaTick.LOGGER.warn("Server running behind {}ms, skipped {} ticks",
             -waitTime, -waitTime / ShirukaTick.TICK_NANOS);
         } else {
           Thread.sleep(waitTime);

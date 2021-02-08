@@ -142,6 +142,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private final PriorityQueue<ShirukaPacket> queuedPackets = new ObjectArrayFIFOQueue<>();
 
   /**
+   * the server.
+   */
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
    * the blob cache support.
    */
   private boolean blobCacheSupport;
@@ -159,29 +165,14 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private ShirukaPlayer player;
 
   /**
-   * the server.
-   */
-  @NotNull
-  private final ShirukaServer server;
-
-  /**
-   * obtains the server.
-   * @return server.
-   */
-  @NotNull
-  public ShirukaServer getServer() {
-    return this.server;
-  }
-
-  /**
    * ctor.
    *
    * @param connection the connection.
    * @param server the server.
    */
-  public PlayerConnection(@NotNull final RakNetClientPeer connection, @NotNull ShirukaServer server) {
+  public PlayerConnection(@NotNull final RakNetClientPeer connection, @NotNull final ShirukaServer server) {
     this.connection = connection;
-    this.server=server;
+    this.server = server;
   }
 
   @Override
@@ -347,6 +338,16 @@ public final class PlayerConnection implements PacketHandler, Tick {
    */
   public void setPlayer(@NotNull final ShirukaPlayer player) {
     this.player = player;
+  }
+
+  /**
+   * obtains the server.
+   *
+   * @return server.
+   */
+  @NotNull
+  public ShirukaServer getServer() {
+    return this.server;
   }
 
   /**

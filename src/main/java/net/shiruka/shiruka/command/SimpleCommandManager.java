@@ -35,6 +35,7 @@ import net.shiruka.api.command.exceptions.CommandSyntaxException;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.command.commands.CommandHelp;
 import net.shiruka.shiruka.command.commands.CommandStop;
 import net.shiruka.shiruka.command.commands.CommandTps;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +50,7 @@ public final class SimpleCommandManager implements CommandManager {
   /**
    * the dispatcher.
    */
-  private static final CommandDispatcher DISPATCHER = new CommandDispatcher();
+  private static final CommandDispatcher DISPATCHER;
 
   /**
    * the logger.
@@ -57,8 +58,10 @@ public final class SimpleCommandManager implements CommandManager {
   private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
 
   static {
+    DISPATCHER = new CommandDispatcher();
     CommandStop.init();
     CommandTps.init();
+    CommandHelp.init();
   }
 
   /**

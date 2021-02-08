@@ -269,5 +269,6 @@ public final class ShirukaMain {
    */
   private static void payloadClasses() throws Exception {
     Class.forName("net.shiruka.shiruka.network.PacketRegistry");
+    Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
   }
 }

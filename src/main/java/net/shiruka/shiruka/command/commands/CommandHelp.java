@@ -41,12 +41,17 @@ public final class CommandHelp extends CommandHelper {
     super("help", "Shows the help menu", "shiruka.command.help");
   }
 
+  /**
+   * registers the stop command.
+   */
+  public static void init() {
+    new CommandHelp().register();
+  }
+
   @NotNull
   @Override
   protected LiteralBuilder build() {
     return super.build()
-      .executes(context -> {
-        return of();
-      });
+      .executes(context -> of());
   }
 }

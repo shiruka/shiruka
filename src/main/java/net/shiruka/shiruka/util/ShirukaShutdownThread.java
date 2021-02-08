@@ -25,55 +25,51 @@
 
 package net.shiruka.shiruka.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.shiruka.shiruka.ShirukaServer;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that contains utility methods for system.
+ * a class that tries to shutdown Shiru ka server.
  */
-public final class SystemUtils {
+public final class ShirukaShutdownThread extends Thread {
 
   /**
-   * the logger.
+   * the server.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SystemUtils");
+  @NotNull
+  private final ShirukaServer server;
 
   /**
    * ctor.
-   */
-  private SystemUtils() {
-  }
-
-  /**
-   * obtains the monotonic millis.
    *
-   * @return monotonic millis.
+   * @param server the server.
    */
-  public static long getMonotonicMillis() {
-    return System.nanoTime() / 1000000L;
+  public ShirukaShutdownThread(@NotNull final ShirukaServer server) {
+    this.server = server;
   }
 
-  /**
-   * starts the timer hack.
-   */
-  public static void startTimerHack() {
-    final var exceptionMessage = "Caught previously unhandled exception :";
-    final var thread = new Thread("Timer Hack") {
-      @Override
-      public void run() {
-        while (true) {
-          try {
-            Thread.sleep(2147483647L);
-          } catch (final InterruptedException interruptedexception) {
-            SystemUtils.LOGGER.warn("Timer hack interrupted, that really should not happen!");
-            return;
-          }
-        }
+  @Override
+  public void run() {
+    try {
+      this.server.safeShutdown(false, false);
+      for (var i = 1000; i > 0 && !this.server.isStopping(); i -= 100) {
+        Thread.sleep(100);
       }
-    };
-    thread.setDaemon(true);
-    thread.setUncaughtExceptionHandler((t, e) ->
-      SystemUtils.LOGGER.error(exceptionMessage, e));
-    thread.start();
+      if (this.server.isStopping()) {
+        while (!this.server.hasFullyShutdown) {
+          Thread.sleep(1000);
+        }
+        return;
+      }
+      AsyncCatcher.enabled = false;
+      AsyncCatcher.shuttingDown = true;
+      this.server.getTick().forceTicks = true;
+      this.server.stopServer();
+      while (!this.server.hasFullyShutdown) {
+        Thread.sleep(1000);
+      }
+    } catch (final InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 }

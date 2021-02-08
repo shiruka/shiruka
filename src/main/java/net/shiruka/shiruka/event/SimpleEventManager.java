@@ -39,7 +39,8 @@ import net.shiruka.api.events.player.PlayerKickEvent;
 import net.shiruka.api.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.events.server.ServerCommandEvent;
 import net.shiruka.api.events.server.ServerExceptionEvent;
-import net.shiruka.api.events.server.ServerTickEvent;
+import net.shiruka.api.events.server.ServerTickEndEvent;
+import net.shiruka.api.events.server.ServerTickStartEvent;
 import net.shiruka.api.events.server.exception.ServerException;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.events.player.SimplePlayerAsyncLoginEvent;
@@ -47,7 +48,8 @@ import net.shiruka.shiruka.events.player.SimplePlayerKickEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerPreLoginEvent;
 import net.shiruka.shiruka.events.server.SimpleServerCommandEvent;
 import net.shiruka.shiruka.events.server.SimpleServerExceptionEvent;
-import net.shiruka.shiruka.events.server.SimpleServerTickEvent;
+import net.shiruka.shiruka.events.server.SimpleServerTickEndEvent;
+import net.shiruka.shiruka.events.server.SimpleServerTickStartEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,8 +108,14 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public ServerTickEvent serverTick(final int tick) {
-    return new SimpleServerTickEvent(tick);
+  public ServerTickEndEvent serverTickEnd(final int tick, final double duration, final long remaining) {
+    return new SimpleServerTickEndEvent(duration, remaining, tick);
+  }
+
+  @NotNull
+  @Override
+  public ServerTickStartEvent serverTickStart(final int tick) {
+    return new SimpleServerTickStartEvent(tick);
   }
 
   @Override

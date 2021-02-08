@@ -23,48 +23,52 @@
  *
  */
 
-package net.shiruka.shiruka.scheduler;
+package net.shiruka.shiruka.concurrent;
 
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents tick tasks.
+ * a class that handles asynchronous tasks.
+ *
+ * @param <T> type of the task.
  */
-public final class TickTask implements Runnable {
+public abstract class AsyncTaskHandlerReentrant<T extends Runnable> extends AsyncTaskHandler<T> {
 
   /**
-   * the job.
+   * the depth.
    */
-  @NotNull
-  private final Runnable job;
-
-  /**
-   * the job.
-   */
-  private final int tick;
+  private int depth;
 
   /**
    * ctor.
    *
-   * @param job the job.
-   * @param tick the tick.
+   * @param threadName the thread name.
    */
-  public TickTask(@NotNull final Runnable job, final int tick) {
-    this.job = job;
-    this.tick = tick;
-  }
-
-  /**
-   * obtains the tick.
-   *
-   * @return tick.
-   */
-  public int getTick() {
-    return this.tick;
+  protected AsyncTaskHandlerReentrant(@NotNull final String threadName) {
+    super(threadName);
   }
 
   @Override
-  public void run() {
-    this.job.run();
+  protected final void executeTask(@NotNull final T task) {
+    ++this.depth;
+    try {
+      super.executeTask(task);
+    } finally {
+      --this.depth;
+    }
+  }
+
+  @Override
+  protected boolean isNotMainThread() {
+    return this.isEntered() || super.isNotMainThread();
+  }
+
+  /**
+   * checks if the task entered.
+   *
+   * @return {@code true} if the task entered.
+   */
+  protected final boolean isEntered() {
+    return this.depth != 0;
   }
 }

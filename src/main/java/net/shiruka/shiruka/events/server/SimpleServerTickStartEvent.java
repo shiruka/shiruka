@@ -23,57 +23,31 @@
  *
  */
 
-package net.shiruka.shiruka.util;
+package net.shiruka.shiruka.events.server;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.shiruka.api.events.server.ServerTickStartEvent;
 
 /**
- * a class that contains utility methods for system.
+ * a simple implementation for {@link ServerTickStartEvent}.
  */
-public final class SystemUtils {
+public final class SimpleServerTickStartEvent implements ServerTickStartEvent {
 
   /**
-   * the logger.
+   * the tick.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SystemUtils");
+  private final int tick;
 
   /**
    * ctor.
-   */
-  private SystemUtils() {
-  }
-
-  /**
-   * obtains the monotonic millis.
    *
-   * @return monotonic millis.
+   * @param tick the tick.
    */
-  public static long getMonotonicMillis() {
-    return System.nanoTime() / 1000000L;
+  public SimpleServerTickStartEvent(final int tick) {
+    this.tick = tick;
   }
 
-  /**
-   * starts the timer hack.
-   */
-  public static void startTimerHack() {
-    final var exceptionMessage = "Caught previously unhandled exception :";
-    final var thread = new Thread("Timer Hack") {
-      @Override
-      public void run() {
-        while (true) {
-          try {
-            Thread.sleep(2147483647L);
-          } catch (final InterruptedException interruptedexception) {
-            SystemUtils.LOGGER.warn("Timer hack interrupted, that really should not happen!");
-            return;
-          }
-        }
-      }
-    };
-    thread.setDaemon(true);
-    thread.setUncaughtExceptionHandler((t, e) ->
-      SystemUtils.LOGGER.error(exceptionMessage, e));
-    thread.start();
+  @Override
+  public int getTick() {
+    return this.tick;
   }
 }

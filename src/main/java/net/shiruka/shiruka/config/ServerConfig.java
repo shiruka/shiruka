@@ -137,6 +137,13 @@ public final class ServerConfig extends PathableConfig {
     "server's port.");
 
   /**
+   * saves the user cache on stop only.
+   */
+  public static final ConfigPath<Boolean> SAVE_USER_CACHE_ON_STOP_ONLY = commented(booleanPath(
+    "save-user-cache-on-stop-only", false),
+    "saves the user cache on stop only.");
+
+  /**
    * the server language.
    */
   public static final ConfigPath<Locale> SERVER_LANGUAGE = commented(localePath(

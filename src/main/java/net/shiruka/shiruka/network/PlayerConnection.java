@@ -159,12 +159,29 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private ShirukaPlayer player;
 
   /**
+   * the server.
+   */
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
+   * obtains the server.
+   * @return server.
+   */
+  @NotNull
+  public ShirukaServer getServer() {
+    return this.server;
+  }
+
+  /**
    * ctor.
    *
    * @param connection the connection.
+   * @param server the server.
    */
-  public PlayerConnection(@NotNull final RakNetClientPeer connection) {
+  public PlayerConnection(@NotNull final RakNetClientPeer connection, @NotNull ShirukaServer server) {
     this.connection = connection;
+    this.server=server;
   }
 
   @Override

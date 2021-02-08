@@ -46,6 +46,8 @@ import net.shiruka.shiruka.console.ShirukaConsoleParser;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.log.ForwardLogHandler;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.util.AsyncCatcher;
+import net.shiruka.shiruka.util.ShirukaShutdownThread;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -91,37 +93,18 @@ public final class ShirukaMain {
   private static Locale SERVER_LOCALE = Locale.ENGLISH;
 
   /**
-   * the parsed arguments.
-   */
-  @NotNull
-  private final OptionSet options;
-
-  /**
    * the server runnable.
    */
-  private final ThrowableRunnable serverRunnable = () -> {
+  private static final ThrowableRunnable SERVER_RUNNABLE = () -> {
     final var startTime = System.currentTimeMillis();
-    this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
-    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
-    UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
-    IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
-    ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
-    WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
     final var socket = ShirukaMain.createSocket();
     final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.SERVER_LOCALE, socket);
+    AsyncCatcher.server = server;
+    Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
     Shiruka.setServer(server);
     socket.addListener(server);
     socket.start();
   };
-
-  /**
-   * ctor.
-   *
-   * @param options the options.
-   */
-  private ShirukaMain(@NotNull final OptionSet options) {
-    this.options = options;
-  }
 
   /**
    * runs the Java program.
@@ -165,8 +148,15 @@ public final class ShirukaMain {
     final var rootLogger = LogManager.getRootLogger();
     System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
-    final var main = new ShirukaMain(parsed);
-    JiraExceptionCatcher.run(main::exec);
+    JiraExceptionCatcher.run(() -> {
+      ShirukaMain.payloadClasses();
+      ShirukaMain.loadFilesAndDirectories(parsed);
+      ShirukaMain.SERVER_LOCALE = Languages.startSequence();
+      final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
+      thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
+      thread.setPriority(Thread.NORM_PRIORITY + 2);
+      thread.start();
+    });
   }
 
   /**
@@ -222,15 +212,9 @@ public final class ShirukaMain {
   }
 
   /**
-   * payloads the some of classes.
-   */
-  private static void payloadClasses() throws Exception {
-    Class.forName("net.shiruka.shiruka.network.PacketRegistry");
-  }
-
-  /**
    * creates and returns the server file/d.
    *
+   * @param options the options to create.
    * @param spec the spec to create.
    * @param directory the directory to create.
    *
@@ -239,14 +223,16 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when the creating the file.
    */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec, final boolean directory) throws IOException {
+  private static File createsServerFile(@NotNull final OptionSet options, @NotNull final OptionSpec<File> spec,
+                                        final boolean directory) throws IOException {
     return ShirukaMain.createsServerFile(
-      Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!"), directory);
+      Objects.requireNonNull(options.valueOf(spec), "Something went wrong!"), directory);
   }
 
   /**
    * creates and returns the server file.
    *
+   * @param options the options to create.
    * @param spec the spec to create.
    *
    * @return a server file instance.
@@ -254,22 +240,34 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when the creating the file.
    */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec) throws IOException {
-    return this.createsServerFile(spec, false);
+  private static File createsServerFile(@NotNull final OptionSet options, @NotNull final OptionSpec<File> spec)
+    throws IOException {
+    return ShirukaMain.createsServerFile(options, spec, false);
   }
 
   /**
-   * executes the Shiru ka server.
-   *
-   * @throws Exception if something went wrong when starting the Shiru ka.
+   * loads all files and directories.
    */
-  private void exec() throws Exception {
-    ShirukaMain.payloadClasses();
-    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
-    ShirukaMain.SERVER_LOCALE = Languages.startSequence();
-    final var thread = new Thread(this.serverRunnable, "Server thread");
-    thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
-    thread.setPriority(Thread.NORM_PRIORITY + 2);
-    thread.start();
+  private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
+    ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
+    final var serverConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG);
+    final var opsConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS);
+    final var userCacheConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE);
+    final var ipBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS);
+    final var profileBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS);
+    final var whitelistConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST);
+    ServerConfig.init(serverConfig);
+    OpsConfig.init(opsConfig);
+    UserCacheConfig.init(userCacheConfig);
+    IpBanConfig.init(ipBanConfig);
+    ProfileBanConfig.init(profileBanConfig);
+    WhitelistConfig.init(whitelistConfig);
+  }
+
+  /**
+   * payloads the some of classes.
+   */
+  private static void payloadClasses() throws Exception {
+    Class.forName("net.shiruka.shiruka.network.PacketRegistry");
   }
 }

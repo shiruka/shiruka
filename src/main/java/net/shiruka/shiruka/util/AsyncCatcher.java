@@ -25,55 +25,56 @@
 
 package net.shiruka.shiruka.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.google.common.base.Preconditions;
+import net.shiruka.shiruka.ShirukaServer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * a class that contains utility methods for system.
+ * a class that helps to catch asynchronous.
  */
-public final class SystemUtils {
+public final class AsyncCatcher {
 
   /**
-   * the logger.
+   * the enable.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SystemUtils");
+  public static boolean enabled = true;
+
+  /**
+   * the server.
+   */
+  @Nullable
+  public static ShirukaServer server;
+
+  /**
+   * the shutting down.
+   */
+  public static boolean shuttingDown = false;
 
   /**
    * ctor.
    */
-  private SystemUtils() {
+  private AsyncCatcher() {
   }
 
   /**
-   * obtains the monotonic millis.
+   * catches and throws an exception with the given {@code reason}.
    *
-   * @return monotonic millis.
+   * @param reason the reason to catch.
    */
-  public static long getMonotonicMillis() {
-    return System.nanoTime() / 1000000L;
+  public static void catchAsync(@NotNull final String reason) {
+    Preconditions.checkState(AsyncCatcher.caught(), "Asynchronous %s!", reason);
   }
 
   /**
-   * starts the timer hack.
+   * checks if the current thread is not the server thread.
+   *
+   * @return {@code true} if the current thread is not the server thread.
    */
-  public static void startTimerHack() {
-    final var exceptionMessage = "Caught previously unhandled exception :";
-    final var thread = new Thread("Timer Hack") {
-      @Override
-      public void run() {
-        while (true) {
-          try {
-            Thread.sleep(2147483647L);
-          } catch (final InterruptedException interruptedexception) {
-            SystemUtils.LOGGER.warn("Timer hack interrupted, that really should not happen!");
-            return;
-          }
-        }
-      }
-    };
-    thread.setDaemon(true);
-    thread.setUncaughtExceptionHandler((t, e) ->
-      SystemUtils.LOGGER.error(exceptionMessage, e));
-    thread.start();
+  private static boolean caught() {
+    if (AsyncCatcher.server == null) {
+      return false;
+    }
+    return !AsyncCatcher.enabled || Thread.currentThread() == AsyncCatcher.server.getServerThread();
   }
 }

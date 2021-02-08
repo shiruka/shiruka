@@ -23,57 +23,48 @@
  *
  */
 
-package net.shiruka.shiruka.util;
+package net.shiruka.shiruka.concurrent;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that contains utility methods for system.
+ * a class that represents tick tasks.
  */
-public final class SystemUtils {
+public final class TickTask implements Runnable {
 
   /**
-   * the logger.
+   * the job.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SystemUtils");
+  @NotNull
+  private final Runnable job;
+
+  /**
+   * the job.
+   */
+  private final int tick;
 
   /**
    * ctor.
-   */
-  private SystemUtils() {
-  }
-
-  /**
-   * obtains the monotonic millis.
    *
-   * @return monotonic millis.
+   * @param job the job.
+   * @param tick the tick.
    */
-  public static long getMonotonicMillis() {
-    return System.nanoTime() / 1000000L;
+  public TickTask(@NotNull final Runnable job, final int tick) {
+    this.job = job;
+    this.tick = tick;
   }
 
   /**
-   * starts the timer hack.
+   * obtains the tick.
+   *
+   * @return tick.
    */
-  public static void startTimerHack() {
-    final var exceptionMessage = "Caught previously unhandled exception :";
-    final var thread = new Thread("Timer Hack") {
-      @Override
-      public void run() {
-        while (true) {
-          try {
-            Thread.sleep(2147483647L);
-          } catch (final InterruptedException interruptedexception) {
-            SystemUtils.LOGGER.warn("Timer hack interrupted, that really should not happen!");
-            return;
-          }
-        }
-      }
-    };
-    thread.setDaemon(true);
-    thread.setUncaughtExceptionHandler((t, e) ->
-      SystemUtils.LOGGER.error(exceptionMessage, e));
-    thread.start();
+  public int getTick() {
+    return this.tick;
+  }
+
+  @Override
+  public void run() {
+    this.job.run();
   }
 }

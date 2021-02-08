@@ -352,6 +352,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.kick(KickEvent.Reason.ALREADY_LOGGED_IN, ShirukaPlayer.ALREADY_LOGGED_IN_REASON);
       return;
     }
+    this.connection.getServer().getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }
 

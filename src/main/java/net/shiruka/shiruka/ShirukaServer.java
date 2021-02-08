@@ -31,14 +31,16 @@ import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
-import com.whirvis.jraknet.server.ServerPing;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.command.CommandManager;
@@ -47,6 +49,7 @@ import net.shiruka.api.events.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
 import net.shiruka.api.permission.PermissionManager;
+import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.plugin.PluginManager;
 import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
@@ -58,6 +61,7 @@ import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.config.WhitelistConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
@@ -69,6 +73,7 @@ import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
 import net.shiruka.shiruka.scheduler.SimpleScheduler;
+import net.shiruka.shiruka.util.SystemUtils;
 import net.shiruka.shiruka.world.SimpleWorldManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,7 +88,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the internal plugin of Shiru ka.
    */
-  public static final InternalShirukaPlugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
+  public static final Plugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
 
   /**
    * obtains the Shiru ka server's version
@@ -120,7 +125,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the singleton interface implementations.
    */
-  private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
+  private final Map<Class<?>, Object> interfaces = Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
    * the ip ban list.
@@ -146,7 +151,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the player list.
    */
-  private final Map<InetSocketAddress, ShirukaPlayer> players = new ConcurrentHashMap<>();
+  private final Map<InetSocketAddress, ShirukaPlayer> players =
+    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
    * the plugin manager.
@@ -200,9 +206,24 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final SimpleWorldManager worldManager = new SimpleWorldManager();
 
   /**
+   * the has fully shutdown.
+   */
+  public volatile boolean hasFullyShutdown = false;
+
+  /**
+   * the has stopped.
+   */
+  public boolean hasStopped;
+
+  /**
    * the is stopped.
    */
-  private boolean isStopped;
+  public boolean isStopped;
+
+  /**
+   * the is restarting.
+   */
+  private volatile boolean isRestarting = false;
 
   /**
    * the shutdown thread.
@@ -303,7 +324,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public boolean isStopping() {
     synchronized (this.stopLock) {
-      return this.isStopped;
+      return this.hasStopped;
     }
   }
 
@@ -337,6 +358,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
       // @todo #1:5m Add language support for console's uncaught exception handler.
       .error("Caught previously unhandled exception :", e));
     consoleThread.start();
+    this.tick.nextTick = SystemUtils.getMonotonicMillis();
     this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
     this.getLogger().info(TranslatedText.get("shiruka.server.start_server.done", end));
@@ -346,7 +368,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public void stopServer() {
-    this.isStopped = true;
     try {
       this.stop0();
     } catch (final Throwable throwable) {
@@ -400,9 +421,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   /**
-   * checks if the server stopped.
+   * obtains the is stopped.
    *
-   * @return {@code true} if the server is stopped.
+   * @return is stopped.
    */
   public boolean isStopped() {
     return this.isStopped;
@@ -414,16 +435,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public void onPing(final RakNetServer server, final ServerPing ping) {
-    final var identifier = (MinecraftIdentifier) ping.getIdentifier();
-    identifier.setServerName(ServerConfig.DESCRIPTION_MOTD.getValue().orElse(""));
-    identifier.setWorldName(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world"));
-    identifier.setOnlinePlayerCount(this.players.size());
-  }
-
-  @Override
   public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    this.tick.pending.add(peer);
+    this.tick.pending.enqueue(peer);
   }
 
   @Override
@@ -466,6 +479,52 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   /**
+   * tries to safe shutdown the server.
+   *
+   * @param flag the flat to shutdown.
+   */
+  public void safeShutdown(final boolean flag) {
+    this.safeShutdown(flag, false);
+  }
+
+  /**
+   * tries to safe shutdown the server.
+   *
+   * @param flag the flat to shutdown.
+   * @param isRestarting the is restart to shutdown.
+   */
+  public void safeShutdown(final boolean flag, final boolean isRestarting) {
+    this.running.set(false);
+    this.isRestarting = isRestarting;
+    if (flag) {
+      try {
+        this.serverThread.join();
+      } catch (final InterruptedException e) {
+        this.getLogger().error("Error while shutting down", e);
+      }
+    }
+  }
+
+  /**
+   * updates the server ping.
+   */
+  public void updatePing() {
+    final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
+    identifier.setServerName(ServerConfig.DESCRIPTION_MOTD.getValue().orElse(""));
+    identifier.setWorldName(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world"));
+    identifier.setOnlinePlayerCount(this.players.size());
+  }
+
+  /**
+   * checks if {@link Thread#currentThread()} is {@link #serverThread}.
+   *
+   * @return {@code true} if current thread is the main thread.
+   */
+  private boolean isMainThread() {
+    return this.tick.isMainThread();
+  }
+
+  /**
    * registers the implementation of the interfaces which are singleton.
    */
   private void registerImplementations() {
@@ -485,14 +544,38 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   private void stop0() {
     synchronized (this.stopLock) {
-      if (!this.running.get()) {
+      if (this.hasStopped) {
         return;
       }
-      this.running.set(false);
+      this.hasStopped = true;
+    }
+    this.shutdownThread = Thread.currentThread();
+    if (!this.isMainThread()) {
+      this.getLogger().info("§eStopping main thread.");
+      while (this.serverThread.isAlive()) {
+        this.serverThread.stop();
+        try {
+          Thread.sleep(1);
+        } catch (final InterruptedException e) {
+        }
+      }
     }
     this.getLogger().info("§eStopping the server.");
-    this.shutdownThread = Thread.currentThread();
+    // @todo #1:15m disable plugins here and wait for async tasks shutdown.
     this.socket.shutdown();
+    // @todo #1:15m save all players data here.
+    this.getLogger().info("§eSaving worlds.");
+    // @todo #1:15m save and close all worlds here.
+    if (ServerConfig.SAVE_USER_CACHE_ON_STOP_ONLY.getValue().orElse(false)) {
+      this.getLogger().info("§eSaving usercache.json.");
+      UserCacheConfig.getInstance().save();
+    }
+    this.getLogger().info("§eClosing Server");
+    try {
+      TerminalConsoleAppender.close();
+    } catch (final IOException ignored) {
+    }
+    this.hasFullyShutdown = true;
     System.exit(0);
   }
 }

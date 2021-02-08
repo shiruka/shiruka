@@ -47,6 +47,7 @@ import net.shiruka.api.events.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
 import net.shiruka.api.permission.PermissionManager;
+import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.plugin.PluginManager;
 import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
@@ -83,7 +84,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the internal plugin of Shiru ka.
    */
-  public static final InternalShirukaPlugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
+  public static final Plugin INTERNAL_PLUGIN = new InternalShirukaPlugin();
 
   /**
    * obtains the Shiru ka server's version

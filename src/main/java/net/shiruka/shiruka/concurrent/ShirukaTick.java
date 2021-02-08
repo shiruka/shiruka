@@ -194,8 +194,8 @@ public final class ShirukaTick implements Runnable {
    * ticks connection operations.
    */
   private void connectionTick() {
-    RakNetClientPeer peer;
-    while ((peer = this.pending.dequeue()) != null) {
+    while (this.pending.size() > 0) {
+      final var peer = this.pending.dequeue();
       this.connectedPlayers.put(peer.getAddress(), new PlayerConnection(peer));
     }
     final var iterator = this.connectedPlayers.values().iterator();

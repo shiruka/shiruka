@@ -26,14 +26,14 @@
 package net.shiruka.shiruka.concurrent;
 
 import com.whirvis.jraknet.peer.RakNetClientPeer;
+import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import net.shiruka.api.text.TranslatedText;
@@ -105,7 +105,7 @@ public final class ShirukaTick implements Runnable {
   /**
    * the pending.
    */
-  public final Queue<RakNetClientPeer> pending = new ConcurrentLinkedQueue<>();
+  public final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
 
   /**
    * the server.
@@ -195,7 +195,7 @@ public final class ShirukaTick implements Runnable {
    */
   private void connectionTick() {
     RakNetClientPeer peer;
-    while ((peer = this.pending.poll()) != null) {
+    while ((peer = this.pending.dequeue()) != null) {
       this.connectedPlayers.put(peer.getAddress(), new PlayerConnection(peer));
     }
     final var iterator = this.connectedPlayers.values().iterator();

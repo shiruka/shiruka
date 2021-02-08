@@ -32,11 +32,12 @@ import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.shiruka.api.Server;
@@ -121,7 +122,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the singleton interface implementations.
    */
-  private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
+  private final Map<Class<?>, Object> interfaces = Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
    * the ip ban list.
@@ -147,7 +148,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the player list.
    */
-  private final Map<InetSocketAddress, ShirukaPlayer> players = new ConcurrentHashMap<>();
+  private final Map<InetSocketAddress, ShirukaPlayer> players =
+    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
    * the plugin manager.
@@ -424,7 +426,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    this.tick.pending.add(peer);
+    this.tick.pending.enqueue(peer);
   }
 
   @Override

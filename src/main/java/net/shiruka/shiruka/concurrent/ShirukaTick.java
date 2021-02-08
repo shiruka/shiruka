@@ -340,7 +340,6 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     this.awaitTasks(() -> !this.canOversleep());
     this.overslept = false;
     Shiruka.getEventManager().serverTickStart(++this.ticks).callEvent();
-    // --------------------
     this.server.getScheduler().mainThreadHeartbeat(this.ticks);
     while (!this.processQueue.isEmpty()) {
       this.processQueue.remove().run();
@@ -348,7 +347,6 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     this.worldTick();
     this.connectionTick();
     this.handleCommands();
-    // --------------------
     if (now - this.lastPingTime >= 5000000000L) {
       this.lastPingTime = now;
       this.server.updatePing();

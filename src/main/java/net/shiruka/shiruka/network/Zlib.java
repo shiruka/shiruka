@@ -131,7 +131,7 @@ public final class Zlib {
     final var decompressed = Unpooled.buffer();
     try {
       if (!packet.isDirect()) {
-        final ByteBuf temporary = Unpooled.buffer();
+        final var temporary = Unpooled.buffer();
         temporary.writeBytes(packet);
         source = temporary;
       } else {

@@ -54,15 +54,6 @@ public final class SystemUtils {
   }
 
   /**
-   * obtains the monotonic nanos.
-   *
-   * @return monotonic nanos.
-   */
-  public static long getMonotonicNanos() {
-    return System.nanoTime();
-  }
-
-  /**
    * starts the timer hack.
    */
   public static void startTimerHack() {

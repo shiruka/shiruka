@@ -26,8 +26,8 @@
 package net.shiruka.shiruka.config;
 
 import static net.shiruka.api.config.Paths.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -98,7 +98,7 @@ public final class ServerConfig extends PathableConfig {
    * the loaded languages.
    */
   public static final ConfigPath<List<String>> LOADED_LANGUAGES = commented(listStringPath(
-    "loaded-languages", new ArrayList<>()),
+    "loaded-languages", new ObjectArrayList<>()),
     "loaded languages of the Shiru ka. (will update automatically)");
 
   /**
@@ -135,6 +135,13 @@ public final class ServerConfig extends PathableConfig {
   public static final ConfigPath<Integer> PORT = commented(integerPath(
     "port", 19132),
     "server's port.");
+
+  /**
+   * saves the user cache on stop only.
+   */
+  public static final ConfigPath<Boolean> SAVE_USER_CACHE_ON_STOP_ONLY = commented(booleanPath(
+    "save-user-cache-on-stop-only", false),
+    "saves the user cache on stop only.");
 
   /**
    * the server language.

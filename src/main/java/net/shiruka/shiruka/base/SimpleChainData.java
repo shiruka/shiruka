@@ -32,6 +32,7 @@ import com.google.common.base.Preconditions;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.factories.DefaultJWSVerifierFactory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +40,10 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.geometry.AnimatedTextureType;
@@ -361,7 +365,7 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
     if (!keys.contains("AnimatedImageData")) {
       return skinBuilder.build();
     }
-    final var animations = new ArrayList<AnimationData>();
+    final var animations = new ObjectArrayList<AnimationData>();
     final var jsonArray = json.get("AnimatedImageData").asArray();
     jsonArray.forEach(jsonValue ->
       animations.add(SimpleChainData.getAnimation(jsonValue.asObject())));

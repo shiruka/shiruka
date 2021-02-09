@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.network.packets;
 
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.*;
 import java.util.stream.IntStream;
 import net.shiruka.shiruka.network.PacketHandler;
@@ -64,7 +65,7 @@ public final class ResourcePackResponsePacket extends ShirukaPacket {
   public void decode() {
     this.status = Status.valueOf(this.readByte());
     final var length = this.readShortLE();
-    final var packs = new ArrayList<Entry>();
+    final var packs = new ObjectArrayList<Entry>();
     IntStream.range(0, length)
       .mapToObj(i -> VarInts.readString(this.buffer()).split("_"))
       .forEach(uniqueIdVersion -> {

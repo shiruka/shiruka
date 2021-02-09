@@ -33,17 +33,21 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.util.ThrowableRunnable;
 import net.shiruka.shiruka.config.*;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.console.ShirukaConsoleParser;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.log.ForwardLogHandler;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.util.AsyncCatcher;
+import net.shiruka.shiruka.util.ShirukaShutdownThread;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -83,19 +87,24 @@ public final class ShirukaMain {
   private static final Logger LOGGER = LogManager.getLogger("ShirukaMain");
 
   /**
-   * the parsed arguments.
+   * the server locale.
    */
   @NotNull
-  private final OptionSet options;
+  private static Locale SERVER_LOCALE = Locale.ENGLISH;
 
   /**
-   * ctor.
-   *
-   * @param options the options.
+   * the server runnable.
    */
-  private ShirukaMain(@NotNull final OptionSet options) {
-    this.options = options;
-  }
+  private static final ThrowableRunnable SERVER_RUNNABLE = () -> {
+    final var startTime = System.currentTimeMillis();
+    final var socket = ShirukaMain.createSocket();
+    final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.SERVER_LOCALE, socket);
+    AsyncCatcher.server = server;
+    Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
+    Shiruka.setServer(server);
+    socket.addListener(server);
+    socket.start();
+  };
 
   /**
    * runs the Java program.
@@ -139,8 +148,39 @@ public final class ShirukaMain {
     final var rootLogger = LogManager.getRootLogger();
     System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
-    final var main = new ShirukaMain(parsed);
-    JiraExceptionCatcher.run(main::exec);
+    JiraExceptionCatcher.run(() -> {
+      ShirukaMain.payloadClasses();
+      ShirukaMain.loadFilesAndDirectories(parsed);
+      ShirukaMain.SERVER_LOCALE = Languages.startSequence();
+      final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
+      thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
+      thread.setPriority(Thread.NORM_PRIORITY + 2);
+      thread.start();
+    });
+  }
+
+  /**
+   * creates a new server socket from the server config values.
+   *
+   * @return a newly created server socket.
+   */
+  @NotNull
+  private static RakNetServer createSocket() {
+    final var ip = ServerConfig.ADDRESS_IP.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
+    final var port = ServerConfig.PORT.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
+    final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
+      .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
+    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
+    final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
+    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
+    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
+    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
+      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
+    socket.setIdentifier(identifier);
+    return socket;
   }
 
   /**
@@ -174,6 +214,7 @@ public final class ShirukaMain {
   /**
    * creates and returns the server file/d.
    *
+   * @param options the options to create.
    * @param spec the spec to create.
    * @param directory the directory to create.
    *
@@ -182,14 +223,16 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when the creating the file.
    */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec, final boolean directory) throws IOException {
+  private static File createsServerFile(@NotNull final OptionSet options, @NotNull final OptionSpec<File> spec,
+                                        final boolean directory) throws IOException {
     return ShirukaMain.createsServerFile(
-      Objects.requireNonNull(this.options.valueOf(spec), "Something went wrong!"), directory);
+      Objects.requireNonNull(options.valueOf(spec), "Something went wrong!"), directory);
   }
 
   /**
    * creates and returns the server file.
    *
+   * @param options the options to create.
    * @param spec the spec to create.
    *
    * @return a server file instance.
@@ -197,47 +240,35 @@ public final class ShirukaMain {
    * @throws IOException if something went wrong when the creating the file.
    */
   @NotNull
-  private File createsServerFile(@NotNull final OptionSpec<File> spec) throws IOException {
-    return this.createsServerFile(spec, false);
+  private static File createsServerFile(@NotNull final OptionSet options, @NotNull final OptionSpec<File> spec)
+    throws IOException {
+    return ShirukaMain.createsServerFile(options, spec, false);
   }
 
   /**
-   * initiates the Shiru ka server.
-   *
-   * @throws Exception if something went wrong when starting the Shiru ka.
+   * loads all files and directories.
    */
-  private void exec() throws Exception {
-    ServerConfig.init(this.createsServerFile(ShirukaConsoleParser.CONFIG));
-    this.createsServerFile(ShirukaConsoleParser.PLUGINS, true);
-    OpsConfig.init(this.createsServerFile(ShirukaConsoleParser.OPS));
-    UserCacheConfig.init(this.createsServerFile(ShirukaConsoleParser.USER_CACHE));
-    IpBanConfig.init(this.createsServerFile(ShirukaConsoleParser.IP_BANS));
-    ProfileBanConfig.init(this.createsServerFile(ShirukaConsoleParser.PROFILE_BANS));
-    WhitelistConfig.init(this.createsServerFile(ShirukaConsoleParser.WHITE_LIST));
-    final var ip = ServerConfig.ADDRESS_IP.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
-    final var port = ServerConfig.PORT.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
-    final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
-    final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
-    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
-    final var serverLocale = Languages.startSequence();
-    final var start = System.currentTimeMillis();
-    final var serverThread = new Thread(() ->
-      JiraExceptionCatcher.run(() -> {
-        final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
-        final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-          ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
-        socket.setIdentifier(identifier);
-        final var server = new ShirukaServer(start, ShirukaConsole::new, serverLocale, socket);
-        Shiruka.setServer(server);
-        socket.addListener(server);
-        socket.start();
-      }), "Server thread");
-    serverThread.setPriority(Thread.NORM_PRIORITY + 2);
-    serverThread.start();
+  private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
+    ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
+    final var serverConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG);
+    final var opsConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS);
+    final var userCacheConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE);
+    final var ipBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS);
+    final var profileBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS);
+    final var whitelistConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST);
+    ServerConfig.init(serverConfig);
+    OpsConfig.init(opsConfig);
+    UserCacheConfig.init(userCacheConfig);
+    IpBanConfig.init(ipBanConfig);
+    ProfileBanConfig.init(profileBanConfig);
+    WhitelistConfig.init(whitelistConfig);
+  }
+
+  /**
+   * payloads the some of classes.
+   */
+  private static void payloadClasses() throws Exception {
+    Class.forName("net.shiruka.shiruka.network.PacketRegistry");
+    Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
   }
 }

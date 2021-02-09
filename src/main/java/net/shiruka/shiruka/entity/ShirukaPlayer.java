@@ -25,6 +25,8 @@
 
 package net.shiruka.shiruka.entity;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -94,7 +96,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   /**
    * the hidden players.
    */
-  private final Map<UUID, Set<WeakReference<Plugin>>> hiddenPlayers = new HashMap<>();
+  private final Map<UUID, Set<WeakReference<Plugin>>> hiddenPlayers = new Object2ObjectOpenHashMap<>();
 
   /**
    * the login data.
@@ -201,7 +203,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
       return;
     }
-    hidingPlugins = new HashSet<>();
+    hidingPlugins = new ObjectOpenHashSet<>();
     hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
     this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
     this.unregisterPlayer(player);
@@ -350,6 +352,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.kick(KickEvent.Reason.ALREADY_LOGGED_IN, ShirukaPlayer.ALREADY_LOGGED_IN_REASON);
       return;
     }
+    this.connection.getServer().getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }
 

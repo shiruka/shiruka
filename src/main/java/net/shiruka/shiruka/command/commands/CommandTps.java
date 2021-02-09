@@ -74,8 +74,8 @@ public final class CommandTps extends CommandHelper {
         } else {
           color = ChatColor.RED;
         }
-        final var putStart = value > 21.0 ? "*" : "";
-        return color + putStart + Math.min(Math.round(value * 100.0) / 100.0, 20.0) + ChatColor.RESET;
+        final var putStar = value > 21.0 ? "*" : "";
+        return color + putStar + Math.min(Math.round(value * 100.0) / 100.0, 20.0) + ChatColor.RESET;
       })
       .toArray(String[]::new);
   }

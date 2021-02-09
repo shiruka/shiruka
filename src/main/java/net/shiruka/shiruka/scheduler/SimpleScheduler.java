@@ -25,9 +25,11 @@
 
 package net.shiruka.shiruka.scheduler;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,12 +63,12 @@ public class SimpleScheduler implements ShirukaScheduler {
   /**
    * the runners.
    */
-  final ConcurrentHashMap<Integer, ShirukaTask> runners = new ConcurrentHashMap<>();
+  final Map<Integer, ShirukaTask> runners = Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
    * the temp.
    */
-  final List<ShirukaTask> temp = new ArrayList<>();
+  final List<ShirukaTask> temp = new ObjectArrayList<>();
 
   /**
    * the async scheduler.
@@ -264,7 +266,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     if (!this.isAsyncScheduler) {
       return this.asyncScheduler.getActiveWorkers();
     }
-    final var workers = new ArrayList<TaskWorker>();
+    final var workers = new ObjectArrayList<TaskWorker>();
     this.runners.values().stream()
       .filter(taskObj -> !taskObj.isSync())
       .map(ShirukaAsyncTask.class::cast)
@@ -281,10 +283,10 @@ public class SimpleScheduler implements ShirukaScheduler {
   public final List<Task> getPendingTasks() {
     final var truePending = Stream.iterate(this.head.getNext(), Objects::nonNull, ShirukaTask::getNext)
       .filter(task -> task.getTaskId() != -1)
-      .collect(Collectors.toCollection(ArrayList::new));
+      .collect(Collectors.toCollection(ObjectArrayList::new));
     final List<Task> pending = this.runners.values().stream()
       .filter(task -> task.getPeriod() >= ShirukaTask.PERIOD_NO_REPEATING)
-      .collect(Collectors.toCollection(ArrayList::new));
+      .collect(Collectors.toCollection(ObjectArrayList::new));
     truePending.stream()
       .filter(task -> task.getPeriod() >= ShirukaTask.PERIOD_NO_REPEATING && !pending.contains(task))
       .forEach(pending::add);

@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.misc;
 
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.util.ThrowableRunnable;
 import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
@@ -42,16 +43,20 @@ public final class JiraExceptionCatcher {
   }
 
   /**
-   * runs and catches the exceptions and uses {@link #serverException(Exception)} to report it.
+   * runs and catches the exceptions and uses {@link #serverException(Throwable)} to report it then closes the server.
    *
-   * @param run the runnable to run.
+   * @param throwableRunnable the throwable runnable to run.
    */
-  public static void run(@NotNull final ThrowableRunnable run) {
+  public static void run(@NotNull final ThrowableRunnable throwableRunnable) {
     try {
-      run.call();
-    } catch (final Exception e) {
+      throwableRunnable.call();
+    } catch (final Throwable e) {
       JiraExceptionCatcher.serverException(e);
-      System.exit(1);
+      try {
+        Shiruka.getServer().stopServer();
+      } catch (final Exception ignored) {
+        System.exit(1);
+      }
     }
   }
 
@@ -60,7 +65,7 @@ public final class JiraExceptionCatcher {
    *
    * @param e the exception to catch.
    */
-  public static void serverException(@NotNull final Exception e) {
+  public static void serverException(@NotNull final Throwable e) {
     final var url = "https://github.com/shiruka/shiruka/issues/new";
     final var environment = "Shiru ka Version: " + ShirukaServer.VERSION + "\n" +
       "Operating System: " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ")\n" +

@@ -29,10 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.*;
 import net.shiruka.api.permission.Permissible;
 import net.shiruka.api.permission.Permission;
 import net.shiruka.api.permission.PermissionManager;
@@ -136,7 +133,7 @@ public final class SimplePermissionManager implements PermissionManager {
 
   @Override
   public void unsubscribeFromPermission(@NotNull final String permission, @NotNull final Permissible permissible) {
-    final var name = permission.toLowerCase(java.util.Locale.ENGLISH);
+    final var name = permission.toLowerCase(Locale.ENGLISH);
     final var map = this.permSubs.get(name);
     if (map == null) {
       return;

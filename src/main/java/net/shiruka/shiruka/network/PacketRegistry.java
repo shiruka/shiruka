@@ -26,11 +26,9 @@
 package net.shiruka.shiruka.network;
 
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import java.util.Map;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import java.util.function.Function;
 import net.shiruka.shiruka.network.packets.*;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents packet registry.
@@ -40,30 +38,22 @@ public final class PacketRegistry {
   /**
    * the packets.
    */
-  public static final Map<Integer, Function<ByteBuf, ShirukaPacket>> PACKETS;
+  public static final Int2ReferenceOpenHashMap<Function<ByteBuf, ShirukaPacket>> PACKETS;
 
   static {
-    PACKETS = new Object2ObjectOpenHashMap<>();
-    PacketRegistry.put(1, LoginPacket::new);
-    PacketRegistry.put(8, ResourcePackResponsePacket::new);
-    PacketRegistry.put(84, ResourcePackChunkRequestPacket::new);
-    PacketRegistry.put(129, ClientCacheStatusPacket::new);
-    PacketRegistry.put(156, ViolationWarningPacket::new);
+    PACKETS = new Int2ReferenceOpenHashMap<>() {{
+      this.put(1, LoginPacket::new);
+      this.put(8, ResourcePackResponsePacket::new);
+      this.put(84, ResourcePackChunkRequestPacket::new);
+      this.put(129, ClientCacheStatusPacket::new);
+      this.put(156, ViolationWarningPacket::new);
+    }};
+    PacketRegistry.PACKETS.trim();
   }
 
   /**
    * the ctor.
    */
   private PacketRegistry() {
-  }
-
-  /**
-   * puts the given {@code id} to the {@link #PACKETS}
-   *
-   * @param id the id to put.
-   * @param packetFunction the packet supplier to put.
-   */
-  private static void put(final int id, @NotNull final Function<ByteBuf, ShirukaPacket> packetFunction) {
-    PacketRegistry.PACKETS.put(id, packetFunction);
   }
 }

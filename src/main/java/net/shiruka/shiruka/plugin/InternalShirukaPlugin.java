@@ -57,8 +57,7 @@ public final class InternalShirukaPlugin implements Plugin {
    */
   public InternalShirukaPlugin() {
     try {
-      final String pluginName = "Shiru ka";
-      this.pluginDescriptionFile = PluginDescriptionFile.init(pluginName, ShirukaServer.VERSION, "shiruka");
+      this.pluginDescriptionFile = PluginDescriptionFile.init("Shiru ka", ShirukaServer.VERSION, "shiruka");
     } catch (final InvalidDescriptionException e) {
       throw new RuntimeException(e);
     }

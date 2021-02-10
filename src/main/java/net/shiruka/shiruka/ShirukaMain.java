@@ -149,7 +149,6 @@ public final class ShirukaMain {
     System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
     JiraExceptionCatcher.run(() -> {
-      ShirukaMain.payloadClasses();
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.SERVER_LOCALE = Languages.startSequence();
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
@@ -262,13 +261,5 @@ public final class ShirukaMain {
     IpBanConfig.init(ipBanConfig);
     ProfileBanConfig.init(profileBanConfig);
     WhitelistConfig.init(whitelistConfig);
-  }
-
-  /**
-   * payloads the some of classes.
-   */
-  private static void payloadClasses() throws Exception {
-    Class.forName("net.shiruka.shiruka.network.PacketRegistry");
-    Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
   }
 }

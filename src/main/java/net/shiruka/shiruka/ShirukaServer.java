@@ -67,6 +67,7 @@ import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.entity.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
+import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
@@ -538,6 +539,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.registerInterface(Scheduler.class, this.scheduler);
     this.registerInterface(WorldManager.class, this.worldManager);
     this.registerInterface(CommandManager.class, this.commandManager);
+    JiraExceptionCatcher.run(() -> {
+      Class.forName("net.shiruka.shiruka.network.PacketRegistry");
+      Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
+      Class.forName("net.shiruka.shiruka.text.TranslatedTexts");
+    });
   }
 
   /**

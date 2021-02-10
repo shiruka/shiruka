@@ -163,7 +163,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   @Override
   public ChainDataEvent.ChainData getChainData() {
-    return Objects.requireNonNull(this.loginData, "not initialized player").chainData();
+    return Objects.requireNonNull(this.loginData, "player did not initialize").chainData();
   }
 
   @Override
@@ -389,9 +389,9 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   }
 
   /**
-   * creates a new {@link OpEntry} instance.
+   * obtains the {@link #opEntry}.
    *
-   * @return a newly created op entry instance.
+   * @return op entry.
    */
   @NotNull
   private OpEntry getOpEntry() {

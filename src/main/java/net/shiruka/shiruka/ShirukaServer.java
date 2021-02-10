@@ -256,7 +256,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param player the player to add.
    */
   public void addPlayer(@NotNull final ShirukaPlayer player) {
-    this.players.put(player.getConnection().getConnection().getAddress(), player);
+    synchronized (this.players) {
+      this.players.put(player.getAddress(), player);
+    }
   }
 
   @NotNull
@@ -299,7 +301,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public int getPlayerCount() {
-    return this.players.size();
+    synchronized (this.players) {
+      return this.players.size();
+    }
   }
 
   @Override
@@ -444,7 +448,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public void onDisconnect(final RakNetServer server, final InetSocketAddress address, final RakNetClientPeer peer,
                            final String reason) {
-    this.players.remove(address);
+    synchronized (this.players) {
+      this.players.remove(address);
+    }
   }
 
   @Override
@@ -477,7 +483,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param player the player to remove.
    */
   public void removePlayer(@NotNull final ShirukaPlayer player) {
-    this.players.remove(player.getConnection().getConnection().getAddress());
+    synchronized (this.players) {
+      this.players.remove(player.getAddress());
+    }
   }
 
   /**
@@ -514,7 +522,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
     identifier.setServerName(ServerConfig.DESCRIPTION_MOTD.getValue().orElse(""));
     identifier.setWorldName(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world"));
-    identifier.setOnlinePlayerCount(this.players.size());
+    identifier.setOnlinePlayerCount(this.getPlayerCount());
   }
 
   /**

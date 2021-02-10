@@ -115,11 +115,6 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   public final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
 
   /**
-   * the catchup time.
-   */
-  private final long catchupTime = 0L;
-
-  /**
    * the process queue.
    */
   private final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
@@ -353,7 +348,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     }
     this.executeAll();
     final var endTime = System.nanoTime();
-    final var remaining = ShirukaTick.TICK_TIME - (endTime - this.lastTick) - this.catchupTime;
+    final var remaining = ShirukaTick.TICK_TIME - (endTime - this.lastTick);
     final var duration = (double) (endTime - this.lastTick) / 1000000D;
     Shiruka.getEventManager().serverTickEnd(this.ticks, duration, remaining).callEvent();
   }

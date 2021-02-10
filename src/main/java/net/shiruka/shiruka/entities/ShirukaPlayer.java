@@ -27,6 +27,7 @@ package net.shiruka.shiruka.entities;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -41,6 +42,7 @@ import net.shiruka.api.events.KickEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
@@ -86,6 +88,12 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * the ping.
    */
   private final AtomicInteger ping = new AtomicInteger();
+
+  /**
+   * the data file.
+   */
+  @Nullable
+  private File dataFile;
 
   /**
    * the hash.
@@ -271,6 +279,19 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return this.connection;
   }
 
+  /**
+   * obtains the {@link #dataFile}.
+   *
+   * @return data file.
+   */
+  @NotNull
+  public File getDataFile() {
+    if (this.dataFile == null) {
+      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getXboxUniqueId() + ".dat");
+    }
+    return this.dataFile;
+  }
+
   @NotNull
   @Override
   public UUID getUniqueId() {
@@ -330,7 +351,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
       return;
     }
-    
     server.getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }

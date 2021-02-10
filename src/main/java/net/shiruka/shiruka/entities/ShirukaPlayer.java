@@ -306,7 +306,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * bunch of packets related to starting the game for the player will send here.
    */
   public void initialize() {
-    final var server = Shiruka.getServer();
+    final var server = this.connection.getServer();
     if (!this.canBypassPlayerLimit() &&
       server.getPlayerCount() >= server.getMaxPlayerCount() &&
       this.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
@@ -330,7 +330,8 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
       return;
     }
-    this.connection.getServer().getTick().lastPingTime = 0L;
+    
+    server.getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }
 

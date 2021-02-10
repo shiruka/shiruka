@@ -65,7 +65,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("ShirukaTick");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the sample interval.

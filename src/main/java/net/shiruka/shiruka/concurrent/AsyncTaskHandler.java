@@ -44,7 +44,7 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("AsyncTaskHandler");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the tasks.

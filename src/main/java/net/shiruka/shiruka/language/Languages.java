@@ -66,7 +66,7 @@ public final class Languages {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Languages");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the shiruka variables.

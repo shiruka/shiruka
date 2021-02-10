@@ -36,7 +36,7 @@ public final class SystemUtils {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SystemUtils");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * ctor.

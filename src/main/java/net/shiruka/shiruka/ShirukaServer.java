@@ -100,7 +100,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Shiru ka");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the command manager.

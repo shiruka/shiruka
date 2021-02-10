@@ -43,7 +43,7 @@ public final class Protocol {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Protocol");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the zlib.

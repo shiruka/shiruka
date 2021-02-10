@@ -174,7 +174,7 @@ public final class RplZip implements PackLoader {
     /**
      * the logger.
      */
-    private static final Logger LOGGER = LogManager.getLogger("ZipFactory");
+    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * zip pack loader name matcher.

@@ -84,7 +84,7 @@ public final class ShirukaMain {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("ShirukaMain");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the server locale.

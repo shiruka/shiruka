@@ -171,14 +171,14 @@ public final class ShirukaMain {
       .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
     final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
       .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
     final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
     final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
     final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
-    socket.setIdentifier(identifier);
+      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, 0L, worldName, gameMode);
+    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer, identifier);
+    identifier.setServerGloballyUniqueId(socket.getGloballyUniqueId());
     return socket;
   }
 

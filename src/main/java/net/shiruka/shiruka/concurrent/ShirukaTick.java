@@ -37,10 +37,10 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.shiruka.api.Shiruka;
-import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
+import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.RollingAverage;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +66,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * the logger.
    */
   private static final Logger LOGGER = LogManager.getLogger("ShirukaTick");
+
 
   /**
    * the sample interval.
@@ -325,7 +326,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
       try {
         connection.tick();
       } catch (final Exception e) {
-        connection.disconnect(TranslatedText.get("shiruka.concurrent.tick.do_tick.login_error"));
+        connection.disconnect(TranslatedTexts.LOGIN_ERROR);
         JiraExceptionCatcher.serverException(e);
       }
     }

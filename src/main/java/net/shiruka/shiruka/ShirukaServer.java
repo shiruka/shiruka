@@ -73,6 +73,7 @@ import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
 import net.shiruka.shiruka.scheduler.SimpleScheduler;
+import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.SystemUtils;
 import net.shiruka.shiruka.world.SimpleWorldManager;
 import org.apache.logging.log4j.LogManager;
@@ -341,12 +342,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public void startServer() {
     this.registerImplementations();
-    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.starting"));
+    this.getLogger().info(TranslatedTexts.SERVER_STARTING);
     this.packManager.reloadPacks();
     this.running.set(true);
-    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
+    this.getLogger().info(TranslatedTexts.LOADING_PLUGINS);
     // @todo #1:60m Load plugins here.
-    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.enabling_plugin"));
+    this.getLogger().info(TranslatedTexts.ENABLING_PLUGINS_BEFORE_WORLDS);
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     this.getLogger().info("§eLoading worlds.");
     // this.worldManager.loadAll();

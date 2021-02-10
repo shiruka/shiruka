@@ -27,7 +27,7 @@ package net.shiruka.shiruka.base;
 
 import java.util.Arrays;
 import net.shiruka.api.base.Viewable;
-import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
 

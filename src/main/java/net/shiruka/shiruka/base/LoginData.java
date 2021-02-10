@@ -33,7 +33,7 @@ import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

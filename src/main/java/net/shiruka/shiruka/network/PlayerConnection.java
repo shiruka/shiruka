@@ -50,7 +50,7 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.network.packets.*;
 import net.shiruka.shiruka.text.TranslatedTexts;

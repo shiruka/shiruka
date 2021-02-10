@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.entity;
+package net.shiruka.shiruka.entities;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;

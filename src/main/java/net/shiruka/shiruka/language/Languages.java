@@ -27,8 +27,6 @@ package net.shiruka.shiruka.language;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
@@ -36,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
@@ -71,14 +70,12 @@ public final class Languages {
   /**
    * the shiruka variables.
    */
-  private static final Map<String, Properties> SHIRUKA_VARIABLES =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  private static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
 
   /**
    * the vanilla variables.
    */
-  private static final Map<String, Properties> VANILLA_VARIABLES =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  private static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
 
   /**
    * ctor.

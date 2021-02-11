@@ -25,9 +25,8 @@
 
 package net.shiruka.shiruka.log;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -43,7 +42,7 @@ public final class ForwardLogHandler extends ConsoleHandler {
   /**
    * the cached loggers.
    */
-  private final Map<String, Logger> cachedLoggers = Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  private final Map<String, Logger> cachedLoggers = new ConcurrentHashMap<>();
 
   @Override
   public void flush() {

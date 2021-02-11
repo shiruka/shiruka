@@ -25,11 +25,10 @@
 
 package net.shiruka.shiruka.scheduler;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -63,7 +62,7 @@ public class SimpleScheduler implements ShirukaScheduler {
   /**
    * the runners.
    */
-  final Map<Integer, ShirukaTask> runners = Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  final Map<Integer, ShirukaTask> runners = new ConcurrentHashMap<>();
 
   /**
    * the temp.

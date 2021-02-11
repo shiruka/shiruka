@@ -34,6 +34,7 @@ import net.shiruka.api.events.KickEvent;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
+import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.text.TranslatedTexts;
@@ -88,7 +89,7 @@ public final class PlayerList {
   /**
    * the max players.
    */
-  public int maxPlayers;
+  public int maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(20);
 
   /**
    * ctor.

@@ -177,6 +177,7 @@ public final class Languages {
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
     if (split.length != 2) {
+      Languages.LOGGER.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
     final var upperChosen = Languages.secondUpper(chosenLanguage);

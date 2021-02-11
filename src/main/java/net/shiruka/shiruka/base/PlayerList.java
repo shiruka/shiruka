@@ -149,6 +149,6 @@ public final class PlayerList {
       return;
     }
     server.getTick().lastPingTime = 0L;
-//    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
+    throw new UnsupportedOperationException(" @todo #1:10m Implement PlayerList#initialize.");
   }
 }

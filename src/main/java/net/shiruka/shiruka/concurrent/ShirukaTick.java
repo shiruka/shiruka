@@ -27,14 +27,13 @@ package net.shiruka.shiruka.concurrent;
 
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import it.unimi.dsi.fastutil.PriorityQueue;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.ShirukaServer;
@@ -106,8 +105,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the connected players.
    */
-  public final Map<InetSocketAddress, PlayerConnection> connectedPlayers =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  public final Map<InetSocketAddress, PlayerConnection> connectedPlayers = new ConcurrentHashMap<>();
 
   /**
    * the pending.

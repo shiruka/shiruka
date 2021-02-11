@@ -151,7 +151,7 @@ public final class Languages {
   @NotNull
   public static Locale toLocale(@NotNull final String locale) {
     final var split = locale.split("_");
-    return new Locale(split[0], split[1]);
+    return new Locale(split[0].toLowerCase(Locale.ROOT), split[1].toLowerCase(Locale.ROOT));
   }
 
   /**
@@ -163,7 +163,7 @@ public final class Languages {
    */
   @NotNull
   public static String toString(@NotNull final Locale locale) {
-    return locale.getLanguage() + "_" + locale.getCountry();
+    return locale.getLanguage().toLowerCase(Locale.ROOT) + "_" + locale.getCountry().toLowerCase(Locale.ROOT);
   }
 
   /**
@@ -174,7 +174,7 @@ public final class Languages {
   @NotNull
   private static Locale choosingLanguageLoop() {
     final var scanner = new Scanner(System.in);
-    final var chosenLanguage = scanner.nextLine();
+    final var chosenLanguage = scanner.nextLine().toLowerCase(Locale.ROOT);
     final var split = chosenLanguage.split("_");
     if (!Languages.AVAILABLE_LANGUAGES.contains(chosenLanguage) || split.length != 2) {
       Languages.LOGGER.error("§cPlease write a valid language!");
@@ -222,6 +222,7 @@ public final class Languages {
           StandardCharsets.UTF_8))
         .asArray().values().stream()
         .map(JsonValue::asString)
+        .map(s -> s.toLowerCase(Locale.ROOT))
         .collect(Collectors.toUnmodifiableSet()));
     Languages.AVAILABLE_LANGUAGES.forEach(s -> {
       Languages.SHIRUKA_VARIABLES.put(s, new Properties());
@@ -285,18 +286,32 @@ public final class Languages {
    * @param locale the locale to load.
    */
   private static void loadVariables(@NotNull final String locale) {
+    final var upperLocale = Languages.secondUpper(locale);
     final var shirukaStream = new InputStreamReader(
-      Languages.getResource(String.format("lang/shiruka/%s.properties", locale)),
+      Languages.getResource(String.format("lang/shiruka/%s.properties", upperLocale)),
       StandardCharsets.UTF_8);
     final var vanillaStream = new InputStreamReader(
-      Languages.getResource(String.format("lang/vanilla/%s.properties", locale)),
+      Languages.getResource(String.format("lang/vanilla/%s.properties", upperLocale)),
       StandardCharsets.UTF_8);
-    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(locale)).ifPresent(properties ->
+    Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(upperLocale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
         properties.load(shirukaStream)));
-    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties ->
+    Optional.ofNullable(Languages.VANILLA_VARIABLES.get(upperLocale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
         properties.load(vanillaStream)));
+  }
+
+  /**
+   * splits the given {@code text} and makes it upper case of the second part of the split.
+   *
+   * @param text the text to make upper case.
+   *
+   * @return upper cased text.
+   */
+  @NotNull
+  private static String secondUpper(@NotNull final String text) {
+    final var split = text.split("_");
+    return split[0] + "_" + split[1].toUpperCase(Locale.ROOT);
   }
 
   /**
@@ -307,16 +322,32 @@ public final class Languages {
    * @return {@code true} if the language is loaded.
    */
   private static boolean setLoadedLanguage(@NotNull final String locale) {
-    if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
+    final var lowerLocale = Languages.toLower(locale);
+    if (!Languages.AVAILABLE_LANGUAGES.contains(lowerLocale)) {
       return false;
     }
     final var value = ServerConfig.LOADED_LANGUAGES.getValue()
-      .orElse(new ObjectArrayList<>());
+      .orElse(new ObjectArrayList<>())
+      .stream()
+      .map(Languages::toLower)
+      .collect(Collectors.toList());
     if (value.contains(locale)) {
       return false;
     }
-    value.add(locale);
+    value.add(lowerLocale);
     ServerConfig.LOADED_LANGUAGES.setValue(value);
     return true;
+  }
+
+  /**
+   * makes the given {@code text} lower case.
+   *
+   * @param text the text to make lower case.
+   *
+   * @return lower cased text.
+   */
+  @NotNull
+  private static String toLower(@NotNull final String text) {
+    return text.toLowerCase(Locale.ROOT);
   }
 }

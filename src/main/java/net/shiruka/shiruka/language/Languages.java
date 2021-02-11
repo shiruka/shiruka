@@ -176,11 +176,15 @@ public final class Languages {
     final var scanner = new Scanner(System.in);
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
-    if (!Languages.AVAILABLE_LANGUAGES.contains(chosenLanguage) || split.length != 2) {
+    if (split.length != 2) {
+      return Languages.choosingLanguageLoop();
+    }
+    final var upperChosen = Languages.secondUpper(chosenLanguage);
+    if (!Languages.AVAILABLE_LANGUAGES.contains(upperChosen)) {
       Languages.LOGGER.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
-    return Languages.toLocale(chosenLanguage);
+    return Languages.toLocale(upperChosen);
   }
 
   /**
@@ -297,6 +301,18 @@ public final class Languages {
     Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
         properties.load(vanillaStream)));
+  }
+
+  /**
+   * makes upper case the given {@code text}'s second part
+   *
+   * @param text the text to make upper case.
+   *
+   * @return upper cased text.
+   */
+  private static String secondUpper(@NotNull final String text) {
+    final var split = text.split("_");
+    return split[0] + "_" + split[1].toUpperCase(Locale.ROOT);
   }
 
   /**

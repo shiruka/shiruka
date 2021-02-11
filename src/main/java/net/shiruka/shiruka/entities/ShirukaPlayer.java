@@ -48,7 +48,6 @@ import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.network.PlayerConnection;
-import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -321,40 +320,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return "ShirukaPlayer{" + "name=" + this.getName().asString() + '}';
   }
 
-  /**
-   * runs when the player just created.
-   * <p>
-   * bunch of packets related to starting the game for the player will send here.
-   */
-  public void initialize() {
-    final var server = this.connection.getServer();
-    if (!this.canBypassPlayerLimit() &&
-      server.getPlayerCount() >= server.getMaxPlayerCount() &&
-      this.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
-      return;
-    }
-    if (!this.canBypassWhitelist()) {
-      this.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedTexts.WHITELIST_ON_REASON);
-      return;
-    }
-    if (this.isNameBanned()) {
-      this.kick(KickEvent.Reason.NAME_BANNED, TranslatedTexts.BANNED_REASON);
-      return;
-    }
-    if (this.isIpBanned()) {
-      this.kick(KickEvent.Reason.IP_BANNED, TranslatedTexts.BANNED_REASON);
-      return;
-    }
-    final var alreadyOnline = Shiruka.getServer().getOnlinePlayers().stream()
-      .anyMatch(player -> player.getXboxUniqueId().equals(this.getXboxUniqueId()));
-    if (alreadyOnline) {
-      this.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
-      return;
-    }
-    server.getTick().lastPingTime = 0L;
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
-  }
-
   @Override
   public boolean isOp() {
     return OpsConfig.getInstance()
@@ -394,7 +359,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    *
    * @return {@code true} if the player can bypass the player limit.
    */
-  private boolean canBypassPlayerLimit() {
+  public boolean canBypassPlayerLimit() {
     return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
   }
 
@@ -403,7 +368,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    *
    * @return {@code true} if the player can bypass the whitelist and join the server.
    */
-  private boolean canBypassWhitelist() {
+  public boolean canBypassWhitelist() {
     return this.isOp() ||
       !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
       this.isWhitelisted();

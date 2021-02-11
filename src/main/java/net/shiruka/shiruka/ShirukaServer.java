@@ -55,8 +55,7 @@ import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
-import net.shiruka.shiruka.ban.IpBanList;
-import net.shiruka.shiruka.ban.ProfileBanList;
+import net.shiruka.shiruka.base.PlayerList;
 import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
@@ -68,7 +67,6 @@ import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import net.shiruka.shiruka.network.PacketHandler;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
@@ -103,6 +101,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private static final Logger LOGGER = LogManager.getLogger();
 
   /**
+   * the player list.
+   */
+  public final PlayerList playerList = new PlayerList(this);
+
+  /**
    * the command manager.
    */
   private final SimpleCommandManager commandManager = new SimpleCommandManager();
@@ -130,11 +133,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final Map<Class<?>, Object> interfaces = Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
 
   /**
-   * the ip ban list.
-   */
-  private final BanList ipBanList = new IpBanList();
-
-  /**
    * the language manager.
    */
   @NotNull
@@ -151,20 +149,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
-   * the player list.
-   */
-  private final Map<InetSocketAddress, ShirukaPlayer> players =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
-
-  /**
    * the plugin manager.
    */
   private final SimplePluginManager pluginManager = new SimplePluginManager();
-
-  /**
-   * the profile ban list.
-   */
-  private final BanList profileBanList = new ProfileBanList();
 
   /**
    * if the server is running.
@@ -250,24 +237,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.languageManager = new SimpleLanguageManager(serverLanguage);
   }
 
-  /**
-   * adds the given address and player into {@link #players}.
-   *
-   * @param player the player to add.
-   */
-  public void addPlayer(@NotNull final ShirukaPlayer player) {
-    synchronized (this.players) {
-      this.players.put(player.getAddress(), player);
-    }
-  }
-
   @NotNull
   @Override
   public BanList getBanList(@NotNull final BanList.Type type) {
     if (type == BanList.Type.IP) {
-      return this.ipBanList;
+      return this.playerList.ipBanList;
     }
-    return this.profileBanList;
+    return this.playerList.profileBanList;
   }
 
   @NotNull
@@ -287,23 +263,19 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public int getMaxPlayerCount() {
-    return this.socket.getMaxConnections();
+  public int getMaxPlayers() {
+    return this.playerList.maxPlayers;
+  }
+
+  @Override
+  public void setMaxPlayers(final int maxPlayers) {
+    this.playerList.maxPlayers = maxPlayers;
   }
 
   @NotNull
   @Override
   public Collection<? extends ShirukaPlayer> getOnlinePlayers() {
-    synchronized (this.players) {
-      return this.players.values();
-    }
-  }
-
-  @Override
-  public int getPlayerCount() {
-    synchronized (this.players) {
-      return this.players.size();
-    }
+    return this.playerList.getPlayers();
   }
 
   @Override
@@ -446,25 +418,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public void onDisconnect(final RakNetServer server, final InetSocketAddress address, final RakNetClientPeer peer,
-                           final String reason) {
-    synchronized (this.players) {
-      this.players.remove(address);
-    }
-  }
-
-  @Override
   public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
                             final int channel) {
-    final PacketHandler handler;
     final var address = peer.getAddress();
-    if (this.players.containsKey(address)) {
-      handler = this.players.get(address).getConnection();
-    } else if (this.tick.connectedPlayers.containsKey(address)) {
-      handler = this.tick.connectedPlayers.get(address).getPacketHandler();
-    } else {
+    if (!this.tick.connectedPlayers.containsKey(address)) {
       return;
     }
+    final var handler = this.tick.connectedPlayers.get(address).getPacketHandler();
     if (packet.getId() == 0xfe) {
       packet.buffer().markReaderIndex();
       Protocol.deserialize(handler, packet.buffer());
@@ -475,17 +435,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   public void onHandlerException(final RakNetServer server, final InetSocketAddress address,
                                  final Throwable throwable) {
     throwable.printStackTrace();
-  }
-
-  /**
-   * removes the given player from {@link #players}.
-   *
-   * @param player the player to remove.
-   */
-  public void removePlayer(@NotNull final ShirukaPlayer player) {
-    synchronized (this.players) {
-      this.players.remove(player.getAddress());
-    }
   }
 
   /**
@@ -522,7 +471,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
     identifier.setServerName(ServerConfig.DESCRIPTION_MOTD.getValue().orElse(""));
     identifier.setWorldName(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world"));
-    identifier.setOnlinePlayerCount(this.getPlayerCount());
+    identifier.setMaxPlayerCount(this.getMaxPlayers());
+    identifier.setOnlinePlayerCount(this.getOnlinePlayers().size());
   }
 
   /**

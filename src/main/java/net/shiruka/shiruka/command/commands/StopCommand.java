@@ -26,32 +26,51 @@
 package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
+import static net.shiruka.api.command.Commands.literal;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.builder.LiteralBuilder;
+import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents help command.
+ * a class that represents stop command.
  */
-public final class CommandHelp extends CommandHelper {
+public final class StopCommand extends CommandHelper {
+
+  /**
+   * the confirm sub command.
+   */
+  private static final String CONFIRM_SUB_COMMAND = "confirm";
 
   /**
    * ctor.
    */
-  public CommandHelp() {
-    super("help", "Shows the help menu", "shiruka.command.help");
+  private StopCommand() {
+    super("stop", "Stops the server.", "shiruka.command.stop");
   }
 
   /**
    * registers the stop command.
    */
   public static void init() {
-    new CommandHelp().register();
+    new StopCommand().register();
   }
 
+  /**
+   * registers the stop command.
+   */
   @NotNull
   @Override
   protected LiteralBuilder build() {
     return super.build()
-      .executes(context -> of());
+      .executes(context -> {
+        CommandHelper.sendTranslated(context, TranslatedTexts.ADD_CONFIRM);
+        return of();
+      })
+      .then(literal(StopCommand.CONFIRM_SUB_COMMAND)
+        .executes(context -> {
+          Shiruka.getServer().stopServer();
+          return of();
+        }));
   }
 }

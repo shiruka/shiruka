@@ -26,55 +26,71 @@
 package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
-import static net.shiruka.api.command.Commands.literal;
-import net.shiruka.api.Shiruka;
+import java.util.Arrays;
 import net.shiruka.api.command.builder.LiteralBuilder;
+import net.shiruka.api.text.ChatColor;
+import net.shiruka.shiruka.concurrent.ShirukaTick;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents stop command.
+ * a class that represents tps command.
  */
-public final class CommandStop extends CommandHelper {
-
-  /**
-   * the confirm sub command.
-   */
-  private static final String CONFIRM_SUB_COMMAND = "confirm";
+public final class TpsCommand extends CommandHelper {
 
   /**
    * the message key from the Shiru ka's language properties file.
    */
-  private static final String MESSAGE = "shiruka.command.commands.command_stop.register.add_confirm";
+  private static final String MESSAGE = "shiruka.command.tps_command.show_tps";
 
   /**
    * ctor.
    */
-  private CommandStop() {
-    super("stop", "Stops the server.", "shiruka.command.stop");
+  private TpsCommand() {
+    super("tps", "Gets the current ticks per second for the server.",
+      "shiruka.command.tps");
   }
 
   /**
    * registers the stop command.
    */
   public static void init() {
-    new CommandStop().register();
+    new TpsCommand().register();
   }
 
   /**
-   * registers the stop command.
+   * obtains the tps numbers as {@link String} array which has 3 elements.
+   *
+   * @return tps numbers as string array.
+   */
+  @NotNull
+  private static String[] getTps() {
+    return Arrays.stream(ShirukaTick.getTps())
+      .mapToObj(value -> {
+        final ChatColor color;
+        if (value > 18.0d) {
+          color = ChatColor.GREEN;
+        } else if (value > 16.0d) {
+          color = ChatColor.YELLOW;
+        } else {
+          color = ChatColor.RED;
+        }
+        final var putStar = value > 21.0 ? "*" : "";
+        return color + putStar + Math.min(Math.round(value * 100.0) / 100.0, 20.0) + ChatColor.RESET;
+      })
+      .toArray(String[]::new);
+  }
+
+  /**
+   * registers the command.
    */
   @NotNull
   @Override
   protected LiteralBuilder build() {
     return super.build()
       .executes(context -> {
-        CommandHelper.sendTranslated(context, CommandStop.MESSAGE);
+        final var tpsAvg = TpsCommand.getTps();
+        CommandHelper.sendTranslated(context, TpsCommand.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
         return of();
-      })
-      .then(literal(CommandStop.CONFIRM_SUB_COMMAND)
-        .executes(context -> {
-          Shiruka.getServer().stopServer();
-          return of();
-        }));
+      });
   }
 }

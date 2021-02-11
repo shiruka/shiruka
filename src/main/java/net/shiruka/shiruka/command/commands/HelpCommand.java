@@ -26,71 +26,32 @@
 package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
-import java.util.Arrays;
 import net.shiruka.api.command.builder.LiteralBuilder;
-import net.shiruka.api.text.ChatColor;
-import net.shiruka.shiruka.concurrent.ShirukaTick;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents tps command.
+ * a class that represents help command.
  */
-public final class CommandTps extends CommandHelper {
-
-  /**
-   * the message key from the Shiru ka's language properties file.
-   */
-  private static final String MESSAGE = "shiruka.command.commands.tps.register.show_tps";
+public final class HelpCommand extends CommandHelper {
 
   /**
    * ctor.
    */
-  private CommandTps() {
-    super("tps", "Gets the current ticks per second for the server.",
-      "shiruka.command.tps");
+  public HelpCommand() {
+    super("help", "Shows the help menu", "shiruka.command.help");
   }
 
   /**
    * registers the stop command.
    */
   public static void init() {
-    new CommandTps().register();
+    new HelpCommand().register();
   }
 
-  /**
-   * obtains the tps numbers as {@link String} array which has 3 elements.
-   *
-   * @return tps numbers as string array.
-   */
-  @NotNull
-  private static String[] getTps() {
-    return Arrays.stream(ShirukaTick.getTps())
-      .mapToObj(value -> {
-        final ChatColor color;
-        if (value > 18.0d) {
-          color = ChatColor.GREEN;
-        } else if (value > 16.0d) {
-          color = ChatColor.YELLOW;
-        } else {
-          color = ChatColor.RED;
-        }
-        final var putStar = value > 21.0 ? "*" : "";
-        return color + putStar + Math.min(Math.round(value * 100.0) / 100.0, 20.0) + ChatColor.RESET;
-      })
-      .toArray(String[]::new);
-  }
-
-  /**
-   * registers the command.
-   */
   @NotNull
   @Override
   protected LiteralBuilder build() {
     return super.build()
-      .executes(context -> {
-        final var tpsAvg = CommandTps.getTps();
-        CommandHelper.sendTranslated(context, CommandTps.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
-        return of();
-      });
+      .executes(context -> of());
   }
 }

@@ -36,13 +36,12 @@ public final class TranslatedTexts {
    * the banned reason.
    */
   public static final TranslatedText ALREADY_LOGGED_IN_REASON =
-    TranslatedText.get("shiruka.entity.shiruka_player.initialize.already_logged_in");
+    TranslatedText.get("shiruka.player.already_logged_in");
 
   /**
    * the banned reason.
    */
-  public static final TranslatedText BANNED_REASON =
-    TranslatedText.get("shiruka.entity.shiruka_player.initialize.banned");
+  public static final TranslatedText BANNED_REASON = TranslatedText.get("shiruka.player.banned");
 
   /**
    * the disconnected with no reason.
@@ -53,7 +52,7 @@ public final class TranslatedTexts {
    * the enabling plugins before worlds.
    */
   public static final TranslatedText ENABLING_PLUGINS_BEFORE_WORLDS =
-    TranslatedText.get("shiruka.server.start_server.enabling_plugin");
+    TranslatedText.get("shiruka.server.enabling_plugin");
 
   /**
    * the invalid name reason.
@@ -68,14 +67,12 @@ public final class TranslatedTexts {
   /**
    * the loading plugins.
    */
-  public static final TranslatedText LOADING_PLUGINS =
-    TranslatedText.get("shiruka.server.start_server.loading_plugins");
+  public static final TranslatedText LOADING_PLUGINS = TranslatedText.get("shiruka.server.loading_plugins");
 
   /**
    * the login error.
    */
-  public static final TranslatedText LOGIN_ERROR =
-    TranslatedText.get("shiruka.concurrent.tick.do_tick.login_error");
+  public static final TranslatedText LOGIN_ERROR = TranslatedText.get("shiruka.server.login_error");
 
   /**
    * the not authenticated reason.
@@ -91,14 +88,17 @@ public final class TranslatedTexts {
   /**
    * the resource pack reason.
    */
-  public static final TranslatedText RESOURCE_PACK_REASON =
-    TranslatedText.get("disconnectionScreen.resourcePack");
+  public static final TranslatedText RESOURCE_PACK_REASON = TranslatedText.get("disconnectionScreen.resourcePack");
 
   /**
    * the restart reason.
    */
-  public static final TranslatedText RESTART_REASON =
-    TranslatedText.get("shiruka.network.player_connection.restart_message");
+  public static final TranslatedText RESTART_REASON = TranslatedText.get("shiruka.connection.restart_message");
+
+  /**
+   * the add confirm.
+   */
+  public static final TranslatedText ADD_CONFIRM = TranslatedText.get("shiruka.command.stop_command.add_confirm");
 
   /**
    * the server full reason.
@@ -108,19 +108,17 @@ public final class TranslatedTexts {
   /**
    * the server starting.
    */
-  public static final TranslatedText SERVER_STARTING = TranslatedText.get("shiruka.server.start_server.starting");
+  public static final TranslatedText SERVER_STARTING = TranslatedText.get("shiruka.server.starting");
 
   /**
    * the slot login reason.
    */
-  public static final TranslatedText SLOW_LOGIN_REASON =
-    TranslatedText.get("shiruka.network.player_connection.tick.slow_login");
+  public static final TranslatedText SLOW_LOGIN_REASON = TranslatedText.get("shiruka.connection.slow_login");
 
   /**
    * the whitelist on reason.
    */
-  public static final TranslatedText WHITELIST_ON_REASON =
-    TranslatedText.get("shiruka.entity.shiruka_player.initialize.whitelist.on");
+  public static final TranslatedText WHITELIST_ON_REASON = TranslatedText.get("shiruka.player.whitelist.on");
 
   /**
    * ctor.

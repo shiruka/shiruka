@@ -35,9 +35,9 @@ import net.shiruka.api.command.exceptions.CommandSyntaxException;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.TranslatedText;
-import net.shiruka.shiruka.command.commands.CommandHelp;
-import net.shiruka.shiruka.command.commands.CommandStop;
-import net.shiruka.shiruka.command.commands.CommandTps;
+import net.shiruka.shiruka.command.commands.HelpCommand;
+import net.shiruka.shiruka.command.commands.StopCommand;
+import net.shiruka.shiruka.command.commands.TpsCommand;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -57,11 +57,16 @@ public final class SimpleCommandManager implements CommandManager {
    */
   private static final Logger LOGGER = LogManager.getLogger();
 
+  /**
+   * the not found.
+   */
+  private static final String NOT_FOUND = "shiruka.command.not_found";
+
   static {
     DISPATCHER = new CommandDispatcher();
-    CommandStop.init();
-    CommandTps.init();
-    CommandHelp.init();
+    StopCommand.init();
+    TpsCommand.init();
+    HelpCommand.init();
   }
 
   /**
@@ -88,7 +93,7 @@ public final class SimpleCommandManager implements CommandManager {
       SimpleCommandManager.DISPATCHER.execute(command, sender);
     } catch (final CommandSyntaxException e) {
       if (e.getType() == CommandException.DISPATCHER_UNKNOWN_COMMAND) {
-        sender.sendMessage(TranslatedText.get("shiruka.command.manager.execute.not_found", command));
+        sender.sendMessage(TranslatedText.get(SimpleCommandManager.NOT_FOUND, command));
         return;
       }
       SimpleCommandManager.LOGGER.error("An exception caught when running a command: ", e);

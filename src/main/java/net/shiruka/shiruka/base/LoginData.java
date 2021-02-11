@@ -132,7 +132,7 @@ public final class LoginData {
     }
     final var profile = new GameProfile(this.username, this.chainData.getUniqueId(), this.chainData.getXboxUniqueId());
     final var player = new ShirukaPlayer(this.connection, this, profile);
-    this.connection.getServer().playerList.initialize(player, this.connection);
+    this.connection.initialize(player);
     this.asyncLogin.getActions().forEach(action -> action.accept(player));
   }
 

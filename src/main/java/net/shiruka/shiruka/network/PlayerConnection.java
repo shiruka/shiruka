@@ -159,47 +159,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   @Override
-  public void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
-    final var status = packet.getStatus();
-    final var packs = packet.getPacks();
-    switch (status) {
-      case REFUSED:
-        if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
-          this.disconnect(TranslatedTexts.NO_REASON);
-        }
-        break;
-      case COMPLETED:
-        if (this.loginData == null) {
-          return;
-        }
-        if (this.loginData.getTask() != null &&
-          !Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
-          this.loginData.initializePlayer();
-        } else {
-          this.loginData.setShouldLogin(true);
-        }
-        break;
-      case SEND_PACKS:
-        packs.forEach(pack -> {
-          final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
-          if (optional.isEmpty()) {
-            this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON);
-            return;
-          }
-          final var loaded = optional.get();
-          this.sendPacket(new ResourcePackDataInfoPacket(loaded));
-        });
-        break;
-      case HAVE_ALL_PACKS:
-        final var packStack = Shiruka.getPackManager().getPackStack();
-        if (packStack instanceof ShirukaPacket) {
-          this.sendPacket((ShirukaPacket) packStack);
-        }
-        break;
-    }
-  }
-
-  @Override
   public void tick() {
     if (this.connection.isConnected() && Shiruka.isPrimaryThread()) {
       this.handleQueuedPackets();
@@ -338,6 +297,17 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   /**
+   * runs when the player just created.
+   *
+   * @param player the player to initialize.
+   */
+  public void initialize(@NotNull final ShirukaPlayer player) {
+    this.player = player;
+    this.setPacketHandler(this);
+    this.server.playerList.initialize(player, this);
+  }
+
+  /**
    * sends the given {@code packet} to {@link #connection}.
    *
    * @param packet the packet to send.
@@ -423,6 +393,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
     private LoginPacket latestLoginPacket;
 
     /**
+     * the latest resource packet.
+     */
+    @Nullable
+    private ResourcePackResponsePacket latestResourcePacket;
+
+    /**
      * the login timeout counter.
      */
     private int loginTimeoutCounter;
@@ -433,6 +409,11 @@ public final class PlayerConnection implements PacketHandler, Tick {
     }
 
     @Override
+    public void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
+      this.latestResourcePacket = packet;
+    }
+
+    @Override
     public void tick() {
       if (!Shiruka.getServer().isRunning()) {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
@@ -440,6 +421,9 @@ public final class PlayerConnection implements PacketHandler, Tick {
       }
       if (this.latestLoginPacket != null) {
         this.loginPacket0(this.latestLoginPacket);
+      }
+      if (this.latestResourcePacket != null) {
+        this.resourcePackResponsePacket0(this.latestResourcePacket);
       }
       if (this.loginTimeoutCounter++ >= 600) {
         PlayerConnection.this.disconnect(TranslatedTexts.SLOW_LOGIN_REASON);
@@ -519,6 +503,50 @@ public final class PlayerConnection implements PacketHandler, Tick {
           }
         });
       });
+    }
+
+    /**
+     * handles the resource pack response packet.
+     */
+    private void resourcePackResponsePacket0(@NotNull final ResourcePackResponsePacket packet) {
+      final var status = packet.getStatus();
+      final var packs = packet.getPacks();
+      final var packManager = Shiruka.getPackManager();
+      switch (status) {
+        case REFUSED:
+          if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
+            PlayerConnection.this.disconnect(TranslatedTexts.NO_REASON);
+          }
+          break;
+        case COMPLETED:
+          if (PlayerConnection.this.loginData == null) {
+            return;
+          }
+          if (PlayerConnection.this.loginData.getTask() != null &&
+            Shiruka.getScheduler().isCurrentlyRunning(PlayerConnection.this.loginData.getTask().getTaskId())) {
+            PlayerConnection.this.loginData.setShouldLogin(true);
+          } else {
+            PlayerConnection.this.loginData.initializePlayer();
+          }
+          break;
+        case SEND_PACKS:
+          packs.forEach(pack -> {
+            final var optional = packManager.getPackByUniqueId(pack.getUniqueId());
+            if (optional.isEmpty()) {
+              PlayerConnection.this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON);
+              return;
+            }
+            final var loaded = optional.get();
+            PlayerConnection.this.sendPacket(new ResourcePackDataInfoPacket(loaded));
+          });
+          break;
+        case HAVE_ALL_PACKS:
+          final var packStack = packManager.getPackStack();
+          if (packStack instanceof ShirukaPacket) {
+            PlayerConnection.this.sendPacket((ShirukaPacket) packStack);
+          }
+          break;
+      }
     }
   }
 }

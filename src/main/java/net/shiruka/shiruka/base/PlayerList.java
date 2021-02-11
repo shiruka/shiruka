@@ -117,12 +117,10 @@ public final class PlayerList {
    * <p>
    * bunch of packets related to starting the game for the player will send here.
    *
-   * @param player the player.
-   * @param connection the connection.
+   * @param player the player to initialize.
+   * @param connection the connection to initialize.
    */
   public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
-    connection.setPlayer(player);
-    connection.setPacketHandler(connection);
     final var xboxUniqueId = player.getXboxUniqueId();
     this.pendingPlayers.put(xboxUniqueId, player);
     final var server = connection.getServer();
@@ -151,6 +149,6 @@ public final class PlayerList {
       return;
     }
     server.getTick().lastPingTime = 0L;
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
+//    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }
 }

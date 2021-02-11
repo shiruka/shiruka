@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.base;
 
-import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.shiruka.api.base.BanList;
@@ -62,22 +62,22 @@ public final class PlayerList {
   /**
    * the pending players.
    */
-  private final Map<String, ShirukaPlayer> pendingPlayers = Maps.newHashMap();
+  private final Map<String, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by name.
    */
-  private final Map<String, ShirukaPlayer> playersByName = new HashMap<>();
+  private final Map<String, ShirukaPlayer> playersByName = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by unique id.
    */
-  private final Map<UUID, ShirukaPlayer> playersByUniqueId = new HashMap<>();
+  private final Map<UUID, ShirukaPlayer> playersByUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by xbox unique id.
    */
-  private final Map<String, ShirukaPlayer> playersByXboxUniqueId = new HashMap<>();
+  private final Map<String, ShirukaPlayer> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the server.

@@ -50,9 +50,10 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.network.packets.*;
+import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,16 +61,6 @@ import org.jetbrains.annotations.Nullable;
  * a class that represents player connections.
  */
 public final class PlayerConnection implements PacketHandler, Tick {
-
-  /**
-   * the invalid name reason.
-   */
-  private static final TranslatedText INVALID_NAME_REASON = TranslatedText.get("disconnectionScreen.invalidName");
-
-  /**
-   * the invalid skin reason.
-   */
-  private static final TranslatedText INVALID_SKIN_REASON = TranslatedText.get("disconnectionScreen.invalidSkin");
 
   /**
    * the maximum login per tick.
@@ -80,35 +71,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * the name pattern to check client's usernames.
    */
   private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
-
-  /**
-   * the not authenticated reason.
-   */
-  private static final TranslatedText NOT_AUTHENTICATED_REASON =
-    TranslatedText.get("disconnectionScreen.notAuthenticated");
-
-  /**
-   * the no reason.
-   */
-  private static final TranslatedText NO_REASON = TranslatedText.get("disconnectionScreen.noReason");
-
-  /**
-   * the resource pack reason.
-   */
-  private static final TranslatedText RESOURCE_PACK_REASON =
-    TranslatedText.get("disconnectionScreen.resourcePack");
-
-  /**
-   * the restart reason.
-   */
-  private static final TranslatedText RESTART_REASON =
-    TranslatedText.get("shiruka.network.player_connection.restart_message");
-
-  /**
-   * the slot login reason.
-   */
-  private static final TranslatedText SLOW_LOGIN_REASON =
-    TranslatedText.get("shiruka.network.player_connection.tick.slow_login");
 
   /**
    * the join attempts this tick.
@@ -187,7 +149,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
     final var chunkSize = packet.getChunkSize();
     final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
     if (resourcePack.isEmpty()) {
-      this.disconnect(PlayerConnection.RESOURCE_PACK_REASON.asString());
+      this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
       return;
     }
     final var pack = resourcePack.get();
@@ -203,7 +165,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
     switch (status) {
       case REFUSED:
         if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
-          this.disconnect(PlayerConnection.NO_REASON);
+          this.disconnect(TranslatedTexts.NO_REASON);
         }
         break;
       case COMPLETED:
@@ -221,7 +183,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         packs.forEach(pack -> {
           final var optional = Shiruka.getPackManager().getPackByUniqueId(pack.getUniqueId());
           if (optional.isEmpty()) {
-            this.disconnect(PlayerConnection.RESOURCE_PACK_REASON);
+            this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON);
             return;
           }
           final var loaded = optional.get();
@@ -288,7 +250,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
    */
   public void disconnect(@Nullable final Text reason) {
     Preconditions.checkState(this.connection.isConnected(), "not connected");
-    final var message = this.translate0(reason, PacketUtility.DISCONNECTED_NO_REASON).asString();
+    final var message = this.translate0(reason, TranslatedTexts.DISCONNECTED_NO_REASON).asString();
     this.sendPacketImmediately(new DisconnectPacket(message, reason == null));
   }
 
@@ -473,14 +435,14 @@ public final class PlayerConnection implements PacketHandler, Tick {
     @Override
     public void tick() {
       if (!Shiruka.getServer().isRunning()) {
-        PlayerConnection.this.disconnect(PlayerConnection.RESTART_REASON);
+        PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
         return;
       }
       if (this.latestLoginPacket != null) {
         this.loginPacket0(this.latestLoginPacket);
       }
       if (this.loginTimeoutCounter++ >= 600) {
-        PlayerConnection.this.disconnect(PlayerConnection.SLOW_LOGIN_REASON);
+        PlayerConnection.this.disconnect(TranslatedTexts.SLOW_LOGIN_REASON);
       }
     }
 
@@ -492,7 +454,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
     private void loginPacket0(@NotNull final LoginPacket packet) {
       this.latestLoginPacket = null;
       if (Shiruka.isStopping()) {
-        PlayerConnection.this.disconnect(PlayerConnection.RESTART_REASON);
+        PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
         return;
       }
       final var protocolVersion = packet.getProtocolVersion();
@@ -513,7 +475,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
           Languages.addLoadedLanguage(chainData.getLanguageCode());
           if (!chainData.getXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(true)) {
-            PlayerConnection.this.disconnect(PlayerConnection.NOT_AUTHENTICATED_REASON);
+            PlayerConnection.this.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
             return;
           }
           final var username = chainData.getUsername();
@@ -521,11 +483,11 @@ public final class PlayerConnection implements PacketHandler, Tick {
           if (!matcher.matches() ||
             username.equalsIgnoreCase("rcon") ||
             username.equalsIgnoreCase("console")) {
-            PlayerConnection.this.disconnect(PlayerConnection.INVALID_NAME_REASON);
+            PlayerConnection.this.disconnect(TranslatedTexts.INVALID_NAME_REASON);
             return;
           }
           if (!chainData.getSkin().isValid()) {
-            PlayerConnection.this.disconnect(PlayerConnection.INVALID_SKIN_REASON);
+            PlayerConnection.this.disconnect(TranslatedTexts.INVALID_SKIN_REASON);
             return;
           }
           PlayerConnection.this.loginData = new LoginData(chainData, PlayerConnection.this, () -> ChatColor.clean(username));

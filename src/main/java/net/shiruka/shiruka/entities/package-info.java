@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains entity classes.
+ * the package that contains implementations for {@link net.shiruka.api.entity.Entity}.
  */
-package net.shiruka.shiruka.entity;
+package net.shiruka.shiruka.entities;

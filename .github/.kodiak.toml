@@ -4,3 +4,5 @@ method = "squash"
 delete_branch_on_merge = true
 [merge.message]
 body = "pull_request_body"
+[approve]
+auto_approve_usernames = ["portlek", "dependabot"]

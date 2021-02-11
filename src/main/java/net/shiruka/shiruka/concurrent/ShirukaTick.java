@@ -27,20 +27,19 @@ package net.shiruka.shiruka.concurrent;
 
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import it.unimi.dsi.fastutil.PriorityQueue;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.shiruka.api.Shiruka;
-import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
+import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.RollingAverage;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.LogManager;
@@ -65,7 +64,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("ShirukaTick");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the sample interval.
@@ -106,18 +105,12 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the connected players.
    */
-  public final Map<InetSocketAddress, PlayerConnection> connectedPlayers =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  public final Map<InetSocketAddress, PlayerConnection> connectedPlayers = new ConcurrentHashMap<>();
 
   /**
    * the pending.
    */
   public final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
-
-  /**
-   * the catchup time.
-   */
-  private final long catchupTime = 0L;
 
   /**
    * the process queue.
@@ -325,7 +318,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
       try {
         connection.tick();
       } catch (final Exception e) {
-        connection.disconnect(TranslatedText.get("shiruka.concurrent.tick.do_tick.login_error"));
+        connection.disconnect(TranslatedTexts.LOGIN_ERROR);
         JiraExceptionCatcher.serverException(e);
       }
     }
@@ -353,7 +346,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     }
     this.executeAll();
     final var endTime = System.nanoTime();
-    final var remaining = ShirukaTick.TICK_TIME - (endTime - this.lastTick) - this.catchupTime;
+    final var remaining = ShirukaTick.TICK_TIME - (endTime - this.lastTick);
     final var duration = (double) (endTime - this.lastTick) / 1000000D;
     Shiruka.getEventManager().serverTickEnd(this.ticks, duration, remaining).callEvent();
   }

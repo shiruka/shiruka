@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.entity;
+package net.shiruka.shiruka.entities;
 
 import java.util.Collections;
 import java.util.List;

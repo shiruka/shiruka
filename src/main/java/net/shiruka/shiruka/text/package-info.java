@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains entity classes.
+ * the package that contains text classe.
  */
-package net.shiruka.shiruka.entity;
+package net.shiruka.shiruka.text;

@@ -84,7 +84,7 @@ public final class ShirukaMain {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("ShirukaMain");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the server locale.
@@ -149,7 +149,6 @@ public final class ShirukaMain {
     System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
     JiraExceptionCatcher.run(() -> {
-      ShirukaMain.payloadClasses();
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.SERVER_LOCALE = Languages.startSequence();
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
@@ -172,14 +171,14 @@ public final class ShirukaMain {
       .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
     final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
       .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer);
     final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
     final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
     final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
     final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
     final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, socket.getGloballyUniqueId(), worldName, gameMode);
-    socket.setIdentifier(identifier);
+      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, 0L, worldName, gameMode);
+    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer, identifier);
+    identifier.setServerGloballyUniqueId(socket.getGloballyUniqueId());
     return socket;
   }
 
@@ -262,13 +261,5 @@ public final class ShirukaMain {
     IpBanConfig.init(ipBanConfig);
     ProfileBanConfig.init(profileBanConfig);
     WhitelistConfig.init(whitelistConfig);
-  }
-
-  /**
-   * payloads the some of classes.
-   */
-  private static void payloadClasses() throws Exception {
-    Class.forName("net.shiruka.shiruka.network.PacketRegistry");
-    Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
   }
 }

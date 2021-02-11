@@ -55,7 +55,7 @@ public final class SimpleCommandManager implements CommandManager {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SimpleCommandManager");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   static {
     DISPATCHER = new CommandDispatcher();

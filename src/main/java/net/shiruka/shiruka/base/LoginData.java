@@ -33,7 +33,7 @@ import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -132,9 +132,7 @@ public final class LoginData {
     }
     final var profile = new GameProfile(this.username, this.chainData.getUniqueId(), this.chainData.getXboxUniqueId());
     final var player = new ShirukaPlayer(this.connection, this, profile);
-    this.connection.setPlayer(player);
-    this.connection.setPacketHandler(this.connection);
-    player.initialize();
+    this.connection.getServer().playerList.initialize(player, this.connection);
     this.asyncLogin.getActions().forEach(action -> action.accept(player));
   }
 

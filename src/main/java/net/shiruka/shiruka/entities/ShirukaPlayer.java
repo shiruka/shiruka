@@ -23,10 +23,11 @@
  *
  */
 
-package net.shiruka.shiruka.entity;
+package net.shiruka.shiruka.entities;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -41,6 +42,7 @@ import net.shiruka.api.events.KickEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
@@ -55,32 +57,9 @@ import org.jetbrains.annotations.Nullable;
 public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   /**
-   * the banned reason.
-   */
-  private static final TranslatedText ALREADY_LOGGED_IN_REASON =
-    TranslatedText.get("shiruka.entity.shiruka_player.initialize.already_logged_in");
-
-  /**
-   * the banned reason.
-   */
-  private static final TranslatedText BANNED_REASON =
-    TranslatedText.get("shiruka.entity.shiruka_player.initialize.banned");
-
-  /**
    * the plugin weak references.
    */
   private static final WeakHashMap<Plugin, WeakReference<Plugin>> PLUGIN_WEAK_REFERENCES = new WeakHashMap<>();
-
-  /**
-   * the server full reason.
-   */
-  private static final TranslatedText SERVER_FULL_REASON = TranslatedText.get("disconnectionScreen.serverFull");
-
-  /**
-   * the whitelist on reason.
-   */
-  private static final TranslatedText WHITELIST_ON_REASON =
-    TranslatedText.get("shiruka.entity.shiruka_player.initialize.whitelist.on");
 
   /**
    * the viewable entities.
@@ -108,6 +87,12 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * the ping.
    */
   private final AtomicInteger ping = new AtomicInteger();
+
+  /**
+   * the data file.
+   */
+  @Nullable
+  private File dataFile;
 
   /**
    * the hash.
@@ -171,6 +156,26 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public void tick() {
   }
 
+  /**
+   * checks if the player can bypass the player limit.
+   *
+   * @return {@code true} if the player can bypass the player limit.
+   */
+  public boolean canBypassPlayerLimit() {
+    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
+  }
+
+  /**
+   * checks if the player can bypass the whitelist and join the server.
+   *
+   * @return {@code true} if the player can bypass the whitelist and join the server.
+   */
+  public boolean canBypassWhitelist() {
+    return this.isOp() ||
+      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
+      this.isWhitelisted();
+  }
+
   @Override
   public boolean canSee(@NotNull final Player player) {
     return !this.hiddenPlayers.containsKey(player.getUniqueId());
@@ -185,7 +190,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   @Override
   public ChainDataEvent.ChainData getChainData() {
-    return Objects.requireNonNull(this.loginData, "not initialized player").chainData();
+    return Objects.requireNonNull(this.loginData, "player did not initialize").chainData();
   }
 
   @Override
@@ -293,6 +298,19 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return this.connection;
   }
 
+  /**
+   * obtains the {@link #dataFile}.
+   *
+   * @return data file.
+   */
+  @NotNull
+  public File getDataFile() {
+    if (this.dataFile == null) {
+      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getXboxUniqueId() + ".dat");
+    }
+    return this.dataFile;
+  }
+
   @NotNull
   @Override
   public UUID getUniqueId() {
@@ -320,40 +338,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public String toString() {
     return "ShirukaPlayer{" + "name=" + this.getName().asString() + '}';
-  }
-
-  /**
-   * runs when the player just created.
-   * <p>
-   * bunch of packets related to starting the game for the player will send here.
-   */
-  public void initialize() {
-    final var server = Shiruka.getServer();
-    if (!this.canBypassPlayerLimit() &&
-      server.getPlayerCount() >= server.getMaxPlayerCount() &&
-      this.kick(KickEvent.Reason.SERVER_FULL, ShirukaPlayer.SERVER_FULL_REASON, false)) {
-      return;
-    }
-    if (!this.canBypassWhitelist()) {
-      this.kick(KickEvent.Reason.NOT_WHITELISTED, ShirukaPlayer.WHITELIST_ON_REASON);
-      return;
-    }
-    if (this.isNameBanned()) {
-      this.kick(KickEvent.Reason.NAME_BANNED, ShirukaPlayer.BANNED_REASON);
-      return;
-    }
-    if (this.isIpBanned()) {
-      this.kick(KickEvent.Reason.IP_BANNED, ShirukaPlayer.BANNED_REASON);
-      return;
-    }
-    final var alreadyOnline = Shiruka.getServer().getOnlinePlayers().stream()
-      .anyMatch(player -> player.getXboxUniqueId().equals(this.getXboxUniqueId()));
-    if (alreadyOnline) {
-      this.kick(KickEvent.Reason.ALREADY_LOGGED_IN, ShirukaPlayer.ALREADY_LOGGED_IN_REASON);
-      return;
-    }
-    this.connection.getServer().getTick().lastPingTime = 0L;
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#initialize.");
   }
 
   @Override
@@ -391,29 +375,9 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   }
 
   /**
-   * checks if the player can bypass the player limit.
+   * obtains the {@link #opEntry}.
    *
-   * @return {@code true} if the player can bypass the player limit.
-   */
-  private boolean canBypassPlayerLimit() {
-    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
-  }
-
-  /**
-   * checks if the player can bypass the whitelist and join the server.
-   *
-   * @return {@code true} if the player can bypass the whitelist and join the server.
-   */
-  private boolean canBypassWhitelist() {
-    return this.isOp() ||
-      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
-      this.isWhitelisted();
-  }
-
-  /**
-   * creates a new {@link OpEntry} instance.
-   *
-   * @return a newly created op entry instance.
+   * @return op entry.
    */
   @NotNull
   private OpEntry getOpEntry() {

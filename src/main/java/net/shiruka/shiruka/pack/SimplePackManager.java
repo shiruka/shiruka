@@ -57,7 +57,7 @@ public final class SimplePackManager implements PackManager {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("SimplePackManager");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the manifest path.

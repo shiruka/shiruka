@@ -31,13 +31,12 @@ import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.minecrell.terminalconsole.TerminalConsoleAppender;
@@ -55,8 +54,7 @@ import net.shiruka.api.plugin.SimplePluginManager;
 import net.shiruka.api.scheduler.Scheduler;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.api.world.WorldManager;
-import net.shiruka.shiruka.ban.IpBanList;
-import net.shiruka.shiruka.ban.ProfileBanList;
+import net.shiruka.shiruka.base.PlayerList;
 import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.command.SimpleConsoleCommandSender;
 import net.shiruka.shiruka.concurrent.ShirukaTick;
@@ -64,15 +62,16 @@ import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.config.WhitelistConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
-import net.shiruka.shiruka.entity.ShirukaPlayer;
+import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
-import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
 import net.shiruka.shiruka.scheduler.SimpleScheduler;
+import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.SystemUtils;
 import net.shiruka.shiruka.world.SimpleWorldManager;
 import org.apache.logging.log4j.LogManager;
@@ -98,7 +97,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Shiru ka");
+  private static final Logger LOGGER = LogManager.getLogger();
+
+  /**
+   * the player list.
+   */
+  public final PlayerList playerList = new PlayerList(this);
 
   /**
    * the command manager.
@@ -125,12 +129,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the singleton interface implementations.
    */
-  private final Map<Class<?>, Object> interfaces = Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
-
-  /**
-   * the ip ban list.
-   */
-  private final BanList ipBanList = new IpBanList();
+  private final Map<Class<?>, Object> interfaces = new ConcurrentHashMap<>();
 
   /**
    * the language manager.
@@ -149,20 +148,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
-   * the player list.
-   */
-  private final Map<InetSocketAddress, ShirukaPlayer> players =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
-
-  /**
    * the plugin manager.
    */
   private final SimplePluginManager pluginManager = new SimplePluginManager();
-
-  /**
-   * the profile ban list.
-   */
-  private final BanList profileBanList = new ProfileBanList();
 
   /**
    * if the server is running.
@@ -248,22 +236,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.languageManager = new SimpleLanguageManager(serverLanguage);
   }
 
-  /**
-   * adds the given address and player into {@link #players}.
-   *
-   * @param player the player to add.
-   */
-  public void addPlayer(@NotNull final ShirukaPlayer player) {
-    this.players.put(player.getConnection().getConnection().getAddress(), player);
-  }
-
   @NotNull
   @Override
   public BanList getBanList(@NotNull final BanList.Type type) {
     if (type == BanList.Type.IP) {
-      return this.ipBanList;
+      return this.playerList.ipBanList;
     }
-    return this.profileBanList;
+    return this.playerList.profileBanList;
   }
 
   @NotNull
@@ -283,21 +262,19 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public int getMaxPlayerCount() {
-    return this.socket.getMaxConnections();
+  public int getMaxPlayers() {
+    return this.playerList.maxPlayers;
+  }
+
+  @Override
+  public void setMaxPlayers(final int maxPlayers) {
+    this.playerList.maxPlayers = maxPlayers;
   }
 
   @NotNull
   @Override
   public Collection<? extends ShirukaPlayer> getOnlinePlayers() {
-    synchronized (this.players) {
-      return this.players.values();
-    }
-  }
-
-  @Override
-  public int getPlayerCount() {
-    return this.players.size();
+    return this.playerList.getPlayers();
   }
 
   @Override
@@ -341,12 +318,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public void startServer() {
     this.registerImplementations();
-    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.starting"));
+    this.getLogger().info(TranslatedTexts.SERVER_STARTING);
     this.packManager.reloadPacks();
     this.running.set(true);
-    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.loading_plugins"));
+    this.getLogger().info(TranslatedTexts.LOADING_PLUGINS);
     // @todo #1:60m Load plugins here.
-    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.enabling_plugin"));
+    this.getLogger().info(TranslatedTexts.ENABLING_PLUGINS_BEFORE_WORLDS);
     // @todo #1:60m enable plugins which set PluginLoadOrder as STARTUP.
     this.getLogger().info("§eLoading worlds.");
     // this.worldManager.loadAll();
@@ -440,23 +417,13 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public void onDisconnect(final RakNetServer server, final InetSocketAddress address, final RakNetClientPeer peer,
-                           final String reason) {
-    this.players.remove(address);
-  }
-
-  @Override
   public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
                             final int channel) {
-    final PacketHandler handler;
     final var address = peer.getAddress();
-    if (this.players.containsKey(address)) {
-      handler = this.players.get(address).getConnection();
-    } else if (this.tick.connectedPlayers.containsKey(address)) {
-      handler = this.tick.connectedPlayers.get(address).getPacketHandler();
-    } else {
+    if (!this.tick.connectedPlayers.containsKey(address)) {
       return;
     }
+    final var handler = this.tick.connectedPlayers.get(address).getPacketHandler();
     if (packet.getId() == 0xfe) {
       packet.buffer().markReaderIndex();
       Protocol.deserialize(handler, packet.buffer());
@@ -467,15 +434,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   public void onHandlerException(final RakNetServer server, final InetSocketAddress address,
                                  final Throwable throwable) {
     throwable.printStackTrace();
-  }
-
-  /**
-   * removes the given player from {@link #players}.
-   *
-   * @param player the player to remove.
-   */
-  public void removePlayer(@NotNull final ShirukaPlayer player) {
-    this.players.remove(player.getConnection().getConnection().getAddress());
   }
 
   /**
@@ -512,7 +470,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
     identifier.setServerName(ServerConfig.DESCRIPTION_MOTD.getValue().orElse(""));
     identifier.setWorldName(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world"));
-    identifier.setOnlinePlayerCount(this.players.size());
+    identifier.setMaxPlayerCount(this.getMaxPlayers());
+    identifier.setOnlinePlayerCount(this.getOnlinePlayers().size());
   }
 
   /**
@@ -537,6 +496,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.registerInterface(Scheduler.class, this.scheduler);
     this.registerInterface(WorldManager.class, this.worldManager);
     this.registerInterface(CommandManager.class, this.commandManager);
+    JiraExceptionCatcher.run(() -> {
+      Class.forName("net.shiruka.shiruka.network.PacketRegistry");
+      Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
+      Class.forName("net.shiruka.shiruka.text.TranslatedTexts");
+    });
   }
 
   /**

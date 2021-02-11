@@ -27,8 +27,8 @@ package net.shiruka.shiruka.network;
 
 import com.google.common.base.Preconditions;
 import net.shiruka.api.text.Text;
-import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
+import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,11 +36,6 @@ import org.jetbrains.annotations.Nullable;
  * a class that contains utility methods for packets.
  */
 public final class PacketUtility {
-
-  /**
-   * the disconnected with no reason.
-   */
-  public static final Text DISCONNECTED_NO_REASON = TranslatedText.get("disconnect.disconnected");
 
   /**
    * ctor.
@@ -79,9 +74,7 @@ public final class PacketUtility {
    */
   public static void disconnect(@NotNull final PlayerConnection connection, @Nullable final Text reason) {
     Preconditions.checkState(connection.getConnection().isConnected(), "not connected");
-    final var message = reason == null
-      ? PacketUtility.DISCONNECTED_NO_REASON.asString()
-      : reason.asString();
-    connection.sendPacket(new DisconnectPacket(message, reason == null));
+    final var message = reason == null ? TranslatedTexts.DISCONNECTED_NO_REASON : reason;
+    connection.sendPacket(new DisconnectPacket(message.asString(), reason == null));
   }
 }

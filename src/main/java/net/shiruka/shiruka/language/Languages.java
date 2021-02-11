@@ -27,8 +27,6 @@ package net.shiruka.shiruka.language;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
@@ -36,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
@@ -66,19 +65,17 @@ public final class Languages {
   /**
    * the logger.
    */
-  private static final Logger LOGGER = LogManager.getLogger("Languages");
+  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the shiruka variables.
    */
-  private static final Map<String, Properties> SHIRUKA_VARIABLES =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  private static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
 
   /**
    * the vanilla variables.
    */
-  private static final Map<String, Properties> VANILLA_VARIABLES =
-    Object2ObjectMaps.synchronize(new Object2ObjectOpenHashMap<>());
+  private static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
 
   /**
    * ctor.
@@ -176,11 +173,16 @@ public final class Languages {
     final var scanner = new Scanner(System.in);
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
-    if (!Languages.AVAILABLE_LANGUAGES.contains(chosenLanguage) || split.length != 2) {
+    if (split.length != 2) {
       Languages.LOGGER.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
-    return Languages.toLocale(chosenLanguage);
+    final var upperChosen = Languages.secondUpper(chosenLanguage);
+    if (!Languages.AVAILABLE_LANGUAGES.contains(upperChosen)) {
+      Languages.LOGGER.error("§cPlease write a valid language!");
+      return Languages.choosingLanguageLoop();
+    }
+    return Languages.toLocale(upperChosen);
   }
 
   /**
@@ -297,6 +299,18 @@ public final class Languages {
     Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
         properties.load(vanillaStream)));
+  }
+
+  /**
+   * makes upper case the given {@code text}'s second part
+   *
+   * @param text the text to make upper case.
+   *
+   * @return upper cased text.
+   */
+  private static String secondUpper(@NotNull final String text) {
+    final var split = text.split("_");
+    return split[0] + "_" + split[1].toUpperCase(Locale.ROOT);
   }
 
   /**

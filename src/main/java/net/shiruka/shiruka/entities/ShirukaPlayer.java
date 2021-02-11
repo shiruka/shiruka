@@ -156,6 +156,26 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public void tick() {
   }
 
+  /**
+   * checks if the player can bypass the player limit.
+   *
+   * @return {@code true} if the player can bypass the player limit.
+   */
+  public boolean canBypassPlayerLimit() {
+    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
+  }
+
+  /**
+   * checks if the player can bypass the whitelist and join the server.
+   *
+   * @return {@code true} if the player can bypass the whitelist and join the server.
+   */
+  public boolean canBypassWhitelist() {
+    return this.isOp() ||
+      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
+      this.isWhitelisted();
+  }
+
   @Override
   public boolean canSee(@NotNull final Player player) {
     return !this.hiddenPlayers.containsKey(player.getUniqueId());
@@ -352,26 +372,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public void sendMessage(@NotNull final String message) {
-  }
-
-  /**
-   * checks if the player can bypass the player limit.
-   *
-   * @return {@code true} if the player can bypass the player limit.
-   */
-  public boolean canBypassPlayerLimit() {
-    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
-  }
-
-  /**
-   * checks if the player can bypass the whitelist and join the server.
-   *
-   * @return {@code true} if the player can bypass the whitelist and join the server.
-   */
-  public boolean canBypassWhitelist() {
-    return this.isOp() ||
-      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
-      this.isWhitelisted();
   }
 
   /**

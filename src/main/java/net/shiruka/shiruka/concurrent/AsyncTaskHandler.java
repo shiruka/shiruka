@@ -158,6 +158,11 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
    */
   protected abstract boolean canExecute(@NotNull T task);
 
+  /**
+   * executes the next task.
+   *
+   * @return the next tasks executed successfully.
+   */
   protected boolean executeNext() {
     final var task = this.tasks.peek();
     if (task == null) {

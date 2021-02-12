@@ -35,6 +35,9 @@ import net.shiruka.shiruka.config.ProfileBanConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * a class that represents profile ban entries.
+ */
 public final class ShirukaProfileBanEntry implements BanEntry {
 
   /**

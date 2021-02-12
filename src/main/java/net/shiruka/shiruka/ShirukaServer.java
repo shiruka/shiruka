@@ -248,25 +248,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @NotNull
   @Override
-  public BanList getBanList(@NotNull final BanList.Type type) {
-    if (type == BanList.Type.IP) {
-      return this.playerList.ipBanList;
-    }
-    return this.playerList.profileBanList;
-  }
-
-  @NotNull
-  @Override
-  public <I> I getInterface(@NotNull final Class<I> cls) {
-    final var implementation = this.interfaces.get(cls);
-    Preconditions.checkArgument(implementation != null,
-      "Implementation not found for %s!", cls.toString());
-    //noinspection unchecked
-    return (I) implementation;
-  }
-
-  @NotNull
-  @Override
   public Logger getLogger() {
     return ShirukaServer.LOGGER;
   }
@@ -348,7 +329,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.tick.nextTick = SystemUtils.getMonotonicMillis();
     this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
-    this.getLogger().info(TranslatedText.get(SERVER_DONE, end));
+    this.getLogger().info(TranslatedText.get(ShirukaServer.SERVER_DONE, end));
     this.tick.run();
     this.stopServer();
   }
@@ -358,13 +339,32 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     try {
       this.stop0();
     } catch (final Throwable throwable) {
-      this.getLogger().error(TranslatedText.get(SERVER_STOPPING_EXCEPTION), throwable);
+      this.getLogger().error(TranslatedText.get(ShirukaServer.SERVER_STOPPING_EXCEPTION), throwable);
     }
   }
 
   @Override
   public <I> void unregisterInterface(@NotNull final Class<I> cls) {
     this.interfaces.remove(cls);
+  }
+
+  @NotNull
+  @Override
+  public BanList getBanList(@NotNull final BanList.Type type) {
+    if (type == BanList.Type.IP) {
+      return this.playerList.ipBanList;
+    }
+    return this.playerList.profileBanList;
+  }
+
+  @NotNull
+  @Override
+  public <I> I getInterface(@NotNull final Class<I> cls) {
+    final var implementation = this.interfaces.get(cls);
+    Preconditions.checkArgument(implementation != null,
+      "Implementation not found for %s!", cls.toString());
+    //noinspection unchecked
+    return (I) implementation;
   }
 
   /**

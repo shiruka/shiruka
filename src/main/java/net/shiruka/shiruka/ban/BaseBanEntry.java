@@ -211,6 +211,11 @@ public abstract class BaseBanEntry<K> {
       this.expires.before(new Date());
   }
 
+  /**
+   * serializes the values of the ban entry into a map
+   *
+   * @return serialized ban entry map
+   */
   @NotNull
   public Map<String, Object> serialize() {
     final var map = new Object2ObjectOpenHashMap<String, Object>();

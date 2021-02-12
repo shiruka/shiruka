@@ -33,6 +33,11 @@ import net.shiruka.api.text.TranslatedText;
 public final class TranslatedTexts {
 
   /**
+   * the add confirm.
+   */
+  public static final TranslatedText ADD_CONFIRM = TranslatedText.get("shiruka.command.stop_command.add_confirm");
+
+  /**
    * the banned reason.
    */
   public static final TranslatedText ALREADY_LOGGED_IN_REASON =
@@ -94,11 +99,6 @@ public final class TranslatedTexts {
    * the restart reason.
    */
   public static final TranslatedText RESTART_REASON = TranslatedText.get("shiruka.connection.restart_message");
-
-  /**
-   * the add confirm.
-   */
-  public static final TranslatedText ADD_CONFIRM = TranslatedText.get("shiruka.command.stop_command.add_confirm");
 
   /**
    * the server full reason.

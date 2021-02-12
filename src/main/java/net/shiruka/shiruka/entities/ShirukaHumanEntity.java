@@ -37,6 +37,9 @@ import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * an abstract class that represents human entity.
+ */
 public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanEntity {
 
   /**
@@ -133,6 +136,11 @@ public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanE
     return this.getProfile().getName();
   }
 
+  /**
+   * obtains the profile.
+   *
+   * @return profile.
+   */
   @NotNull
   public GameProfile getProfile() {
     return this.profile;

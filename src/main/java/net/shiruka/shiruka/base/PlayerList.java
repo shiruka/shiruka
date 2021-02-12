@@ -122,8 +122,12 @@ public final class PlayerList {
    */
   public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
     final var xboxUniqueId = player.getXboxUniqueId();
-    this.pendingPlayers.put(xboxUniqueId, player);
     final var server = connection.getServer();
+    final var oldPending = this.pendingPlayers.get(xboxUniqueId);
+    if (oldPending != null) {
+      this.pendingPlayers.remove(xboxUniqueId);
+      oldPending.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+    }
     if (!player.canBypassPlayerLimit() &&
       server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
       player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
@@ -150,5 +154,13 @@ public final class PlayerList {
     }
     server.getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement PlayerList#initialize.");
+  }
+
+  /**
+   * disconnects the given {@code oldPending} players when someone wants to join the server at the sametime.
+   *
+   * @param oldPending the old pending players to disconnect.
+   */
+  private void disconnectPendingPlayer(@NotNull final ShirukaPlayer oldPending) {
   }
 }

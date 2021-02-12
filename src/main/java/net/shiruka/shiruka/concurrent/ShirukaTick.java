@@ -36,6 +36,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
@@ -70,6 +71,11 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * the sample interval.
    */
   private static final int SAMPLE_INTERVAL = 20;
+
+  /**
+   * the server overload.
+   */
+  private static final String SERVER_OVERLOAD = "shiruka.server.overload";
 
   /**
    * tps for 1 minute.
@@ -224,8 +230,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
         final var now = (currentTime = System.nanoTime()) / (1000L * 1000L) - this.nextTick;
         if (now > 5000L && this.nextTick - this.lastOverloadTime >= 30000L) {
           final var waitTime = now / 50L;
-          ShirukaTick.LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind",
-            now, waitTime);
+          ShirukaTick.LOGGER.warn(TranslatedText.get(ShirukaTick.SERVER_OVERLOAD, now, waitTime));
           this.nextTick += waitTime * 50L;
           this.lastOverloadTime = this.nextTick;
         }

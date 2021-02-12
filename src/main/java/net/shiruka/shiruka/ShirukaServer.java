@@ -100,6 +100,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private static final Logger LOGGER = LogManager.getLogger();
 
   /**
+   * the server done.
+   */
+  private static final String SERVER_DONE = "shiruka.server.done";
+
+  /**
+   * the server stoppin exception.
+   */
+  private static final String SERVER_STOPPING_EXCEPTION = "shiruka.server.stopping_exception";
+
+  /**
    * the player list.
    */
   public final PlayerList playerList = new PlayerList(this);
@@ -338,7 +348,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.tick.nextTick = SystemUtils.getMonotonicMillis();
     this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
-    this.getLogger().info(TranslatedText.get("shiruka.server.start_server.done", end));
+    this.getLogger().info(TranslatedText.get(SERVER_DONE, end));
     this.tick.run();
     this.stopServer();
   }
@@ -348,7 +358,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     try {
       this.stop0();
     } catch (final Throwable throwable) {
-      this.getLogger().error(TranslatedText.get("shiruka.server.stop_server.stopping_exception"), throwable);
+      this.getLogger().error(TranslatedText.get(SERVER_STOPPING_EXCEPTION), throwable);
     }
   }
 

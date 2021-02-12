@@ -530,7 +530,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
         this.serverThread.stop();
         try {
           Thread.sleep(1);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException ignored) {
         }
       }
     }

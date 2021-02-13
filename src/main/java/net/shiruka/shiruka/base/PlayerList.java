@@ -30,7 +30,6 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
-import net.shiruka.api.events.KickEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
@@ -125,37 +124,37 @@ public final class PlayerList {
   public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
     final var xboxUniqueId = player.getXboxUniqueId();
     final var server = connection.getServer();
-    if (this.players.stream()
-      .anyMatch(onlinePlayer -> onlinePlayer.getXboxUniqueId().equals(player.getXboxUniqueId()))) {
-      player.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
-      return;
-    }
     final var pendingPlayer = this.pendingPlayers.get(xboxUniqueId);
     if (pendingPlayer != null) {
       this.pendingPlayers.remove(xboxUniqueId);
-      pendingPlayer.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
-      return;
+      pendingPlayer.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
+    this.players.stream()
+      .filter(oldPlayer -> oldPlayer.getXboxUniqueId().equals(player.getXboxUniqueId()))
+      .forEach(old -> {
+        // @todo #1:15m Force save old player data.
+        old.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      });
     player.isRealPlayer = true;
     final var event = Shiruka.getEventManager().playerLogin(player);
     if (player.isNameBanned()) {
       final var optional = player.getNameBanEntry();
       if (optional.isPresent()) {
-        final var kickMessage = TranslatedText.get("shiruka.player.banned");
+        final var message = TranslatedText.get("shiruka.player.banned");
         final var entry = optional.get();
         entry.getExpiration().ifPresent(date ->
-          kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
-        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, kickMessage);
+          message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
+        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
       }
     }
     if (player.isIpBanned()) {
       final var optional = player.getIpBanEntry();
       if (optional.isPresent()) {
-        final var kickMessage = TranslatedText.get("shiruka.player.banned");
+        final var message = TranslatedText.get("shiruka.player.banned");
         final var entry = optional.get();
         entry.getExpiration().ifPresent(date ->
-          kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
-        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, kickMessage);
+          message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
+        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
       }
     }
     if (!player.canBypassWhitelist()) {
@@ -165,18 +164,11 @@ public final class PlayerList {
       event.disallow(LoginResultEvent.LoginResult.KICK_FULL, TranslatedTexts.SERVER_FULL_REASON);
     }
     if (event.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
-      player.kick(event.kick)
+      player.kick(event.getLoginResult(), event.getKickMessage().orElse(null));
       return;
     }
+    
     server.getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement PlayerList#initialize.");
-  }
-
-  /**
-   * disconnects the given {@code oldPending} players when someone wants to join the server at the sametime.
-   *
-   * @param oldPending the old pending players to disconnect.
-   */
-  private void disconnectPendingPlayer(@NotNull final ShirukaPlayer oldPending) {
   }
 }

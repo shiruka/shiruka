@@ -91,7 +91,7 @@ public final class OpEntry {
    *
    * @return bypasses player limit.
    */
-  public boolean isBypassesPlayerLimit() {
+  public boolean canBypassesPlayerLimit() {
     return this.bypassesPlayerLimit;
   }
 

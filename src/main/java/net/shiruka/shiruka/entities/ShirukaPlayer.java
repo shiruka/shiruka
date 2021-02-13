@@ -167,7 +167,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * @return {@code true} if the player can bypass the player limit.
    */
   public boolean canBypassPlayerLimit() {
-    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
+    return this.isOp() && !this.getOpEntry().canBypassesPlayerLimit();
   }
 
   /**

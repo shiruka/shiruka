@@ -134,6 +134,7 @@ public final class PlayerList {
       pendingPlayer.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
       return;
     }
+    player.isRealPlayer = true;
     if (!player.canBypassPlayerLimit() &&
       server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
       player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {

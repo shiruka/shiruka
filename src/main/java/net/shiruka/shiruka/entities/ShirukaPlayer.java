@@ -89,6 +89,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private final AtomicInteger ping = new AtomicInteger();
 
   /**
+   * the is real player.
+   */
+  public boolean isRealPlayer;
+
+  /**
    * the data file.
    */
   @Nullable

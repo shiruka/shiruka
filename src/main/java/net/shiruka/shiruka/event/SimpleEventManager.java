@@ -33,7 +33,7 @@ import net.shiruka.api.event.method.SimpleMethodAdapter;
 import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.Event;
 import net.shiruka.api.events.EventManager;
-import net.shiruka.api.events.KickEvent;
+import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.events.player.PlayerKickEvent;
 import net.shiruka.api.events.player.PlayerLoginEvent;
@@ -78,7 +78,7 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final KickEvent.Reason reason,
+  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
                                     @NotNull final Text kickMessage) {
     return new SimplePlayerKickEvent(player, reason, kickMessage);
   }

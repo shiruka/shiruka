@@ -485,7 +485,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
           PlayerConnection.this.loginData.setAsyncLogin(asyncLogin);
           PlayerConnection.this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
             asyncLogin.callEvent();
-            if (asyncLogin.getLoginResult() == LoginResultEvent.LoginResult.KICK) {
+            if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
               Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
                 PlayerConnection.this.disconnect(asyncLogin.getKickMessage().orElse(null)));
               return;

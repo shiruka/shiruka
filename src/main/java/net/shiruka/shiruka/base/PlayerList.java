@@ -167,7 +167,6 @@ public final class PlayerList {
       player.kick(event.getLoginResult(), event.getKickMessage().orElse(null));
       return;
     }
-    
     server.getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement PlayerList#initialize.");
   }

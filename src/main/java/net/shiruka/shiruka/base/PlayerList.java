@@ -31,6 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.events.KickEvent;
+import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
@@ -144,8 +145,7 @@ public final class PlayerList {
         final var entry = optional.get();
         entry.getExpiration().ifPresent(date ->
           kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
-        event.disallow(, kickMessage);
-        return;
+        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, kickMessage);
       }
     }
     if (player.isIpBanned()) {
@@ -155,17 +155,17 @@ public final class PlayerList {
         final var entry = optional.get();
         entry.getExpiration().ifPresent(date ->
           kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
-        player.kick(KickEvent.Reason.IP_BANNED, kickMessage);
+        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, kickMessage);
       }
-      return;
     }
     if (!player.canBypassWhitelist()) {
-      player.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedTexts.WHITELIST_ON_REASON);
-      return;
+      event.disallow(LoginResultEvent.LoginResult.KICK_WHITELIST, TranslatedTexts.WHITELIST_ON_REASON);
     }
-    if (server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
-      !player.canBypassPlayerLimit() &&
-      player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
+    if (server.getOnlinePlayers().size() >= server.getMaxPlayers() && !player.canBypassPlayerLimit()) {
+      event.disallow(LoginResultEvent.LoginResult.KICK_FULL, TranslatedTexts.SERVER_FULL_REASON);
+    }
+    if (event.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
+      player.kick(event.kick)
       return;
     }
     server.getTick().lastPingTime = 0L;

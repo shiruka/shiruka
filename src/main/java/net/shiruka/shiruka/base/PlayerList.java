@@ -144,7 +144,7 @@ public final class PlayerList {
         final var entry = optional.get();
         entry.getExpiration().ifPresent(date ->
           kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
-        player.kick(KickEvent.Reason.NAME_BANNED, kickMessage);
+        event.disallow(, kickMessage);
         return;
       }
     }
@@ -163,8 +163,8 @@ public final class PlayerList {
       player.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedTexts.WHITELIST_ON_REASON);
       return;
     }
-    if (!player.canBypassPlayerLimit() &&
-      server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
+    if (server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
+      !player.canBypassPlayerLimit() &&
       player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
       return;
     }

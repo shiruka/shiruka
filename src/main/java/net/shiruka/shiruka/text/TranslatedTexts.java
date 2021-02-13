@@ -49,11 +49,6 @@ public final class TranslatedTexts {
   public static final TranslatedText BANNED_NO_REASON = TranslatedText.get("shiruka.player.banned.no_reason");
 
   /**
-   * the banned for reason.
-   */
-  public static final TranslatedText BANNED_REASON = TranslatedText.get("shiruka.player.banned");
-
-  /**
    * the disconnected with no reason.
    */
   public static final TranslatedText DISCONNECTED_NO_REASON = TranslatedText.get("disconnect.disconnected");

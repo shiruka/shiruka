@@ -29,6 +29,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.base.BanEntry;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.KickEvent;
@@ -141,7 +142,7 @@ public final class PlayerList {
     if (player.isNameBanned()) {
       final var optional = player.getNameBanEntry();
       if (optional.isPresent()) {
-        final var kickMessage = TranslatedTexts.BANNED_REASON;
+        final var kickMessage = TranslatedText.get("shiruka.player.banned");
         final var entry = optional.get();
         entry.getExpiration().ifPresent(date ->
           kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
@@ -150,7 +151,14 @@ public final class PlayerList {
       }
     }
     if (player.isIpBanned()) {
-      player.kick(KickEvent.Reason.IP_BANNED, TranslatedTexts.BANNED_REASON);
+      final var optional = player.getIpBanEntry();
+      if (optional.isPresent()) {
+        final var kickMessage = TranslatedText.get("shiruka.player.banned");
+        final var entry = optional.get();
+        entry.getExpiration().ifPresent(date ->
+          kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
+        player.kick(KickEvent.Reason.IP_BANNED, kickMessage);
+      }
       return;
     }
     if (!player.canBypassPlayerLimit() &&

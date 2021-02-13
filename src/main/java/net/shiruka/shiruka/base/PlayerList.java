@@ -161,20 +161,13 @@ public final class PlayerList {
       }
       return;
     }
-    if (!player.canBypassPlayerLimit() &&
-      server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
-      player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
-      return;
-    }
     if (!player.canBypassWhitelist()) {
       player.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedTexts.WHITELIST_ON_REASON);
       return;
     }
-    final var alreadyOnline = server.getOnlinePlayers().stream()
-      .map(Player::getXboxUniqueId)
-      .anyMatch(xboxUniqueId::equals);
-    if (alreadyOnline) {
-      player.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+    if (!player.canBypassPlayerLimit() &&
+      server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
+      player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
       return;
     }
     server.getTick().lastPingTime = 0L;

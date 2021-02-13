@@ -123,10 +123,17 @@ public final class PlayerList {
   public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
     final var xboxUniqueId = player.getXboxUniqueId();
     final var server = connection.getServer();
-    final var oldPending = this.pendingPlayers.get(xboxUniqueId);
-    if (oldPending != null) {
+    final var matchedPlayer = this.players.stream()
+      .anyMatch(onlinePlayer -> onlinePlayer.getXboxUniqueId().equals(player.getXboxUniqueId()));
+    if (matchedPlayer) {
+      player.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      return;
+    }
+    final var pendingPlayer = this.pendingPlayers.get(xboxUniqueId);
+    if (pendingPlayer != null) {
       this.pendingPlayers.remove(xboxUniqueId);
-      oldPending.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      pendingPlayer.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      return;
     }
     if (!player.canBypassPlayerLimit() &&
       server.getOnlinePlayers().size() >= server.getMaxPlayers() &&

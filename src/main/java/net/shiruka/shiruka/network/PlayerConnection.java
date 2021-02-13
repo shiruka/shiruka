@@ -127,6 +127,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private ShirukaPlayer player;
 
   /**
+   * the protocol statement.
+   */
+  @NotNull
+  private ProtocolState state = ProtocolState.EMPTY;
+
+  /**
    * ctor.
    *
    * @param connection the connection.
@@ -379,6 +385,37 @@ public final class PlayerConnection implements PacketHandler, Tick {
       finalReason = reason;
     }
     return finalReason;
+  }
+
+  /**
+   * an enum class to determine protocol statements.
+   */
+  enum ProtocolState {
+
+    /**
+     * the empty.
+     */
+    EMPTY,
+    /**
+     * the key.
+     */
+    KEY,
+    /**
+     * the authenticating.
+     */
+    AUTHENTICATING,
+    /**
+     * the ready to accept.
+     */
+    READY_TO_ACCEPT,
+    /**
+     * the delay accept.
+     */
+    DELAY_ACCEPT,
+    /**
+     * accepted.
+     */
+    ACCEPTED
   }
 
   /**

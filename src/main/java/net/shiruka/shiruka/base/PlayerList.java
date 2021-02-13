@@ -167,7 +167,24 @@ public final class PlayerList {
       player.kick(event.getLoginResult(), event.getKickMessage().orElse(null));
       return;
     }
+    if (this.tryToLogin(player, connection)) {
+      return;
+    }
     server.getTick().lastPingTime = 0L;
     throw new UnsupportedOperationException(" @todo #1:10m Implement PlayerList#initialize.");
+  }
+
+  /**
+   * tries the given {@code player} to login.
+   *
+   * @param player the player to try.
+   * @param connection the connection to try.
+   * @return {@code true} if the given {@code player} logged in successfully.
+   */
+  private boolean tryToLogin(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
+    final var xboxUniqueId = player.getXboxUniqueId();
+    final var server = connection.getServer();
+
+    return true;
   }
 }

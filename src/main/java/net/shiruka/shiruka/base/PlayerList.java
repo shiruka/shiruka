@@ -28,9 +28,11 @@ package net.shiruka.shiruka.base;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.KickEvent;
+import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
@@ -135,6 +137,22 @@ public final class PlayerList {
       return;
     }
     player.isRealPlayer = true;
+    final var event = Shiruka.getEventManager().playerLogin(player);
+    if (player.isNameBanned()) {
+      final var optional = player.getNameBanEntry();
+      if (optional.isPresent()) {
+        final var kickMessage = TranslatedTexts.BANNED_REASON;
+        final var entry = optional.get();
+        entry.getExpiration().ifPresent(date ->
+          kickMessage.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
+        player.kick(KickEvent.Reason.NAME_BANNED, kickMessage);
+        return;
+      }
+    }
+    if (player.isIpBanned()) {
+      player.kick(KickEvent.Reason.IP_BANNED, TranslatedTexts.BANNED_REASON);
+      return;
+    }
     if (!player.canBypassPlayerLimit() &&
       server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
       player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
@@ -142,14 +160,6 @@ public final class PlayerList {
     }
     if (!player.canBypassWhitelist()) {
       player.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedTexts.WHITELIST_ON_REASON);
-      return;
-    }
-    if (player.isNameBanned()) {
-      player.kick(KickEvent.Reason.NAME_BANNED, TranslatedTexts.BANNED_REASON);
-      return;
-    }
-    if (player.isIpBanned()) {
-      player.kick(KickEvent.Reason.IP_BANNED, TranslatedTexts.BANNED_REASON);
       return;
     }
     final var alreadyOnline = server.getOnlinePlayers().stream()

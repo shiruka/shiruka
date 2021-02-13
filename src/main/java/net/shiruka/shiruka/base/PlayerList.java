@@ -123,9 +123,8 @@ public final class PlayerList {
   public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
     final var xboxUniqueId = player.getXboxUniqueId();
     final var server = connection.getServer();
-    final var matchedPlayer = this.players.stream()
-      .anyMatch(onlinePlayer -> onlinePlayer.getXboxUniqueId().equals(player.getXboxUniqueId()));
-    if (matchedPlayer) {
+    if (this.players.stream()
+      .anyMatch(onlinePlayer -> onlinePlayer.getXboxUniqueId().equals(player.getXboxUniqueId()))) {
       player.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
       return;
     }

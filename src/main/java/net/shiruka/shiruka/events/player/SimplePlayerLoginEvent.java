@@ -53,7 +53,7 @@ public final class SimplePlayerLoginEvent implements PlayerLoginEvent {
    * the login result.
    */
   @NotNull
-  private LoginResult loginResult = LoginResult.SUCCESS;
+  private LoginResult loginResult = LoginResult.ALLOWED;
 
   /**
    * ctor.

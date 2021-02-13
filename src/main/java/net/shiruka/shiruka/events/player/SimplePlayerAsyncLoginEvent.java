@@ -62,7 +62,7 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
    * the login result.
    */
   @NotNull
-  private LoginResult loginResult = LoginResult.SUCCESS;
+  private LoginResult loginResult = LoginResult.ALLOWED;
 
   /**
    * ctor.

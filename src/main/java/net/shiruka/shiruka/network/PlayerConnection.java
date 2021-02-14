@@ -480,7 +480,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
      *
      * @param packet the packet to handle.
      *
-     * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
+     * @todo #1:60m Add ServerToClientHandshake ClientToServerHandshake packets to request encryption key.
      */
     private void loginPacket0(@NotNull final LoginPacket packet) {
       Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");

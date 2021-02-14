@@ -147,14 +147,15 @@ public final class VarInts {
    *
    * @throws IOException if something went wrong when encoding to the output.
    */
-  private static void encodeUnsigned(@NotNull final DataOutput output, long value) throws IOException {
+  private static void encodeUnsigned(@NotNull final DataOutput output, final long value) throws IOException {
+    var tempValue = value;
     while (true) {
-      if ((value & ~0x7FL) == 0) {
-        output.writeByte((int) value);
+      if ((tempValue & ~0x7FL) == 0) {
+        output.writeByte((int) tempValue);
         return;
       }
-      output.writeByte((byte) ((int) value & 0x7F | 0x80));
-      value >>>= 7;
+      output.writeByte((byte) ((int) tempValue & 0x7F | 0x80));
+      tempValue >>>= 7;
     }
   }
 }

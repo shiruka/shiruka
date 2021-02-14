@@ -45,7 +45,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
   private static final DefaultParser PARSER = new DefaultParser();
 
   /**
-   * the console command completer;
+   * the console command completer.
    */
   @NotNull
   private final Completer completer;

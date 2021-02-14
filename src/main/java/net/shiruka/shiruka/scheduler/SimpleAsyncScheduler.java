@@ -26,7 +26,11 @@
 package net.shiruka.shiruka.scheduler;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.events.server.exception.ServerSchedulerException;
 import net.shiruka.api.plugin.Plugin;
@@ -66,7 +70,8 @@ public final class SimpleAsyncScheduler extends SimpleScheduler {
   @Override
   public void cancelTasks(@NotNull final Plugin plugin) {
     this.parsePending();
-    for (final var iterator = this.pending.iterator(); iterator.hasNext(); ) {
+    final var iterator = this.pending.iterator();
+    while (iterator.hasNext()) {
       final var task = iterator.next();
       if (task.getTaskId() != -1 && plugin.equals(task.getOwner())) {
         task.cancel0();

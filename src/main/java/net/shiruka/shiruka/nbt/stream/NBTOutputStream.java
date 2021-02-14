@@ -35,7 +35,13 @@ import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.nbt.array.ByteArrayTag;
 import net.shiruka.shiruka.nbt.array.IntArrayTag;
 import net.shiruka.shiruka.nbt.array.LongArrayTag;
-import net.shiruka.shiruka.nbt.primitive.*;
+import net.shiruka.shiruka.nbt.primitive.ByteTag;
+import net.shiruka.shiruka.nbt.primitive.DoubleTag;
+import net.shiruka.shiruka.nbt.primitive.FloatTag;
+import net.shiruka.shiruka.nbt.primitive.IntTag;
+import net.shiruka.shiruka.nbt.primitive.LongTag;
+import net.shiruka.shiruka.nbt.primitive.ShortTag;
+import net.shiruka.shiruka.nbt.primitive.StringTag;
 import org.jetbrains.annotations.NotNull;
 
 /**

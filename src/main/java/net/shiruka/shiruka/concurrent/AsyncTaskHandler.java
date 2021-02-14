@@ -126,7 +126,10 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
    * executes all the tasks.
    */
   public final void executeAll() {
-    while (this.executeNext()) {
+    while (true) {
+      if (!this.executeNext()) {
+        break;
+      }
     }
   }
 

@@ -26,7 +26,11 @@
 package net.shiruka.shiruka.network;
 
 import net.shiruka.api.base.Tick;
-import net.shiruka.shiruka.network.packets.*;
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**

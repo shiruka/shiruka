@@ -25,7 +25,12 @@
 
 package net.shiruka.shiruka.config;
 
-import static net.shiruka.api.config.Paths.*;
+import static net.shiruka.api.config.Paths.booleanPath;
+import static net.shiruka.api.config.Paths.commented;
+import static net.shiruka.api.config.Paths.integerPath;
+import static net.shiruka.api.config.Paths.listStringPath;
+import static net.shiruka.api.config.Paths.localePath;
+import static net.shiruka.api.config.Paths.stringPath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.File;
 import java.util.List;
@@ -109,7 +114,7 @@ public final class ServerConfig extends PathableConfig {
     "determines the maximum login process, that will handle, per tick.");
 
   /**
-   * whether to check for netty memory leaks during runtime
+   * whether to check for netty memory leaks during runtime.
    */
   public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR = commented(booleanPath(
     "netty-leak-detector", false),

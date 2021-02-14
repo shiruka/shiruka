@@ -26,7 +26,11 @@
 package net.shiruka.shiruka.scheduler;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -39,7 +43,6 @@ import net.shiruka.api.Shiruka;
 import net.shiruka.api.events.server.exception.ServerSchedulerException;
 import net.shiruka.api.plugin.IllegalPluginAccessException;
 import net.shiruka.api.plugin.Plugin;
-import net.shiruka.api.scheduler.Scheduler;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.api.scheduler.TaskWorker;
 import net.shiruka.shiruka.ShirukaServer;
@@ -48,7 +51,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link Scheduler}.
+ * a simple implementation for {@link net.shiruka.api.scheduler.Scheduler}.
  */
 public class SimpleScheduler implements ShirukaScheduler {
 

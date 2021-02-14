@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents entity types.
+ *
+ * @param <E> type of the entity class.
  */
 public final class EntityTypes<E extends Entity> {
 

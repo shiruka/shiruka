@@ -278,13 +278,14 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
 
   @NotNull
   @Override
-  protected TickTask postToMainThread(@NotNull Runnable runnable) {
+  protected TickTask postToMainThread(@NotNull final Runnable runnable) {
+    var tempRunnable = runnable;
     if (this.server.hasStopped && Thread.currentThread().equals(this.server.getShutdownThread())) {
-      runnable.run();
-      runnable = () -> {
+      tempRunnable.run();
+      tempRunnable = () -> {
       };
     }
-    return new TickTask(runnable, this.ticks);
+    return new TickTask(tempRunnable, this.ticks);
   }
 
   /**

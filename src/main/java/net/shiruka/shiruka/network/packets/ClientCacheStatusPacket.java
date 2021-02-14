@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 public final class ClientCacheStatusPacket extends ShirukaPacket {
 
   /**
-   * the blob cache support;
+   * the blob cache support.
    */
   private boolean blobCacheSupport;
 

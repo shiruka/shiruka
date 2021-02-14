@@ -28,7 +28,11 @@ package net.shiruka.shiruka.network;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import java.util.function.Function;
-import net.shiruka.shiruka.network.packets.*;
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
 
 /**
  * a class that represents packet registry.

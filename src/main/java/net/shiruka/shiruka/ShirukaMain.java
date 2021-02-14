@@ -40,7 +40,12 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.util.ThrowableRunnable;
-import net.shiruka.shiruka.config.*;
+import net.shiruka.shiruka.config.IpBanConfig;
+import net.shiruka.shiruka.config.OpsConfig;
+import net.shiruka.shiruka.config.ProfileBanConfig;
+import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.config.UserCacheConfig;
+import net.shiruka.shiruka.config.WhitelistConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
 import net.shiruka.shiruka.console.ShirukaConsoleParser;
 import net.shiruka.shiruka.language.Languages;
@@ -72,12 +77,12 @@ public final class ShirukaMain {
   public static final String MINECRAFT_VERSION = "1.16.201";
 
   /**
-   * the working directory as a string
+   * the working directory as a string.
    */
   private static final String HOME = System.getProperty("user.dir");
 
   /**
-   * the Path directory to the working dir
+   * the Path directory to the working dir.
    */
   public static final Path HOME_PATH = Paths.get(ShirukaMain.HOME);
 
@@ -90,7 +95,7 @@ public final class ShirukaMain {
    * the server locale.
    */
   @NotNull
-  private static Locale SERVER_LOCALE = Locale.ENGLISH;
+  private static Locale serverLocale = Locale.ENGLISH;
 
   /**
    * the server runnable.
@@ -98,13 +103,19 @@ public final class ShirukaMain {
   private static final ThrowableRunnable SERVER_RUNNABLE = () -> {
     final var startTime = System.currentTimeMillis();
     final var socket = ShirukaMain.createSocket();
-    final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.SERVER_LOCALE, socket);
+    final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.serverLocale, socket);
     Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
     AsyncCatcher.server = server;
     Shiruka.setServer(server);
     socket.addListener(server);
     socket.start();
   };
+
+  /**
+   * ctor.
+   */
+  private ShirukaMain() {
+  }
 
   /**
    * runs the Java program.
@@ -150,7 +161,7 @@ public final class ShirukaMain {
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
     JiraExceptionCatcher.run(() -> {
       ShirukaMain.loadFilesAndDirectories(parsed);
-      ShirukaMain.SERVER_LOCALE = Languages.startSequence();
+      ShirukaMain.serverLocale = Languages.startSequence();
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
       thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
       thread.setPriority(Thread.NORM_PRIORITY + 2);
@@ -246,6 +257,8 @@ public final class ShirukaMain {
 
   /**
    * loads all files and directories.
+   *
+   * @param options the options to load.
    */
   private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
     ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);

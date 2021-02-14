@@ -189,7 +189,6 @@ public final class PlayerList {
   private boolean tryToLogin(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
     final var uniqueId = player.getUniqueId();
     final var server = connection.getServer();
-
     return true;
   }
 }

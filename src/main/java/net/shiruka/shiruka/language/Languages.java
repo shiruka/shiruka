@@ -287,7 +287,7 @@ public final class Languages {
    * @param locale the locale to load.
    */
   private static void loadVariables(@NotNull final String locale) {
-    final var shirukaStream = new InputStreamReader(
+    final var stream = new InputStreamReader(
       Languages.getResource(String.format("lang/shiruka/%s.properties", locale)),
       StandardCharsets.UTF_8);
     final var vanillaStream = new InputStreamReader(
@@ -295,7 +295,7 @@ public final class Languages {
       StandardCharsets.UTF_8);
     Optional.ofNullable(Languages.SHIRUKA_VARIABLES.get(locale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
-        properties.load(shirukaStream)));
+        properties.load(stream)));
     Optional.ofNullable(Languages.VANILLA_VARIABLES.get(locale)).ifPresent(properties ->
       JiraExceptionCatcher.run(() ->
         properties.load(vanillaStream)));

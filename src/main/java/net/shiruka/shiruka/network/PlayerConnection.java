@@ -130,7 +130,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * the protocol statement.
    */
   @NotNull
-  private ProtocolState state = ProtocolState.EMPTY;
+  private final ProtocolState state = ProtocolState.EMPTY;
 
   /**
    * ctor.
@@ -478,17 +478,16 @@ public final class PlayerConnection implements PacketHandler, Tick {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
         return;
       }
+      Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");
       final var protocolVersion = packet.getProtocolVersion();
       final var encodedChainData = packet.getChainData().toString();
       final var encodedSkinData = packet.getSkinData().toString();
       if (protocolVersion < ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-        final var playStatusPacket = new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD);
-        PlayerConnection.this.sendPacket(playStatusPacket);
+        PlayerConnection.this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD));
         return;
       }
       if (protocolVersion > ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-        final var playStatusPacket = new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD);
-        PlayerConnection.this.sendPacket(playStatusPacket);
+        PlayerConnection.this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD));
         return;
       }
       Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {

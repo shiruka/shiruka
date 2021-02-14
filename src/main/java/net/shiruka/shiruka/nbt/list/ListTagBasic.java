@@ -27,7 +27,12 @@ package net.shiruka.shiruka.nbt.list;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import net.shiruka.shiruka.nbt.ListTag;
@@ -71,6 +76,7 @@ public final class ListTagBasic implements ListTag {
    * throws an exception if the given tag's id not equals to the given id.
    *
    * @param tag the tag to check.
+   * @param id the id to check.
    *
    * @throws IllegalArgumentException if the given tag's id not equals to the given id.
    */

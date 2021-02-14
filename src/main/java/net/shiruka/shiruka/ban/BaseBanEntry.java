@@ -212,9 +212,9 @@ public abstract class BaseBanEntry<K> {
   }
 
   /**
-   * serializes the values of the ban entry into a map
+   * serializes the values of the ban entry into a map.
    *
-   * @return serialized ban entry map
+   * @return serialized ban entry map.
    */
   @NotNull
   public Map<String, Object> serialize() {

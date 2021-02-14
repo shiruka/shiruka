@@ -31,6 +31,8 @@ import net.shiruka.api.world.World;
 
 /**
  * a functional interface to create {@link Entity}.
+ *
+ * @param <E> type of the entity class.
  */
 @FunctionalInterface
 public interface EntityFactory<E extends Entity> extends BiFunction<EntityTypes<E>, World, E> {

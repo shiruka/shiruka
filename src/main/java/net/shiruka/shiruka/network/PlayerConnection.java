@@ -52,7 +52,15 @@ import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.language.Languages;
-import net.shiruka.shiruka.network.packets.*;
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.DisconnectPacket;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.PlayStatusPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -110,6 +118,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private final ShirukaServer server;
 
   /**
+   * the protocol statement.
+   */
+  @NotNull
+  private final ProtocolState state = ProtocolState.EMPTY;
+
+  /**
    * the blob cache support.
    */
   private boolean blobCacheSupport;
@@ -125,12 +139,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
    */
   @Nullable
   private ShirukaPlayer player;
-
-  /**
-   * the protocol statement.
-   */
-  @NotNull
-  private ProtocolState state = ProtocolState.EMPTY;
 
   /**
    * ctor.
@@ -470,15 +478,17 @@ public final class PlayerConnection implements PacketHandler, Tick {
     /**
      * handles the login packet.
      *
+     * @param packet the packet to handle.
+     *
      * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
      */
     private void loginPacket0(@NotNull final LoginPacket packet) {
+      Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");
       this.latestLoginPacket = null;
       if (Shiruka.isStopping()) {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
         return;
       }
-      Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");
       final var protocolVersion = packet.getProtocolVersion();
       final var encodedChainData = packet.getChainData().toString();
       final var encodedSkinData = packet.getSkinData().toString();
@@ -543,6 +553,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
 
     /**
      * handles the resource pack response packet.
+     *
+     * @param packet the packet to handle.
      */
     private void resourcePackResponsePacket0(@NotNull final ResourcePackResponsePacket packet) {
       final var status = packet.getStatus();
@@ -581,6 +593,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
           if (packStack instanceof ShirukaPacket) {
             PlayerConnection.this.sendPacket((ShirukaPacket) packStack);
           }
+          break;
+        default:
           break;
       }
     }

@@ -64,7 +64,7 @@ public interface ArrayTag<T> extends PrimitiveTag<T[]> {
    * @return value at {@code index}.
    */
   @NotNull
-  T get(final int index);
+  T get(int index);
 
   /**
    * gets the size of the array.

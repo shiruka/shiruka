@@ -168,12 +168,13 @@ public final class VarInts {
    * @param buf the buffer to write.
    * @param i the VarInt to write.
    */
-  public static void writeVarInt(@NotNull final ByteBuf buf, int i) {
-    while ((i & 0xFFFFFF80) != 0L) {
-      buf.writeByte(i & 0x7F | 0x80);
-      i >>>= 7;
+  public static void writeVarInt(@NotNull final ByteBuf buf, final int i) {
+    var tempI = i;
+    while ((tempI & 0xFFFFFF80) != 0L) {
+      buf.writeByte(tempI & 0x7F | 0x80);
+      tempI >>>= 7;
     }
-    buf.writeByte(i & 0x7F);
+    buf.writeByte(tempI & 0x7F);
   }
 
   /**
@@ -182,12 +183,13 @@ public final class VarInts {
    * @param buf the buffer which to write.
    * @param l the VarLong value.
    */
-  public static void writeVarLong(@NotNull final ByteBuf buf, long l) {
-    while ((l & 0xFFFFFFFFFFFFFF80L) != 0L) {
-      buf.writeByte((int) (l & 0x7FL | 0x80L));
-      l >>>= 7L;
+  public static void writeVarLong(@NotNull final ByteBuf buf, final long l) {
+    var tempL = l;
+    while ((tempL & 0xFFFFFFFFFFFFFF80L) != 0L) {
+      buf.writeByte((int) (tempL & 0x7FL | 0x80L));
+      tempL >>>= 7L;
     }
-    buf.writeByte((int) (l & 0x7FL));
+    buf.writeByte((int) (tempL & 0x7FL));
   }
 
   /**
@@ -210,14 +212,15 @@ public final class VarInts {
    * @param buffer the buffer to encode.
    * @param length the length to encode.
    */
-  private static void encodeUnsigned(@NotNull final ByteBuf buffer, long length) {
+  private static void encodeUnsigned(@NotNull final ByteBuf buffer, final long length) {
+    var tempLength = length;
     while (true) {
-      if ((length & ~0x7FL) == 0) {
-        buffer.writeByte((int) length);
+      if ((tempLength & ~0x7FL) == 0) {
+        buffer.writeByte((int) tempLength);
         return;
       }
-      buffer.writeByte((byte) ((int) length & 0x7F | 0x80));
-      length >>>= 7;
+      buffer.writeByte((byte) ((int) tempLength & 0x7F | 0x80));
+      tempLength >>>= 7;
     }
   }
 }

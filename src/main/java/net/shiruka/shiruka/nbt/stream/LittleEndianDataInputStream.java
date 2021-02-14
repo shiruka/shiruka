@@ -25,7 +25,11 @@
 
 package net.shiruka.shiruka.nbt.stream;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.jetbrains.annotations.NotNull;
 

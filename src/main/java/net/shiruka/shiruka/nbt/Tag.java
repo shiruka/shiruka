@@ -26,7 +26,11 @@
 package net.shiruka.shiruka.nbt;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -36,8 +40,19 @@ import net.shiruka.shiruka.nbt.array.IntArrayTag;
 import net.shiruka.shiruka.nbt.array.LongArrayTag;
 import net.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import net.shiruka.shiruka.nbt.list.ListTagBasic;
-import net.shiruka.shiruka.nbt.primitive.*;
-import net.shiruka.shiruka.nbt.stream.*;
+import net.shiruka.shiruka.nbt.primitive.ByteTag;
+import net.shiruka.shiruka.nbt.primitive.DoubleTag;
+import net.shiruka.shiruka.nbt.primitive.FloatTag;
+import net.shiruka.shiruka.nbt.primitive.IntTag;
+import net.shiruka.shiruka.nbt.primitive.LongTag;
+import net.shiruka.shiruka.nbt.primitive.ShortTag;
+import net.shiruka.shiruka.nbt.primitive.StringTag;
+import net.shiruka.shiruka.nbt.stream.LittleEndianDataInputStream;
+import net.shiruka.shiruka.nbt.stream.LittleEndianDataOutputStream;
+import net.shiruka.shiruka.nbt.stream.NBTInputStream;
+import net.shiruka.shiruka.nbt.stream.NBTOutputStream;
+import net.shiruka.shiruka.nbt.stream.NetworkDataInputStream;
+import net.shiruka.shiruka.nbt.stream.NetworkDataOutputStream;
 import org.jetbrains.annotations.NotNull;
 
 /**

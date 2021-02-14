@@ -26,7 +26,11 @@
 package net.shiruka.shiruka.base;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;

@@ -33,7 +33,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.shiruka.shiruka.config.ServerConfig;
@@ -250,7 +256,7 @@ public final class Languages {
   }
 
   /**
-   * loads the loaded languages of the servers
+   * loads the loaded languages of the servers.
    */
   private static void loadLoadedLanguages() {
     ServerConfig.LOADED_LANGUAGES.getValue().ifPresent(strings ->
@@ -302,7 +308,7 @@ public final class Languages {
   }
 
   /**
-   * makes upper case the given {@code text}'s second part
+   * makes upper case the given {@code text}'s second part.
    *
    * @param text the text to make upper case.
    *

@@ -25,7 +25,12 @@
 
 package net.shiruka.shiruka.scheduler;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.Task;
 import org.jetbrains.annotations.NotNull;
@@ -93,21 +98,21 @@ public final class ShirukaFuture<T> extends ShirukaTask implements Future<T> {
   }
 
   @Override
-  public synchronized T get(long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException,
+  public synchronized T get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException,
     TimeoutException {
-    timeout = unit.toMillis(timeout);
+    var tempTimeout = unit.toMillis(timeout);
     var period = this.getPeriod();
-    var timestamp = timeout > 0 ? System.currentTimeMillis() : 0L;
+    var timestamp = tempTimeout > 0 ? System.currentTimeMillis() : 0L;
     while (true) {
       if (period == ShirukaTask.PERIOD_NO_REPEATING || period == ShirukaTask.PERIOD_PROCESS_FOR_FUTURE) {
-        this.wait(timeout);
+        this.wait(tempTimeout);
         period = this.getPeriod();
         if (period == ShirukaTask.PERIOD_NO_REPEATING || period == ShirukaTask.PERIOD_PROCESS_FOR_FUTURE) {
-          if (timeout == 0L) {
+          if (tempTimeout == 0L) {
             continue;
           }
-          timeout += timestamp - (timestamp = System.currentTimeMillis());
-          if (timeout > 0) {
+          tempTimeout += timestamp - (timestamp = System.currentTimeMillis());
+          if (tempTimeout > 0) {
             continue;
           }
           throw new TimeoutException();

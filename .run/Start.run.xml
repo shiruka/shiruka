@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Start" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="net.shiruka.shiruka.ShirukaMain" />
-    <module name="shiruka" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/target" />
+  <configuration name="Start" default="false" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="net.shiruka.shiruka.ShirukaMain"/>
+    <module name="shiruka"/>
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/target"/>
     <method v="2">
-      <option name="Make" enabled="true" />
+      <option name="Make" enabled="true"/>
     </method>
   </configuration>
 </component>

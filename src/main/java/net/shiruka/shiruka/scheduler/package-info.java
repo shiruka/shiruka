@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains implementation for {@link net.shiruka.api.scheduler.Scheduler}
+ * the package that contains implementation for {@link net.shiruka.api.scheduler.Scheduler}.
  */
 package net.shiruka.shiruka.scheduler;

@@ -31,7 +31,19 @@ import io.netty.util.AsciiString;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
-import net.shiruka.shiruka.network.packets.*;
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.DisconnectPacket;
+import net.shiruka.shiruka.network.packets.EntityRemovePacket;
+import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.PackInfoPacket;
+import net.shiruka.shiruka.network.packets.PackStackPacket;
+import net.shiruka.shiruka.network.packets.PlayStatusPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
+import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.StartGamePacket;
+import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -273,7 +285,7 @@ public abstract class ShirukaPacket extends Packet {
   }
 
   /**
-   * writes the given resource pack entry to
+   * writes the given resource pack entry to.
    *
    * @param entry the entry to write.
    */

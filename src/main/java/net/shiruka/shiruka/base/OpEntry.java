@@ -77,6 +77,15 @@ public final class OpEntry {
   }
 
   /**
+   * obtains the bypasses player limit.
+   *
+   * @return bypasses player limit.
+   */
+  public boolean canBypassesPlayerLimit() {
+    return this.bypassesPlayerLimit;
+  }
+
+  /**
    * obtains the profile.
    *
    * @return profile.
@@ -84,15 +93,6 @@ public final class OpEntry {
   @NotNull
   public GameProfile getProfile() {
     return this.profile;
-  }
-
-  /**
-   * obtains the bypasses player limit.
-   *
-   * @return bypasses player limit.
-   */
-  public boolean isBypassesPlayerLimit() {
-    return this.bypassesPlayerLimit;
   }
 
   /**

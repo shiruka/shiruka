@@ -27,6 +27,7 @@ package net.shiruka.shiruka.events.player;
 
 import java.util.Optional;
 import net.shiruka.api.entity.Player;
+import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerKickEvent;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.events.SimpleCancellableEvent;
@@ -48,7 +49,7 @@ public final class SimplePlayerKickEvent extends SimpleCancellableEvent implemen
    * the reason.
    */
   @NotNull
-  private final Reason reason;
+  private final LoginResultEvent.LoginResult reason;
 
   /**
    * the kick message.
@@ -63,7 +64,7 @@ public final class SimplePlayerKickEvent extends SimpleCancellableEvent implemen
    * @param reason the reason.
    * @param kickMessage the kick message.
    */
-  public SimplePlayerKickEvent(@NotNull final Player player, @NotNull final Reason reason,
+  public SimplePlayerKickEvent(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
                                @Nullable final Text kickMessage) {
     this.player = player;
     this.reason = reason;

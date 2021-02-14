@@ -127,6 +127,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private ShirukaPlayer player;
 
   /**
+   * the protocol statement.
+   */
+  @NotNull
+  private ProtocolState state = ProtocolState.EMPTY;
+
+  /**
    * ctor.
    *
    * @param connection the connection.
@@ -382,6 +388,37 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   /**
+   * an enum class to determine protocol statements.
+   */
+  enum ProtocolState {
+
+    /**
+     * the empty.
+     */
+    EMPTY,
+    /**
+     * the key.
+     */
+    KEY,
+    /**
+     * the authenticating.
+     */
+    AUTHENTICATING,
+    /**
+     * the ready to accept.
+     */
+    READY_TO_ACCEPT,
+    /**
+     * the delay accept.
+     */
+    DELAY_ACCEPT,
+    /**
+     * accepted.
+     */
+    ACCEPTED
+  }
+
+  /**
    * a class that represents login listener.
    */
   private final class LoginListener implements PacketHandler {
@@ -441,17 +478,16 @@ public final class PlayerConnection implements PacketHandler, Tick {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
         return;
       }
+      Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");
       final var protocolVersion = packet.getProtocolVersion();
       final var encodedChainData = packet.getChainData().toString();
       final var encodedSkinData = packet.getSkinData().toString();
       if (protocolVersion < ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-        final var playStatusPacket = new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD);
-        PlayerConnection.this.sendPacket(playStatusPacket);
+        PlayerConnection.this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD));
         return;
       }
       if (protocolVersion > ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-        final var playStatusPacket = new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD);
-        PlayerConnection.this.sendPacket(playStatusPacket);
+        PlayerConnection.this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD));
         return;
       }
       Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
@@ -485,7 +521,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
           PlayerConnection.this.loginData.setAsyncLogin(asyncLogin);
           PlayerConnection.this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
             asyncLogin.callEvent();
-            if (asyncLogin.getLoginResult() == LoginResultEvent.LoginResult.KICK) {
+            if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
               Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
                 PlayerConnection.this.disconnect(asyncLogin.getKickMessage().orElse(null)));
               return;

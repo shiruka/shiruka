@@ -38,7 +38,7 @@ import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.ChainDataEvent;
-import net.shiruka.api.events.KickEvent;
+import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
@@ -87,6 +87,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * the ping.
    */
   private final AtomicInteger ping = new AtomicInteger();
+
+  /**
+   * the is real player.
+   */
+  public boolean isRealPlayer;
 
   /**
    * the data file.
@@ -162,7 +167,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    * @return {@code true} if the player can bypass the player limit.
    */
   public boolean canBypassPlayerLimit() {
-    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
+    return this.isOp() && !this.getOpEntry().canBypassesPlayerLimit();
   }
 
   /**
@@ -215,7 +220,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   }
 
   @Override
-  public boolean kick(@NotNull final KickEvent.Reason reason, @Nullable final Text reasonString,
+  public boolean kick(@NotNull final LoginResultEvent.LoginResult reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
     final var done = Shiruka.getEventManager().playerKick(this, reason).callEvent();
     if (done) {

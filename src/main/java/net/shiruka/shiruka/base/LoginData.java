@@ -131,7 +131,7 @@ public final class LoginData {
     if (this.connection.getConnection().isDisconnected()) {
       return;
     }
-    if (this.asyncLogin.getLoginResult() == LoginResultEvent.LoginResult.KICK) {
+    if (this.asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
       this.connection.disconnect(this.asyncLogin.getKickMessage().orElse(null));
       return;
     }

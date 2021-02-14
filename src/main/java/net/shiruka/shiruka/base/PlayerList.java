@@ -28,9 +28,10 @@ package net.shiruka.shiruka.base;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
-import net.shiruka.api.entity.Player;
-import net.shiruka.api.events.KickEvent;
+import net.shiruka.api.events.LoginResultEvent;
+import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
@@ -123,33 +124,50 @@ public final class PlayerList {
   public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
     final var xboxUniqueId = player.getXboxUniqueId();
     final var server = connection.getServer();
-    final var oldPending = this.pendingPlayers.get(xboxUniqueId);
-    if (oldPending != null) {
+    final var pendingPlayer = this.pendingPlayers.get(xboxUniqueId);
+    if (pendingPlayer != null) {
       this.pendingPlayers.remove(xboxUniqueId);
-      oldPending.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      pendingPlayer.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
-    if (!player.canBypassPlayerLimit() &&
-      server.getOnlinePlayers().size() >= server.getMaxPlayers() &&
-      player.kick(KickEvent.Reason.SERVER_FULL, TranslatedTexts.SERVER_FULL_REASON, false)) {
-      return;
-    }
-    if (!player.canBypassWhitelist()) {
-      player.kick(KickEvent.Reason.NOT_WHITELISTED, TranslatedTexts.WHITELIST_ON_REASON);
-      return;
-    }
+    this.players.stream()
+      .filter(oldPlayer -> oldPlayer.getXboxUniqueId().equals(player.getXboxUniqueId()))
+      .forEach(old -> {
+        // @todo #1:15m Force save old player data.
+        old.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      });
+    player.isRealPlayer = true;
+    final var event = Shiruka.getEventManager().playerLogin(player);
     if (player.isNameBanned()) {
-      player.kick(KickEvent.Reason.NAME_BANNED, TranslatedTexts.BANNED_REASON);
-      return;
+      final var optional = player.getNameBanEntry();
+      if (optional.isPresent()) {
+        final var message = TranslatedText.get("shiruka.player.banned");
+        final var entry = optional.get();
+        entry.getExpiration().ifPresent(date ->
+          message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
+        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
+      }
     }
     if (player.isIpBanned()) {
-      player.kick(KickEvent.Reason.IP_BANNED, TranslatedTexts.BANNED_REASON);
+      final var optional = player.getIpBanEntry();
+      if (optional.isPresent()) {
+        final var message = TranslatedText.get("shiruka.player.banned");
+        final var entry = optional.get();
+        entry.getExpiration().ifPresent(date ->
+          message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
+        event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
+      }
+    }
+    if (!player.canBypassWhitelist()) {
+      event.disallow(LoginResultEvent.LoginResult.KICK_WHITELIST, TranslatedTexts.WHITELIST_ON_REASON);
+    }
+    if (server.getOnlinePlayers().size() >= server.getMaxPlayers() && !player.canBypassPlayerLimit()) {
+      event.disallow(LoginResultEvent.LoginResult.KICK_FULL, TranslatedTexts.SERVER_FULL_REASON);
+    }
+    if (event.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
+      player.kick(event.getLoginResult(), event.getKickMessage().orElse(null));
       return;
     }
-    final var alreadyOnline = server.getOnlinePlayers().stream()
-      .map(Player::getXboxUniqueId)
-      .anyMatch(xboxUniqueId::equals);
-    if (alreadyOnline) {
-      player.kick(KickEvent.Reason.ALREADY_LOGGED_IN, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+    if (this.tryToLogin(player, connection)) {
       return;
     }
     server.getTick().lastPingTime = 0L;
@@ -157,10 +175,16 @@ public final class PlayerList {
   }
 
   /**
-   * disconnects the given {@code oldPending} players when someone wants to join the server at the sametime.
+   * tries the given {@code player} to login.
    *
-   * @param oldPending the old pending players to disconnect.
+   * @param player the player to try.
+   * @param connection the connection to try.
+   * @return {@code true} if the given {@code player} logged in successfully.
    */
-  private void disconnectPendingPlayer(@NotNull final ShirukaPlayer oldPending) {
+  private boolean tryToLogin(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
+    final var xboxUniqueId = player.getXboxUniqueId();
+    final var server = connection.getServer();
+
+    return true;
   }
 }

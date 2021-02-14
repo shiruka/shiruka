@@ -33,9 +33,10 @@ import net.shiruka.api.event.method.SimpleMethodAdapter;
 import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.Event;
 import net.shiruka.api.events.EventManager;
-import net.shiruka.api.events.KickEvent;
+import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.events.player.PlayerKickEvent;
+import net.shiruka.api.events.player.PlayerLoginEvent;
 import net.shiruka.api.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.events.server.ServerCommandEvent;
 import net.shiruka.api.events.server.ServerExceptionEvent;
@@ -45,6 +46,7 @@ import net.shiruka.api.events.server.exception.ServerException;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.events.player.SimplePlayerAsyncLoginEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerKickEvent;
+import net.shiruka.shiruka.events.player.SimplePlayerLoginEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerPreLoginEvent;
 import net.shiruka.shiruka.events.server.SimpleServerCommandEvent;
 import net.shiruka.shiruka.events.server.SimpleServerExceptionEvent;
@@ -76,9 +78,15 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final KickEvent.Reason reason,
+  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
                                     @NotNull final Text kickMessage) {
     return new SimplePlayerKickEvent(player, reason, kickMessage);
+  }
+
+  @NotNull
+  @Override
+  public PlayerLoginEvent playerLogin(@NotNull final Player player) {
+    return new SimplePlayerLoginEvent(player);
   }
 
   @NotNull

@@ -44,9 +44,9 @@ public final class TranslatedTexts {
     TranslatedText.get("shiruka.player.already_logged_in");
 
   /**
-   * the banned reason.
+   * the banned for no reason.
    */
-  public static final TranslatedText BANNED_REASON = TranslatedText.get("shiruka.player.banned");
+  public static final TranslatedText BANNED_NO_REASON = TranslatedText.get("shiruka.player.banned.no_reason");
 
   /**
    * the disconnected with no reason.

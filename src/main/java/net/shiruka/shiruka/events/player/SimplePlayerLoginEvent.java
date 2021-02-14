@@ -25,32 +25,23 @@
 
 package net.shiruka.shiruka.events.player;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import net.shiruka.api.entity.Player;
-import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
+import net.shiruka.api.events.player.PlayerLoginEvent;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link PlayerAsyncLoginEvent}.
+ * a simple implementation for {@link PlayerLoginEvent}.
  */
-public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent {
+public final class SimplePlayerLoginEvent implements PlayerLoginEvent {
 
   /**
-   * the actions that will run after player initialization.
-   */
-  private final List<Consumer<Player>> actions = new ObjectArrayList<>();
-
-  /**
-   * the chain data.
+   * the player.
    */
   @NotNull
-  private final ChainData chainData;
+  private final Player player;
 
   /**
    * the kick message.
@@ -67,32 +58,16 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   /**
    * ctor.
    *
-   * @param chainData the login data.
+   * @param player the player.
    */
-  public SimplePlayerAsyncLoginEvent(@NotNull final ChainData chainData) {
-    this.chainData = chainData;
-  }
-
-  @Override
-  public void addAction(@NotNull final Consumer<Player> action) {
-    this.actions.add(action);
+  public SimplePlayerLoginEvent(@NotNull final Player player) {
+    this.player = player;
   }
 
   @NotNull
   @Override
-  public List<Consumer<Player>> getActions() {
-    return Collections.unmodifiableList(this.actions);
-  }
-
-  @Override
-  public void removeAction(@NotNull final Consumer<Player> action) {
-    this.actions.remove(action);
-  }
-
-  @NotNull
-  @Override
-  public ChainData getChainData() {
-    return this.chainData;
+  public Player getEntity() {
+    return this.player;
   }
 
   @NotNull

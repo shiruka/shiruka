@@ -130,7 +130,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * the protocol statement.
    */
   @NotNull
-  private final ProtocolState state = ProtocolState.EMPTY;
+  private ProtocolState state = ProtocolState.EMPTY;
 
   /**
    * ctor.

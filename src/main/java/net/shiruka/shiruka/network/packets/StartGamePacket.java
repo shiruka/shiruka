@@ -32,6 +32,9 @@ import net.shiruka.shiruka.network.ShirukaPacket;
  */
 public final class StartGamePacket extends ShirukaPacket {
 
+  /**
+   * ctor.
+   */
   public StartGamePacket() {
     super(ShirukaPacket.ID_START_GAME);
   }

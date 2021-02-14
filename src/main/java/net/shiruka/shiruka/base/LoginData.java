@@ -92,6 +92,11 @@ public final class LoginData {
     this.connection = connection;
   }
 
+  /**
+   * obtains the chain data.
+   *
+   * @return chain data.
+   */
   @NotNull
   public ChainDataEvent.ChainData chainData() {
     return this.chainData;

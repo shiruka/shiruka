@@ -70,6 +70,11 @@ public final class SimplePackManager implements PackManager {
   private static final Path PACKS_PATH = ShirukaMain.HOME_PATH.resolve("packs");
 
   /**
+   * the pack success.
+   */
+  private static final String PACK_SUCCESS = "shiruka.pack.success";
+
+  /**
    * the loaders.
    */
   private final Map<Class<? extends PackLoader>, PackLoader.Factory> loaderFactories = new Object2ObjectOpenHashMap<>();
@@ -282,8 +287,7 @@ public final class SimplePackManager implements PackManager {
       }
       this.putPack(manifest, loader, factory, module);
     }
-    SimplePackManager.LOGGER.debug(TranslatedText.get("shiruka.pack.pack_manager.load_packs.success",
-      manifestMap.size()));
+    SimplePackManager.LOGGER.debug(TranslatedText.get(SimplePackManager.PACK_SUCCESS, manifestMap.size()));
   }
 
   @Override

@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.BooleanSupplier;
+import net.shiruka.api.text.TranslatedText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -157,6 +158,11 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
    */
   protected abstract boolean canExecute(@NotNull T task);
 
+  /**
+   * executes the next task.
+   *
+   * @return the next tasks executed successfully.
+   */
   protected boolean executeNext() {
     final var task = this.tasks.peek();
     if (task == null) {
@@ -181,7 +187,7 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
       if (exception.getCause() instanceof ThreadDeath) {
         throw exception;
       }
-      AsyncTaskHandler.LOGGER.fatal("Error executing task on {}", this.threadName, exception);
+      AsyncTaskHandler.LOGGER.fatal(TranslatedText.get("shiruka.server.task_error", this.threadName), exception);
     }
   }
 

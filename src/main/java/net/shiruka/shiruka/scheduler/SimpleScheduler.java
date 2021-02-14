@@ -456,6 +456,11 @@ public class SimpleScheduler implements ShirukaScheduler {
     }
   }
 
+  /**
+   * adds the given {@code task} into {@link #tail}.
+   *
+   * @param task the task to add.
+   */
   protected final void addTask(@NotNull final ShirukaTask task) {
     final var tail = this.tail;
     var tailTask = tail.get();
@@ -465,6 +470,14 @@ public class SimpleScheduler implements ShirukaScheduler {
     tailTask.setNext(task);
   }
 
+  /**
+   * handles the given {@code task}.
+   *
+   * @param task the task to handle.
+   * @param delay the delay to handle.
+   *
+   * @return handled task.
+   */
   @NotNull
   protected final ShirukaTask handle(@NotNull final ShirukaTask task, final long delay) {
     if (!this.isAsyncScheduler && !task.isSync()) {

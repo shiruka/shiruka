@@ -99,8 +99,8 @@ public final class ShirukaMain {
     final var startTime = System.currentTimeMillis();
     final var socket = ShirukaMain.createSocket();
     final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.SERVER_LOCALE, socket);
-    AsyncCatcher.server = server;
     Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
+    AsyncCatcher.server = server;
     Shiruka.setServer(server);
     socket.addListener(server);
     socket.start();

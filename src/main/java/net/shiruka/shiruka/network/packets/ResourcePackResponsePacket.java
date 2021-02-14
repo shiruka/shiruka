@@ -82,6 +82,11 @@ public final class ResourcePackResponsePacket extends ShirukaPacket {
     handler.resourcePackResponsePacket(this);
   }
 
+  /**
+   * obtains the packs.
+   *
+   * @return packs.
+   */
   @NotNull
   public List<Entry> getPacks() {
     return Collections.unmodifiableList(Objects.requireNonNull(this.packs));

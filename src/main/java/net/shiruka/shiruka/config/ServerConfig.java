@@ -39,7 +39,6 @@ import java.util.Objects;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.ConfigPath;
 import net.shiruka.api.config.config.PathableConfig;
-import net.shiruka.shiruka.base.SimpleChainData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

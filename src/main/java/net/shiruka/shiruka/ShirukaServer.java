@@ -294,11 +294,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public boolean isInWhitelist(@NotNull final UUID uniqueId) {
-    return WhitelistConfig.isInWhitelist(uniqueId);
-  }
-
-  @Override
   public boolean isPrimaryThread() {
     final var current = Thread.currentThread();
     return current.equals(this.serverThread) || current.equals(this.shutdownThread);
@@ -406,6 +401,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   public ShirukaTick getTick() {
     return this.tick;
+  }
+
+  @Override
+  public boolean isInWhitelist(@NotNull final UUID uniqueId) {
+    return WhitelistConfig.isInWhitelist(uniqueId);
   }
 
   /**

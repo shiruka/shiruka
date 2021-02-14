@@ -316,7 +316,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   public File getDataFile() {
     if (this.dataFile == null) {
-      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getXboxUniqueId() + ".dat");
+      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getUniqueId().toString() + ".dat");
     }
     return this.dataFile;
   }
@@ -330,7 +330,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public int hashCode() {
     if (this.hash == 0 || this.hash == 485) {
-      this.hash = 97 * 5 + this.getXboxUniqueId().hashCode();
+      this.hash = 97 * 5 + this.getUniqueId().hashCode();
     }
     return this.hash;
   }
@@ -341,7 +341,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       return false;
     }
     final var other = (Player) obj;
-    return this.getXboxUniqueId().equals(other.getXboxUniqueId()) &&
+    return this.getUniqueId().equals(other.getUniqueId()) &&
       this.getEntityId() == other.getEntityId();
   }
 
@@ -354,7 +354,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public boolean isOp() {
     return OpsConfig.getInstance()
       .getConfiguration()
-      .contains(this.getXboxUniqueId());
+      .contains(this.getUniqueId().toString());
   }
 
   @Override

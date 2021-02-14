@@ -538,7 +538,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
             }
             Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
               if (PlayerConnection.this.loginData.shouldLogin()) {
-                PlayerConnection.this.loginData.initializePlayer();
+                PlayerConnection.this.loginData.initialize();
               }
             });
           }));
@@ -574,7 +574,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
             Shiruka.getScheduler().isCurrentlyRunning(PlayerConnection.this.loginData.getTask().getTaskId())) {
             PlayerConnection.this.loginData.setShouldLogin(true);
           } else {
-            PlayerConnection.this.loginData.initializePlayer();
+            PlayerConnection.this.loginData.initialize();
           }
           break;
         case SEND_PACKS:

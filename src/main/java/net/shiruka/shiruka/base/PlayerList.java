@@ -68,7 +68,7 @@ public final class PlayerList {
   /**
    * the pending players.
    */
-  private final Map<String, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
+  private final Map<UUID, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by name.
@@ -126,15 +126,15 @@ public final class PlayerList {
    * @param connection the connection to initialize.
    */
   public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
-    final var xboxUniqueId = player.getXboxUniqueId();
+    final var uniqueId = player.getUniqueId();
     final var server = connection.getServer();
-    final var pendingPlayer = this.pendingPlayers.get(xboxUniqueId);
+    final var pendingPlayer = this.pendingPlayers.get(uniqueId);
     if (pendingPlayer != null) {
-      this.pendingPlayers.remove(xboxUniqueId);
+      this.pendingPlayers.remove(uniqueId);
       pendingPlayer.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
     this.players.stream()
-      .filter(oldPlayer -> oldPlayer.getXboxUniqueId().equals(player.getXboxUniqueId()))
+      .filter(oldPlayer -> oldPlayer.getUniqueId().equals(player.getUniqueId()))
       .forEach(old -> {
         // @todo #1:15m Force save old player data.
         old.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
@@ -187,7 +187,7 @@ public final class PlayerList {
    * @return {@code true} if the given {@code player} logged in successfully.
    */
   private boolean tryToLogin(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
-    final var xboxUniqueId = player.getXboxUniqueId();
+    final var uniqueId = player.getUniqueId();
     final var server = connection.getServer();
     return true;
   }

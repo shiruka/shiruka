@@ -193,7 +193,7 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    * the xbox id.
    */
   @Nullable
-  private String xuid;
+  private String xboxUniqueId;
 
   static {
     try {
@@ -506,7 +506,7 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
   @Nullable
   @Override
   public String getXboxUniqueId() {
-    return this.xuid;
+    return this.xboxUniqueId;
   }
 
   /**
@@ -549,14 +549,14 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
           this.uniqueId = UUID.fromString(extra.get("identity").asString());
         }
         if (extrasKeys.contains("XUID")) {
-          this.xuid = extra.get("XUID").asString();
+          this.xboxUniqueId = extra.get("XUID").asString();
         }
         if (keys.contains(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
           this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).asString();
         }
       });
     if (!this.xboxAuthed) {
-      this.xuid = null;
+      this.xboxUniqueId = null;
     }
   }
 

@@ -179,12 +179,12 @@ public final class PlayerList {
    *
    * @param player the player to try.
    * @param connection the connection to try.
+   *
    * @return {@code true} if the given {@code player} logged in successfully.
    */
   private boolean tryToLogin(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
     final var xboxUniqueId = player.getXboxUniqueId();
     final var server = connection.getServer();
-
     return true;
   }
 }

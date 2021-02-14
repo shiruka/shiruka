@@ -503,11 +503,10 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
     return this.xboxAuthed;
   }
 
-  @NotNull
+  @Nullable
   @Override
   public String getXboxUniqueId() {
-    Preconditions.checkState(this.getXboxAuthed(), "The user called %s not didn't xbox authed!", this.username);
-    return SimpleChainData.get(this.xuid);
+    return this.xuid;
   }
 
   /**

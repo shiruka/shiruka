@@ -124,7 +124,7 @@ public final class LoginData {
   /**
    * initializes the player.
    */
-  public void initializePlayer() {
+  public void initialize() {
     if (this.asyncLogin == null) {
       return;
     }

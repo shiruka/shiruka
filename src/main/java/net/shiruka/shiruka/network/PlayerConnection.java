@@ -118,12 +118,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private final ShirukaServer server;
 
   /**
-   * the protocol statement.
-   */
-  @NotNull
-  private final ProtocolState state = ProtocolState.EMPTY;
-
-  /**
    * the blob cache support.
    */
   private boolean blobCacheSupport;
@@ -480,10 +474,9 @@ public final class PlayerConnection implements PacketHandler, Tick {
      *
      * @param packet the packet to handle.
      *
-     * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
+     * @todo #1:60m Add ServerToClientHandshake ClientToServerHandshake packets to request encryption key.
      */
     private void loginPacket0(@NotNull final LoginPacket packet) {
-      Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");
       this.latestLoginPacket = null;
       if (Shiruka.isStopping()) {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
@@ -538,7 +531,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
             }
             Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
               if (PlayerConnection.this.loginData.shouldLogin()) {
-                PlayerConnection.this.loginData.initializePlayer();
+                PlayerConnection.this.loginData.initialize();
               }
             });
           }));
@@ -574,7 +567,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
             Shiruka.getScheduler().isCurrentlyRunning(PlayerConnection.this.loginData.getTask().getTaskId())) {
             PlayerConnection.this.loginData.setShouldLogin(true);
           } else {
-            PlayerConnection.this.loginData.initializePlayer();
+            PlayerConnection.this.loginData.initialize();
           }
           break;
         case SEND_PACKS:

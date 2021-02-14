@@ -60,7 +60,7 @@ public final class OpsConfig extends PathableConfig {
    */
   public static void addOp(@NotNull final OpEntry entry) {
     OpsConfig.getInstance().getConfiguration().set(
-      entry.getProfile().getXboxUniqueId(),
+      entry.getProfile().getUniqueId().toString(),
       entry.serialize());
   }
 
@@ -94,6 +94,6 @@ public final class OpsConfig extends PathableConfig {
    * @param entry the entry to remove.
    */
   public static void removeOp(@NotNull final OpEntry entry) {
-    OpsConfig.getInstance().getConfiguration().remove(entry.getProfile().getXboxUniqueId());
+    OpsConfig.getInstance().getConfiguration().remove(entry.getProfile().getUniqueId().toString());
   }
 }

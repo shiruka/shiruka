@@ -59,6 +59,12 @@ import org.jetbrains.annotations.Nullable;
 public final class SimpleChainData implements ChainDataEvent.ChainData {
 
   /**
+   * the Mojang public key as {@link Base64} format.
+   */
+  public static final String MOJANG_PUBLIC_KEY_BASE64 =
+    "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
+
+  /**
    * the key of chain.
    */
   private static final String CHAIN = "chain";
@@ -82,12 +88,6 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    * the Mojang public key.
    */
   private static final PublicKey MOJANG_PUBLIC_KEY;
-
-  /**
-   * the Mojang public key as {@link Base64} format.
-   */
-  private static final String MOJANG_PUBLIC_KEY_BASE64 =
-    "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
 
   /**
    * the chain data itself.
@@ -193,7 +193,7 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    * the xbox id.
    */
   @Nullable
-  private String xuid;
+  private String xboxUniqueId;
 
   static {
     try {
@@ -255,11 +255,10 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    *
    * @return a new public key instance.
    *
-   * @throws NoSuchAlgorithmException if no {@code Provider} supports a
-   *   {@code KeyFactorySpi} implementation for the
+   * @throws NoSuchAlgorithmException if no {@code Provider} supports a {@code KeyFactorySpi} implementation for the
    *   specified algorithm.
-   * @throws InvalidKeySpecException if the given key specification
-   *   is inappropriate for this key factory to produce a public key.
+   * @throws InvalidKeySpecException if the given key specification is inappropriate for this key factory to produce a
+   *   public key.
    * @throws NullPointerException if {@code algorithm} is {@code null}.
    */
   @NotNull
@@ -504,10 +503,10 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
     return this.xboxAuthed;
   }
 
-  @NotNull
+  @Nullable
   @Override
   public String getXboxUniqueId() {
-    return SimpleChainData.get(this.xuid);
+    return this.xboxUniqueId;
   }
 
   /**
@@ -550,14 +549,14 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
           this.uniqueId = UUID.fromString(extra.get("identity").asString());
         }
         if (extrasKeys.contains("XUID")) {
-          this.xuid = extra.get("XUID").asString();
+          this.xboxUniqueId = extra.get("XUID").asString();
         }
         if (keys.contains(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
           this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).asString();
         }
       });
     if (!this.xboxAuthed) {
-      this.xuid = null;
+      this.xboxUniqueId = null;
     }
   }
 

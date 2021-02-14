@@ -27,6 +27,7 @@ package net.shiruka.shiruka.config;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.UUID;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.config.PathableConfig;
 import org.jetbrains.annotations.NotNull;
@@ -79,11 +80,11 @@ public final class WhitelistConfig extends PathableConfig {
   /**
    * checks if the given {@code xboxUniqueId} is in the whitelist.
    *
-   * @param xboxUniqueId the xbox unique id to check.
+   * @param uniqueId the unique id to check.
    *
    * @return {@code true} if the xbox unique id is in the whitelist.
    */
-  public static boolean isInWhitelist(@NotNull final String xboxUniqueId) {
-    return WhitelistConfig.getInstance().getConfiguration().contains(xboxUniqueId);
+  public static boolean isInWhitelist(@NotNull final UUID uniqueId) {
+    return WhitelistConfig.getInstance().getConfiguration().contains(uniqueId.toString());
   }
 }

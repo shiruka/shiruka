@@ -36,6 +36,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -293,11 +294,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public boolean isInWhitelist(@NotNull final String xboxUniqueId) {
-    return WhitelistConfig.isInWhitelist(xboxUniqueId);
-  }
-
-  @Override
   public boolean isPrimaryThread() {
     final var current = Thread.currentThread();
     return current.equals(this.serverThread) || current.equals(this.shutdownThread);
@@ -405,6 +401,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   public ShirukaTick getTick() {
     return this.tick;
+  }
+
+  @Override
+  public boolean isInWhitelist(@NotNull final UUID uniqueId) {
+    return WhitelistConfig.isInWhitelist(uniqueId);
   }
 
   /**

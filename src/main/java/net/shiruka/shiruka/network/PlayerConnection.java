@@ -118,12 +118,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private final ShirukaServer server;
 
   /**
-   * the protocol statement.
-   */
-  @NotNull
-  private final ProtocolState state = ProtocolState.EMPTY;
-
-  /**
    * the blob cache support.
    */
   private boolean blobCacheSupport;
@@ -483,7 +477,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
      * @todo #1:60m Add ServerToClientHandshake ClientToServerHandshake packets to request encryption key.
      */
     private void loginPacket0(@NotNull final LoginPacket packet) {
-      Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");
       this.latestLoginPacket = null;
       if (Shiruka.isStopping()) {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);

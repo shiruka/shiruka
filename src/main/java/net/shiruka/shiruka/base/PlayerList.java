@@ -191,8 +191,10 @@ public final class PlayerList {
     final var server = connection.getServer();
     if (this.pendingPlayers.containsKey(uniqueId) ||
       this.playersByUniqueId.containsKey(uniqueId)) {
+      player.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
       return false;
     }
+
     return true;
   }
 }

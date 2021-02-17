@@ -262,17 +262,11 @@ public final class ShirukaMain {
    */
   private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
     ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
-    final var serverConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG);
-    final var opsConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS);
-    final var userCacheConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE);
-    final var ipBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS);
-    final var profileBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS);
-    final var whitelistConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST);
-    ServerConfig.init(serverConfig);
-    OpsConfig.init(opsConfig);
-    UserCacheConfig.init(userCacheConfig);
-    IpBanConfig.init(ipBanConfig);
-    ProfileBanConfig.init(profileBanConfig);
-    WhitelistConfig.init(whitelistConfig);
+    ServerConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG));
+    OpsConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS));
+    UserCacheConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE));
+    IpBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS));
+    ProfileBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS));
+    WhitelistConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST));
   }
 }

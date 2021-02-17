@@ -32,7 +32,6 @@ import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
-import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +55,12 @@ public final class LoginData {
   private final PlayerConnection connection;
 
   /**
+   * the profile.
+   */
+  @NotNull
+  private final GameProfile profile;
+
+  /**
    * the should login.
    */
   private final AtomicBoolean shouldLogin = new AtomicBoolean();
@@ -65,12 +70,6 @@ public final class LoginData {
    */
   @NotNull
   private final AtomicReference<Task> task = new AtomicReference<>();
-
-  /**
-   * the profile.
-   */
-  @NotNull
-  private final GameProfile profile;
 
   /**
    * the async login event.

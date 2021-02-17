@@ -111,6 +111,8 @@ public final class PlayerList {
    * gets the active player from {@link #playersByUniqueId} or {@link #pendingPlayers}.
    *
    * @param uniqueId the unique id to get.
+   *
+   * @return active player instance.
    */
   @Nullable
   public ShirukaPlayer getActivePlayer(@NotNull final UUID uniqueId) {

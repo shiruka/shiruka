@@ -160,6 +160,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
+   * the players direcotry.
+   */
+  @NotNull
+  private final File playersDirectory;
+
+  /**
    * the plugin manager.
    */
   private final SimplePluginManager pluginManager = new SimplePluginManager();
@@ -224,12 +230,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the is restarting.
    */
   private volatile boolean isRestarting = false;
-
-  /**
-   * the players direcotry.
-   */
-  @NotNull
-  private final File playersDirectory;
 
   /**
    * the shutdown thread.

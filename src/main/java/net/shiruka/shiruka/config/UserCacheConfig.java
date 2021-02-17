@@ -32,6 +32,7 @@ import java.util.UUID;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.config.Config;
 import net.shiruka.api.config.config.PathableConfig;
+import net.shiruka.shiruka.ShirukaMain;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.file.FileConfiguration;
@@ -54,6 +55,16 @@ public final class UserCacheConfig extends PathableConfig {
    */
   private UserCacheConfig(@NotNull final Config origin) {
     super(origin);
+  }
+
+  /**
+   * adds the given {@code profile} to the file.
+   *
+   * @param profile the profile to add.
+   */
+  public static void addProfile(@NotNull final GameProfile profile) {
+    UserCacheConfig.getInstance().set(profile.getUniqueId().toString(), profile.serialize());
+    ShirukaMain.ASYNC_EXECUTOR.execute(UserCacheConfig.getInstance()::save);
   }
 
   /**
@@ -97,7 +108,11 @@ public final class UserCacheConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<GameProfile> getProfileByUniqueId(@NotNull final UUID uniqueId) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement UserCacheConfig#getProfileByUniqueId.");
+    var section = UserCacheConfig.getConfig().getConfigurationSection(uniqueId.toString());
+    if (section == null) {
+      section = UserCacheConfig.getConfig().createSection(uniqueId.toString());
+    }
+    return GameProfile.deserialize(section.getMapValues(false));
   }
 
   /**
@@ -109,11 +124,7 @@ public final class UserCacheConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<GameProfile> getProfileByXboxUniqueId(@NotNull final String xboxUniqueId) {
-    var section = UserCacheConfig.getConfig().getConfigurationSection(xboxUniqueId);
-    if (section == null) {
-      section = UserCacheConfig.getConfig().createSection(xboxUniqueId);
-    }
-    return GameProfile.deserialize(section.getMapValues(false));
+    throw new UnsupportedOperationException(" @todo #1:10m Implement UserCacheConfig#getProfileByXboxUniqueId.");
   }
 
   /**

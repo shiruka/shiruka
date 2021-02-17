@@ -31,6 +31,7 @@ import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -159,6 +160,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
+   * the players direcotry.
+   */
+  @NotNull
+  private final File playersDirectory;
+
+  /**
    * the plugin manager.
    */
   private final SimplePluginManager pluginManager = new SimplePluginManager();
@@ -237,14 +244,17 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param console the console.
    * @param serverLanguage the server language.
    * @param socket the socket.
+   * @param playersDirectory the players directory.
    */
   ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
-                @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
+                @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket,
+                @NotNull final File playersDirectory) {
     this.startTime = startTime;
     this.console = console.apply(this);
     this.socket = socket;
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
     this.languageManager = new SimpleLanguageManager(serverLanguage);
+    this.playersDirectory = playersDirectory;
   }
 
   @NotNull
@@ -291,6 +301,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public boolean isInShutdownState() {
     return !this.running.get();
+  }
+
+  @Override
+  public boolean isInWhitelist(@NotNull final UUID uniqueId) {
+    return WhitelistConfig.isInWhitelist(uniqueId);
   }
 
   @Override
@@ -364,6 +379,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   /**
+   * obtains the players directory.
+   *
+   * @return player directory.
+   */
+  @NotNull
+  public File getPlayersDirectory() {
+    return this.playersDirectory;
+  }
+
+  /**
    * obtains the scheduler.
    *
    * @return scheduler.
@@ -401,11 +426,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   public ShirukaTick getTick() {
     return this.tick;
-  }
-
-  @Override
-  public boolean isInWhitelist(@NotNull final UUID uniqueId) {
-    return WhitelistConfig.isInWhitelist(uniqueId);
   }
 
   /**

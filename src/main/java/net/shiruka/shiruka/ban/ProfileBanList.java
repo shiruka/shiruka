@@ -28,8 +28,10 @@ package net.shiruka.shiruka.ban;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import net.shiruka.api.base.BanEntry;
 import net.shiruka.api.base.BanList;
+import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.config.ProfileBanConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
@@ -45,7 +47,12 @@ public final class ProfileBanList implements BanList {
   @Override
   public Optional<BanEntry> addBan(@NotNull final String target, @Nullable final Text reason,
                                    @Nullable final Date expires, @Nullable final String source) {
-    final var optional = UserCacheConfig.getProfileByXboxUniqueId(target);
+    Optional<GameProfile> optional;
+    try {
+      optional = UserCacheConfig.getProfileByUniqueId(UUID.fromString(target));
+    } catch (final Exception e) {
+      optional = UserCacheConfig.getProfileByName(target);
+    }
     if (optional.isEmpty()) {
       return Optional.empty();
     }

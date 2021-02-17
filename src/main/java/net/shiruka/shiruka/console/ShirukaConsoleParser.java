@@ -74,6 +74,12 @@ public final class ShirukaConsoleParser {
   public static final OptionSpec<File> OPS;
 
   /**
+   * the players file option spec.
+   */
+  @NotNull
+  public static final OptionSpec<File> PLAYERS;
+
+  /**
    * the plugins directory option spec.
    */
   @NotNull
@@ -171,6 +177,12 @@ public final class ShirukaConsoleParser {
       .ofType(File.class)
       .defaultsTo(new File("whitelist.json"))
       .describedAs("Whitelist file");
+    PLAYERS = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("PL", "plugins"), "Players directory to use")
+      .withRequiredArg()
+      .ofType(File.class)
+      .defaultsTo(new File("players"))
+      .describedAs("Players directory");
   }
 
   /**

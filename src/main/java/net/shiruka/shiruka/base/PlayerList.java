@@ -40,10 +40,12 @@ import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.entities.ShirukaPlayer;
-import net.shiruka.shiruka.network.PlayerConnection;
+import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents player list.
@@ -56,34 +58,34 @@ public final class PlayerList {
   public final BanList ipBanList = new IpBanList();
 
   /**
+   * the pending players.
+   */
+  public final Map<UUID, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
+
+  /**
    * the players.
    */
   public final List<ShirukaPlayer> players = new CopyOnWriteArrayList<>();
 
   /**
-   * the profile ban list.
-   */
-  public final BanList profileBanList = new ProfileBanList();
-
-  /**
-   * the pending players.
-   */
-  private final Map<UUID, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
-
-  /**
    * the players by name.
    */
-  private final Map<String, ShirukaPlayer> playersByName = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayer> playersByName = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by unique id.
    */
-  private final Map<UUID, ShirukaPlayer> playersByUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<UUID, ShirukaPlayer> playersByUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by xbox unique id.
    */
-  private final Map<String, ShirukaPlayer> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayer> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
+
+  /**
+   * the profile ban list.
+   */
+  public final BanList profileBanList = new ProfileBanList();
 
   /**
    * the server.
@@ -106,6 +108,17 @@ public final class PlayerList {
   }
 
   /**
+   * gets the active player from {@link #playersByUniqueId} or {@link #pendingPlayers}.
+   *
+   * @param uniqueId the unique id to get.
+   */
+  @Nullable
+  public ShirukaPlayer getActivePlayer(@NotNull final UUID uniqueId) {
+    final var player = this.playersByUniqueId.get(uniqueId);
+    return player != null ? player : this.pendingPlayers.get(uniqueId);
+  }
+
+  /**
    * obtains the online players.
    *
    * @return online players.
@@ -123,11 +136,9 @@ public final class PlayerList {
    * bunch of packets related to starting the game for the player will send here.
    *
    * @param player the player to initialize.
-   * @param connection the connection to initialize.
    */
-  public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
+  public void initialize(@NotNull final ShirukaPlayer player) {
     final var uniqueId = player.getUniqueId();
-    final var server = connection.getServer();
     final var pendingPlayer = this.pendingPlayers.get(uniqueId);
     if (pendingPlayer != null) {
       this.pendingPlayers.remove(uniqueId);
@@ -164,37 +175,58 @@ public final class PlayerList {
     if (!player.canBypassWhitelist()) {
       event.disallow(LoginResultEvent.LoginResult.KICK_WHITELIST, TranslatedTexts.WHITELIST_ON_REASON);
     }
-    if (server.getOnlinePlayers().size() >= server.getMaxPlayers() && !player.canBypassPlayerLimit()) {
+    if (this.server.getOnlinePlayers().size() >= this.server.getMaxPlayers() && !player.canBypassPlayerLimit()) {
       event.disallow(LoginResultEvent.LoginResult.KICK_FULL, TranslatedTexts.SERVER_FULL_REASON);
     }
     if (event.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
       player.kick(event.getLoginResult(), event.getKickMessage().orElse(null));
       return;
     }
-    if (this.tryToLogin(player, connection)) {
-      return;
+    this.tryToLogin(player);
+  }
+
+  /**
+   * loads the given {@code player}'s compound tag from the players folder.
+   *
+   * @param player the player to load.
+   *
+   * @return loaded compound tag instance.
+   */
+  @Nullable
+  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player) {
+    return null;
+  }
+
+  /**
+   * spawn the given {@code player} in the server.
+   *
+   * @param player the player to login.
+   */
+  private void login(@NotNull final ShirukaPlayer player) {
+    final var oldPending = this.pendingPlayers.put(player.getUniqueId(), player);
+    if (oldPending != null) {
+      oldPending.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
-    server.getTick().lastPingTime = 0L;
-    throw new UnsupportedOperationException(" @todo #1:10m Implement PlayerList#initialize.");
+    player.loginTime = System.currentTimeMillis();
+    final var optional = UserCacheConfig.getProfileByUniqueId(player.getUniqueId());
+    final var lastKnownName = optional.isEmpty() ? player.getName() : optional.get().getName();
+    UserCacheConfig.addProfile(player.getProfile());
+    final var tag = this.loadPlayerCompound(player);
+    this.server.getTick().lastPingTime = 0L;
   }
 
   /**
    * tries the given {@code player} to login.
    *
    * @param player the player to try.
-   * @param connection the connection to try.
-   *
-   * @return {@code true} if the given {@code player} logged in successfully.
    */
-  private boolean tryToLogin(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
+  private void tryToLogin(@NotNull final ShirukaPlayer player) {
     final var uniqueId = player.getUniqueId();
-    final var server = connection.getServer();
     if (this.pendingPlayers.containsKey(uniqueId) ||
       this.playersByUniqueId.containsKey(uniqueId)) {
-      player.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
-      return false;
+      player.getConnection().loginListener.wantsToJoin = player;
+      return;
     }
-
-    return true;
+    this.login(player);
   }
 }

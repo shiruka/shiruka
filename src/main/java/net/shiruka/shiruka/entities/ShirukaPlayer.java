@@ -99,6 +99,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public boolean isRealPlayer;
 
   /**
+   * the login time.
+   */
+  public long loginTime;
+
+  /**
    * the data file.
    */
   @Nullable

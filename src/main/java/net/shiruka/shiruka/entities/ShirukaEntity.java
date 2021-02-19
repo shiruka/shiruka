@@ -163,7 +163,7 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
         : -1;
       final var positions = tag.getListTag("Pos", (byte) 6).orElse(Tag.createList());
       final var motion = tag.getListTag("Motion", (byte) 6).orElse(Tag.createList());
-      final var rotation = tag.getListTag("Pos", (byte) 5).orElse(Tag.createList());
+      final var rotation = tag.getListTag("Rotation", (byte) 5).orElse(Tag.createList());
       this.setMotion(motion);
     } catch (final Throwable t) {
       JiraExceptionCatcher.serverException(t);

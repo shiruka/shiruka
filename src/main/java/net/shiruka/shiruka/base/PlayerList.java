@@ -25,9 +25,14 @@
 
 package net.shiruka.shiruka.base;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,6 +48,7 @@ import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.nbt.CompoundTag;
+import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -196,7 +202,9 @@ public final class PlayerList {
    */
   @Nullable
   private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player) {
-    return null;
+    final var tag = Tag.createCompound();
+    player.load(tag);
+    return tag;
   }
 
   /**

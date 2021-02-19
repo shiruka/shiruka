@@ -25,11 +25,15 @@
 
 package net.shiruka.shiruka.entities;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,6 +56,7 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -119,6 +124,12 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   @Nullable
   private OpEntry opEntry;
+
+  /**
+   * the player file.
+   */
+  @Nullable
+  private File playerFile;
 
   /**
    * ctor.
@@ -326,6 +337,44 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     return this.dataFile;
   }
 
+  /**
+   * obtains the player file.
+   *
+   * @return player file.
+   */
+  @NotNull
+  public File getPlayerFile() {
+    return this.getPlayerFile(false);
+  }
+
+  /**
+   * obtains the player file.
+   * if it's not exist and {@code create} is true, creates the player file..
+   *
+   * @param create the create to get.
+   *
+   * @return player file.
+   */
+  @NotNull
+  public File getPlayerFile(final boolean create) {
+    if (this.playerFile == null) {
+      this.playerFile = new File(this.connection.getServer().getPlayersDirectory(), this.getUniqueId() + ".json");
+    }
+    if (!create) {
+      return this.playerFile;
+    }
+    final var path = this.playerFile.toPath();
+    if (!Files.notExists(path)) {
+      return this.playerFile;
+    }
+    try {
+      Files.createFile(path);
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+    return this.playerFile;
+  }
+
   @NotNull
   @Override
   public UUID getUniqueId() {
@@ -373,6 +422,21 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       OpsConfig.removeOp(this.getOpEntry());
     }
     this.permissible.recalculatePermissions();
+  }
+
+  /**
+   * loads the player compound tag into the given {@code tag}.
+   *
+   * @param tag the tag to load.
+   */
+  public void load(@NotNull final CompoundTag tag) {
+    final JsonObject json;
+    try {
+      json = (JsonObject) Json.parse(Files.readString(this.getPlayerFile(true).toPath()));
+    } catch (final Exception e) {
+      return;
+    }
+    
   }
 
   @Override

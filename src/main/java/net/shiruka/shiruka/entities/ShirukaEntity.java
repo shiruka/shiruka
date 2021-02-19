@@ -50,25 +50,6 @@ import org.jetbrains.annotations.NotNull;
 public abstract class ShirukaEntity implements Entity, ShirukaViewable {
 
   /**
-   * loads tha player's data from the given {@code tag}.
-   *
-   * @param tag the tag to load.
-   */
-  public void load(@NotNull final CompoundTag tag) {
-    try {
-      final var dataVersion = tag.hasKeyOfType("DataVersion", (byte) 1)
-        ? tag.getInteger("DataVersion").orElse(0)
-        : -1;
-      final var positions = tag.getListTag("Pos", (byte) 6).orElse(Tag.createList());
-      final var motion = tag.getListTag("Motion", (byte) 6).orElse(Tag.createList());
-      final var rotation = tag.getListTag("Pos", (byte) 5).orElse(Tag.createList());
-      this.setMotion(motion);
-    } catch (final Throwable t) {
-      JiraExceptionCatcher.serverException(t);
-    }
-  }
-
-  /**
    * the last entity id.
    */
   private static final AtomicInteger LAST_ENTITY_ID = new AtomicInteger();
@@ -168,6 +149,25 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   @Override
   public Text getName() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#getName.");
+  }
+
+  /**
+   * loads tha player's data from the given {@code tag}.
+   *
+   * @param tag the tag to load.
+   */
+  public void load(@NotNull final CompoundTag tag) {
+    try {
+      final var dataVersion = tag.hasKeyOfType("DataVersion", (byte) 1)
+        ? tag.getInteger("DataVersion").orElse(0)
+        : -1;
+      final var positions = tag.getListTag("Pos", (byte) 6).orElse(Tag.createList());
+      final var motion = tag.getListTag("Motion", (byte) 6).orElse(Tag.createList());
+      final var rotation = tag.getListTag("Pos", (byte) 5).orElse(Tag.createList());
+      this.setMotion(motion);
+    } catch (final Throwable t) {
+      JiraExceptionCatcher.serverException(t);
+    }
   }
 
   /**

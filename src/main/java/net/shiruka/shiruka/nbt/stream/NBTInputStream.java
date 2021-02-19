@@ -26,7 +26,6 @@
 package net.shiruka.shiruka.nbt.stream;
 
 import com.google.common.base.Preconditions;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.Closeable;
 import java.io.DataInput;

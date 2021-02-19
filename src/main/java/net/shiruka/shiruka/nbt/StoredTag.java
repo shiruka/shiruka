@@ -97,6 +97,20 @@ public interface StoredTag<K> {
   }
 
   /**
+   * gets the compound tag from the tag store.
+   *
+   * @param key the key to get.
+   *
+   * @return a compound tag instance from the tag store.
+   */
+  @NotNull
+  default Optional<CompoundTag> getCompoundTag(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isCompound)
+      .map(Tag::asCompound);
+  }
+
+  /**
    * gets the double from the tag store.
    *
    * @param key the key to get.
@@ -165,10 +179,78 @@ public interface StoredTag<K> {
    */
   @NotNull
   default Optional<List<Tag>> getList(@NotNull final K key) {
+    return this.getListTag(key)
+      .map(ListTag::all);
+  }
+
+  /**
+   * gets the list from the tag store.
+   *
+   * @param key the key to get.
+   * @param listType the list type to get.
+   *
+   * @return a list instance from the tag store.
+   */
+  @NotNull
+  default Optional<List<Tag>> getList(@NotNull final K key, final byte listType) {
+    return this.getList(key, (int) listType);
+  }
+
+  /**
+   * gets the list from the tag store.
+   *
+   * @param key the key to get.
+   * @param listType the list type to get.
+   *
+   * @return a list instance from the tag store.
+   */
+  @NotNull
+  default Optional<List<Tag>> getList(@NotNull final K key, final int listType) {
+    return this.getListTag(key, listType)
+      .map(ListTag::all);
+  }
+
+  /**
+   * gets the list tag from the tag store.
+   *
+   * @param key the key to get.
+   *
+   * @return a list tag instance from the tag store.
+   */
+  @NotNull
+  default Optional<ListTag> getListTag(@NotNull final K key) {
+    return this.get(key)
+      .filter(Tag::isList)
+      .map(Tag::asList);
+  }
+
+  /**
+   * gets the list tag from the tag store.
+   *
+   * @param key the key to get.
+   * @param listType the list type to get.
+   *
+   * @return a list tag instance from the tag store.
+   */
+  @NotNull
+  default Optional<ListTag> getListTag(@NotNull final K key, final byte listType) {
+    return this.getListTag(key, (int) listType);
+  }
+
+  /**
+   * gets the list tag from the tag store.
+   *
+   * @param key the key to get.
+   * @param listType the list type to get.
+   *
+   * @return a list tag instance from the tag store.
+   */
+  @NotNull
+  default Optional<ListTag> getListTag(@NotNull final K key, final int listType) {
     return this.get(key)
       .filter(Tag::isList)
       .map(Tag::asList)
-      .map(ListTag::all);
+      .filter(tags -> tags.listType() == listType);
   }
 
   /**
@@ -210,9 +292,7 @@ public interface StoredTag<K> {
    */
   @NotNull
   default Optional<Map<String, Tag>> getMap(@NotNull final K key) {
-    return this.get(key)
-      .filter(Tag::isCompound)
-      .map(Tag::asCompound)
+    return this.getCompoundTag(key)
       .map(CompoundTag::all);
   }
 

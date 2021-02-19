@@ -25,14 +25,12 @@
 
 package net.shiruka.shiruka.base;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import java.nio.file.Files;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -202,7 +200,36 @@ public final class PlayerList {
    */
   @Nullable
   private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player) {
-    final var tag = Tag.createCompound();
+    CompoundTag tag = null;
+    final var file = player.getPlayerFile(true);
+    try {
+      var tempFile = file;
+      boolean wrongFile = false;
+      if (ServerConfig.ONLINE_MODE.getValue().orElse(true) && !file.exists()) {
+        tempFile = new File(player.getConnection().getServer().getPlayersDirectory(),
+          UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)).toString() + ".dat");
+        if (tempFile.exists()) {
+          wrongFile = true;
+          this.server.getLogger().warn("Using offline mode UUID file for player {} as it is the only copy we can find.",
+            player.getName().asString());
+        }
+      }
+      if (tempFile.exists() && tempFile.isFile()) {
+        tag = Tag.createGZIPReader(new FileInputStream(tempFile)).readCompoundTag();
+      }
+      if (wrongFile) {
+        tempFile.renameTo(new File(tempFile.getPath() + ".offline-read"));
+      }
+    } catch (final Exception e) {
+      this.server.getLogger().error("Failed to load player data for {}", player.getName().asString());
+    }
+    if (tag == null) {
+      return null;
+    }
+    final var modified = player.getPlayerFile(true).lastModified();
+    if (modified < player.getFirstPlayed()) {
+      player.setFirstPlayed(modified);
+    }
     player.load(tag);
     return tag;
   }

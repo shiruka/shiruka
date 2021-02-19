@@ -25,8 +25,6 @@
 
 package net.shiruka.shiruka.entities;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.File;
@@ -56,7 +54,9 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.nbt.CompoundTag;
+import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -113,6 +113,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   @Nullable
   private File dataFile;
+
+  /**
+   * the first played.
+   */
+  private long firstPlayed = 0L;
 
   /**
    * the hash.
@@ -278,6 +283,15 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getFirstPlayed.");
   }
 
+  /**
+   * sets the first played.
+   *
+   * @param firstPlayed the first played to set.
+   */
+  public void setFirstPlayed(final long firstPlayed) {
+    this.firstPlayed = firstPlayed;
+  }
+
   @Override
   public long getLastLogin() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getLastLogin.");
@@ -358,7 +372,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   public File getPlayerFile(final boolean create) {
     if (this.playerFile == null) {
-      this.playerFile = new File(this.connection.getServer().getPlayersDirectory(), this.getUniqueId() + ".json");
+      this.playerFile = new File(this.connection.getServer().getPlayersDirectory(), this.getUniqueId() + ".dat");
     }
     if (!create) {
       return this.playerFile;
@@ -370,7 +384,8 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     try {
       Files.createFile(path);
     } catch (final IOException e) {
-      e.printStackTrace();
+      this.connection.getServer().getLogger().error("Failed to create player data file for {}",
+        this.getName().asString());
     }
     return this.playerFile;
   }
@@ -422,21 +437,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       OpsConfig.removeOp(this.getOpEntry());
     }
     this.permissible.recalculatePermissions();
-  }
-
-  /**
-   * loads the player compound tag into the given {@code tag}.
-   *
-   * @param tag the tag to load.
-   */
-  public void load(@NotNull final CompoundTag tag) {
-    final JsonObject json;
-    try {
-      json = (JsonObject) Json.parse(Files.readString(this.getPlayerFile(true).toPath()));
-    } catch (final Exception e) {
-      return;
-    }
-    
   }
 
   @Override

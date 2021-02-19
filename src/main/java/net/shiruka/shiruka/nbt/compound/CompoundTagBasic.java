@@ -67,6 +67,12 @@ public final class CompoundTagBasic implements CompoundTag {
   }
 
   @Override
+  public boolean hasKeyOfType(@NotNull final String key, final byte id) {
+    final byte type = this.get(key).map(Tag::id).orElse((byte) 0);
+    return id == type || id == 99 && this.isNumber(type);
+  }
+
+  @Override
   public boolean contains(@NotNull final Tag tag) {
     return this.original.containsValue(tag);
   }
@@ -100,5 +106,16 @@ public final class CompoundTagBasic implements CompoundTag {
   @Override
   public String toString() {
     return this.original.toString();
+  }
+
+  /**
+   * checks if the given {@code type} is a number.
+   *
+   * @param type the type to check.
+   *
+   * @return {@code true} if the type is a number.
+   */
+  private boolean isNumber(final byte type) {
+    return type == 1 || type == 2 || type == 3 || type == 4 || type == 5 || type == 6;
   }
 }

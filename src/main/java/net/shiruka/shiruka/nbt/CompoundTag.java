@@ -56,4 +56,14 @@ public interface CompoundTag extends Tag, StoredTag<String> {
   default boolean isCompound() {
     return true;
   }
+
+  /**
+   * checks if the given {@code key} contains and the id of the key's value equals the given {@code id}.
+   *
+   * @param key the key to check.
+   * @param id the id to check.
+   *
+   * @return {@code true} if the id of the key's value equals the given {@code id}.
+   */
+  boolean hasKeyOfType(@NotNull String key, byte id);
 }

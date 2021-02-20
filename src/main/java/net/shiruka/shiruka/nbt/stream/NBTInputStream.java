@@ -26,7 +26,6 @@
 package net.shiruka.shiruka.nbt.stream;
 
 import com.google.common.base.Preconditions;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.Closeable;
 import java.io.DataInput;
@@ -160,14 +159,14 @@ public final class NBTInputStream implements Closeable {
    */
   @NotNull
   public CompoundTag readCompoundTag() throws IOException {
-    final var tags = new Object2ObjectOpenHashMap<String, Tag>();
+    final var compoundTag = Tag.createCompound();
     byte id;
     while ((id = this.input.readByte()) != Tag.END.id()) {
       final var key = this.input.readUTF();
       final var tag = this.read(id);
-      tags.put(key, tag);
+      compoundTag.set(key, tag);
     }
-    return Tag.createCompound(tags);
+    return compoundTag;
   }
 
   /**

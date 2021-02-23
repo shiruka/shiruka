@@ -98,11 +98,6 @@ public final class PlayerList {
   private final ShirukaServer server;
 
   /**
-   * the max players.
-   */
-  public int maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(20);
-
-  /**
    * ctor.
    *
    * @param server the server.

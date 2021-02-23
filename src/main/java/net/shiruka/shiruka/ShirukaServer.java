@@ -284,12 +284,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public int getMaxPlayers() {
-    return this.playerList.maxPlayers;
+    return this.socket.getMaxConnections();
   }
 
   @Override
   public void setMaxPlayers(final int maxPlayers) {
-    this.playerList.maxPlayers = maxPlayers;
+    this.socket.setMaxConnections(maxPlayers);
   }
 
   @NotNull

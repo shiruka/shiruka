@@ -35,7 +35,7 @@
   <groupId>net.shiruka</groupId>
   <artifactId>shiruka</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>shiruka</name>
+  <name>Shiruka</name>
   <description>Brand new server software for Minecraft: Bedrock Edition.</description>
   <url>https://github.com/shiruka/shiruka</url>
   <scm>

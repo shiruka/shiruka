@@ -26,7 +26,7 @@
 package net.shiruka.shiruka.scheduler;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -46,14 +46,19 @@ public final class SimpleAsyncScheduler extends SimpleScheduler {
    * the executor.
    */
   private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
-    4, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
-    new ThreadFactoryBuilder().setNameFormat("Simple Scheduler Thread - %1$d").build());
+    4, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS,
+    new SynchronousQueue<>(),
+    new ThreadFactoryBuilder()
+      .setNameFormat("Simple Async Scheduler Thread - %1$d")
+      .build());
 
   /**
    * the management.
    */
-  private final Executor management = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-    .setNameFormat("Simple Async Scheduler Management Thread").build());
+  private final ExecutorService management = Executors.newSingleThreadExecutor(
+    new ThreadFactoryBuilder()
+      .setNameFormat("Simple Async Scheduler Management Thread")
+      .build());
 
   /**
    * ctor.

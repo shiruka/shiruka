@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents help command.
+ *
+ * @todo 1#30m Implement help command.
  */
 public final class HelpCommand extends CommandHelper {
 

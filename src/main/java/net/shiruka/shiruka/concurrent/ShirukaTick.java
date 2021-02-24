@@ -379,10 +379,10 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * @return the internal tasks successfully executed.
    */
   private boolean pollTaskInternal() {
-    if (super.executeNext()) {
-      return true;
-    }
-    if (this.canSleepForTick()) {
+//    if (super.executeNext()) {
+//      return true;
+//    }
+//    if (this.canSleepForTick()) {
 //      final var iterator = this.getWorlds().iterator();
 //      while (iterator.hasNext()) {
 //        final WorldServer worldserver = (WorldServer) iterator.next();
@@ -390,8 +390,10 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
 //          return true;
 //        }
 //      }
-    }
-    return false;
+//      return true;
+//    }
+//    return false;
+    return super.executeNext();
   }
 
   /**

@@ -55,8 +55,10 @@ public final class SimpleAsyncScheduler extends SimpleScheduler {
   /**
    * the management.
    */
-  private final Executor management = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-    .setNameFormat("Simple Async Scheduler Management Thread").build());
+  private final Executor management = Executors.newSingleThreadExecutor(
+    new ThreadFactoryBuilder()
+      .setNameFormat("Simple Async Scheduler Management Thread")
+      .build());
 
   /**
    * ctor.

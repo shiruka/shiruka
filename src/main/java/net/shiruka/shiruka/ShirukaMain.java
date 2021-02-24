@@ -76,7 +76,9 @@ public final class ShirukaMain {
   public static final ThreadPoolExecutor ASYNC_EXECUTOR = new ThreadPoolExecutor(
     0, 2, 60L, TimeUnit.SECONDS,
     new LinkedBlockingQueue<>(),
-    new ThreadFactoryBuilder().setNameFormat("Shiru ka Async Task Handler Thread - %1$d").build());
+    new ThreadFactoryBuilder()
+      .setNameFormat("Shiru ka Async Task Handler Thread - %1$d")
+      .build());
 
   /**
    * the protocol version of the Minecraft game.

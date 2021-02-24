@@ -46,8 +46,11 @@ public final class SimpleAsyncScheduler extends SimpleScheduler {
    * the executor.
    */
   private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
-    4, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
-    new ThreadFactoryBuilder().setNameFormat("Simple Scheduler Thread - %1$d").build());
+    4, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS,
+    new SynchronousQueue<>(),
+    new ThreadFactoryBuilder()
+      .setNameFormat("Simple Async Scheduler Thread - %1$d")
+      .build());
 
   /**
    * the management.

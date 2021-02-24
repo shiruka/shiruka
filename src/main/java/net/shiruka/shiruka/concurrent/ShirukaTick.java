@@ -382,7 +382,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     if (super.executeNext()) {
       return true;
     }
-//    if (this.canSleepForTick()) {
+    if (this.canSleepForTick()) {
 //      final var iterator = this.getWorlds().iterator();
 //      while (iterator.hasNext()) {
 //        final WorldServer worldserver = (WorldServer) iterator.next();
@@ -390,7 +390,8 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
 //          return true;
 //        }
 //      }
-//    }
+      return true;
+    }
     return false;
   }
 

@@ -230,12 +230,12 @@ public final class ShirukaMain {
         ShirukaMain.LOGGER.debug("§7Directory {} not present, creating one for you.", file.getName());
         Files.createDirectory(file.toPath());
       }
-    } else {
-      ShirukaMain.LOGGER.debug("§7Checking for {} file.", file.getName());
-      if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("§7File {} not present, creating one for you.", file.getName());
-        Files.createFile(file.toPath());
-      }
+      return file;
+    }
+    ShirukaMain.LOGGER.debug("§7Checking for {} file.", file.getName());
+    if (!Files.exists(file.toPath())) {
+      ShirukaMain.LOGGER.debug("§7File {} not present, creating one for you.", file.getName());
+      Files.createFile(file.toPath());
     }
     return file;
   }

@@ -26,6 +26,9 @@
 package net.shiruka.shiruka.base;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -40,10 +43,13 @@ import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.entities.ShirukaPlayer;
-import net.shiruka.shiruka.network.PlayerConnection;
+import net.shiruka.shiruka.nbt.CompoundTag;
+import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents player list.
@@ -56,34 +62,34 @@ public final class PlayerList {
   public final BanList ipBanList = new IpBanList();
 
   /**
+   * the pending players.
+   */
+  public final Map<UUID, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
+
+  /**
    * the players.
    */
   public final List<ShirukaPlayer> players = new CopyOnWriteArrayList<>();
 
   /**
-   * the profile ban list.
-   */
-  public final BanList profileBanList = new ProfileBanList();
-
-  /**
-   * the pending players.
-   */
-  private final Map<String, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
-
-  /**
    * the players by name.
    */
-  private final Map<String, ShirukaPlayer> playersByName = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayer> playersByName = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by unique id.
    */
-  private final Map<UUID, ShirukaPlayer> playersByUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<UUID, ShirukaPlayer> playersByUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by xbox unique id.
    */
-  private final Map<String, ShirukaPlayer> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayer> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
+
+  /**
+   * the profile ban list.
+   */
+  public final BanList profileBanList = new ProfileBanList();
 
   /**
    * the server.
@@ -92,17 +98,25 @@ public final class PlayerList {
   private final ShirukaServer server;
 
   /**
-   * the max players.
-   */
-  public int maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(20);
-
-  /**
    * ctor.
    *
    * @param server the server.
    */
   public PlayerList(@NotNull final ShirukaServer server) {
     this.server = server;
+  }
+
+  /**
+   * gets the active player from {@link #playersByUniqueId} or {@link #pendingPlayers}.
+   *
+   * @param uniqueId the unique id to get.
+   *
+   * @return active player instance.
+   */
+  @Nullable
+  public ShirukaPlayer getActivePlayer(@NotNull final UUID uniqueId) {
+    final var player = this.playersByUniqueId.get(uniqueId);
+    return player != null ? player : this.pendingPlayers.get(uniqueId);
   }
 
   /**
@@ -123,18 +137,16 @@ public final class PlayerList {
    * bunch of packets related to starting the game for the player will send here.
    *
    * @param player the player to initialize.
-   * @param connection the connection to initialize.
    */
-  public void initialize(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
-    final var xboxUniqueId = player.getXboxUniqueId();
-    final var server = connection.getServer();
-    final var pendingPlayer = this.pendingPlayers.get(xboxUniqueId);
+  public void initialize(@NotNull final ShirukaPlayer player) {
+    final var uniqueId = player.getUniqueId();
+    final var pendingPlayer = this.pendingPlayers.get(uniqueId);
     if (pendingPlayer != null) {
-      this.pendingPlayers.remove(xboxUniqueId);
+      this.pendingPlayers.remove(uniqueId);
       pendingPlayer.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
     this.players.stream()
-      .filter(oldPlayer -> oldPlayer.getXboxUniqueId().equals(player.getXboxUniqueId()))
+      .filter(oldPlayer -> oldPlayer.getUniqueId().equals(player.getUniqueId()))
       .forEach(old -> {
         // @todo #1:15m Force save old player data.
         old.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
@@ -164,31 +176,89 @@ public final class PlayerList {
     if (!player.canBypassWhitelist()) {
       event.disallow(LoginResultEvent.LoginResult.KICK_WHITELIST, TranslatedTexts.WHITELIST_ON_REASON);
     }
-    if (server.getOnlinePlayers().size() >= server.getMaxPlayers() && !player.canBypassPlayerLimit()) {
+    if (this.server.getOnlinePlayers().size() >= this.server.getMaxPlayers() && !player.canBypassPlayerLimit()) {
       event.disallow(LoginResultEvent.LoginResult.KICK_FULL, TranslatedTexts.SERVER_FULL_REASON);
     }
     if (event.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
       player.kick(event.getLoginResult(), event.getKickMessage().orElse(null));
       return;
     }
-    if (this.tryToLogin(player, connection)) {
-      return;
+    this.tryToLogin(player);
+  }
+
+  /**
+   * loads the given {@code player}'s compound tag from the players folder.
+   *
+   * @param player the player to load.
+   *
+   * @return loaded compound tag instance.
+   */
+  @Nullable
+  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player) {
+    CompoundTag tag = null;
+    final var file = player.getPlayerFile(true);
+    try {
+      var tempFile = file;
+      boolean wrongFile = false;
+      if (ServerConfig.ONLINE_MODE.getValue().orElse(true) && !file.exists()) {
+        tempFile = new File(player.getConnection().getServer().getPlayersDirectory(),
+          UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)).toString() + ".dat");
+        if (tempFile.exists()) {
+          wrongFile = true;
+          this.server.getLogger().warn("Using offline mode UUID file for player {} as it is the only copy we can find.",
+            player.getName().asString());
+        }
+      }
+      if (tempFile.exists() && tempFile.isFile()) {
+        tag = Tag.createGZIPReader(new FileInputStream(tempFile)).readCompoundTag();
+      }
+      if (wrongFile) {
+        tempFile.renameTo(new File(tempFile.getPath() + ".offline-read"));
+      }
+    } catch (final Exception e) {
+      this.server.getLogger().error("Failed to load player data for {}", player.getName().asString());
     }
-    server.getTick().lastPingTime = 0L;
-    throw new UnsupportedOperationException(" @todo #1:10m Implement PlayerList#initialize.");
+    if (tag == null) {
+      return null;
+    }
+    final var modified = player.getPlayerFile(true).lastModified();
+    if (modified < player.getFirstPlayed()) {
+      player.setFirstPlayed(modified);
+    }
+    player.load(tag);
+    return tag;
+  }
+
+  /**
+   * spawn the given {@code player} in the server.
+   *
+   * @param player the player to login.
+   */
+  private void login(@NotNull final ShirukaPlayer player) {
+    final var oldPending = this.pendingPlayers.put(player.getUniqueId(), player);
+    if (oldPending != null) {
+      oldPending.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+    }
+    player.loginTime = System.currentTimeMillis();
+    final var optional = UserCacheConfig.getProfileByUniqueId(player.getUniqueId());
+    final var lastKnownName = optional.isEmpty() ? player.getName() : optional.get().getName();
+    UserCacheConfig.addProfile(player.getProfile());
+    final var tag = this.loadPlayerCompound(player);
+    this.server.getTick().lastPingTime = 0L;
   }
 
   /**
    * tries the given {@code player} to login.
    *
    * @param player the player to try.
-   * @param connection the connection to try.
-   *
-   * @return {@code true} if the given {@code player} logged in successfully.
    */
-  private boolean tryToLogin(@NotNull final ShirukaPlayer player, @NotNull final PlayerConnection connection) {
-    final var xboxUniqueId = player.getXboxUniqueId();
-    final var server = connection.getServer();
-    return true;
+  private void tryToLogin(@NotNull final ShirukaPlayer player) {
+    final var uniqueId = player.getUniqueId();
+    if (this.pendingPlayers.containsKey(uniqueId) ||
+      this.playersByUniqueId.containsKey(uniqueId)) {
+      player.getConnection().loginListener.wantsToJoin = player;
+      return;
+    }
+    this.login(player);
   }
 }

@@ -31,11 +31,13 @@ import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -158,6 +160,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
+   * the players direcotry.
+   */
+  @NotNull
+  private final File playersDirectory;
+
+  /**
    * the plugin manager.
    */
   private final SimplePluginManager pluginManager = new SimplePluginManager();
@@ -236,14 +244,17 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param console the console.
    * @param serverLanguage the server language.
    * @param socket the socket.
+   * @param playersDirectory the players directory.
    */
   ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
-                @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket) {
+                @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket,
+                @NotNull final File playersDirectory) {
     this.startTime = startTime;
     this.console = console.apply(this);
     this.socket = socket;
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
     this.languageManager = new SimpleLanguageManager(serverLanguage);
+    this.playersDirectory = playersDirectory;
   }
 
   @NotNull
@@ -273,12 +284,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public int getMaxPlayers() {
-    return this.playerList.maxPlayers;
+    return this.socket.getMaxConnections();
   }
 
   @Override
   public void setMaxPlayers(final int maxPlayers) {
-    this.playerList.maxPlayers = maxPlayers;
+    this.socket.setMaxConnections(maxPlayers);
   }
 
   @NotNull
@@ -293,8 +304,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   @Override
-  public boolean isInWhitelist(@NotNull final String xboxUniqueId) {
-    return WhitelistConfig.isInWhitelist(xboxUniqueId);
+  public boolean isInWhitelist(@NotNull final UUID uniqueId) {
+    return WhitelistConfig.isInWhitelist(uniqueId);
   }
 
   @Override
@@ -365,6 +376,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @Override
   public <I> void unregisterInterface(@NotNull final Class<I> cls) {
     this.interfaces.remove(cls);
+  }
+
+  /**
+   * obtains the players directory.
+   *
+   * @return player directory.
+   */
+  @NotNull
+  public File getPlayersDirectory() {
+    return this.playersDirectory;
   }
 
   /**

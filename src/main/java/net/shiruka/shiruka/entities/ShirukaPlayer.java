@@ -28,8 +28,10 @@ package net.shiruka.shiruka.entities;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -99,10 +101,20 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public boolean isRealPlayer;
 
   /**
+   * the login time.
+   */
+  public long loginTime;
+
+  /**
    * the data file.
    */
   @Nullable
   private File dataFile;
+
+  /**
+   * the first played.
+   */
+  private long firstPlayed = 0L;
 
   /**
    * the hash.
@@ -114,6 +126,12 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   @Nullable
   private OpEntry opEntry;
+
+  /**
+   * the player file.
+   */
+  @Nullable
+  private File playerFile;
 
   /**
    * ctor.
@@ -262,6 +280,15 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getFirstPlayed.");
   }
 
+  /**
+   * sets the first played.
+   *
+   * @param firstPlayed the first played to set.
+   */
+  public void setFirstPlayed(final long firstPlayed) {
+    this.firstPlayed = firstPlayed;
+  }
+
   @Override
   public long getLastLogin() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaPlayer#getLastLogin.");
@@ -316,9 +343,48 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   public File getDataFile() {
     if (this.dataFile == null) {
-      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getXboxUniqueId() + ".dat");
+      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getUniqueId().toString() + ".dat");
     }
     return this.dataFile;
+  }
+
+  /**
+   * obtains the player file.
+   *
+   * @return player file.
+   */
+  @NotNull
+  public File getPlayerFile() {
+    return this.getPlayerFile(false);
+  }
+
+  /**
+   * obtains the player file.
+   * if it's not exist and {@code create} is true, creates the player file..
+   *
+   * @param create the create to get.
+   *
+   * @return player file.
+   */
+  @NotNull
+  public File getPlayerFile(final boolean create) {
+    if (this.playerFile == null) {
+      this.playerFile = new File(this.connection.getServer().getPlayersDirectory(), this.getUniqueId() + ".dat");
+    }
+    if (!create) {
+      return this.playerFile;
+    }
+    final var path = this.playerFile.toPath();
+    if (!Files.notExists(path)) {
+      return this.playerFile;
+    }
+    try {
+      Files.createFile(path);
+    } catch (final IOException e) {
+      this.connection.getServer().getLogger().error("Failed to create player data file for {}",
+        this.getName().asString());
+    }
+    return this.playerFile;
   }
 
   @NotNull
@@ -330,7 +396,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @Override
   public int hashCode() {
     if (this.hash == 0 || this.hash == 485) {
-      this.hash = 97 * 5 + this.getXboxUniqueId().hashCode();
+      this.hash = 97 * 5 + this.getUniqueId().hashCode();
     }
     return this.hash;
   }
@@ -341,7 +407,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       return false;
     }
     final var other = (Player) obj;
-    return this.getXboxUniqueId().equals(other.getXboxUniqueId()) &&
+    return this.getUniqueId().equals(other.getUniqueId()) &&
       this.getEntityId() == other.getEntityId();
   }
 
@@ -354,7 +420,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public boolean isOp() {
     return OpsConfig.getInstance()
       .getConfiguration()
-      .contains(this.getXboxUniqueId());
+      .contains(this.getUniqueId().toString());
   }
 
   @Override

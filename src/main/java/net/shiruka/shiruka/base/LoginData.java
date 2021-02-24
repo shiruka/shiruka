@@ -32,7 +32,6 @@ import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
-import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.entities.ShirukaPlayer;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +55,12 @@ public final class LoginData {
   private final PlayerConnection connection;
 
   /**
+   * the profile.
+   */
+  @NotNull
+  private final GameProfile profile;
+
+  /**
    * the should login.
    */
   private final AtomicBoolean shouldLogin = new AtomicBoolean();
@@ -65,12 +70,6 @@ public final class LoginData {
    */
   @NotNull
   private final AtomicReference<Task> task = new AtomicReference<>();
-
-  /**
-   * the username.
-   */
-  @NotNull
-  private final Text username;
 
   /**
    * the async login event.
@@ -83,12 +82,12 @@ public final class LoginData {
    *
    * @param chainData the chain data.
    * @param connection the connection.
-   * @param username the username.
+   * @param profile the profile.
    */
   public LoginData(@NotNull final ChainDataEvent.ChainData chainData, @NotNull final PlayerConnection connection,
-                   @NotNull final Text username) {
+                   @NotNull final GameProfile profile) {
     this.chainData = chainData;
-    this.username = username;
+    this.profile = profile;
     this.connection = connection;
   }
 
@@ -124,7 +123,7 @@ public final class LoginData {
   /**
    * initializes the player.
    */
-  public void initializePlayer() {
+  public void initialize() {
     if (this.asyncLogin == null) {
       return;
     }
@@ -135,8 +134,7 @@ public final class LoginData {
       this.connection.disconnect(this.asyncLogin.getKickMessage().orElse(null));
       return;
     }
-    final var profile = new GameProfile(this.username, this.chainData.getUniqueId(), this.chainData.getXboxUniqueId());
-    final var player = new ShirukaPlayer(this.connection, this, profile);
+    final var player = new ShirukaPlayer(this.connection, this, this.profile);
     this.connection.initialize(player);
     this.asyncLogin.getActions().forEach(action -> action.accept(player));
   }

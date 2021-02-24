@@ -30,12 +30,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.shiruka.api.base.Vector;
 import net.shiruka.api.entity.Entity;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.base.ShirukaViewable;
+import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.nbt.CompoundTag;
+import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.network.packets.EntityRemovePacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,6 +62,12 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
    * the entity id.
    */
   private final long entityId;
+
+  /**
+   * the motion.
+   */
+  @NotNull
+  private final Vector motion = new Vector(0.0d, 0.0d, 0.0d);
 
   /**
    * ctor.
@@ -138,6 +148,24 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   @Override
   public Text getName() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#getName.");
+  }
+
+  /**
+   * loads tha player's data from the given {@code tag}.
+   *
+   * @param tag the tag to load.
+   */
+  public void load(@NotNull final CompoundTag tag) {
+    try {
+      final var dataVersion = tag.hasKeyOfType("DataVersion", (byte) 1)
+        ? tag.getInteger("DataVersion").orElse(0)
+        : -1;
+      final var positions = tag.getListTag("Pos", (byte) 6).orElse(Tag.createList());
+      final var motion = tag.getListTag("Motion", (byte) 6).orElse(Tag.createList());
+      final var rotation = tag.getListTag("Rotation", (byte) 5).orElse(Tag.createList());
+    } catch (final Throwable t) {
+      JiraExceptionCatcher.serverException(t);
+    }
   }
 
   @Override

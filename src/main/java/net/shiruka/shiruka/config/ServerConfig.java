@@ -114,13 +114,6 @@ public final class ServerConfig extends PathableConfig {
     "determines the maximum login process, that will handle, per tick.");
 
   /**
-   * whether to check for netty memory leaks during runtime.
-   */
-  public static final ConfigPath<Boolean> NETTY_LEAK_DETECTOR = commented(booleanPath(
-    "netty-leak-detector", false),
-    "whether to check for netty memory leaks during runtime");
-
-  /**
    * whether to use Mojang auth to check players.
    */
   public static final ConfigPath<Boolean> ONLINE_MODE = commented(booleanPath(

@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.server.RakNetServer;
 import java.io.File;
@@ -35,6 +36,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -67,6 +71,14 @@ import org.jetbrains.annotations.NotNull;
 public final class ShirukaMain {
 
   /**
+   * the async executor.
+   */
+  public static final ThreadPoolExecutor ASYNC_EXECUTOR = new ThreadPoolExecutor(
+    0, 2, 60L, TimeUnit.SECONDS,
+    new LinkedBlockingQueue<>(),
+    new ThreadFactoryBuilder().setNameFormat("Shiru ka Async Task Handler Thread - %1$d").build());
+
+  /**
    * the protocol version of the Minecraft game.
    */
   public static final short MINECRAFT_PROTOCOL_VERSION = 422;
@@ -92,6 +104,12 @@ public final class ShirukaMain {
   private static final Logger LOGGER = LogManager.getLogger();
 
   /**
+   * the players directory.
+   */
+  @NotNull
+  private static File playersDirectory = new File("players");
+
+  /**
    * the server locale.
    */
   @NotNull
@@ -103,7 +121,8 @@ public final class ShirukaMain {
   private static final ThrowableRunnable SERVER_RUNNABLE = () -> {
     final var startTime = System.currentTimeMillis();
     final var socket = ShirukaMain.createSocket();
-    final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.serverLocale, socket);
+    final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.serverLocale, socket,
+      ShirukaMain.playersDirectory);
     Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
     AsyncCatcher.server = server;
     Shiruka.setServer(server);
@@ -262,17 +281,12 @@ public final class ShirukaMain {
    */
   private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
     ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
-    final var serverConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG);
-    final var opsConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS);
-    final var userCacheConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE);
-    final var ipBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS);
-    final var profileBanConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS);
-    final var whitelistConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST);
-    ServerConfig.init(serverConfig);
-    OpsConfig.init(opsConfig);
-    UserCacheConfig.init(userCacheConfig);
-    IpBanConfig.init(ipBanConfig);
-    ProfileBanConfig.init(profileBanConfig);
-    WhitelistConfig.init(whitelistConfig);
+    ShirukaMain.playersDirectory = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLAYERS, true);
+    ServerConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG));
+    OpsConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS));
+    UserCacheConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE));
+    IpBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS));
+    ProfileBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS));
+    WhitelistConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST));
   }
 }

@@ -25,4 +25,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: shiruka
-          path: target/shiruka.jar
+          path: target/Shiruka.jar

@@ -40,8 +40,7 @@ public final class TranslatedTexts {
   /**
    * the banned reason.
    */
-  public static final TranslatedText ALREADY_LOGGED_IN_REASON =
-    TranslatedText.get("shiruka.player.already_logged_in");
+  public static final TranslatedText ALREADY_LOGGED_IN_REASON = TranslatedText.get("shiruka.player.already_logged_in");
 
   /**
    * the banned for no reason.

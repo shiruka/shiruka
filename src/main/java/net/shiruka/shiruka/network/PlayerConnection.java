@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Tick;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.text.ChatColor;
@@ -91,15 +92,15 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private static int oldTick;
 
   /**
+   * the login listener.
+   */
+  public final LoginListener loginListener = new LoginListener();
+
+  /**
    * the connection.
    */
   @NotNull
   private final RakNetClientPeer connection;
-
-  /**
-   * the login listener.
-   */
-  private final LoginListener loginListener = new LoginListener();
 
   /**
    * the packet handler.
@@ -118,27 +119,21 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private final ShirukaServer server;
 
   /**
-   * the protocol statement.
-   */
-  @NotNull
-  private final ProtocolState state = ProtocolState.EMPTY;
-
-  /**
    * the blob cache support.
    */
   private boolean blobCacheSupport;
-
-  /**
-   * the login data.
-   */
-  @Nullable
-  private LoginData loginData;
 
   /**
    * the player.
    */
   @Nullable
   private ShirukaPlayer player;
+
+  /**
+   * the profile.
+   */
+  @Nullable
+  private GameProfile profile;
 
   /**
    * ctor.
@@ -267,15 +262,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   /**
-   * sets the {@link #player}.
-   *
-   * @param player the player to set.
-   */
-  public void setPlayer(@NotNull final ShirukaPlayer player) {
-    this.player = player;
-  }
-
-  /**
    * obtains the server.
    *
    * @return server.
@@ -318,7 +304,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
   public void initialize(@NotNull final ShirukaPlayer player) {
     this.player = player;
     this.setPacketHandler(this);
-    this.server.playerList.initialize(player, this);
+    this.server.playerList.initialize(player);
   }
 
   /**
@@ -429,7 +415,13 @@ public final class PlayerConnection implements PacketHandler, Tick {
   /**
    * a class that represents login listener.
    */
-  private final class LoginListener implements PacketHandler {
+  public final class LoginListener implements PacketHandler {
+
+    /**
+     * the wants to join.
+     */
+    @Nullable
+    public ShirukaPlayer wantsToJoin;
 
     /**
      * the latest login packet.
@@ -442,6 +434,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
      */
     @Nullable
     private ResourcePackResponsePacket latestResourcePacket;
+
+    /**
+     * the login data.
+     */
+    @Nullable
+    private LoginData loginData;
 
     /**
      * the login timeout counter.
@@ -464,11 +462,19 @@ public final class PlayerConnection implements PacketHandler, Tick {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
         return;
       }
-      if (this.latestLoginPacket != null) {
-        this.loginPacket0(this.latestLoginPacket);
-      }
-      if (this.latestResourcePacket != null) {
-        this.resourcePackResponsePacket0(this.latestResourcePacket);
+      if (this.wantsToJoin == null) {
+        if (this.latestLoginPacket != null) {
+          this.loginPacket0(this.latestLoginPacket);
+        }
+        if (this.latestResourcePacket != null) {
+          this.resourcePackResponsePacket0(this.latestResourcePacket);
+        }
+      } else if (PlayerConnection.this.profile != null) {
+        final var pending = PlayerConnection.this.server.playerList
+          .getActivePlayer(PlayerConnection.this.profile.getUniqueId());
+        if (pending == null) {
+          this.wantsToJoin = null;
+        }
       }
       if (this.loginTimeoutCounter++ >= 600) {
         PlayerConnection.this.disconnect(TranslatedTexts.SLOW_LOGIN_REASON);
@@ -480,10 +486,9 @@ public final class PlayerConnection implements PacketHandler, Tick {
      *
      * @param packet the packet to handle.
      *
-     * @todo #1:60m Add Server_To_Client_Handshake Client_To_Server_Handshake packets to request encryption key.
+     * @todo #1:60m Add ServerToClientHandshake ClientToServerHandshake packets to request encryption key.
      */
     private void loginPacket0(@NotNull final LoginPacket packet) {
-      Preconditions.checkState(PlayerConnection.this.state == ProtocolState.EMPTY, "Unexpected packet order");
       this.latestLoginPacket = null;
       if (Shiruka.isStopping()) {
         PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
@@ -520,7 +525,11 @@ public final class PlayerConnection implements PacketHandler, Tick {
             PlayerConnection.this.disconnect(TranslatedTexts.INVALID_SKIN_REASON);
             return;
           }
-          PlayerConnection.this.loginData = new LoginData(chainData, PlayerConnection.this, () -> ChatColor.clean(username));
+          PlayerConnection.this.profile = new GameProfile(
+            () -> ChatColor.clean(username),
+            chainData.getUniqueId(),
+            chainData.getXboxUniqueId());
+          this.loginData = new LoginData(chainData, PlayerConnection.this, PlayerConnection.this.profile);
           final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData);
           preLogin.callEvent();
           if (preLogin.isCancelled()) {
@@ -528,8 +537,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
             return;
           }
           final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
-          PlayerConnection.this.loginData.setAsyncLogin(asyncLogin);
-          PlayerConnection.this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
+          this.loginData.setAsyncLogin(asyncLogin);
+          this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
             asyncLogin.callEvent();
             if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
               Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
@@ -537,8 +546,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
               return;
             }
             Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-              if (PlayerConnection.this.loginData.shouldLogin()) {
-                PlayerConnection.this.loginData.initializePlayer();
+              if (this.loginData.shouldLogin()) {
+                this.loginData.initialize();
               }
             });
           }));
@@ -567,14 +576,14 @@ public final class PlayerConnection implements PacketHandler, Tick {
           }
           break;
         case COMPLETED:
-          if (PlayerConnection.this.loginData == null) {
+          if (this.loginData == null) {
             return;
           }
-          if (PlayerConnection.this.loginData.getTask() != null &&
-            Shiruka.getScheduler().isCurrentlyRunning(PlayerConnection.this.loginData.getTask().getTaskId())) {
-            PlayerConnection.this.loginData.setShouldLogin(true);
+          if (this.loginData.getTask() != null &&
+            Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
+            this.loginData.setShouldLogin(true);
           } else {
-            PlayerConnection.this.loginData.initializePlayer();
+            this.loginData.initialize();
           }
           break;
         case SEND_PACKS:

@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.entities;
+package net.shiruka.shiruka.entity.entities;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -45,7 +45,7 @@ import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
-import net.shiruka.api.events.LoginResultEvent;
+import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;

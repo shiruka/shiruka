@@ -88,7 +88,7 @@ public final class SimpleCommandManager implements CommandManager {
    * @param commands the commands to register.
    */
   public static void registerInternal(@NotNull final CommandNode... commands) {
-    SimpleCommandManager.DISPATCHER.register(commands);
+    SimpleCommandManager.getDispatcher().register(commands);
   }
 
   /**
@@ -97,24 +97,25 @@ public final class SimpleCommandManager implements CommandManager {
    * @param builders the builders to register.
    */
   public static void registerInternal(@NotNull final LiteralBuilder... builders) {
-    SimpleCommandManager.DISPATCHER.register(builders);
+    SimpleCommandManager.getDispatcher().register(builders);
   }
 
   @Override
   public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
     try {
-      SimpleCommandManager.DISPATCHER.execute(command, sender);
+      SimpleCommandManager.getDispatcher().execute(command, sender);
     } catch (final CommandSyntaxException e) {
       if (e.getType() == CommandException.DISPATCHER_UNKNOWN_COMMAND) {
         sender.sendMessage(TranslatedText.get(SimpleCommandManager.NOT_FOUND, command));
         return;
       }
+      // @todo #1:5m Add language support for An exception caught when running a command.
       SimpleCommandManager.LOGGER.error("An exception caught when running a command: ", e);
     }
   }
 
   @Override
-  public void register(@NotNull final Plugin plugin, final @NotNull CommandNode... commands) {
+  public void register(@NotNull final Plugin plugin, @NotNull final CommandNode... commands) {
     throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleCommandManager#register.");
   }
 

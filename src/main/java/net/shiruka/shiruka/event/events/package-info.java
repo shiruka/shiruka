@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains implementations for {@link net.shiruka.api.entity.Entity}.
+ * the package that contains {@link net.shiruka.api.event.events.Event} implementations.
  */
-package net.shiruka.shiruka.entities;
+package net.shiruka.shiruka.event.events;

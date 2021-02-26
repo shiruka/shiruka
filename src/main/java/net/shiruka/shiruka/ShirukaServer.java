@@ -64,7 +64,7 @@ import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.config.WhitelistConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
-import net.shiruka.shiruka.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;

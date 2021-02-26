@@ -32,7 +32,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import net.shiruka.api.Shiruka;
-import net.shiruka.api.events.server.exception.ServerSchedulerException;
+import net.shiruka.api.event.events.server.exception.ServerSchedulerException;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.Scheduler;
 import org.jetbrains.annotations.NotNull;

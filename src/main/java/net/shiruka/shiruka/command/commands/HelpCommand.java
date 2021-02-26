@@ -40,7 +40,7 @@ public final class HelpCommand extends CommandHelper {
    * ctor.
    */
   private HelpCommand() {
-    super("help", "Shows the help menu", "shiruka.command.help");
+    super("help", new String[]{"?"}, "Shows the help menu", "shiruka.command.help");
   }
 
   /**

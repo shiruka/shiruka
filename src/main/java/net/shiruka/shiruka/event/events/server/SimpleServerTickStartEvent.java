@@ -23,33 +23,31 @@
  *
  */
 
-package net.shiruka.shiruka.events;
+package net.shiruka.shiruka.event.events.server;
 
-import net.shiruka.api.event.Cancellable;
+import net.shiruka.api.event.events.server.ServerTickStartEvent;
 
 /**
- * an abstract implementation for {@link Cancellable}.
+ * a simple implementation for {@link ServerTickStartEvent}.
  */
-public abstract class SimpleCancellableEvent implements Cancellable {
+public final class SimpleServerTickStartEvent implements ServerTickStartEvent {
 
   /**
-   * the cancelled.
+   * the tick.
    */
-  private boolean cancelled;
+  private final int tick;
 
   /**
    * ctor.
+   *
+   * @param tick the tick.
    */
-  protected SimpleCancellableEvent() {
+  public SimpleServerTickStartEvent(final int tick) {
+    this.tick = tick;
   }
 
   @Override
-  public final boolean isCancelled() {
-    return this.cancelled;
-  }
-
-  @Override
-  public final void setCancelled(final boolean cancelled) {
-    this.cancelled = cancelled;
+  public int getTick() {
+    return this.tick;
   }
 }

@@ -23,13 +23,13 @@
  *
  */
 
-package net.shiruka.shiruka.events.player;
+package net.shiruka.shiruka.event.events.player;
 
 import java.util.Optional;
 import net.shiruka.api.base.ChainData;
-import net.shiruka.api.events.player.PlayerPreLoginEvent;
+import net.shiruka.api.event.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.events.SimpleCancellableEvent;
+import net.shiruka.shiruka.event.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

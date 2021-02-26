@@ -22,48 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package net.shiruka.shiruka.events.server;
-
-import net.shiruka.api.events.server.ServerExceptionEvent;
-import net.shiruka.api.events.server.exception.ServerException;
-import org.jetbrains.annotations.NotNull;
-
 /**
- * a simple implementation for {@link ServerExceptionEvent}.
+ * the package that contains event implementations for server events.
  */
-public final class SimpleServerExceptionEvent implements ServerExceptionEvent {
-
-  /**
-   * the is async.
-   */
-  private final boolean isAsync;
-
-  /**
-   * the server exception.
-   */
-  @NotNull
-  private final ServerException serverException;
-
-  /**
-   * ctor.
-   *
-   * @param serverException the server exception.
-   * @param isAsync the is async.
-   */
-  public SimpleServerExceptionEvent(@NotNull final ServerException serverException, final boolean isAsync) {
-    this.serverException = serverException;
-    this.isAsync = isAsync;
-  }
-
-  @NotNull
-  @Override
-  public ServerException getServerException() {
-    return this.serverException;
-  }
-
-  @Override
-  public boolean isAsync() {
-    return this.isAsync;
-  }
-}
+package net.shiruka.shiruka.event.events.server;

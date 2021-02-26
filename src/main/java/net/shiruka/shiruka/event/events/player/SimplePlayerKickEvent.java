@@ -23,67 +23,62 @@
  *
  */
 
-package net.shiruka.shiruka.events.server;
+package net.shiruka.shiruka.event.events.player;
 
-import net.shiruka.api.Shiruka;
-import net.shiruka.api.command.sender.CommandSender;
-import net.shiruka.api.events.server.ServerCommandEvent;
-import net.shiruka.shiruka.events.SimpleCancellableEvent;
+import java.util.Optional;
+import net.shiruka.api.entity.Player;
+import net.shiruka.api.event.events.LoginResultEvent;
+import net.shiruka.api.event.events.player.PlayerKickEvent;
+import net.shiruka.api.text.Text;
+import net.shiruka.shiruka.event.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link ServerCommandEvent}.
+ * a simple implementation for {@link PlayerKickEvent}.
  */
-public final class SimpleServerCommandEvent extends SimpleCancellableEvent implements ServerCommandEvent {
+public final class SimplePlayerKickEvent extends SimpleCancellableEvent implements PlayerKickEvent {
 
   /**
-   * the async.
-   */
-  private final boolean async;
-
-  /**
-   * the sender.
+   * the player.
    */
   @NotNull
-  private final CommandSender sender;
+  private final Player player;
 
   /**
-   * the command.
+   * the reason.
    */
   @NotNull
-  private String command;
+  private final LoginResultEvent.LoginResult reason;
+
+  /**
+   * the kick message.
+   */
+  @Nullable
+  private Text kickMessage;
 
   /**
    * ctor.
    *
-   * @param sender the sender.
-   * @param command the command.
+   * @param player the player.
+   * @param reason the reason.
+   * @param kickMessage the kick message.
    */
-  public SimpleServerCommandEvent(@NotNull final CommandSender sender, @NotNull final String command) {
-    this.sender = sender;
-    this.command = command;
-    this.async = !Shiruka.isPrimaryThread();
+  public SimplePlayerKickEvent(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
+                               @Nullable final Text kickMessage) {
+    this.player = player;
+    this.reason = reason;
+    this.kickMessage = kickMessage;
   }
 
   @NotNull
   @Override
-  public String getCommand() {
-    return this.command;
+  public Optional<Text> getKickMessage() {
+    return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public void setCommand(@NotNull final String command) {
-    this.command = command;
-  }
-
-  @NotNull
-  @Override
-  public CommandSender getSender() {
-    return this.sender;
-  }
-
-  @Override
-  public boolean isAsync() {
-    return this.async;
+  public void setKickMessage(@Nullable final Text message) {
+    this.kickMessage = message;
   }
 }

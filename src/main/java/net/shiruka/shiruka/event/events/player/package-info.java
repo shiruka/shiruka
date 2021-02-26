@@ -22,56 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package net.shiruka.shiruka.events.server;
-
-import net.shiruka.api.events.server.ServerTickEndEvent;
-
 /**
- * a simple implementation for {@link net.shiruka.api.events.server.ServerTickStartEvent}.
+ * the package that contains event implementations for player events.
  */
-public final class SimpleServerTickEndEvent implements ServerTickEndEvent {
-
-  /**
-   * the duration.
-   */
-  private final double duration;
-
-  /**
-   * the remaining.
-   */
-  private final long remaining;
-
-  /**
-   * the tick.
-   */
-  private final int tick;
-
-  /**
-   * ctor.
-   *
-   * @param duration the duration.
-   * @param remaining the remaining.
-   * @param tick the tick.
-   */
-  public SimpleServerTickEndEvent(final double duration, final long remaining, final int tick) {
-    this.duration = duration;
-    this.remaining = remaining;
-    this.tick = tick;
-  }
-
-  @Override
-  public double getDuration() {
-    return this.duration;
-  }
-
-  @Override
-  public long getRemaining() {
-    return this.remaining;
-  }
-
-  @Override
-  public int getTick() {
-    return this.tick;
-  }
-}
+package net.shiruka.shiruka.event.events.player;

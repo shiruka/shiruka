@@ -23,25 +23,35 @@
  *
  */
 
-package net.shiruka.shiruka.events.player;
+package net.shiruka.shiruka.event.events.player;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.entity.Player;
-import net.shiruka.api.events.player.PlayerLoginEvent;
+import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link PlayerLoginEvent}.
+ * a simple implementation for {@link PlayerAsyncLoginEvent}.
  */
-public final class SimplePlayerLoginEvent implements PlayerLoginEvent {
+public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent {
 
   /**
-   * the player.
+   * the actions that will run after player initialization.
+   */
+  private final List<Consumer<Player>> actions = new ObjectArrayList<>();
+
+  /**
+   * the chain data.
    */
   @NotNull
-  private final Player player;
+  private final ChainData chainData;
 
   /**
    * the kick message.
@@ -58,16 +68,32 @@ public final class SimplePlayerLoginEvent implements PlayerLoginEvent {
   /**
    * ctor.
    *
-   * @param player the player.
+   * @param chainData the login data.
    */
-  public SimplePlayerLoginEvent(@NotNull final Player player) {
-    this.player = player;
+  public SimplePlayerAsyncLoginEvent(@NotNull final ChainData chainData) {
+    this.chainData = chainData;
+  }
+
+  @Override
+  public void addAction(@NotNull final Consumer<Player> action) {
+    this.actions.add(action);
   }
 
   @NotNull
   @Override
-  public Player getEntity() {
-    return this.player;
+  public List<Consumer<Player>> getActions() {
+    return Collections.unmodifiableList(this.actions);
+  }
+
+  @Override
+  public void removeAction(@NotNull final Consumer<Player> action) {
+    this.actions.remove(action);
+  }
+
+  @NotNull
+  @Override
+  public ChainData getChainData() {
+    return this.chainData;
   }
 
   @NotNull

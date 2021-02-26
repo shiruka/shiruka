@@ -32,7 +32,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.entity.Player;
-import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
+import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.event.events.server;
 
-import net.shiruka.api.events.server.ServerTickStartEvent;
+import net.shiruka.api.event.events.server.ServerTickStartEvent;
 
 /**
  * a simple implementation for {@link ServerTickStartEvent}.

@@ -73,10 +73,10 @@ public final class MsPTCommand extends CommandHelper {
       }
       total += value;
     }
-    final var avgD = (double) total / (double) times.length * 1.0E-6D;
-    final var minD = (double) min * 1.0E-6D;
-    final var maxD = (double) max * 1.0E-6D;
-    return Arrays.asList(MsPTCommand.getColor(avgD), MsPTCommand.getColor(minD), MsPTCommand.getColor(maxD));
+    final var average = (double) total / (double) times.length * 1.0E-6D;
+    final var minimum = (double) min * 1.0E-6D;
+    final var maximum = (double) max * 1.0E-6D;
+    return Arrays.asList(MsPTCommand.getColor(average), MsPTCommand.getColor(minimum), MsPTCommand.getColor(maximum));
   }
 
   /**

@@ -25,8 +25,8 @@
 
 package net.shiruka.shiruka.event.events.server;
 
-import net.shiruka.api.events.server.ServerExceptionEvent;
-import net.shiruka.api.events.server.exception.ServerException;
+import net.shiruka.api.event.events.server.ServerExceptionEvent;
+import net.shiruka.api.event.events.server.exception.ServerException;
 import org.jetbrains.annotations.NotNull;
 
 /**

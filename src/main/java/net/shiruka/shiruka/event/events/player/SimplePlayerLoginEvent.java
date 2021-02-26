@@ -27,7 +27,7 @@ package net.shiruka.shiruka.event.events.player;
 
 import java.util.Optional;
 import net.shiruka.api.entity.Player;
-import net.shiruka.api.events.player.PlayerLoginEvent;
+import net.shiruka.api.event.events.player.PlayerLoginEvent;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

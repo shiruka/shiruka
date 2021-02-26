@@ -42,6 +42,11 @@ import org.jetbrains.annotations.NotNull;
 public final class PluginFileCommandParser {
 
   /**
+   * the permission key.
+   */
+  private static final String PERMISSIONS = "shiruka.command.permission";
+
+  /**
    * ctor.
    */
   private PluginFileCommandParser() {
@@ -53,6 +58,8 @@ public final class PluginFileCommandParser {
    * @param plugin the plugin to parse.
    *
    * @return parsed plugin's commands.
+   *
+   * @todo #1:15m Add language support when parsing the commands section of plugin's file.
    */
   @NotNull
   public static List<LiteralBuilder> parse(@NotNull final Plugin plugin) {
@@ -79,14 +86,16 @@ public final class PluginFileCommandParser {
       if (aliases != null) {
         final var aliasList = new ObjectArrayList<String>();
         if (aliases instanceof List<?>) {
-          for (final var o : (List<?>) aliases) {
-            if (o.toString().contains(":")) {
+          ((List<?>) aliases).stream()
+            .filter(o -> {
+              if (!o.toString().contains(":")) {
+                return true;
+              }
               Shiruka.getLogger().fatal("Could not load alias {} for plugin {}: Illegal Characters",
                 o.toString(), plugin.getName());
-              continue;
-            }
-            aliasList.add(o.toString());
-          }
+              return false;
+            })
+            .forEach(o -> aliasList.add(o.toString()));
         } else {
           if (aliases.toString().contains(":")) {
             Shiruka.getLogger().fatal("Could not load alias {} for plugin {}: Illegal Characters",
@@ -104,7 +113,7 @@ public final class PluginFileCommandParser {
           if (permissionMessage != null) {
             error = permissionMessage::toString;
           } else {
-            error = TranslatedText.get("shiruka.command.permission", joined);
+            error = TranslatedText.get(PluginFileCommandParser.PERMISSIONS, joined);
           }
           sender.sendMessage(error);
         }, permission.toString());

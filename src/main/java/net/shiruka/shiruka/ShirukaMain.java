@@ -161,7 +161,7 @@ public final class ShirukaMain {
         .setLevel(Level.DEBUG);
       context.updateLoggers();
     }
-    final var here = new File(".").getAbsolutePath();
+    final var here = ShirukaMain.HOME;
     if (here.contains("!") || here.contains("+")) {
       ShirukaMain.LOGGER.warn("§cCannot run server in a directory with ! or + in the pathname.");
       ShirukaMain.LOGGER.warn("§cPlease rename the affected folders and try again.");

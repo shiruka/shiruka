@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.geometry.AnimatedTextureType;
 import net.shiruka.api.geometry.AnimationData;
@@ -54,9 +55,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation of {@link ChainDataEvent.ChainData}.
+ * a simple implementation of {@link ChainData}.
  */
-public final class SimpleChainData implements ChainDataEvent.ChainData {
+public final class SimpleChainData implements ChainData {
 
   /**
    * the Mojang public key as {@link Base64} format.
@@ -220,10 +221,10 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    * @param chainData the chain data to create.
    * @param skinData the skin data to create.
    *
-   * @return a new instance of {@link ChainDataEvent.ChainData}.
+   * @return a new instance of {@link ChainData}.
    */
   @NotNull
-  public static ChainDataEvent.ChainData create(@NotNull final String chainData, @NotNull final String skinData) {
+  public static ChainData create(@NotNull final String chainData, @NotNull final String skinData) {
     final var data = new SimpleChainData(chainData, skinData);
     data.initialize();
     return data;

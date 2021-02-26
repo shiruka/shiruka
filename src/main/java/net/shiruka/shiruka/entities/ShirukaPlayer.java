@@ -41,6 +41,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
@@ -217,7 +218,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @NotNull
   @Override
-  public ChainDataEvent.ChainData getChainData() {
+  public ChainData getChainData() {
     return Objects.requireNonNull(this.loginData, "player did not initialize").chainData();
   }
 

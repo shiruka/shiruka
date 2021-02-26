@@ -46,7 +46,7 @@ import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.command.CommandManager;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
-import net.shiruka.api.events.EventManager;
+import net.shiruka.api.event.EventManager;
 import net.shiruka.api.language.LanguageManager;
 import net.shiruka.api.pack.PackManager;
 import net.shiruka.api.permission.PermissionManager;

@@ -25,19 +25,21 @@
 
 package net.shiruka.shiruka.event;
 
+import java.util.List;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.entity.Player;
+import net.shiruka.api.event.EventManager;
 import net.shiruka.api.event.Listener;
 import net.shiruka.api.event.method.MethodAdapter;
 import net.shiruka.api.event.method.SimpleMethodAdapter;
-import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.Event;
-import net.shiruka.api.events.EventManager;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.events.player.PlayerKickEvent;
 import net.shiruka.api.events.player.PlayerLoginEvent;
 import net.shiruka.api.events.player.PlayerPreLoginEvent;
+import net.shiruka.api.events.server.AsyncTabCompleteEvent;
 import net.shiruka.api.events.server.ServerCommandEvent;
 import net.shiruka.api.events.server.ServerExceptionEvent;
 import net.shiruka.api.events.server.ServerTickEndEvent;
@@ -48,6 +50,7 @@ import net.shiruka.shiruka.events.player.SimplePlayerAsyncLoginEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerKickEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerLoginEvent;
 import net.shiruka.shiruka.events.player.SimplePlayerPreLoginEvent;
+import net.shiruka.shiruka.events.server.SimpleAsyncTabCompleteEvent;
 import net.shiruka.shiruka.events.server.SimpleServerCommandEvent;
 import net.shiruka.shiruka.events.server.SimpleServerExceptionEvent;
 import net.shiruka.shiruka.events.server.SimpleServerTickEndEvent;
@@ -65,6 +68,13 @@ public final class SimpleEventManager implements EventManager {
    */
   private final MethodAdapter adapter = new SimpleMethodAdapter();
 
+  @NotNull
+  @Override
+  public AsyncTabCompleteEvent asyncTabComplete(@NotNull final CommandSender completer,
+                                                @NotNull final List<String> completions, @NotNull final String text) {
+    return new SimpleAsyncTabCompleteEvent(completions, completer, text);
+  }
+
   @Override
   public void call(@NotNull final Event event) {
     this.adapter.call(event);
@@ -72,7 +82,7 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final ChainDataEvent.ChainData chainData) {
+  public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final ChainData chainData) {
     return new SimplePlayerAsyncLoginEvent(chainData);
   }
 
@@ -91,7 +101,7 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerPreLoginEvent playerPreLogin(@NotNull final ChainDataEvent.ChainData chainData,
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final ChainData chainData,
                                             @Nullable final Text kickMessage) {
     return new SimplePlayerPreLoginEvent(chainData, kickMessage);
   }

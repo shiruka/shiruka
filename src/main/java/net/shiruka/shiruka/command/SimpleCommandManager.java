@@ -51,6 +51,7 @@ public final class SimpleCommandManager implements CommandManager {
   /**
    * the dispatcher.
    */
+  @NotNull
   private static final CommandDispatcher DISPATCHER;
 
   /**
@@ -69,6 +70,16 @@ public final class SimpleCommandManager implements CommandManager {
     TpsCommand.init();
     HelpCommand.init();
     MsPTCommand.init();
+  }
+
+  /**
+   * obtains the dispatcher.
+   *
+   * @return dispatcher.
+   */
+  @NotNull
+  public static CommandDispatcher getDispatcher() {
+    return SimpleCommandManager.DISPATCHER;
   }
 
   /**

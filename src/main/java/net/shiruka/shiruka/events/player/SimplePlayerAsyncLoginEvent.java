@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.text.Text;

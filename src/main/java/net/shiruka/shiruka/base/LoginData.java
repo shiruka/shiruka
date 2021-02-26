@@ -27,8 +27,8 @@ package net.shiruka.shiruka.base;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
-import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
@@ -46,7 +46,7 @@ public final class LoginData {
    * the chain data.
    */
   @NotNull
-  private final ChainDataEvent.ChainData chainData;
+  private final ChainData chainData;
 
   /**
    * the player.
@@ -84,7 +84,7 @@ public final class LoginData {
    * @param connection the connection.
    * @param profile the profile.
    */
-  public LoginData(@NotNull final ChainDataEvent.ChainData chainData, @NotNull final PlayerConnection connection,
+  public LoginData(@NotNull final ChainData chainData, @NotNull final PlayerConnection connection,
                    @NotNull final GameProfile profile) {
     this.chainData = chainData;
     this.profile = profile;
@@ -97,7 +97,7 @@ public final class LoginData {
    * @return chain data.
    */
   @NotNull
-  public ChainDataEvent.ChainData chainData() {
+  public ChainData chainData() {
     return this.chainData;
   }
 

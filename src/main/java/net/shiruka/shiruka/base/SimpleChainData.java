@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import net.shiruka.api.events.ChainDataEvent;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.geometry.AnimatedTextureType;
 import net.shiruka.api.geometry.AnimationData;
 import net.shiruka.api.geometry.ImageData;
@@ -54,15 +54,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation of {@link ChainDataEvent.ChainData}.
+ * a simple implementation of {@link ChainData}.
  */
-public final class SimpleChainData implements ChainDataEvent.ChainData {
-
-  /**
-   * the Mojang public key as {@link Base64} format.
-   */
-  public static final String MOJANG_PUBLIC_KEY_BASE64 =
-    "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
+public final class SimpleChainData implements ChainData {
 
   /**
    * the key of chain.
@@ -88,6 +82,12 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    * the Mojang public key.
    */
   private static final PublicKey MOJANG_PUBLIC_KEY;
+
+  /**
+   * the Mojang public key as {@link Base64} format.
+   */
+  private static final String MOJANG_PUBLIC_KEY_BASE64 =
+    "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
 
   /**
    * the chain data itself.
@@ -220,10 +220,10 @@ public final class SimpleChainData implements ChainDataEvent.ChainData {
    * @param chainData the chain data to create.
    * @param skinData the skin data to create.
    *
-   * @return a new instance of {@link ChainDataEvent.ChainData}.
+   * @return a new instance of {@link ChainData}.
    */
   @NotNull
-  public static ChainDataEvent.ChainData create(@NotNull final String chainData, @NotNull final String skinData) {
+  public static ChainData create(@NotNull final String chainData, @NotNull final String skinData) {
     final var data = new SimpleChainData(chainData, skinData);
     data.initialize();
     return data;

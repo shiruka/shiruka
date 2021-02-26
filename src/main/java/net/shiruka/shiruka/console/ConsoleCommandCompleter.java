@@ -25,9 +25,14 @@
 
 package net.shiruka.shiruka.console;
 
+import java.util.Collections;
 import java.util.List;
-import net.shiruka.api.Server;
-import org.jetbrains.annotations.NotNull;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import net.shiruka.api.Shiruka;
+import net.shiruka.api.command.CommandDispatcher;
+import net.shiruka.api.command.suggestion.Suggestion;
+import net.shiruka.shiruka.command.SimpleCommandManager;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -38,23 +43,36 @@ import org.jline.reader.ParsedLine;
  */
 final class ConsoleCommandCompleter implements Completer {
 
-  /**
-   * the server instance.
-   */
-  @NotNull
-  private final Server server;
-
-  /**
-   * ctor.
-   *
-   * @param server the server.
-   */
-  ConsoleCommandCompleter(@NotNull final Server server) {
-    this.server = server;
-  }
-
   @Override
   public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement ConsoleCommandCompleter#complete.");
+    final var buffer = line.line();
+    final var event = Shiruka.getEventManager().asyncTabComplete(Shiruka.getConsoleCommandSender(),
+      Collections.emptyList(), buffer);
+    final var successful = event.callEvent();
+    final var completions = successful
+      ? event.getCompletions()
+      : Collections.<String>emptyList();
+    if (!successful || event.isHandled()) {
+      if (!completions.isEmpty()) {
+        candidates.addAll(completions.stream()
+          .map(String::trim)
+          .filter(s -> !s.isEmpty())
+          .map(Candidate::new)
+          .collect(Collectors.toList()));
+      }
+      return;
+    }
+    try {
+      final var parse = SimpleCommandManager.getDispatcher().parse(event.getText(), event.getSender());
+      CommandDispatcher.getCompletionSuggestions(parse).get().getSuggestionList().stream()
+        .map(Suggestion::getText)
+        .map(Candidate::new)
+        .forEach(candidates::add);
+    } catch (final ExecutionException e) {
+      // @todo #1:5m Add language support for Unhandled exception when tab completing.
+      Shiruka.getLogger().warn("Unhandled exception when tab completing", e);
+    } catch (final InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
   }
 }

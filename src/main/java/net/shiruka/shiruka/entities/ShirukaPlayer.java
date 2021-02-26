@@ -66,7 +66,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   /**
    * the plugin weak references.
    */
-  private static final WeakHashMap<Plugin, WeakReference<Plugin>> PLUGIN_WEAK_REFERENCES = new WeakHashMap<>();
+  private static final Map<Plugin, WeakReference<Plugin>> PLUGIN_WEAK_REFERENCES = new WeakHashMap<>();
 
   /**
    * the viewable entities.

@@ -28,8 +28,7 @@ package net.shiruka.shiruka.event.events.server;
 import java.util.Collections;
 import java.util.List;
 import net.shiruka.api.command.sender.CommandSender;
-import net.shiruka.api.events.server.AsyncTabCompleteEvent;
-import net.shiruka.shiruka.event.events.SimpleCancellableEvent;
+import net.shiruka.api.event.events.server.AsyncTabCompleteEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**

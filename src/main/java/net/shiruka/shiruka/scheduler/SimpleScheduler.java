@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.shiruka.api.Shiruka;
-import net.shiruka.api.events.server.exception.ServerSchedulerException;
+import net.shiruka.api.event.events.server.exception.ServerSchedulerException;
 import net.shiruka.api.plugin.IllegalPluginAccessException;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.Task;

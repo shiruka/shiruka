@@ -37,7 +37,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
-import net.shiruka.api.events.LoginResultEvent;
+import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;

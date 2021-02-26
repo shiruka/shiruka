@@ -25,10 +25,10 @@
 
 package net.shiruka.shiruka.event.events.server;
 
-import net.shiruka.api.events.server.ServerTickEndEvent;
+import net.shiruka.api.event.events.server.ServerTickEndEvent;
 
 /**
- * a simple implementation for {@link net.shiruka.api.events.server.ServerTickStartEvent}.
+ * a simple implementation for {@link ServerTickEndEvent}.
  */
 public final class SimpleServerTickEndEvent implements ServerTickEndEvent {
 

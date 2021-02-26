@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
-import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;

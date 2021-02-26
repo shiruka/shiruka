@@ -46,7 +46,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import net.shiruka.api.base.ChainData;
-import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.geometry.AnimatedTextureType;
 import net.shiruka.api.geometry.AnimationData;
 import net.shiruka.api.geometry.ImageData;
@@ -58,12 +57,6 @@ import org.jetbrains.annotations.Nullable;
  * a simple implementation of {@link ChainData}.
  */
 public final class SimpleChainData implements ChainData {
-
-  /**
-   * the Mojang public key as {@link Base64} format.
-   */
-  public static final String MOJANG_PUBLIC_KEY_BASE64 =
-    "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
 
   /**
    * the key of chain.
@@ -89,6 +82,12 @@ public final class SimpleChainData implements ChainData {
    * the Mojang public key.
    */
   private static final PublicKey MOJANG_PUBLIC_KEY;
+
+  /**
+   * the Mojang public key as {@link Base64} format.
+   */
+  private static final String MOJANG_PUBLIC_KEY_BASE64 =
+    "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
 
   /**
    * the chain data itself.

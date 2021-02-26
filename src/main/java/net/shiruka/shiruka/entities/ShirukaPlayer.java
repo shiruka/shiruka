@@ -45,7 +45,6 @@ import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
-import net.shiruka.api.events.ChainDataEvent;
 import net.shiruka.api.events.LoginResultEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;

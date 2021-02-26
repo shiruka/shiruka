@@ -30,6 +30,7 @@ import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.event.events.player.PlayerKickEvent;
 import net.shiruka.api.text.Text;
+import net.shiruka.shiruka.event.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

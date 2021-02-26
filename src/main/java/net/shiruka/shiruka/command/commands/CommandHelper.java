@@ -47,6 +47,12 @@ abstract class CommandHelper {
   private static final String TEST_PERMISSION = "shiruka.command.permission";
 
   /**
+   * the aliases.
+   */
+  @NotNull
+  private final String[] aliases;
+
+  /**
    * the command.
    */
   @NotNull
@@ -82,7 +88,21 @@ abstract class CommandHelper {
    */
   CommandHelper(@NotNull final String command, @NotNull final String description,
                 @NotNull final String permission) {
+    this(command, new String[0], description, permission);
+  }
+
+  /**
+   * ctor.
+   *
+   * @param command the command.
+   * @param aliases the aliases.
+   * @param description the description.
+   * @param permission the permission.
+   */
+  CommandHelper(@NotNull final String command, @NotNull final String[] aliases, @NotNull final String description,
+                @NotNull final String permission) {
     this.command = command;
+    this.aliases = aliases.clone();
     this.description = description;
     this.permission = permission;
   }
@@ -145,7 +165,7 @@ abstract class CommandHelper {
    */
   @NotNull
   protected LiteralBuilder build() {
-    return Commands.literal(this.command)
+    final var builder = Commands.literal(this.command)
       .describe(this.description)
       .permission((sender, permissions) -> {
         final var joined = Joiner.on(", ").join(permissions);
@@ -155,5 +175,9 @@ abstract class CommandHelper {
           sender.sendMessage(this.permissionMessage, joined);
         }
       }, this.permission);
+    if (this.aliases.length != 0) {
+      builder.aliases(this.aliases);
+    }
+    return builder;
   }
 }

@@ -107,7 +107,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private static final String SERVER_DONE = "shiruka.server.done";
 
   /**
-   * the server stoppin exception.
+   * the server stopping exception.
    */
   private static final String SERVER_STOPPING_EXCEPTION = "shiruka.server.stopping_exception";
 

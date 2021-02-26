@@ -32,19 +32,19 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that represents help command.
  *
- * @todo 1#30m Implement help command.
+ * @todo #1:30m Implement help command.
  */
 public final class HelpCommand extends CommandHelper {
 
   /**
    * ctor.
    */
-  public HelpCommand() {
+  private HelpCommand() {
     super("help", "Shows the help menu", "shiruka.command.help");
   }
 
   /**
-   * registers the stop command.
+   * registers the command.
    */
   public static void init() {
     new HelpCommand().register();

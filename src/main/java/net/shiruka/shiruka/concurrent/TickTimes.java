@@ -23,39 +23,54 @@
  *
  */
 
-package net.shiruka.shiruka.entity;
+package net.shiruka.shiruka.concurrent;
 
-import net.shiruka.api.base.NamespacedKey;
-import net.shiruka.api.entity.Entity;
-import org.jetbrains.annotations.NotNull;
+import java.util.Arrays;
 
 /**
- * a class that represents entity types.
- *
- * @param <E> type of the entity class.
+ * a class that represents calculator for tick times.
  */
-public final class EntityTypes<E extends Entity> {
+public final class TickTimes {
 
   /**
-   * the factory.
+   * the tick times.
    */
-  @NotNull
-  private final EntityFactory<E> factory;
-
-  /**
-   * the key.
-   */
-  @NotNull
-  private final NamespacedKey key;
+  private final long[] times;
 
   /**
    * ctor.
    *
-   * @param factory the factory.
-   * @param key the key.
+   * @param length the length.
    */
-  private EntityTypes(@NotNull final EntityFactory<E> factory, @NotNull final NamespacedKey key) {
-    this.factory = factory;
-    this.key = key;
+  public TickTimes(final int length) {
+    this.times = new long[length];
+  }
+
+  /**
+   * set the given time to the given index.
+   *
+   * @param index the index to set.
+   * @param time the time to set.
+   */
+  public void add(final int index, final long time) {
+    this.times[index % this.times.length] = time;
+  }
+
+  /**
+   * calculates and gives the average tick time.
+   *
+   * @return average tick time.
+   */
+  public double getAverage() {
+    return (double) Arrays.stream(this.times).sum() / (double) this.times.length * 1.0E-6D;
+  }
+
+  /**
+   * obtains the tick times.
+   *
+   * @return tick times.
+   */
+  public long[] getTimes() {
+    return this.times.clone();
   }
 }

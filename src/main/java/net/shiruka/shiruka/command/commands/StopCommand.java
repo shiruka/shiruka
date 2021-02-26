@@ -50,7 +50,7 @@ public final class StopCommand extends CommandHelper {
   }
 
   /**
-   * registers the stop command.
+   * registers the command.
    */
   public static void init() {
     new StopCommand().register();

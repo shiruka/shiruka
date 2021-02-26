@@ -67,6 +67,13 @@ public final class AsyncCatcher {
   }
 
   /**
+   * catches and throws an exception.
+   */
+  public static void catchAsync() {
+    AsyncCatcher.catchAsync("operations forbidden here");
+  }
+
+  /**
    * checks if the current thread is not the server thread.
    *
    * @return {@code true} if the current thread is not the server thread.

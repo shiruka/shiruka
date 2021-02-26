@@ -46,12 +46,11 @@ public final class TpsCommand extends CommandHelper {
    * ctor.
    */
   private TpsCommand() {
-    super("tps", "Gets the current ticks per second for the server.",
-      "shiruka.command.tps");
+    super("tps", "Gets the current ticks per second for the server.", "shiruka.command.tps");
   }
 
   /**
-   * registers the stop command.
+   * registers the command.
    */
   public static void init() {
     new TpsCommand().register();

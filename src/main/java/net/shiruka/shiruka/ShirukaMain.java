@@ -76,7 +76,9 @@ public final class ShirukaMain {
   public static final ThreadPoolExecutor ASYNC_EXECUTOR = new ThreadPoolExecutor(
     0, 2, 60L, TimeUnit.SECONDS,
     new LinkedBlockingQueue<>(),
-    new ThreadFactoryBuilder().setNameFormat("Shiru ka Async Task Handler Thread - %1$d").build());
+    new ThreadFactoryBuilder()
+      .setNameFormat("Shiru ka Async Task Handler Thread - %1$d")
+      .build());
 
   /**
    * the protocol version of the Minecraft game.
@@ -123,8 +125,8 @@ public final class ShirukaMain {
     final var socket = ShirukaMain.createSocket();
     final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.serverLocale, socket,
       ShirukaMain.playersDirectory);
-    Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
     AsyncCatcher.server = server;
+    Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
     Shiruka.setServer(server);
     socket.addListener(server);
     socket.start();
@@ -159,7 +161,7 @@ public final class ShirukaMain {
         .setLevel(Level.DEBUG);
       context.updateLoggers();
     }
-    final var here = new File(".").getAbsolutePath();
+    final var here = ShirukaMain.HOME;
     if (here.contains("!") || here.contains("+")) {
       ShirukaMain.LOGGER.warn("§cCannot run server in a directory with ! or + in the pathname.");
       ShirukaMain.LOGGER.warn("§cPlease rename the affected folders and try again.");
@@ -230,12 +232,12 @@ public final class ShirukaMain {
         ShirukaMain.LOGGER.debug("§7Directory {} not present, creating one for you.", file.getName());
         Files.createDirectory(file.toPath());
       }
-    } else {
-      ShirukaMain.LOGGER.debug("§7Checking for {} file.", file.getName());
-      if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("§7File {} not present, creating one for you.", file.getName());
-        Files.createFile(file.toPath());
-      }
+      return file;
+    }
+    ShirukaMain.LOGGER.debug("§7Checking for {} file.", file.getName());
+    if (!Files.exists(file.toPath())) {
+      ShirukaMain.LOGGER.debug("§7File {} not present, creating one for you.", file.getName());
+      Files.createFile(file.toPath());
     }
     return file;
   }

@@ -52,12 +52,12 @@ public final class ShirukaShutdownThread extends Thread {
   public void run() {
     try {
       this.server.safeShutdown(false, false);
-      for (var i = 1000; i > 0 && !this.server.isStopping(); i -= 100) {
-        Thread.sleep(100);
+      for (var index = 1000; index > 0 && !this.server.isStopping(); index -= 100) {
+        Thread.sleep(100L);
       }
       if (this.server.isStopping()) {
         while (!this.server.hasFullyShutdown) {
-          Thread.sleep(1000);
+          Thread.sleep(1000L);
         }
         return;
       }
@@ -66,7 +66,7 @@ public final class ShirukaShutdownThread extends Thread {
       this.server.getTick().forceTicks = true;
       this.server.stopServer();
       while (!this.server.hasFullyShutdown) {
-        Thread.sleep(1000);
+        Thread.sleep(1000L);
       }
     } catch (final InterruptedException e) {
       e.printStackTrace();

@@ -78,6 +78,21 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private static final String SERVER_OVERLOAD = "shiruka.server.overload";
 
   /**
+   * tick times for 10 seconds.
+   */
+  private static final TickTimes TICK_TIMES_10_S = new TickTimes(200);
+
+  /**
+   * tick times for 5 seconds.
+   */
+  private static final TickTimes TICK_TIMES_5_S = new TickTimes(100);
+
+  /**
+   * tick times for 60 seconds.
+   */
+  private static final TickTimes TICK_TIMES_60_S = new TickTimes(1200);
+
+  /**
    * tps for 1 minute.
    */
   private static final RollingAverage TPS_1 = new RollingAverage(60);
@@ -119,6 +134,11 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   public final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
 
   /**
+   * the tick times.
+   */
+  public final long[] tickTimes = new long[100];
+
+  /**
    * the process queue.
    */
   private final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
@@ -143,6 +163,11 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * the next tick.
    */
   public long nextTick = SystemUtils.getMonotonicMillis();
+
+  /**
+   * the current average tick time.
+   */
+  private float currentAverageTickTime;
 
   /**
    * the executed task.
@@ -182,6 +207,19 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   public ShirukaTick(@NotNull final ShirukaServer server) {
     super("Server");
     this.server = server;
+  }
+
+  /**
+   * obtains the tick times of the server.
+   *
+   * @return a double array which has 3 average tick times numbers for 5, 10, and 60 seconds.
+   */
+  public static long[][] getTickTimes() {
+    return new long[][]{
+      ShirukaTick.TICK_TIMES_5_S.getTimes(),
+      ShirukaTick.TICK_TIMES_10_S.getTimes(),
+      ShirukaTick.TICK_TIMES_60_S.getTimes()
+    };
   }
 
   /**
@@ -334,7 +372,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * does the tick operations.
    */
   private void doTick() {
-    final var now = System.nanoTime();
+    final var start = System.nanoTime();
     this.overslept = true;
     this.awaitTasks(() -> !this.canOversleep());
     this.overslept = false;
@@ -346,8 +384,8 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     this.worldTick();
     this.connectionTick();
     this.handleCommands();
-    if (now - this.lastPingTime >= 5000000000L) {
-      this.lastPingTime = now;
+    if (start - this.lastPingTime >= 5000000000L) {
+      this.lastPingTime = start;
       this.server.updatePing();
     }
     this.executeAll();
@@ -355,6 +393,12 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     final var remaining = ShirukaTick.TICK_TIME - (endTime - this.lastTick);
     final var duration = (double) (endTime - this.lastTick) / 1000000D;
     Shiruka.getEventManager().serverTickEnd(this.ticks, duration, remaining).callEvent();
+    final var tickTime = System.nanoTime() - start;
+    this.tickTimes[this.ticks % 100] = tickTime;
+    this.currentAverageTickTime = this.currentAverageTickTime * 0.8F + (float) tickTime / 1000000.0F * 0.19999999F;
+    ShirukaTick.TICK_TIMES_5_S.add(this.ticks, tickTime);
+    ShirukaTick.TICK_TIMES_10_S.add(this.ticks, tickTime);
+    ShirukaTick.TICK_TIMES_60_S.add(this.ticks, tickTime);
   }
 
   /**

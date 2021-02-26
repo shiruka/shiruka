@@ -75,10 +75,22 @@ public final class SimpleEventManager implements EventManager {
     return new SimpleAsyncTabCompleteEvent(completions, completer, text);
   }
 
+  @Override
+  public void call(@NotNull final Event event) {
+    this.adapter.call(event);
+  }
+
   @NotNull
   @Override
   public PlayerAsyncLoginEvent playerAsyncLogin(@NotNull final ChainData chainData) {
     return new SimplePlayerAsyncLoginEvent(chainData);
+  }
+
+  @NotNull
+  @Override
+  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
+                                    @NotNull final Text kickMessage) {
+    return new SimplePlayerKickEvent(player, reason, kickMessage);
   }
 
   @NotNull
@@ -107,6 +119,13 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
+  public ServerExceptionEvent serverException(@NotNull final ServerException serverException,
+                                              final boolean isAsync) {
+    return new SimpleServerExceptionEvent(serverException, isAsync);
+  }
+
+  @NotNull
+  @Override
   public ServerTickEndEvent serverTickEnd(final int tick, final double duration, final long remaining) {
     return new SimpleServerTickEndEvent(duration, remaining, tick);
   }
@@ -120,24 +139,5 @@ public final class SimpleEventManager implements EventManager {
   @Override
   public void unregister(@NotNull final Listener listener) {
     this.adapter.unregister(listener);
-  }
-
-  @Override
-  public void call(@NotNull final Event event) {
-    this.adapter.call(event);
-  }
-
-  @NotNull
-  @Override
-  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
-                                    @NotNull final Text kickMessage) {
-    return new SimplePlayerKickEvent(player, reason, kickMessage);
-  }
-
-  @NotNull
-  @Override
-  public ServerExceptionEvent serverException(@NotNull final ServerException serverException,
-                                              final boolean isAsync) {
-    return new SimpleServerExceptionEvent(serverException, isAsync);
   }
 }

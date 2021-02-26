@@ -26,16 +26,8 @@
 package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import net.shiruka.api.command.builder.LiteralBuilder;
-import net.shiruka.api.command.context.CommandContext;
-import net.shiruka.api.command.sender.CommandSender;
-import net.shiruka.api.command.sender.ConsoleCommandSender;
-import net.shiruka.api.command.tree.LiteralNode;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents help command.
@@ -48,7 +40,7 @@ public final class HelpCommand extends CommandHelper {
    * ctor.
    */
   private HelpCommand() {
-    super("help", "Shows the help menu", "shiruka.command.help");
+    super("help", new String[]{"?"}, "Shows the help menu", "shiruka.command.help");
   }
 
   /**

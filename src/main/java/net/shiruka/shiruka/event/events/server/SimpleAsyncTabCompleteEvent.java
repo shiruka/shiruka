@@ -87,12 +87,6 @@ public final class SimpleAsyncTabCompleteEvent extends SimpleCancellableEvent im
 
   @NotNull
   @Override
-  public CommandSender getSender() {
-    return this.sender;
-  }
-
-  @NotNull
-  @Override
   public String getText() {
     return this.text;
   }
@@ -105,6 +99,12 @@ public final class SimpleAsyncTabCompleteEvent extends SimpleCancellableEvent im
   @Override
   public void setHandled(final boolean handled) {
     this.handled = handled;
+  }
+
+  @NotNull
+  @Override
+  public CommandSender getSender() {
+    return this.sender;
   }
 }
 

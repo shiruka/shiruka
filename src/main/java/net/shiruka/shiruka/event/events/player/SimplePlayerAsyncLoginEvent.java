@@ -85,6 +85,11 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
     return Collections.unmodifiableList(this.actions);
   }
 
+  @Override
+  public void removeAction(@NotNull final Consumer<Player> action) {
+    this.actions.remove(action);
+  }
+
   @NotNull
   @Override
   public ChainData getChainData() {
@@ -111,10 +116,5 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
   @Override
   public void setLoginResult(@NotNull final LoginResult result) {
     this.loginResult = result;
-  }
-
-  @Override
-  public void removeAction(@NotNull final Consumer<Player> action) {
-    this.actions.remove(action);
   }
 }

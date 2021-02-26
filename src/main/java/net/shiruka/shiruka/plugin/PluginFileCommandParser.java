@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.util;
+package net.shiruka.shiruka.plugin;
 
 import com.google.common.base.Joiner;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

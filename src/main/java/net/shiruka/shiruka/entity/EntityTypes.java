@@ -54,7 +54,7 @@ public final class EntityTypes<E extends Entity> {
    * @param factory the factory.
    * @param key the key.
    */
-  public EntityTypes(@NotNull final EntityFactory<E> factory, @NotNull final NamespacedKey key) {
+  private EntityTypes(@NotNull final EntityFactory<E> factory, @NotNull final NamespacedKey key) {
     this.factory = factory;
     this.key = key;
   }

@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.events.player;
 
 import java.util.Optional;
+import net.shiruka.api.base.ChainData;
 import net.shiruka.api.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.events.SimpleCancellableEvent;

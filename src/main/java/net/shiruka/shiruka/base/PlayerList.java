@@ -244,6 +244,7 @@ public final class PlayerList {
     final var lastKnownName = optional.isEmpty() ? player.getName() : optional.get().getName();
     UserCacheConfig.addProfile(player.getProfile());
     final var tag = this.loadPlayerCompound(player);
+    // @todo #1:1m Continue to development here.
     this.server.getTick().lastPingTime = 0L;
   }
 

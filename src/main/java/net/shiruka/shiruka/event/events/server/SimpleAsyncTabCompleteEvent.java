@@ -23,13 +23,13 @@
  *
  */
 
-package net.shiruka.shiruka.events.server;
+package net.shiruka.shiruka.event.events.server;
 
 import java.util.Collections;
 import java.util.List;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.events.server.AsyncTabCompleteEvent;
-import net.shiruka.shiruka.events.SimpleCancellableEvent;
+import net.shiruka.shiruka.event.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -87,6 +87,12 @@ public final class SimpleAsyncTabCompleteEvent extends SimpleCancellableEvent im
 
   @NotNull
   @Override
+  public CommandSender getSender() {
+    return this.sender;
+  }
+
+  @NotNull
+  @Override
   public String getText() {
     return this.text;
   }
@@ -99,12 +105,6 @@ public final class SimpleAsyncTabCompleteEvent extends SimpleCancellableEvent im
   @Override
   public void setHandled(final boolean handled) {
     this.handled = handled;
-  }
-
-  @NotNull
-  @Override
-  public CommandSender getSender() {
-    return this.sender;
   }
 }
 

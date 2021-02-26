@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.command.commands;
 
-import java.util.stream.Stream;
+import com.google.common.base.Joiner;
 import net.shiruka.api.command.Commands;
 import net.shiruka.api.command.builder.LiteralBuilder;
 import net.shiruka.api.command.context.CommandContext;
@@ -44,7 +44,7 @@ abstract class CommandHelper {
   /**
    * the test permission.
    */
-  private static final String TEST_PERMISSION = "shiruka.command.command_helper.test_permission";
+  private static final String TEST_PERMISSION = "shiruka.command.permission";
 
   /**
    * the command.
@@ -132,49 +132,10 @@ abstract class CommandHelper {
   }
 
   /**
-   * tests the given {@code target}'s permission for the given {@code permissions}.
-   *
-   * @param target the target to test.
-   * @param permissions the permissions to test.
-   *
-   * @return {@code true} if the target has the given {@code permissions}.
-   */
-  protected static boolean testPermissionSilent(@NotNull final CommandSender target,
-                                                @NotNull final String... permissions) {
-    return Stream.of(permissions).allMatch(target::hasPermission);
-  }
-
-  /**
    * registers the command.
    */
   protected final void register() {
     SimpleCommandManager.registerInternal(this.build());
-  }
-
-  /**
-   * tests the given {@code target}'s permission for the given {@code permissions} and, if the target has not the given
-   * {@code permissions} sends {@link #permissionMessage} if its not null, otherwise sends
-   * {@code shiruka.command.commands.helper.test_permission} properties on the language files.
-   *
-   * @param target the target to test.
-   * @param permissions the permissions to test.
-   *
-   * @return {@code true} if the target has the given {@code permissions}.
-   *
-   * @see #testPermissionSilent(CommandSender, String...)
-   */
-  protected final boolean testPermission(@NotNull final CommandSender target, @NotNull final String... permissions) {
-    if (CommandHelper.testPermissionSilent(target, permissions)) {
-      return true;
-    }
-    if (this.permissionMessage == null) {
-      Stream.of(permissions).forEach(permission ->
-        target.sendMessage(TranslatedText.get(CommandHelper.TEST_PERMISSION, permission)));
-    } else {
-      Stream.of(permissions).forEach(permission ->
-        target.sendMessage(this.permissionMessage, permission));
-    }
-    return false;
   }
 
   /**
@@ -186,6 +147,13 @@ abstract class CommandHelper {
   protected LiteralBuilder build() {
     return Commands.literal(this.command)
       .describe(this.description)
-      .requires(commandSender -> this.testPermission(commandSender, this.permission));
+      .permission((sender, permissions) -> {
+        final var joined = Joiner.on(", ").join(permissions);
+        if (this.permissionMessage == null) {
+          CommandHelper.sendTranslated(sender, CommandHelper.TEST_PERMISSION, joined);
+        } else {
+          sender.sendMessage(this.permissionMessage, joined);
+        }
+      }, this.permission);
   }
 }

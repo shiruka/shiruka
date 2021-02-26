@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.entities;
+package net.shiruka.shiruka.entity.entities;
 
 import java.util.Optional;
 import java.util.Set;

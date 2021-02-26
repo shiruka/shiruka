@@ -23,6 +23,6 @@
  *
  */
 /**
- * the package that contains event implementations for server events.
+ * the package that contains {@link net.shiruka.api.events.Event} implementations.
  */
-package net.shiruka.shiruka.events.server;
+package net.shiruka.shiruka.event.events;

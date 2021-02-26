@@ -23,20 +23,29 @@
  *
  */
 
-package net.shiruka.shiruka.events.player;
+package net.shiruka.shiruka.event.events.player;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import net.shiruka.api.base.ChainData;
-import net.shiruka.api.events.player.PlayerPreLoginEvent;
+import net.shiruka.api.entity.Player;
+import net.shiruka.api.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link PlayerPreLoginEvent}.
+ * a simple implementation for {@link PlayerAsyncLoginEvent}.
  */
-public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent implements PlayerPreLoginEvent {
+public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent {
+
+  /**
+   * the actions that will run after player initialization.
+   */
+  private final List<Consumer<Player>> actions = new ObjectArrayList<>();
 
   /**
    * the chain data.
@@ -51,23 +60,29 @@ public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent impl
   private Text kickMessage;
 
   /**
-   * ctor.
-   *
-   * @param chainData the chain data.
-   * @param kickMessage the kick message.
+   * the login result.
    */
-  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData, @Nullable final Text kickMessage) {
-    this.chainData = chainData;
-    this.kickMessage = kickMessage;
-  }
+  @NotNull
+  private LoginResult loginResult = LoginResult.ALLOWED;
 
   /**
    * ctor.
    *
-   * @param chainData the chain data.
+   * @param chainData the login data.
    */
-  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData) {
-    this(chainData, null);
+  public SimplePlayerAsyncLoginEvent(@NotNull final ChainData chainData) {
+    this.chainData = chainData;
+  }
+
+  @Override
+  public void addAction(@NotNull final Consumer<Player> action) {
+    this.actions.add(action);
+  }
+
+  @NotNull
+  @Override
+  public List<Consumer<Player>> getActions() {
+    return Collections.unmodifiableList(this.actions);
   }
 
   @NotNull
@@ -85,5 +100,21 @@ public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent impl
   @Override
   public void setKickMessage(@Nullable final Text message) {
     this.kickMessage = message;
+  }
+
+  @NotNull
+  @Override
+  public LoginResult getLoginResult() {
+    return this.loginResult;
+  }
+
+  @Override
+  public void setLoginResult(@NotNull final LoginResult result) {
+    this.loginResult = result;
+  }
+
+  @Override
+  public void removeAction(@NotNull final Consumer<Player> action) {
+    this.actions.remove(action);
   }
 }

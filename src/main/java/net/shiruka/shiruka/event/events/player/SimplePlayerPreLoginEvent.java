@@ -23,67 +23,67 @@
  *
  */
 
-package net.shiruka.shiruka.events.server;
+package net.shiruka.shiruka.event.events.player;
 
-import net.shiruka.api.Shiruka;
-import net.shiruka.api.command.sender.CommandSender;
-import net.shiruka.api.events.server.ServerCommandEvent;
-import net.shiruka.shiruka.events.SimpleCancellableEvent;
+import java.util.Optional;
+import net.shiruka.api.base.ChainData;
+import net.shiruka.api.events.player.PlayerPreLoginEvent;
+import net.shiruka.api.text.Text;
+import net.shiruka.shiruka.event.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link ServerCommandEvent}.
+ * a simple implementation for {@link PlayerPreLoginEvent}.
  */
-public final class SimpleServerCommandEvent extends SimpleCancellableEvent implements ServerCommandEvent {
+public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent implements PlayerPreLoginEvent {
 
   /**
-   * the async.
-   */
-  private final boolean async;
-
-  /**
-   * the sender.
+   * the chain data.
    */
   @NotNull
-  private final CommandSender sender;
+  private final ChainData chainData;
 
   /**
-   * the command.
+   * the kick message.
    */
-  @NotNull
-  private String command;
+  @Nullable
+  private Text kickMessage;
 
   /**
    * ctor.
    *
-   * @param sender the sender.
-   * @param command the command.
+   * @param chainData the chain data.
+   * @param kickMessage the kick message.
    */
-  public SimpleServerCommandEvent(@NotNull final CommandSender sender, @NotNull final String command) {
-    this.sender = sender;
-    this.command = command;
-    this.async = !Shiruka.isPrimaryThread();
+  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData, @Nullable final Text kickMessage) {
+    this.chainData = chainData;
+    this.kickMessage = kickMessage;
+  }
+
+  /**
+   * ctor.
+   *
+   * @param chainData the chain data.
+   */
+  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData) {
+    this(chainData, null);
   }
 
   @NotNull
   @Override
-  public String getCommand() {
-    return this.command;
-  }
-
-  @Override
-  public void setCommand(@NotNull final String command) {
-    this.command = command;
+  public ChainData getChainData() {
+    return this.chainData;
   }
 
   @NotNull
   @Override
-  public CommandSender getSender() {
-    return this.sender;
+  public Optional<Text> getKickMessage() {
+    return Optional.ofNullable(this.kickMessage);
   }
 
   @Override
-  public boolean isAsync() {
-    return this.async;
+  public void setKickMessage(@Nullable final Text message) {
+    this.kickMessage = message;
   }
 }

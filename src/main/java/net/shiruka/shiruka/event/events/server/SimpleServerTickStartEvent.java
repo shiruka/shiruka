@@ -23,47 +23,31 @@
  *
  */
 
-package net.shiruka.shiruka.events.server;
+package net.shiruka.shiruka.event.events.server;
 
-import net.shiruka.api.events.server.ServerExceptionEvent;
-import net.shiruka.api.events.server.exception.ServerException;
-import org.jetbrains.annotations.NotNull;
+import net.shiruka.api.events.server.ServerTickStartEvent;
 
 /**
- * a simple implementation for {@link ServerExceptionEvent}.
+ * a simple implementation for {@link ServerTickStartEvent}.
  */
-public final class SimpleServerExceptionEvent implements ServerExceptionEvent {
+public final class SimpleServerTickStartEvent implements ServerTickStartEvent {
 
   /**
-   * the is async.
+   * the tick.
    */
-  private final boolean isAsync;
-
-  /**
-   * the server exception.
-   */
-  @NotNull
-  private final ServerException serverException;
+  private final int tick;
 
   /**
    * ctor.
    *
-   * @param serverException the server exception.
-   * @param isAsync the is async.
+   * @param tick the tick.
    */
-  public SimpleServerExceptionEvent(@NotNull final ServerException serverException, final boolean isAsync) {
-    this.serverException = serverException;
-    this.isAsync = isAsync;
-  }
-
-  @NotNull
-  @Override
-  public ServerException getServerException() {
-    return this.serverException;
+  public SimpleServerTickStartEvent(final int tick) {
+    this.tick = tick;
   }
 
   @Override
-  public boolean isAsync() {
-    return this.isAsync;
+  public int getTick() {
+    return this.tick;
   }
 }

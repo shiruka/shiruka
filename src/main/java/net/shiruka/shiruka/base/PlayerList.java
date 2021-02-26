@@ -44,7 +44,7 @@ import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
-import net.shiruka.shiruka.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;

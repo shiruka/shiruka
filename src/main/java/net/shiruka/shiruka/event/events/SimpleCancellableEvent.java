@@ -22,7 +22,34 @@
  * SOFTWARE.
  *
  */
+
+package net.shiruka.shiruka.event.events;
+
+import net.shiruka.api.event.Cancellable;
+
 /**
- * the package that contains event implementations for player events.
+ * an abstract implementation for {@link Cancellable}.
  */
-package net.shiruka.shiruka.events.player;
+public abstract class SimpleCancellableEvent implements Cancellable {
+
+  /**
+   * the cancelled.
+   */
+  private boolean cancelled;
+
+  /**
+   * ctor.
+   */
+  protected SimpleCancellableEvent() {
+  }
+
+  @Override
+  public final boolean isCancelled() {
+    return this.cancelled;
+  }
+
+  @Override
+  public final void setCancelled(final boolean cancelled) {
+    this.cancelled = cancelled;
+  }
+}

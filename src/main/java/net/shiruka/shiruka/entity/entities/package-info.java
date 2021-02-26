@@ -22,32 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package net.shiruka.shiruka.events.server;
-
-import net.shiruka.api.events.server.ServerTickStartEvent;
-
 /**
- * a simple implementation for {@link ServerTickStartEvent}.
+ * the package that contains implementations for {@link net.shiruka.api.entity.Entity}.
  */
-public final class SimpleServerTickStartEvent implements ServerTickStartEvent {
-
-  /**
-   * the tick.
-   */
-  private final int tick;
-
-  /**
-   * ctor.
-   *
-   * @param tick the tick.
-   */
-  public SimpleServerTickStartEvent(final int tick) {
-    this.tick = tick;
-  }
-
-  @Override
-  public int getTick() {
-    return this.tick;
-  }
-}
+package net.shiruka.shiruka.entity.entities;

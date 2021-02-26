@@ -86,8 +86,7 @@ abstract class CommandHelper {
    * @param description the description.
    * @param permission the permission.
    */
-  CommandHelper(@NotNull final String command, @NotNull final String description,
-                @NotNull final String permission) {
+  CommandHelper(@NotNull final String command, @NotNull final String description, @NotNull final String permission) {
     this(command, new String[0], description, permission);
   }
 

@@ -74,7 +74,7 @@ abstract class CommandHelper {
    * the permission message.
    * <p>
    * Placeholders:
-   * {0} = permissions itself.
+   * {0} = permissions which the command sender have not.
    */
   @Nullable
   protected Text permissionMessage;

@@ -49,7 +49,7 @@ public final class MsPTCommand extends CommandHelper {
    * ctor.
    */
   private MsPTCommand() {
-    super("mspt", "Shows milliseconds per tick value.", "shiruka.command.mspt");
+    super("mspt", "Shows how much a tick took to calculate as millisecond.", "shiruka.command.mspt");
   }
 
   /**

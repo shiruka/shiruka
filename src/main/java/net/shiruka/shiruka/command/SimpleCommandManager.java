@@ -36,6 +36,7 @@ import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.command.commands.HelpCommand;
+import net.shiruka.shiruka.command.commands.MsPTCommand;
 import net.shiruka.shiruka.command.commands.StopCommand;
 import net.shiruka.shiruka.command.commands.TpsCommand;
 import org.apache.logging.log4j.LogManager;
@@ -67,6 +68,7 @@ public final class SimpleCommandManager implements CommandManager {
     StopCommand.init();
     TpsCommand.init();
     HelpCommand.init();
+    MsPTCommand.init();
   }
 
   /**

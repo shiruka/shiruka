@@ -23,54 +23,54 @@
  *
  */
 
-package net.shiruka.shiruka.command.commands;
+package net.shiruka.shiruka.concurrent;
 
-import static net.shiruka.api.command.CommandResult.of;
-import static net.shiruka.api.command.Commands.literal;
-import net.shiruka.api.Shiruka;
-import net.shiruka.api.command.builder.LiteralBuilder;
-import net.shiruka.shiruka.text.TranslatedTexts;
-import org.jetbrains.annotations.NotNull;
+import java.util.Arrays;
 
 /**
- * a class that represents stop command.
+ * a class that represents calculator for tick times.
  */
-public final class StopCommand extends CommandHelper {
+public final class TickTimes {
 
   /**
-   * the confirm sub command.
+   * the tick times.
    */
-  private static final String CONFIRM_SUB_COMMAND = "confirm";
+  private final long[] times;
 
   /**
    * ctor.
+   *
+   * @param length the length.
    */
-  private StopCommand() {
-    super("stop", "Stops the server.", "shiruka.command.stop");
+  public TickTimes(final int length) {
+    this.times = new long[length];
   }
 
   /**
-   * registers the command.
+   * set the given time to the given index.
+   *
+   * @param index the index to set.
+   * @param time the time to set.
    */
-  public static void init() {
-    new StopCommand().register();
+  public void add(final int index, final long time) {
+    this.times[index % this.times.length] = time;
   }
 
   /**
-   * registers the stop command.
+   * calculates and gives the average tick time.
+   *
+   * @return average tick time.
    */
-  @NotNull
-  @Override
-  protected LiteralBuilder build() {
-    return super.build()
-      .executes(context -> {
-        CommandHelper.sendTranslated(context, TranslatedTexts.ADD_CONFIRM);
-        return of();
-      })
-      .then(literal(StopCommand.CONFIRM_SUB_COMMAND)
-        .executes(context -> {
-          Shiruka.getServer().stopServer();
-          return of();
-        }));
+  public double getAverage() {
+    return (double) Arrays.stream(this.times).sum() / (double) this.times.length * 1.0E-6D;
+  }
+
+  /**
+   * obtains the tick times.
+   *
+   * @return tick times.
+   */
+  public long[] getTimes() {
+    return this.times.clone();
   }
 }

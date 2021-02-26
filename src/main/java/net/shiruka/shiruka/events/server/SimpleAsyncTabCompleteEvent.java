@@ -33,7 +33,7 @@ import net.shiruka.shiruka.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a simple implementation of {@link AsyncTabCompleteEvent}
+ * a simple implementation of {@link AsyncTabCompleteEvent}.
  */
 public final class SimpleAsyncTabCompleteEvent extends SimpleCancellableEvent implements AsyncTabCompleteEvent {
 

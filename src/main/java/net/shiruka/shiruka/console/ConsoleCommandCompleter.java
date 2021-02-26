@@ -48,21 +48,20 @@ final class ConsoleCommandCompleter implements Completer {
     final var buffer = line.line();
     final var event = Shiruka.getEventManager().asyncTabComplete(Shiruka.getConsoleCommandSender(),
       Collections.emptyList(), buffer);
-    final var notCancelled = event.callEvent();
-    final var completions = notCancelled
+    final var successful = event.callEvent();
+    final var completions = successful
       ? event.getCompletions()
       : Collections.<String>emptyList();
-    if (notCancelled && !event.isHandled()) {
+    if (!successful || event.isHandled()) {
+      if (!completions.isEmpty()) {
+        candidates.addAll(completions.stream()
+          .map(String::trim)
+          .filter(s -> !s.isEmpty())
+          .map(Candidate::new)
+          .collect(Collectors.toList()));
+      }
       return;
     }
-    if (completions.isEmpty()) {
-      return;
-    }
-    candidates.addAll(completions.stream()
-      .map(String::trim)
-      .filter(s -> !s.isEmpty())
-      .map(Candidate::new)
-      .collect(Collectors.toList()));
     try {
       final var parse = SimpleCommandManager.getDispatcher().parse(event.getText(), event.getSender());
       CommandDispatcher.getCompletionSuggestions(parse).get().getSuggestionList().stream()

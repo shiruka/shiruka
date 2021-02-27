@@ -134,14 +134,14 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   public final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
 
   /**
+   * the process queue.
+   */
+  public final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
+
+  /**
    * the tick times.
    */
   public final long[] tickTimes = new long[100];
-
-  /**
-   * the process queue.
-   */
-  private final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
 
   /**
    * the server.

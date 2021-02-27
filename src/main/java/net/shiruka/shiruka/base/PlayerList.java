@@ -151,13 +151,12 @@ public final class PlayerList {
         // @todo #1:15m Force save old player data.
         old.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
       });
-    player.isRealPlayer = true;
     final var event = Shiruka.getEventManager().playerLogin(player);
     if (player.isNameBanned()) {
       final var optional = player.getNameBanEntry();
       if (optional.isPresent()) {
-        final var message = TranslatedText.get("shiruka.player.banned");
         final var entry = optional.get();
+        final var message = TranslatedText.get("shiruka.player.banned", entry.getReason());
         entry.getExpiration().ifPresent(date ->
           message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
         event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
@@ -166,8 +165,8 @@ public final class PlayerList {
     if (player.isIpBanned()) {
       final var optional = player.getIpBanEntry();
       if (optional.isPresent()) {
-        final var message = TranslatedText.get("shiruka.player.banned");
         final var entry = optional.get();
+        final var message = TranslatedText.get("shiruka.player.banned", entry.getReason());
         entry.getExpiration().ifPresent(date ->
           message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
         event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
@@ -235,6 +234,7 @@ public final class PlayerList {
    * @param player the player to login.
    */
   private void login(@NotNull final ShirukaPlayer player) {
+    player.isRealPlayer = true;
     final var oldPending = this.pendingPlayers.put(player.getUniqueId(), player);
     if (oldPending != null) {
       oldPending.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
@@ -242,7 +242,7 @@ public final class PlayerList {
     player.loginTime = System.currentTimeMillis();
     final var optional = UserCacheConfig.getProfileByUniqueId(player.getUniqueId());
     final var lastKnownName = optional.isEmpty() ? player.getName() : optional.get().getName();
-    UserCacheConfig.addProfile(player.getProfile());
+    UserCacheConfig.addProfile(player.getProfile(), true);
     final var tag = this.loadPlayerCompound(player);
     // @todo #1:1m Continue to development here.
     this.server.getTick().lastPingTime = 0L;

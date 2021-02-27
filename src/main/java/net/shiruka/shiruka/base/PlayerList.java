@@ -196,7 +196,7 @@ public final class PlayerList {
   @Nullable
   private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player) {
     CompoundTag tag = null;
-    final var file = player.getPlayerFile(true);
+    final var file = player.getPlayerFile();
     try {
       var tempFile = file;
       boolean wrongFile = false;
@@ -221,7 +221,7 @@ public final class PlayerList {
     if (tag == null) {
       return null;
     }
-    final var modified = player.getPlayerFile(true).lastModified();
+    final var modified = player.getPlayerFile().lastModified();
     if (modified < player.getFirstPlayed()) {
       player.setFirstPlayed(modified);
     }

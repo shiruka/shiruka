@@ -28,7 +28,7 @@ package net.shiruka.shiruka.network;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.nio.charset.StandardCharsets;
-import net.shiruka.api.base.Vector;
+import net.shiruka.api.base.Vector3D;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -198,7 +198,7 @@ public final class VarInts {
    * @param buf the buffer to write.
    * @param vec the Vector coordinates to write.
    */
-  public static void writeVector(@NotNull final ByteBuf buf, @NotNull final Vector vec) {
+  public static void writeVector(@NotNull final ByteBuf buf, @NotNull final Vector3D vec) {
     final var l = ((long) vec.getIntX() & 0x3FFFFFFL) << 38 |
       ((long) vec.getIntY() & 0xFFFL) << 26 |
       (long) vec.getIntZ() & 0x3FFFFFFL;

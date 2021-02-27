@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.shiruka.api.base.Vector;
+import net.shiruka.api.base.Vector3D;
 import net.shiruka.api.entity.Entity;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.metadata.MetadataValue;
@@ -67,7 +67,7 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
    * the motion.
    */
   @NotNull
-  private final Vector motion = new Vector(0.0d, 0.0d, 0.0d);
+  private final Vector3D motion = new Vector3D();
 
   /**
    * ctor.

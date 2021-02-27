@@ -31,8 +31,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.CommandDispatcher;
-import net.shiruka.api.command.suggestion.Suggestion;
+import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.command.SimpleCommandManager;
+import net.shiruka.shiruka.concurrent.Waitable;
+import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -42,6 +44,21 @@ import org.jline.reader.ParsedLine;
  * an implementation for {@link Completer} to auto complete console commands.
  */
 final class ConsoleCommandCompleter implements Completer {
+
+  /**
+   * the server.
+   */
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
+   * ctor.
+   *
+   * @param server the set.
+   */
+  ConsoleCommandCompleter(@NotNull final ShirukaServer server) {
+    this.server = server;
+  }
 
   @Override
   public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
@@ -62,11 +79,20 @@ final class ConsoleCommandCompleter implements Completer {
       }
       return;
     }
-    try {
+    final var calculation = new Waitable<>(() -> {
       final var parse = SimpleCommandManager.getDispatcher().parse(event.getText(), event.getSender());
-      CommandDispatcher.getCompletionSuggestions(parse).get().getSuggestionList().stream()
-        .map(Suggestion::getText)
-        .map(Candidate::new)
+      return CommandDispatcher.getCompletionSuggestions(parse).get().getSuggestionList();
+    });
+    this.server.getTick().processQueue.add(calculation);
+    try {
+      final var suggestions = calculation.get();
+      if (suggestions == null) {
+        return;
+      }
+      suggestions.stream()
+        .filter(suggestion -> !suggestion.getText().isEmpty())
+        .map(suggestion ->
+          new Candidate(suggestion.getText(), suggestion.getText(), null, suggestion.getTooltip(), null, null, true))
         .forEach(candidates::add);
     } catch (final ExecutionException e) {
       // @todo #1:5m Add language support for Unhandled exception when tab completing.

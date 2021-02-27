@@ -73,7 +73,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
    * @param server the server.
    */
   public ShirukaConsole(@NotNull final ShirukaServer server) {
-    this(new ConsoleCommandCompleter(), server);
+    this(new ConsoleCommandCompleter(server), server);
   }
 
   @Override

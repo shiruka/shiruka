@@ -255,8 +255,8 @@ public final class PlayerList {
         ? shiruka.getString("lastKnownName").orElseThrow()
         : lastKnownName;
     }
-    final Resourced resourced = DimensionManager.fromTag(tag);
-    final World world = this.server.getWorld(resourced).orElseGet(() ->
+    final var resourced = DimensionManager.fromTag(tag);
+    final var world = this.server.getWorld(resourced).orElseGet(() ->
       this.server.getDefaultWorld().orElse(null));
     if (tag == null) {
       player.teleportToSpawn(world);

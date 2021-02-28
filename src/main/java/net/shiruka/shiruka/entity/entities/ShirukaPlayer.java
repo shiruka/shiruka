@@ -49,6 +49,7 @@ import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.api.world.World;
 import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
@@ -182,6 +183,14 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public void tick() {
+  }
+
+  @Override
+  public void spawnIn(@Nullable final World world) {
+    super.spawnIn(world);
+    if (world == null) {
+      return;
+    }
   }
 
   /**
@@ -448,6 +457,17 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public void sendMessage(@NotNull final String message) {
+  }
+
+  /**
+   * teleports the player to the spawn of the given {@code world}.
+   *
+   * @param world the world to spawn.
+   */
+  public void teleportToSpawn(@Nullable final World world) {
+    if (world == null) {
+      return;
+    }
   }
 
   /**

@@ -31,12 +31,14 @@ import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,8 +55,10 @@ import net.shiruka.api.permission.PermissionManager;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.plugin.PluginManager;
 import net.shiruka.api.plugin.SimplePluginManager;
+import net.shiruka.api.registry.Resourced;
 import net.shiruka.api.scheduler.Scheduler;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.api.world.World;
 import net.shiruka.api.world.WorldManager;
 import net.shiruka.shiruka.base.PlayerList;
 import net.shiruka.shiruka.command.SimpleCommandManager;
@@ -210,6 +214,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the world manager.
    */
   private final SimpleWorldManager worldManager = new SimpleWorldManager();
+
+  /**
+   * the worlds.
+   */
+  private final Map<Resourced, World> worlds = new Object2ObjectLinkedOpenHashMap<>();
 
   /**
    * the has fully shutdown.
@@ -379,6 +388,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   /**
+   * gets the default world.
+   *
+   * @return default world.
+   */
+  @NotNull
+  public Optional<World> getDefaultWorld() {
+    return this.getWorld(World.OVER_WORLD);
+  }
+
+  /**
    * obtains the players directory.
    *
    * @return player directory.
@@ -426,6 +445,18 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   public ShirukaTick getTick() {
     return this.tick;
+  }
+
+  /**
+   * gets world instance from the given {@code resource}.
+   *
+   * @param resource the resource to get.
+   *
+   * @return world instance by resource.
+   */
+  @NotNull
+  public Optional<World> getWorld(@NotNull final Resourced resource) {
+    return Optional.ofNullable(this.worlds.get(resource));
   }
 
   /**

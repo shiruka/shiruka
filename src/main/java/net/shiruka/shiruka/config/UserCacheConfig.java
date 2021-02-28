@@ -63,8 +63,23 @@ public final class UserCacheConfig extends PathableConfig {
    * @param profile the profile to add.
    */
   public static void addProfile(@NotNull final GameProfile profile) {
-    UserCacheConfig.getInstance().set(profile.getUniqueId().toString(), profile.serialize());
-    ShirukaMain.ASYNC_EXECUTOR.execute(UserCacheConfig.getInstance()::save);
+    UserCacheConfig.addProfile(profile, false);
+  }
+
+  /**
+   * adds the given {@code profile} to the file.
+   *
+   * @param profile the profile to add.
+   * @param asyncSave the async save to add.
+   */
+  public static void addProfile(@NotNull final GameProfile profile, final boolean asyncSave) {
+    final var config = UserCacheConfig.getInstance();
+    config.set(profile.getUniqueId().toString(), profile.serialize());
+    if (asyncSave) {
+      ShirukaMain.ASYNC_EXECUTOR.execute(config::save);
+    } else {
+      config.save();
+    }
   }
 
   /**

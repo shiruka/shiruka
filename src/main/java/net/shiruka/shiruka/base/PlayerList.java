@@ -48,6 +48,7 @@ import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
+import net.shiruka.shiruka.world.DimensionManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -151,13 +152,12 @@ public final class PlayerList {
         // @todo #1:15m Force save old player data.
         old.kick(LoginResultEvent.LoginResult.KICK_OTHER, TranslatedTexts.ALREADY_LOGGED_IN_REASON);
       });
-    player.isRealPlayer = true;
     final var event = Shiruka.getEventManager().playerLogin(player);
     if (player.isNameBanned()) {
       final var optional = player.getNameBanEntry();
       if (optional.isPresent()) {
-        final var message = TranslatedText.get("shiruka.player.banned");
         final var entry = optional.get();
+        final var message = TranslatedText.get("shiruka.player.banned", entry.getReason());
         entry.getExpiration().ifPresent(date ->
           message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
         event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
@@ -166,8 +166,8 @@ public final class PlayerList {
     if (player.isIpBanned()) {
       final var optional = player.getIpBanEntry();
       if (optional.isPresent()) {
-        final var message = TranslatedText.get("shiruka.player.banned");
         final var entry = optional.get();
+        final var message = TranslatedText.get("shiruka.player.banned", entry.getReason());
         entry.getExpiration().ifPresent(date ->
           message.addSiblings(TranslatedText.get("shiruka.player.banned.expiration", date)));
         event.disallow(LoginResultEvent.LoginResult.KICK_BANNED, message);
@@ -196,7 +196,7 @@ public final class PlayerList {
   @Nullable
   private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player) {
     CompoundTag tag = null;
-    final var file = player.getPlayerFile(true);
+    final var file = player.getPlayerFile();
     try {
       var tempFile = file;
       boolean wrongFile = false;
@@ -221,7 +221,7 @@ public final class PlayerList {
     if (tag == null) {
       return null;
     }
-    final var modified = player.getPlayerFile(true).lastModified();
+    final var modified = player.getPlayerFile().lastModified();
     if (modified < player.getFirstPlayed()) {
       player.setFirstPlayed(modified);
     }
@@ -235,21 +235,37 @@ public final class PlayerList {
    * @param player the player to login.
    */
   private void login(@NotNull final ShirukaPlayer player) {
+    player.isRealPlayer = true;
     final var oldPending = this.pendingPlayers.put(player.getUniqueId(), player);
     if (oldPending != null) {
       oldPending.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
     player.loginTime = System.currentTimeMillis();
     final var optional = UserCacheConfig.getProfileByUniqueId(player.getUniqueId());
-    final var lastKnownName = optional.isEmpty() ? player.getName() : optional.get().getName();
-    UserCacheConfig.addProfile(player.getProfile());
+    var lastKnownName = optional.isPresent()
+      ? optional.get().getName().asString()
+      : player.getName().asString();
+    UserCacheConfig.addProfile(player.getProfile(), true);
     final var tag = this.loadPlayerCompound(player);
+    if (tag != null && tag.containsKey("shiruka")) {
+      final var shiruka = tag.getCompoundTag("shiruka").orElseThrow();
+      lastKnownName = shiruka.hasKeyOfType("lastKnownName", 8)
+        ? shiruka.getString("lastKnownName").orElseThrow()
+        : lastKnownName;
+    }
+    final var resourced = DimensionManager.fromTag(tag);
+    final var world = this.server.getWorld(resourced).orElseGet(() ->
+      this.server.getDefaultWorld().orElse(null));
+    if (tag == null) {
+      player.teleportToSpawn(world);
+    }
+    player.spawnIn(world);
     // @todo #1:1m Continue to development here.
     this.server.getTick().lastPingTime = 0L;
   }
 
   /**
-   * tries the given {@code player} to login.
+   * tries login for the given {@code player}.
    *
    * @param player the player to try.
    */

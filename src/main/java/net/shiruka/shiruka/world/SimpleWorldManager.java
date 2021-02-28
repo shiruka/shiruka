@@ -25,7 +25,9 @@
 
 package net.shiruka.shiruka.world;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import net.shiruka.api.world.ChunkData;
 import net.shiruka.api.world.World;
 import net.shiruka.api.world.WorldCreator;
@@ -53,5 +55,17 @@ public final class SimpleWorldManager implements WorldManager {
   @Override
   public Optional<World> createWorld(@NotNull final WorldCreator worldCreator) {
     throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createWorld.");
+  }
+
+  @NotNull
+  @Override
+  public Optional<World> getWorld(@NotNull final UUID uniqueId) {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#getWorld.");
+  }
+
+  @NotNull
+  @Override
+  public List<World> getWorlds() {
+    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#getWorlds.");
   }
 }

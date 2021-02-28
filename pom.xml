@@ -93,10 +93,6 @@
   <repositories>
     <repository>
       <url>https://repo.opencollab.dev/maven-releases/</url>
-      <releases/>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
       <id>natives</id>
     </repository>
   </repositories>

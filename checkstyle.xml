@@ -48,6 +48,7 @@
     <property name="message" value="Line has trailing spaces."/>
   </module>
   <module name="TreeWalker">
+    <module name="RequireThis"/>
     <module name="RequireEmptyLineBeforeBlockTagGroup"/>
     <module name="InvalidJavadocPosition"/>
     <module name="JavadocMethod"/>

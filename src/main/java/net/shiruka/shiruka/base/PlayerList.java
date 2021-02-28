@@ -267,7 +267,7 @@ public final class PlayerList {
   }
 
   /**
-   * tries the given {@code player} to login.
+   * tries login for the given {@code player}.
    *
    * @param player the player to try.
    */

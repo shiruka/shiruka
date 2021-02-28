@@ -142,6 +142,7 @@ public abstract class BaseBanEntry<K> {
         ? BaseBanEntry.DATE_FORMAT.parse(map.get("expires").toString())
         : null;
     } catch (final ParseException ignored) {
+      // ignored
     }
     if (expires == null || expires.after(new Date())) {
       return key;

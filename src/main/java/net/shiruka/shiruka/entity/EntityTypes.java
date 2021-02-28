@@ -25,7 +25,7 @@
 
 package net.shiruka.shiruka.entity;
 
-import net.shiruka.api.base.NamespacedKey;
+import net.shiruka.api.base.Namespaced;
 import net.shiruka.api.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +46,7 @@ public final class EntityTypes<E extends Entity> {
    * the key.
    */
   @NotNull
-  private final NamespacedKey key;
+  private final Namespaced key;
 
   /**
    * ctor.
@@ -54,7 +54,7 @@ public final class EntityTypes<E extends Entity> {
    * @param factory the factory.
    * @param key the key.
    */
-  private EntityTypes(@NotNull final EntityFactory<E> factory, @NotNull final NamespacedKey key) {
+  private EntityTypes(@NotNull final EntityFactory<E> factory, @NotNull final Namespaced key) {
     this.factory = factory;
     this.key = key;
   }

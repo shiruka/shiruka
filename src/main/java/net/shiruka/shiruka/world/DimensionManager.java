@@ -39,6 +39,12 @@ import org.jetbrains.annotations.Nullable;
 public final class DimensionManager {
 
   /**
+   * ctor.
+   */
+  private DimensionManager() {
+  }
+
+  /**
    * gives a {@link Resourced} instance from the given {@code tag}.
    *
    * @param tag the tag to get.

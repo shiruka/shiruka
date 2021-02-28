@@ -30,18 +30,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.Vector3D;
 import net.shiruka.api.entity.Entity;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
+import net.shiruka.api.world.World;
 import net.shiruka.shiruka.base.ShirukaViewable;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.network.packets.EntityRemovePacket;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * an abstract implementation for {@link Entity}.
@@ -68,6 +71,17 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
    */
   @NotNull
   private final Vector3D motion = new Vector3D();
+
+  /**
+   * the world.
+   */
+  @Nullable
+  public World world;
+
+  /**
+   * the death.
+   */
+  private boolean death;
 
   /**
    * ctor.
@@ -116,6 +130,13 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
       shirukaPlayer.viewableEntities.remove(this);
     }
     return true;
+  }
+
+  /**
+   * entity dies.
+   */
+  public void die() {
+    this.death = true;
   }
 
   @NotNull
@@ -171,5 +192,19 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   @Override
   public void tick() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#tick.");
+  }
+
+  /**
+   * entity spawns in the given {@code world}.
+   *
+   * @param world the world to spawn.
+   */
+  protected void spawnIn(@Nullable final World world) {
+    if (world == null) {
+      this.die();
+      this.world = Shiruka.getWorldManager().getWorlds().get(0);
+    } else {
+      this.world = world;
+    }
   }
 }

@@ -38,7 +38,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.event.events.LoginResultEvent;
+import net.shiruka.api.registry.Resourced;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.api.world.World;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
@@ -48,6 +50,7 @@ import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
+import net.shiruka.shiruka.world.DimensionManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -241,9 +244,24 @@ public final class PlayerList {
     }
     player.loginTime = System.currentTimeMillis();
     final var optional = UserCacheConfig.getProfileByUniqueId(player.getUniqueId());
-    final var lastKnownName = optional.isEmpty() ? player.getName() : optional.get().getName();
+    var lastKnownName = optional.isPresent()
+      ? optional.get().getName().asString()
+      : player.getName().asString();
     UserCacheConfig.addProfile(player.getProfile(), true);
     final var tag = this.loadPlayerCompound(player);
+    if (tag != null && tag.containsKey("shiruka")) {
+      final var shiruka = tag.getCompoundTag("shiruka").orElseThrow();
+      lastKnownName = shiruka.hasKeyOfType("lastKnownName", 8)
+        ? shiruka.getString("lastKnownName").orElseThrow()
+        : lastKnownName;
+    }
+    final Resourced resourced = DimensionManager.fromTag(tag);
+    final World world = this.server.getWorld(resourced).orElseGet(() ->
+      this.server.getDefaultWorld().orElse(null));
+    if (tag == null) {
+      player.teleportToSpawn(world);
+    }
+    player.spawnIn(world);
     // @todo #1:1m Continue to development here.
     this.server.getTick().lastPingTime = 0L;
   }

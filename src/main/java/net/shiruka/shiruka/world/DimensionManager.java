@@ -69,13 +69,13 @@ public final class DimensionManager {
     }
     final int dimensionId = dimension.get().asNumber().intValue();
     if (dimensionId == -1) {
-      return World.NETHER;
+      return World.THE_NETHER;
     }
     if (dimensionId == 0) {
       return World.OVER_WORLD;
     }
     if (dimensionId == 1) {
-      return World.END;
+      return World.THE_END;
     }
     return World.OVER_WORLD;
   }

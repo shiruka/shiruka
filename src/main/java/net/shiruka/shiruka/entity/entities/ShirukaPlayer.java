@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,6 +56,8 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
+import net.shiruka.shiruka.nbt.CompoundTag;
+import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -276,6 +279,28 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     }
     this.hiddenPlayers.remove(player.getUniqueId());
     this.registerPlayer(player);
+  }
+
+  /**
+   * creates a default compound tag when the player joins the server for first time.
+   *
+   * @return default compound tag.
+   */
+  @NotNull
+  public CompoundTag createDefaultTag() {
+    final var defaultWorld = this.connection.getServer().getDefaultWorld().orElseThrow();
+    final var spawn = defaultWorld.getSpawn();
+    final var tag = Tag.createCompound();
+    tag.setLong("first-played", System.currentTimeMillis() / 1000L);
+    tag.setLong("last-played", System.currentTimeMillis() / 1000L);
+    tag.setList("Pos", List.of(
+      Tag.createString(String.valueOf(spawn.getX())),
+      Tag.createString(String.valueOf(spawn.getY())),
+      Tag.createString(String.valueOf(spawn.getZ()))));
+    final var worldUniqueId = defaultWorld.getUniqueId();
+    tag.setLong("WorldUUIDMost", worldUniqueId.getMostSignificantBits());
+    tag.setLong("WorldUUIDLeast", worldUniqueId.getLeastSignificantBits());
+    return tag;
   }
 
   @Nullable

@@ -352,7 +352,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   public File getDataFile() {
     if (this.dataFile == null) {
-      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getUniqueId().toString() + ".dat");
+      this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getUniqueId() + ".dat");
     }
     return this.dataFile;
   }

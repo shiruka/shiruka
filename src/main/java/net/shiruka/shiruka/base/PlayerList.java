@@ -202,7 +202,7 @@ public final class PlayerList {
       boolean wrongFile = false;
       if (ServerConfig.ONLINE_MODE.getValue().orElse(true) && !file.exists()) {
         tempFile = new File(player.getConnection().getServer().getPlayersDirectory(),
-          UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)).toString() + ".dat");
+          UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)) + ".dat");
         if (tempFile.exists()) {
           wrongFile = true;
           this.server.getLogger().warn("Using offline mode UUID file for player {} as it is the only copy we can find.",

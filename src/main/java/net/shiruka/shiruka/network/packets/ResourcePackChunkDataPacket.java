@@ -84,7 +84,7 @@ public final class ResourcePackChunkDataPacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    final var packInfo = this.getPackId().toString() + (this.getPackVersion() == null
+    final var packInfo = this.getPackId() + (this.getPackVersion() == null
       ? ""
       : '_' + this.getPackVersion());
     VarInts.writeString(this.buffer(), packInfo);

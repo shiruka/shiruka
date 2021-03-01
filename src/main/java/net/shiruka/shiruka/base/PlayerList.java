@@ -49,6 +49,7 @@ import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.world.DimensionManager;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -190,11 +191,12 @@ public final class PlayerList {
    * loads the given {@code player}'s compound tag from the players folder.
    *
    * @param player the player to load.
+   * @param create the create to load.
    *
    * @return loaded compound tag instance.
    */
-  @Nullable
-  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player) {
+  @Contract("_, true -> !null")
+  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player, final boolean create) {
     CompoundTag tag = null;
     final var file = player.getPlayerFile();
     try {
@@ -202,7 +204,7 @@ public final class PlayerList {
       boolean wrongFile = false;
       if (ServerConfig.ONLINE_MODE.getValue().orElse(true) && !file.exists()) {
         tempFile = new File(player.getConnection().getServer().getPlayersDirectory(),
-          UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)).toString() + ".dat");
+          UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)) + ".dat");
         if (tempFile.exists()) {
           wrongFile = true;
           this.server.getLogger().warn("Using offline mode UUID file for player {} as it is the only copy we can find.",
@@ -218,8 +220,8 @@ public final class PlayerList {
     } catch (final Exception e) {
       this.server.getLogger().error("Failed to load player data for {}", player.getName().asString());
     }
-    if (tag == null) {
-      return null;
+    if (tag == null && create) {
+      tag = player.createDefaultTag();
     }
     final var modified = player.getPlayerFile().lastModified();
     if (modified < player.getFirstPlayed()) {
@@ -246,8 +248,8 @@ public final class PlayerList {
       ? optional.get().getName().asString()
       : player.getName().asString();
     UserCacheConfig.addProfile(player.getProfile(), true);
-    final var tag = this.loadPlayerCompound(player);
-    if (tag != null && tag.containsKey("shiruka")) {
+    final var tag = this.loadPlayerCompound(player, true);
+    if (tag.containsKey("shiruka")) {
       final var shiruka = tag.getCompoundTag("shiruka").orElseThrow();
       lastKnownName = shiruka.hasKeyOfType("lastKnownName", 8)
         ? shiruka.getString("lastKnownName").orElseThrow()
@@ -256,9 +258,6 @@ public final class PlayerList {
     final var resourced = DimensionManager.fromTag(tag);
     final var world = this.server.getWorld(resourced).orElseGet(() ->
       this.server.getDefaultWorld().orElse(null));
-    if (tag == null) {
-      player.teleportToSpawn(world);
-    }
     player.spawnIn(world);
     // @todo #1:1m Continue to development here.
     this.server.getTick().lastPingTime = 0L;

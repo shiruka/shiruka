@@ -43,6 +43,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import lombok.extern.log4j.Log4j2;
 import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import net.shiruka.api.Server;
 import net.shiruka.api.base.BanList;
@@ -80,7 +81,6 @@ import net.shiruka.shiruka.scheduler.SimpleScheduler;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.SystemUtils;
 import net.shiruka.shiruka.world.SimpleWorldManager;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,6 +88,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an implementation for {@link Server}.
  */
+@Log4j2
 public final class ShirukaServer implements Server, RakNetServerListener {
 
   /**
@@ -99,11 +100,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * obtains the Shiru ka server's version.
    */
   public static final String VERSION = "1.0.0-SNAPSHOT";
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the server done.
@@ -288,7 +284,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   @Override
   public Logger getLogger() {
-    return ShirukaServer.LOGGER;
+    return ShirukaServer.log;
   }
 
   @Override
@@ -365,7 +361,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
       // @todo #1:5m Add language support for console's uncaught exception handler.
       .error("Caught previously unhandled exception :", e));
     consoleThread.start();
-    this.tick.nextTick = SystemUtils.getMonotonicMillis();
+    this.tick.setNextTick(SystemUtils.getMonotonicMillis());
     this.scheduler.mainThreadHeartbeat(0);
     final var end = System.currentTimeMillis() - this.startTime;
     this.getLogger().info(TranslatedText.get(ShirukaServer.SERVER_DONE, end));
@@ -475,17 +471,17 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    this.tick.pending.enqueue(peer);
+    this.tick.getPending().enqueue(peer);
   }
 
   @Override
   public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
                             final int channel) {
     final var address = peer.getAddress();
-    if (!this.tick.connectedPlayers.containsKey(address)) {
+    if (!this.tick.getConnectedPlayers().containsKey(address)) {
       return;
     }
-    final var handler = this.tick.connectedPlayers.get(address).getPacketHandler();
+    final var handler = this.tick.getConnectedPlayers().get(address).getPacketHandler();
     if (packet.getId() == 0xfe) {
       packet.buffer().markReaderIndex();
       Protocol.deserialize(handler, packet.buffer());

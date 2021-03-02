@@ -25,18 +25,13 @@
 
 package net.shiruka.shiruka.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * a class that contains utility methods for system.
  */
+@Log4j2
 public final class SystemUtils {
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * ctor.
@@ -65,7 +60,7 @@ public final class SystemUtils {
           try {
             Thread.sleep(2147483647L);
           } catch (final InterruptedException interruptedexception) {
-            SystemUtils.LOGGER.warn("Timer hack interrupted, that really should not happen!");
+            SystemUtils.log.warn("Timer hack interrupted, that really should not happen!");
             return;
           }
         }
@@ -73,7 +68,7 @@ public final class SystemUtils {
     };
     thread.setDaemon(true);
     thread.setUncaughtExceptionHandler((t, e) ->
-      SystemUtils.LOGGER.error(exceptionMessage, e));
+      SystemUtils.log.error(exceptionMessage, e));
     thread.start();
   }
 }

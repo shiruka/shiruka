@@ -42,15 +42,15 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that contains language operations.
  */
+@Log4j2
 public final class Languages {
 
   /**
@@ -67,11 +67,6 @@ public final class Languages {
    * the vanilla keys.
    */
   static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the shiruka variables.
@@ -180,12 +175,12 @@ public final class Languages {
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
     if (split.length != 2) {
-      Languages.LOGGER.error("§cPlease write a valid language!");
+      Languages.log.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
     final var upperChosen = Languages.secondUpper(chosenLanguage);
     if (!Languages.AVAILABLE_LANGUAGES.contains(upperChosen)) {
-      Languages.LOGGER.error("§cPlease write a valid language!");
+      Languages.log.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
     return Languages.toLocale(upperChosen);
@@ -279,7 +274,7 @@ public final class Languages {
       return locale;
     }
     Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.LOGGER.info("§7" + s));
-    Languages.LOGGER.info("§aChoose one of the available languages");
+    Languages.log.info("§aChoose one of the available languages");
     final var locale = Languages.choosingLanguageLoop();
     ServerConfig.SERVER_LANGUAGE.setValue(locale);
     Languages.setLoadedLanguage(Languages.toString(locale));

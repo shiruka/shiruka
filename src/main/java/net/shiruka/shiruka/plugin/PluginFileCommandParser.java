@@ -28,6 +28,8 @@ package net.shiruka.shiruka.plugin;
 import com.google.common.base.Joiner;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.Commands;
 import net.shiruka.api.command.builder.LiteralBuilder;
@@ -39,18 +41,13 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a utility class to helps the parsing commands in the plugin files.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PluginFileCommandParser {
 
   /**
    * the permission key.
    */
   private static final String PERMISSIONS = "shiruka.command.permission";
-
-  /**
-   * ctor.
-   */
-  private PluginFileCommandParser() {
-  }
 
   /**
    * parses the given commands of the given plugin's file.

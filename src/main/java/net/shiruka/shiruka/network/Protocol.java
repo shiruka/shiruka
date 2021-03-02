@@ -30,20 +30,15 @@ import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.zip.DataFormatException;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that serializes and deserializes packets.
  */
+@Log4j2
 public final class Protocol {
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the zlib.
@@ -74,7 +69,7 @@ public final class Protocol {
         }
         final var header = VarInts.readUnsignedVarInt(buffer);
         final var packetId = header & 0x3ff;
-        Protocol.LOGGER.debug("§7Incoming packet id -> {}", packetId);
+        Protocol.log.debug("§7Incoming packet id -> {}", packetId);
         final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
           String.format("The packet id %s not found!", packetId)).apply(buffer);
         shirukaPacket.setSenderId(header >>> 10 & 3);

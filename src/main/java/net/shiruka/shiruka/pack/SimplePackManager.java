@@ -42,6 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.pack.Pack;
 import net.shiruka.api.pack.PackLoader;
@@ -57,19 +58,13 @@ import net.shiruka.shiruka.network.packets.PackStackPacket;
 import net.shiruka.shiruka.pack.loader.RplDirectory;
 import net.shiruka.shiruka.pack.loader.RplZip;
 import net.shiruka.shiruka.pack.pack.ResourcePack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link PackManager}.
  */
+@Log4j2
 public final class SimplePackManager implements PackManager {
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the manifest path.
@@ -184,7 +179,7 @@ public final class SimplePackManager implements PackManager {
         return Optional.of(PackManifest.load(asset.get()));
       }
     } catch (final IllegalStateException | IOException e) {
-      SimplePackManager.LOGGER.error(String.format("Failed to load %s", loader.getLocation()), e);
+      SimplePackManager.log.error(String.format("Failed to load %s", loader.getLocation()), e);
     }
     return Optional.empty();
   }
@@ -242,7 +237,7 @@ public final class SimplePackManager implements PackManager {
         loaders.add(loader.get());
       }
     } catch (final IOException e) {
-      SimplePackManager.LOGGER.error("", e);
+      SimplePackManager.log.error("", e);
     }
     final var manifestMap = new Object2ObjectOpenHashMap<UUID, PackManifest>();
     final var loaderMap = new Object2ObjectOpenHashMap<UUID, PackLoader>();
@@ -282,19 +277,19 @@ public final class SimplePackManager implements PackManager {
       missingDependencies.stream()
         .map(pack -> pack.getHeader().getName() + ":" + pack.getHeader().getVersion())
         .forEach(joiner::add);
-      SimplePackManager.LOGGER.error("Could not load packs due to missing dependencies {}", joiner);
+      SimplePackManager.log.error("Could not load packs due to missing dependencies {}", joiner);
     }
     for (final var manifest : manifestMap.values()) {
       final var loader = loaderMap.get(manifest.getHeader().getUniqueId());
       final var module = manifest.getModules().get(0);
       final var factory = this.packFactories.get(module.getType());
       if (factory == null) {
-        SimplePackManager.LOGGER.warn("Unsupported pack type {}", module.getType());
+        SimplePackManager.log.warn("Unsupported pack type {}", module.getType());
         continue;
       }
       this.putPack(manifest, loader, factory, module);
     }
-    SimplePackManager.LOGGER.debug(TranslatedText.get(SimplePackManager.PACK_SUCCESS, manifestMap.size()));
+    SimplePackManager.log.debug(TranslatedText.get(SimplePackManager.PACK_SUCCESS, manifestMap.size()));
   }
 
   @Override

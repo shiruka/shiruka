@@ -38,9 +38,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.pack.PackLoader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -156,12 +155,8 @@ public final class RplZip implements PackLoader {
   /**
    * a class that represents zip pack loader factories.
    */
+  @Log4j2
   private static final class ZipFactory implements PackLoader.Factory {
-
-    /**
-     * the logger.
-     */
-    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * zip pack loader name matcher.
@@ -179,7 +174,7 @@ public final class RplZip implements PackLoader {
       try {
         return new RplZip(path);
       } catch (final IOException e) {
-        ZipFactory.LOGGER.error("The path is not a zip file!", e);
+        ZipFactory.log.error("The path is not a zip file!", e);
       }
       return null;
     }

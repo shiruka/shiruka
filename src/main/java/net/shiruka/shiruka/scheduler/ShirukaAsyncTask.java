@@ -25,13 +25,12 @@
 
 package net.shiruka.shiruka.scheduler;
 
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import javax.security.auth.callback.ConfirmationCallback;
+import lombok.Getter;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.TaskWorker;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +49,7 @@ public final class ShirukaAsyncTask extends ShirukaTask {
   /**
    * the workers.
    */
+  @Getter
   private final LinkedList<TaskWorker> workers = new LinkedList<>();
 
   /**
@@ -65,16 +65,6 @@ public final class ShirukaAsyncTask extends ShirukaTask {
                    final long delay, @NotNull final IntConsumer removeFunction) {
     super(id, task, plugin, delay);
     this.removeFunction = removeFunction;
-  }
-
-  /**
-   * obtains the workers.
-   *
-   * @return workers.
-   */
-  @NotNull
-  public List<TaskWorker> getWorkers() {
-    return Collections.unmodifiableList(this.workers);
   }
 
   @Override

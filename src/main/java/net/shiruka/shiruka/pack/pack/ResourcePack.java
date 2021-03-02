@@ -27,6 +27,8 @@ package net.shiruka.shiruka.pack.pack;
 
 import java.nio.file.Files;
 import java.security.MessageDigest;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.pack.Pack;
 import net.shiruka.api.pack.PackLoader;
 import net.shiruka.api.pack.PackManifest;
@@ -36,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that represents resource packs.
  */
+@RequiredArgsConstructor
 public final class ResourcePack implements Pack {
 
   /**
@@ -47,29 +50,20 @@ public final class ResourcePack implements Pack {
    * the loader.
    */
   @NotNull
+  @Getter
   private final PackLoader loader;
 
   /**
    * the manifest.
    */
   @NotNull
+  @Getter
   private final PackManifest manifest;
 
   /**
    * the hash.
    */
   private byte[] hash;
-
-  /**
-   * ctor.
-   *
-   * @param loader the loader.
-   * @param manifest the manifest.
-   */
-  public ResourcePack(@NotNull final PackLoader loader, @NotNull final PackManifest manifest) {
-    this.loader = loader;
-    this.manifest = manifest;
-  }
 
   @Override
   public byte[] getHash() {
@@ -82,18 +76,6 @@ public final class ResourcePack implements Pack {
       }
     }
     return this.hash.clone();
-  }
-
-  @NotNull
-  @Override
-  public PackLoader getLoader() {
-    return this.loader;
-  }
-
-  @NotNull
-  @Override
-  public PackManifest getManifest() {
-    return this.manifest;
   }
 
   @NotNull

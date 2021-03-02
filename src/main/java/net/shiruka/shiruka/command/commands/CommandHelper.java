@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.command.commands;
 
 import com.google.common.base.Joiner;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.command.Commands;
 import net.shiruka.api.command.builder.LiteralBuilder;
 import net.shiruka.api.command.context.CommandContext;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an abstract class that helps developers to create commands easily.
  */
+@RequiredArgsConstructor
 abstract class CommandHelper {
 
   /**
@@ -87,23 +89,7 @@ abstract class CommandHelper {
    * @param permission the permission.
    */
   CommandHelper(@NotNull final String command, @NotNull final String description, @NotNull final String permission) {
-    this(command, new String[0], description, permission);
-  }
-
-  /**
-   * ctor.
-   *
-   * @param command the command.
-   * @param aliases the aliases.
-   * @param description the description.
-   * @param permission the permission.
-   */
-  CommandHelper(@NotNull final String command, @NotNull final String[] aliases, @NotNull final String description,
-                @NotNull final String permission) {
-    this.command = command;
-    this.aliases = aliases.clone();
-    this.description = description;
-    this.permission = permission;
+    this(new String[0], command, description, permission);
   }
 
   /**

@@ -25,14 +25,14 @@
 
 package net.shiruka.shiruka.base;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.factories.DefaultJWSVerifierFactory;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -42,9 +42,11 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.geometry.AnimatedTextureType;
 import net.shiruka.api.geometry.AnimationData;
@@ -56,27 +58,14 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a simple implementation of {@link ChainData}.
  */
+@RequiredArgsConstructor
 public final class SimpleChainData implements ChainData {
 
   /**
-   * the key of chain.
+   * the map type reference.
    */
-  private static final String CHAIN = "chain";
-
-  /**
-   * the key of identity public key.
-   */
-  private static final String IDENTITY_PUBLIC_KEY = "identityPublicKey";
-
-  /**
-   * the key of image height.
-   */
-  private static final String IMAGE_HEIGHT = "ImageHeight";
-
-  /**
-   * the key of image width.
-   */
-  private static final String IMAGE_WIDTH = "ImageWidth";
+  private static final TypeReference<Map<String, List<String>>> MAP_TYPE_REFERENCE = new TypeReference<>() {
+  };
 
   /**
    * the Mojang public key.
@@ -93,106 +82,125 @@ public final class SimpleChainData implements ChainData {
    * the chain data itself.
    */
   @NotNull
+  @Getter
   private final String chainData;
 
   /**
    * the skin data itself.
    */
   @NotNull
+  @Getter
   private final String skinData;
 
   /**
    * the current input mode.
    */
+  @Getter
   private int currentInputMode;
 
   /**
    * the default input mode.
    */
+  @Getter
   private int defaultInputMode;
 
   /**
    * the device id.
    */
   @Nullable
+  @Getter
   private String deviceId;
 
   /**
    * the device model.
    */
   @Nullable
+  @Getter
   private String deviceModel;
 
   /**
    * the device OS.
    */
+  @Getter
   private int deviceOS;
 
   /**
    * the game version.
    */
   @Nullable
+  @Getter
   private String gameVersion;
 
   /**
    * the gui scale.
    */
+  @Getter
   private int guiScale;
 
   /**
    * the client id.
    */
+  @Getter
   private long id;
 
   /**
    * te language code.
    */
+  @Getter
   private String languageCode;
 
   /**
    * the public key.
    */
   @Nullable
+  @Getter
   private String publicKey;
 
   /**
    * the server address.
    */
   @Nullable
+  @Getter
   private String serverAddress;
 
   /**
    * the skin.
    */
   @Nullable
+  @Getter
   private Skin skin;
 
   /**
    * the ui profile.
    */
+  @Getter
   private int uiProfile;
 
   /**
    * the client unique id.
    */
   @Nullable
+  @Getter
   private UUID uniqueId;
 
   /**
    * the username.
    */
   @Nullable
+  @Getter
   private String username;
 
   /**
    * the xbox authed.
    */
+  @Getter
   private boolean xboxAuthed;
 
   /**
    * the xbox id.
    */
   @Nullable
+  @Getter
   private String xboxUniqueId;
 
   static {
@@ -201,17 +209,6 @@ public final class SimpleChainData implements ChainData {
     } catch (final InvalidKeySpecException | NoSuchAlgorithmException e) {
       throw new AssertionError(e);
     }
-  }
-
-  /**
-   * ctor.
-   *
-   * @param chainData the chain data.
-   * @param skinData the skin data.
-   */
-  private SimpleChainData(@NotNull final String chainData, @NotNull final String skinData) {
-    this.chainData = chainData;
-    this.skinData = skinData;
   }
 
   /**
@@ -237,13 +234,13 @@ public final class SimpleChainData implements ChainData {
    * @return decoded token.
    */
   @NotNull
-  private static JsonObject decodeToken(@NotNull final String token) {
+  private static JsonNode decodeToken(@NotNull final String token) {
     final var base = token.split("\\.");
     Preconditions.checkArgument(base.length >= 2, "Invalid token length");
+    final var json = new String(Base64.getDecoder().decode(base[1]), StandardCharsets.UTF_8);
     try {
-      final var json = new String(Base64.getDecoder().decode(base[1]), StandardCharsets.UTF_8);
-      return Json.parse(json).asObject();
-    } catch (final Exception e) {
+      return Shiruka.JSON_MAPPER.readTree(json);
+    } catch (final IOException e) {
       throw new IllegalArgumentException("Invalid token JSON", e);
     }
   }
@@ -269,21 +266,6 @@ public final class SimpleChainData implements ChainData {
   }
 
   /**
-   * gets the given value as {@link NotNull}.
-   *
-   * @param value the value to get.
-   * @param <V> type of the value.
-   *
-   * @return the value itself.
-   *
-   * @throws NullPointerException if the given value is {@code null}.
-   */
-  @NotNull
-  private static <V> V get(@Nullable final V value) {
-    return Objects.requireNonNull(value, "Please run #initialize() method before get SimpleChainData values!");
-  }
-
-  /**
    * gives an {@link AnimationData} instance from the given json.
    *
    * @param json the json to convert.
@@ -291,12 +273,12 @@ public final class SimpleChainData implements ChainData {
    * @return a new instance of {@link AnimationData}.
    */
   @NotNull
-  private static AnimationData getAnimation(@NotNull final JsonObject json) {
-    final var frames = json.get("Frames").asFloat();
-    final var type = AnimatedTextureType.values()[json.get("Type").asInt()];
-    final var data = Base64.getDecoder().decode(json.get("Image").asString());
-    final var width = json.get(SimpleChainData.IMAGE_WIDTH).asInt();
-    final var height = json.get(SimpleChainData.IMAGE_HEIGHT).asInt();
+  private static AnimationData getAnimation(@NotNull final JsonNode json) {
+    final var frames = json.get("Frames").floatValue();
+    final var type = AnimatedTextureType.values()[json.get("Type").intValue()];
+    final var data = Base64.getDecoder().decode(json.get("Image").textValue());
+    final var width = json.get("ImageWidth").intValue();
+    final var height = json.get("ImageHeight").intValue();
     return new AnimationData(frames, ImageData.of(width, height, data), type);
   }
 
@@ -309,18 +291,16 @@ public final class SimpleChainData implements ChainData {
    * @return a new instance of {@link ImageData}.
    */
   @NotNull
-  private static ImageData getImage(@NotNull final JsonObject json, @NotNull final String name) {
-    final var keys = json.names();
-    if (!keys.contains(name + "Data")) {
+  private static ImageData getImage(@NotNull final JsonNode json, @NotNull final String name) {
+    if (!json.has(name + "Data")) {
       return ImageData.empty();
     }
-    final var skinImage = Base64.getDecoder().decode(json.get(name + "Data").asString());
-    if (!keys.contains(name + SimpleChainData.IMAGE_HEIGHT) ||
-      !keys.contains(name + SimpleChainData.IMAGE_WIDTH)) {
+    final var skinImage = Base64.getDecoder().decode(json.get(name + "Data").textValue());
+    if (!json.has(name + "ImageHeight") || !json.has(name + "ImageWidth")) {
       return ImageData.of(skinImage);
     }
-    final var width = json.get(name + SimpleChainData.IMAGE_WIDTH).asInt();
-    final var height = json.get(name + SimpleChainData.IMAGE_HEIGHT).asInt();
+    final var width = json.get(name + "ImageWidth").intValue();
+    final var height = json.get(name + "ImageHeight").intValue();
     return ImageData.of(width, height, skinImage);
   }
 
@@ -332,43 +312,42 @@ public final class SimpleChainData implements ChainData {
    * @return a new instance of {@link Skin}.
    */
   @NotNull
-  private static Skin getSkin(@NotNull final JsonObject json) {
+  private static Skin getSkin(@NotNull final JsonNode json) {
     final var skinBuilder = Skin.builder();
-    final var keys = json.names();
-    if (keys.contains("SkinId")) {
-      skinBuilder.skinId(json.get("SkinId").asString());
+    if (json.has("SkinId")) {
+      skinBuilder.skinId(json.get("SkinId").textValue());
     }
-    if (keys.contains("CapeId")) {
-      skinBuilder.capeId(json.get("CapeId").asString());
+    if (json.has("CapeId")) {
+      skinBuilder.capeId(json.get("CapeId").textValue());
     }
     skinBuilder.skinData(SimpleChainData.getImage(json, "Skin"));
     skinBuilder.capeData(SimpleChainData.getImage(json, "Cape"));
-    if (keys.contains("PremiumSkin")) {
-      skinBuilder.premium(json.get("PremiumSkin").asBoolean());
+    if (json.has("PremiumSkin")) {
+      skinBuilder.premium(json.get("PremiumSkin").booleanValue());
     }
-    if (keys.contains("PersonaSkin")) {
-      skinBuilder.persona(json.get("PersonaSkin").asBoolean());
+    if (json.has("PersonaSkin")) {
+      skinBuilder.persona(json.get("PersonaSkin").booleanValue());
     }
-    if (keys.contains("CapeOnClassicSkin")) {
-      skinBuilder.capeOnClassic(json.get("CapeOnClassicSkin").asBoolean());
+    if (json.has("CapeOnClassicSkin")) {
+      skinBuilder.capeOnClassic(json.get("CapeOnClassicSkin").booleanValue());
     }
-    if (keys.contains("SkinResourcePatch")) {
-      skinBuilder.skinResourcePatch(new String(Base64.getDecoder().decode(json.get("SkinResourcePatch").asString()), StandardCharsets.UTF_8));
+    if (json.has("SkinResourcePatch")) {
+      skinBuilder.skinResourcePatch(new String(Base64.getDecoder().decode(json.get("SkinResourcePatch").textValue()), StandardCharsets.UTF_8));
     }
-    if (keys.contains("SkinGeometryData")) {
-      skinBuilder.geometryData(new String(Base64.getDecoder().decode(json.get("SkinGeometryData").asString()), StandardCharsets.UTF_8));
+    if (json.has("SkinGeometryData")) {
+      skinBuilder.geometryData(new String(Base64.getDecoder().decode(json.get("SkinGeometryData").textValue()), StandardCharsets.UTF_8));
     }
-    if (keys.contains("SkinAnimationData")) {
-      skinBuilder.animationData(new String(Base64.getDecoder().decode(json.get("SkinAnimationData").asString()), StandardCharsets.UTF_8));
+    if (json.has("SkinAnimationData")) {
+      skinBuilder.animationData(new String(Base64.getDecoder().decode(json.get("SkinAnimationData").textValue()), StandardCharsets.UTF_8));
     }
-    if (!keys.contains("AnimatedImageData")) {
-      return skinBuilder.build();
+    if (json.has("AnimatedImageData")) {
+      final var animations = new ObjectArrayList<AnimationData>();
+      final var array = json.get("AnimatedImageData");
+      for (final var element : array) {
+        animations.add(SimpleChainData.getAnimation(element));
+      }
+      skinBuilder.animations(animations);
     }
-    final var animations = new ObjectArrayList<AnimationData>();
-    final var jsonArray = json.get("AnimatedImageData").asArray();
-    jsonArray.forEach(jsonValue ->
-      animations.add(SimpleChainData.getAnimation(jsonValue.asObject())));
-    skinBuilder.animations(animations);
     return skinBuilder.build();
   }
 
@@ -407,125 +386,27 @@ public final class SimpleChainData implements ChainData {
         throw new JOSEException("Unable to verify key in chain.");
       }
       final var payload = jws.getPayload().toJSONObject();
-      final var base64key = payload.get(SimpleChainData.IDENTITY_PUBLIC_KEY);
+      final var base64key = payload.get("identityPublicKey");
       Preconditions.checkState(base64key instanceof String, "No key found");
       lastKey = SimpleChainData.generateKey((String) base64key);
     }
     return mojangKeyVerified;
   }
 
-  @Override
-  public int getCurrentInputMode() {
-    return this.currentInputMode;
-  }
-
-  @Override
-  public int getDefaultInputMode() {
-    return this.defaultInputMode;
-  }
-
-  @NotNull
-  @Override
-  public String getDeviceId() {
-    return SimpleChainData.get(this.deviceId);
-  }
-
-  @NotNull
-  @Override
-  public String getDeviceModel() {
-    return SimpleChainData.get(this.deviceModel);
-  }
-
-  @Override
-  public int getDeviceOS() {
-    return this.deviceOS;
-  }
-
-  @NotNull
-  @Override
-  public String getGameVersion() {
-    return SimpleChainData.get(this.gameVersion);
-  }
-
-  @Override
-  public int getGuiScale() {
-    return this.guiScale;
-  }
-
-  @Override
-  public long getId() {
-    return this.id;
-  }
-
-  @NotNull
-  @Override
-  public String getLanguageCode() {
-    return SimpleChainData.get(this.languageCode);
-  }
-
-  @NotNull
-  @Override
-  public String getPublicKey() {
-    return SimpleChainData.get(this.publicKey);
-  }
-
-  @NotNull
-  @Override
-  public String getServerAddress() {
-    return SimpleChainData.get(this.serverAddress);
-  }
-
-  @NotNull
-  @Override
-  public Skin getSkin() {
-    return SimpleChainData.get(this.skin);
-  }
-
-  @Override
-  public int getUiProfile() {
-    return this.uiProfile;
-  }
-
-  @NotNull
-  @Override
-  public UUID getUniqueId() {
-    return SimpleChainData.get(this.uniqueId);
-  }
-
-  @NotNull
-  @Override
-  public String getUsername() {
-    return SimpleChainData.get(this.username);
-  }
-
-  @Override
-  public boolean getXboxAuthed() {
-    return this.xboxAuthed;
-  }
-
-  @Nullable
-  @Override
-  public String getXboxUniqueId() {
-    return this.xboxUniqueId;
-  }
-
   /**
    * decodes the chain data.
    */
   private void decodeChainData() {
-    final JsonObject parsed;
+    final Map<String, List<String>> map;
     try {
-      parsed = Json.parse(this.chainData).asObject();
-    } catch (final Exception e) {
+      map = Shiruka.JSON_MAPPER.readValue(this.chainData, SimpleChainData.MAP_TYPE_REFERENCE);
+    } catch (final IOException e) {
       throw new IllegalArgumentException("Invalid JSON", e);
     }
-    if (parsed.isEmpty() || !parsed.names().contains(SimpleChainData.CHAIN) ||
-      parsed.get(SimpleChainData.CHAIN).asArray().isEmpty()) {
+    if (map.isEmpty() || !map.containsKey("chain") || map.get("chain").isEmpty()) {
       return;
     }
-    final var chains = parsed.get(SimpleChainData.CHAIN).asArray().values().stream()
-      .map(JsonValue::asString)
-      .collect(Collectors.toList());
+    final var chains = map.get("chain");
     try {
       this.xboxAuthed = SimpleChainData.verifyChain(chains);
     } catch (final Exception e) {
@@ -534,25 +415,20 @@ public final class SimpleChainData implements ChainData {
     chains.stream()
       .map(SimpleChainData::decodeToken)
       .forEach(chainMap -> {
-        final var keys = chainMap.names();
-        if (!keys.contains("extraData") &&
-          keys.contains(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
-          this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).asString();
-          return;
+        if (chainMap.has("extraData")) {
+          final JsonNode extra = chainMap.get("extraData");
+          if (extra.has("displayName")) {
+            this.username = extra.get("displayName").textValue();
+          }
+          if (extra.has("identity")) {
+            this.uniqueId = UUID.fromString(extra.get("identity").textValue());
+          }
+          if (extra.has("XUID")) {
+            this.xboxUniqueId = extra.get("XUID").textValue();
+          }
         }
-        final var extra = chainMap.get("extraData").asObject();
-        final var extrasKeys = extra.names();
-        if (extrasKeys.contains("displayName")) {
-          this.username = extra.get("displayName").asString();
-        }
-        if (extrasKeys.contains("identity")) {
-          this.uniqueId = UUID.fromString(extra.get("identity").asString());
-        }
-        if (extrasKeys.contains("XUID")) {
-          this.xboxUniqueId = extra.get("XUID").asString();
-        }
-        if (keys.contains(SimpleChainData.IDENTITY_PUBLIC_KEY)) {
-          this.publicKey = chainMap.get(SimpleChainData.IDENTITY_PUBLIC_KEY).asString();
+        if (chainMap.has("identityPublicKey")) {
+          this.publicKey = chainMap.get("identityPublicKey").textValue();
         }
       });
     if (!this.xboxAuthed) {
@@ -565,38 +441,38 @@ public final class SimpleChainData implements ChainData {
    */
   private void decodeSkinData() {
     final var skinToken = SimpleChainData.decodeToken(this.skinData);
-    if (skinToken.names().contains("ClientRandomId")) {
-      this.id = skinToken.get("ClientRandomId").asLong();
+    if (skinToken.has("ClientRandomId")) {
+      this.id = skinToken.get("ClientRandomId").longValue();
     }
-    if (skinToken.names().contains("ServerAddress")) {
-      this.serverAddress = skinToken.get("ServerAddress").asString();
+    if (skinToken.has("ServerAddress")) {
+      this.serverAddress = skinToken.get("ServerAddress").textValue();
     }
-    if (skinToken.names().contains("DeviceModel")) {
-      this.deviceModel = skinToken.get("DeviceModel").asString();
+    if (skinToken.has("DeviceModel")) {
+      this.deviceModel = skinToken.get("DeviceModel").textValue();
     }
-    if (skinToken.names().contains("DeviceOS")) {
-      this.deviceOS = skinToken.get("DeviceOS").asInt();
+    if (skinToken.has("DeviceOS")) {
+      this.deviceOS = skinToken.get("DeviceOS").intValue();
     }
-    if (skinToken.names().contains("DeviceId")) {
-      this.deviceId = skinToken.get("DeviceId").asString();
+    if (skinToken.has("DeviceId")) {
+      this.deviceId = skinToken.get("DeviceId").textValue();
     }
-    if (skinToken.names().contains("GameVersion")) {
-      this.gameVersion = skinToken.get("GameVersion").asString();
+    if (skinToken.has("GameVersion")) {
+      this.gameVersion = skinToken.get("GameVersion").textValue();
     }
-    if (skinToken.names().contains("GuiScale")) {
-      this.guiScale = skinToken.get("GuiScale").asInt();
+    if (skinToken.has("GuiScale")) {
+      this.guiScale = skinToken.get("GuiScale").intValue();
     }
-    if (skinToken.names().contains("LanguageCode")) {
-      this.languageCode = skinToken.get("LanguageCode").asString();
+    if (skinToken.has("LanguageCode")) {
+      this.languageCode = skinToken.get("LanguageCode").textValue();
     }
-    if (skinToken.names().contains("CurrentInputMode")) {
-      this.currentInputMode = skinToken.get("CurrentInputMode").asInt();
+    if (skinToken.has("CurrentInputMode")) {
+      this.currentInputMode = skinToken.get("CurrentInputMode").intValue();
     }
-    if (skinToken.names().contains("DefaultInputMode")) {
-      this.defaultInputMode = skinToken.get("DefaultInputMode").asInt();
+    if (skinToken.has("DefaultInputMode")) {
+      this.defaultInputMode = skinToken.get("DefaultInputMode").intValue();
     }
-    if (skinToken.names().contains("UIProfile")) {
-      this.uiProfile = skinToken.get("UIProfile").asInt();
+    if (skinToken.has("UIProfile")) {
+      this.uiProfile = skinToken.get("UIProfile").intValue();
     }
     this.skin = SimpleChainData.getSkin(skinToken);
   }

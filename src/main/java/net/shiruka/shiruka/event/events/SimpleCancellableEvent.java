@@ -25,31 +25,22 @@
 
 package net.shiruka.shiruka.event.events;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.shiruka.api.event.Cancellable;
 
 /**
  * an abstract implementation for {@link Cancellable}.
  */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class SimpleCancellableEvent implements Cancellable {
 
   /**
    * the cancelled.
    */
+  @Getter
+  @Setter
   private boolean cancelled;
-
-  /**
-   * ctor.
-   */
-  protected SimpleCancellableEvent() {
-  }
-
-  @Override
-  public final boolean isCancelled() {
-    return this.cancelled;
-  }
-
-  @Override
-  public final void setCancelled(final boolean cancelled) {
-    this.cancelled = cancelled;
-  }
 }

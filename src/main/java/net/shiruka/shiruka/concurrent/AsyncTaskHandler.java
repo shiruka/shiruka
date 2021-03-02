@@ -30,6 +30,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.BooleanSupplier;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.text.TranslatedText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> type of the task.
  */
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
 
   /**
@@ -56,21 +60,13 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
    * the thread name.
    */
   @NotNull
+  @Getter
   private final String threadName;
 
   /**
    * the blocking count.
    */
   private int blockingCount;
-
-  /**
-   * ctor.
-   *
-   * @param threadName the thread name.
-   */
-  protected AsyncTaskHandler(@NotNull final String threadName) {
-    this.threadName = threadName;
-  }
 
   /**
    * waits for tasks.
@@ -131,16 +127,6 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
         break;
       }
     }
-  }
-
-  /**
-   * obtains the thread name.
-   *
-   * @return thread name.
-   */
-  @NotNull
-  public final String getThreadName() {
-    return this.threadName;
   }
 
   /**

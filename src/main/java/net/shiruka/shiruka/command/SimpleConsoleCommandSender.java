@@ -27,6 +27,7 @@ package net.shiruka.shiruka.command;
 
 import java.util.Optional;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.command.sender.ConsoleCommandSender;
 import net.shiruka.api.permission.Permission;
 import net.shiruka.api.permission.PermissionAttachment;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a simple console implementation for {@link ConsoleCommandSender}.
  */
+@RequiredArgsConstructor
 public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
 
   /**
@@ -51,15 +53,6 @@ public final class SimpleConsoleCommandSender implements ConsoleCommandSender {
    */
   @NotNull
   private final ShirukaConsole console;
-
-  /**
-   * ctor.
-   *
-   * @param console the console.
-   */
-  public SimpleConsoleCommandSender(@NotNull final ShirukaConsole console) {
-    this.console = console;
-  }
 
   @NotNull
   @Override

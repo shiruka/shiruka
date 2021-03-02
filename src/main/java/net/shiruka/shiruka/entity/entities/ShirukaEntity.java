@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.entity.entities;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -38,18 +37,16 @@ import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.world.World;
-import net.shiruka.shiruka.base.ShirukaViewable;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
-import net.shiruka.shiruka.network.packets.EntityRemovePacket;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * an abstract implementation for {@link Entity}.
  */
-public abstract class ShirukaEntity implements Entity, ShirukaViewable {
+public abstract class ShirukaEntity implements Entity {
 
   /**
    * the last entity id.
@@ -64,7 +61,7 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   /**
    * the entity id.
    */
-  private final long entityId;
+  private final long entityId = ShirukaEntity.LAST_ENTITY_ID.incrementAndGet();
 
   /**
    * the motion.
@@ -83,13 +80,6 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
    */
   private boolean death;
 
-  /**
-   * ctor.
-   */
-  protected ShirukaEntity() {
-    this.entityId = ShirukaEntity.LAST_ENTITY_ID.incrementAndGet();
-  }
-
   @Override
   public final long getEntityId() {
     return this.entityId;
@@ -98,38 +88,6 @@ public abstract class ShirukaEntity implements Entity, ShirukaViewable {
   @Override
   public void remove() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#remove.");
-  }
-
-  @Override
-  public boolean addViewer(@NotNull final Player player) {
-    final var result = this.viewers.add(player);
-    if (!result) {
-      return false;
-    }
-    if (player instanceof ShirukaPlayer) {
-      ((ShirukaPlayer) player).viewableEntities.add(this);
-    }
-    return true;
-  }
-
-  @NotNull
-  @Override
-  public Set<Player> getViewers() {
-    return Collections.unmodifiableSet(this.viewers);
-  }
-
-  @Override
-  public boolean removeViewer(@NotNull final Player player) {
-    if (!this.viewers.remove(player)) {
-      return false;
-    }
-    if (player instanceof ShirukaPlayer) {
-      final var packet = new EntityRemovePacket(this.entityId);
-      final var shirukaPlayer = (ShirukaPlayer) player;
-      shirukaPlayer.getConnection().sendPacket(packet);
-      shirukaPlayer.viewableEntities.remove(this);
-    }
-    return true;
   }
 
   /**

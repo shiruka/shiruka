@@ -27,6 +27,9 @@ package net.shiruka.shiruka.base;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.event.events.LoginResultEvent;
@@ -40,12 +43,14 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents login data.
  */
+@RequiredArgsConstructor
 public final class LoginData {
 
   /**
    * the chain data.
    */
   @NotNull
+  @Getter
   private final ChainData chainData;
 
   /**
@@ -75,31 +80,8 @@ public final class LoginData {
    * the async login event.
    */
   @Nullable
+  @Setter
   private PlayerAsyncLoginEvent asyncLogin;
-
-  /**
-   * ctor.
-   *
-   * @param chainData the chain data.
-   * @param connection the connection.
-   * @param profile the profile.
-   */
-  public LoginData(@NotNull final ChainData chainData, @NotNull final PlayerConnection connection,
-                   @NotNull final GameProfile profile) {
-    this.chainData = chainData;
-    this.profile = profile;
-    this.connection = connection;
-  }
-
-  /**
-   * obtains the chain data.
-   *
-   * @return chain data.
-   */
-  @NotNull
-  public ChainData chainData() {
-    return this.chainData;
-  }
 
   /**
    * obtains the task.
@@ -137,15 +119,6 @@ public final class LoginData {
     final var player = new ShirukaPlayer(this.connection, this, this.profile);
     this.connection.initialize(player);
     this.asyncLogin.getActions().forEach(action -> action.accept(player));
-  }
-
-  /**
-   * sets the async login event.
-   *
-   * @param asyncLogin async login event to set.
-   */
-  public void setAsyncLogin(@NotNull final PlayerAsyncLoginEvent asyncLogin) {
-    this.asyncLogin = asyncLogin;
   }
 
   /**

@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import lombok.Getter;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
@@ -51,16 +52,6 @@ import org.jetbrains.annotations.NotNull;
  * a class that represents the server heartbeat pulse called "tick" which occurs every 1/20th of a second.
  */
 public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> implements Runnable {
-
-  /**
-   * the tps.
-   */
-  public static final int TPS = 20;
-
-  /**
-   * the tick time.
-   */
-  public static final int TICK_TIME = 1000000000 / ShirukaTick.TPS;
 
   /**
    * the logger.
@@ -93,6 +84,16 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private static final TickTimes TICK_TIMES_60_S = new TickTimes(1200);
 
   /**
+   * the tps.
+   */
+  private static final int TPS = 20;
+
+  /**
+   * the tick time.
+   */
+  private static final int TICK_TIME = 1000000000 / ShirukaTick.TPS;
+
+  /**
    * tps for 1 minute.
    */
   private static final RollingAverage TPS_1 = new RollingAverage(60);
@@ -116,32 +117,29 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the current tick.
    */
-  public static int currentTick = 0;
+  private static int currentTick = 0;
 
   /**
    * the command queue.
    */
-  public final PriorityQueue<String> commandQueue = new ObjectArrayFIFOQueue<>();
+  @Getter
+  private final PriorityQueue<String> commandQueue = new ObjectArrayFIFOQueue<>();
 
   /**
    * the connected players.
    */
-  public final Map<InetSocketAddress, PlayerConnection> connectedPlayers = new ConcurrentHashMap<>();
+  private final Map<InetSocketAddress, PlayerConnection> connectedPlayers = new ConcurrentHashMap<>();
 
   /**
    * the pending.
    */
-  public final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
+  private final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
 
   /**
    * the process queue.
    */
-  public final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
-
-  /**
-   * the tick times.
-   */
-  public final long[] tickTimes = new long[100];
+  @Getter
+  private final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
 
   /**
    * the server.
@@ -150,24 +148,19 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private final ShirukaServer server;
 
   /**
-   * the force ticks.
+   * the tick times.
    */
-  public boolean forceTicks;
-
-  /**
-   * the last ping time.
-   */
-  public long lastPingTime;
-
-  /**
-   * the next tick.
-   */
-  public long nextTick = SystemUtils.getMonotonicMillis();
+  private final long[] tickTimes = new long[100];
 
   /**
    * the current average tick time.
    */
   private float currentAverageTickTime;
+
+  /**
+   * the force ticks.
+   */
+  private boolean forceTicks;
 
   /**
    * the executed task.
@@ -180,9 +173,19 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private long lastOverloadTime;
 
   /**
+   * the last ping time.
+   */
+  private long lastPingTime;
+
+  /**
    * the last tick.
    */
   private long lastTick;
+
+  /**
+   * the next tick.
+   */
+  private long nextTick = SystemUtils.getMonotonicMillis();
 
   /**
    * the is oversleep.

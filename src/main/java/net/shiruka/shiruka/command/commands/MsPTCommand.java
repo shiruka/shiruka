@@ -26,8 +26,8 @@
 package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.shiruka.api.command.builder.LiteralBuilder;
@@ -98,7 +98,7 @@ public final class MsPTCommand extends CommandHelper {
    */
   @NotNull
   private static Object[] getTickTimes() {
-    final var tickTimes = new ArrayList<>();
+    final var tickTimes = new ObjectArrayList<>();
     final var times = ShirukaTick.getTickTimes();
     tickTimes.addAll(MsPTCommand.calculate(times[0]));
     tickTimes.addAll(MsPTCommand.calculate(times[1]));

@@ -29,12 +29,16 @@ import com.google.common.base.Preconditions;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.language.LanguageManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link LanguageManager}.
  */
+@RequiredArgsConstructor
+@Getter
 public final class SimpleLanguageManager implements LanguageManager {
 
   /**
@@ -42,15 +46,6 @@ public final class SimpleLanguageManager implements LanguageManager {
    */
   @NotNull
   private final Locale serverLanguage;
-
-  /**
-   * ctor.
-   *
-   * @param serverLanguage the server language.
-   */
-  public SimpleLanguageManager(@NotNull final Locale serverLanguage) {
-    this.serverLanguage = serverLanguage;
-  }
 
   @Override
   public void check(@NotNull final String key) {
@@ -70,12 +65,6 @@ public final class SimpleLanguageManager implements LanguageManager {
       return Optional.empty();
     }
     return Optional.of(Languages.toLocale(code));
-  }
-
-  @NotNull
-  @Override
-  public Locale getServerLanguage() {
-    return this.serverLanguage;
   }
 
   @NotNull

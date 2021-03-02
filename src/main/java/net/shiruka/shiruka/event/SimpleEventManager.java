@@ -72,7 +72,7 @@ public final class SimpleEventManager implements EventManager {
   @Override
   public AsyncTabCompleteEvent asyncTabComplete(@NotNull final CommandSender completer,
                                                 @NotNull final List<String> completions, @NotNull final String text) {
-    return new SimpleAsyncTabCompleteEvent(completions, completer, text);
+    return new SimpleAsyncTabCompleteEvent(completer, text, completions);
   }
 
   @Override
@@ -121,7 +121,7 @@ public final class SimpleEventManager implements EventManager {
   @Override
   public ServerExceptionEvent serverException(@NotNull final ServerException serverException,
                                               final boolean isAsync) {
-    return new SimpleServerExceptionEvent(serverException, isAsync);
+    return new SimpleServerExceptionEvent(isAsync, serverException);
   }
 
   @NotNull

@@ -25,11 +25,15 @@
 
 package net.shiruka.shiruka.event.events.server;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.event.events.server.ServerTickEndEvent;
 
 /**
  * a simple implementation for {@link ServerTickEndEvent}.
  */
+@RequiredArgsConstructor
+@Getter
 public final class SimpleServerTickEndEvent implements ServerTickEndEvent {
 
   /**
@@ -46,32 +50,4 @@ public final class SimpleServerTickEndEvent implements ServerTickEndEvent {
    * the tick.
    */
   private final int tick;
-
-  /**
-   * ctor.
-   *
-   * @param duration the duration.
-   * @param remaining the remaining.
-   * @param tick the tick.
-   */
-  public SimpleServerTickEndEvent(final double duration, final long remaining, final int tick) {
-    this.duration = duration;
-    this.remaining = remaining;
-    this.tick = tick;
-  }
-
-  @Override
-  public double getDuration() {
-    return this.duration;
-  }
-
-  @Override
-  public long getRemaining() {
-    return this.remaining;
-  }
-
-  @Override
-  public int getTick() {
-    return this.tick;
-  }
 }

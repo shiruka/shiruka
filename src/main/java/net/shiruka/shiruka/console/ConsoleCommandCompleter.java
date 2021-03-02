@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.CommandDispatcher;
 import net.shiruka.shiruka.ShirukaServer;
@@ -43,6 +44,7 @@ import org.jline.reader.ParsedLine;
 /**
  * an implementation for {@link Completer} to auto complete console commands.
  */
+@RequiredArgsConstructor
 final class ConsoleCommandCompleter implements Completer {
 
   /**
@@ -50,15 +52,6 @@ final class ConsoleCommandCompleter implements Completer {
    */
   @NotNull
   private final ShirukaServer server;
-
-  /**
-   * ctor.
-   *
-   * @param server the set.
-   */
-  ConsoleCommandCompleter(@NotNull final ShirukaServer server) {
-    this.server = server;
-  }
 
   @Override
   public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
@@ -83,7 +76,7 @@ final class ConsoleCommandCompleter implements Completer {
       final var parse = SimpleCommandManager.getDispatcher().parse(event.getText(), event.getSender());
       return CommandDispatcher.getCompletionSuggestions(parse).get().getSuggestionList();
     });
-    this.server.getTick().processQueue.add(calculation);
+    this.server.getTick().getProcessQueue().add(calculation);
     try {
       final var suggestions = calculation.get();
       if (suggestions == null) {

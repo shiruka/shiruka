@@ -38,6 +38,8 @@ import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.pack.PackLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +47,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a simple directory implementation for {@link PackLoader}.
  */
+@RequiredArgsConstructor
 public final class RplDirectory implements PackLoader {
 
   /**
@@ -58,25 +61,17 @@ public final class RplDirectory implements PackLoader {
   private static final List<Path> TEMP_FILES = new ObjectArrayList<>();
 
   /**
-   * the path.
+   * the location.
    */
   @NotNull
-  private final Path path;
+  @Getter
+  private final Path location;
 
   /**
    * the prepared file.
    */
   @Nullable
   private CompletableFuture<Path> preparedFile;
-
-  /**
-   * ctor.
-   *
-   * @param path the path.
-   */
-  public RplDirectory(@NotNull final Path path) {
-    this.path = path;
-  }
 
   @Override
   public void close() {
@@ -85,13 +80,13 @@ public final class RplDirectory implements PackLoader {
 
   @Override
   public void forEachIn(@NotNull final Path path, final boolean recurse, @NotNull final Consumer<Path> consumer) {
-    final var resolved = this.path.resolve(path);
+    final var resolved = this.location.resolve(path);
     try (final var stream = Files.newDirectoryStream(resolved)) {
       for (final var entry : stream) {
         if (Files.isDirectory(entry) && recurse) {
           this.forEachIn(entry, true, consumer);
         } else {
-          consumer.accept(this.path.relativize(entry));
+          consumer.accept(this.location.relativize(entry));
         }
       }
     } catch (final IOException ignored) {
@@ -102,13 +97,7 @@ public final class RplDirectory implements PackLoader {
   @NotNull
   @Override
   public Optional<InputStream> getAsset(@NotNull final Path path) throws IOException {
-    return Optional.of(Files.newInputStream(this.path.resolve(path)));
-  }
-
-  @NotNull
-  @Override
-  public Path getLocation() {
-    return this.path;
+    return Optional.of(Files.newInputStream(this.location.resolve(path)));
   }
 
   @NotNull
@@ -143,13 +132,13 @@ public final class RplDirectory implements PackLoader {
 
   @Override
   public boolean hasAsset(@NotNull final Path path) {
-    final var asset = this.path.resolve(path);
+    final var asset = this.location.resolve(path);
     return Files.exists(asset) && Files.isRegularFile(asset);
   }
 
   @Override
   public boolean hasFolder(@NotNull final Path path) {
-    final var folder = this.path.resolve(path);
+    final var folder = this.location.resolve(path);
     return Files.exists(folder) && Files.isDirectory(folder);
   }
 

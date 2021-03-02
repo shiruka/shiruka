@@ -30,6 +30,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
@@ -40,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a simple implementation for {@link PlayerAsyncLoginEvent}.
  */
+@RequiredArgsConstructor
 public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent {
 
   /**
@@ -51,28 +55,23 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
    * the chain data.
    */
   @NotNull
+  @Getter
   private final ChainData chainData;
 
   /**
    * the kick message.
    */
   @Nullable
+  @Setter
   private Text kickMessage;
 
   /**
    * the login result.
    */
   @NotNull
+  @Getter
+  @Setter
   private LoginResult loginResult = LoginResult.ALLOWED;
-
-  /**
-   * ctor.
-   *
-   * @param chainData the login data.
-   */
-  public SimplePlayerAsyncLoginEvent(@NotNull final ChainData chainData) {
-    this.chainData = chainData;
-  }
 
   @Override
   public void addAction(@NotNull final Consumer<Player> action) {
@@ -92,29 +91,7 @@ public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent 
 
   @NotNull
   @Override
-  public ChainData getChainData() {
-    return this.chainData;
-  }
-
-  @NotNull
-  @Override
   public Optional<Text> getKickMessage() {
     return Optional.ofNullable(this.kickMessage);
-  }
-
-  @Override
-  public void setKickMessage(@Nullable final Text message) {
-    this.kickMessage = message;
-  }
-
-  @NotNull
-  @Override
-  public LoginResult getLoginResult() {
-    return this.loginResult;
-  }
-
-  @Override
-  public void setLoginResult(@NotNull final LoginResult result) {
-    this.loginResult = result;
   }
 }

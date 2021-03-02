@@ -25,29 +25,19 @@
 
 package net.shiruka.shiruka.event.events.server;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.event.events.server.ServerTickStartEvent;
 
 /**
  * a simple implementation for {@link ServerTickStartEvent}.
  */
+@RequiredArgsConstructor
+@Getter
 public final class SimpleServerTickStartEvent implements ServerTickStartEvent {
 
   /**
    * the tick.
    */
   private final int tick;
-
-  /**
-   * ctor.
-   *
-   * @param tick the tick.
-   */
-  public SimpleServerTickStartEvent(final int tick) {
-    this.tick = tick;
-  }
-
-  @Override
-  public int getTick() {
-    return this.tick;
-  }
 }

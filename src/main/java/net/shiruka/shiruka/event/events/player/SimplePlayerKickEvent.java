@@ -26,6 +26,8 @@
 package net.shiruka.shiruka.event.events.player;
 
 import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.event.events.player.PlayerKickEvent;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a simple implementation for {@link PlayerKickEvent}.
  */
+@AllArgsConstructor
 public final class SimplePlayerKickEvent extends SimpleCancellableEvent implements PlayerKickEvent {
 
   /**
@@ -55,30 +58,12 @@ public final class SimplePlayerKickEvent extends SimpleCancellableEvent implemen
    * the kick message.
    */
   @Nullable
+  @Setter
   private Text kickMessage;
-
-  /**
-   * ctor.
-   *
-   * @param player the player.
-   * @param reason the reason.
-   * @param kickMessage the kick message.
-   */
-  public SimplePlayerKickEvent(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
-                               @Nullable final Text kickMessage) {
-    this.player = player;
-    this.reason = reason;
-    this.kickMessage = kickMessage;
-  }
 
   @NotNull
   @Override
   public Optional<Text> getKickMessage() {
     return Optional.ofNullable(this.kickMessage);
-  }
-
-  @Override
-  public void setKickMessage(@Nullable final Text message) {
-    this.kickMessage = message;
   }
 }

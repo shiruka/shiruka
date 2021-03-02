@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.entity;
 
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.base.Namespaced;
 import net.shiruka.api.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <E> type of the entity class.
  */
+@RequiredArgsConstructor
 public final class EntityTypes<E extends Entity> {
 
   /**
@@ -47,15 +49,4 @@ public final class EntityTypes<E extends Entity> {
    */
   @NotNull
   private final Namespaced key;
-
-  /**
-   * ctor.
-   *
-   * @param factory the factory.
-   * @param key the key.
-   */
-  private EntityTypes(@NotNull final EntityFactory<E> factory, @NotNull final Namespaced key) {
-    this.factory = factory;
-    this.key = key;
-  }
 }

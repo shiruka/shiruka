@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.concurrent;
 
 import java.util.Arrays;
+import lombok.Getter;
 
 /**
  * a class that represents calculator for tick times.
@@ -35,6 +36,7 @@ public final class TickTimes {
   /**
    * the tick times.
    */
+  @Getter
   private final long[] times;
 
   /**
@@ -63,14 +65,5 @@ public final class TickTimes {
    */
   public double getAverage() {
     return (double) Arrays.stream(this.times).sum() / (double) this.times.length * 1.0E-6D;
-  }
-
-  /**
-   * obtains the tick times.
-   *
-   * @return tick times.
-   */
-  public long[] getTimes() {
-    return this.times.clone();
   }
 }

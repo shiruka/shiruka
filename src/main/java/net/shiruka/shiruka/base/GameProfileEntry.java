@@ -31,12 +31,15 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.base.GameProfile;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents entry of game profiles.
  */
+@RequiredArgsConstructor
 public final class GameProfileEntry {
 
   /**
@@ -47,31 +50,22 @@ public final class GameProfileEntry {
   /**
    * the count.
    */
-  private final long count;
+  @Getter
+  private final long count = GameProfileEntry.COUNT.getAndIncrement();
 
   /**
    * the expires on.
    */
   @NotNull
+  @Getter
   private final Date expiresOn;
 
   /**
    * the profile.
    */
   @NotNull
+  @Getter
   private final GameProfile profile;
-
-  /**
-   * ctor.
-   *
-   * @param expiresOn the expires on.
-   * @param profile the profile.
-   */
-  private GameProfileEntry(@NotNull final Date expiresOn, @NotNull final GameProfile profile) {
-    this.count = GameProfileEntry.COUNT.getAndIncrement();
-    this.expiresOn = (Date) expiresOn.clone();
-    this.profile = profile;
-  }
 
   /**
    * creates a new game profile entry instance from given {@code map}.
@@ -90,35 +84,6 @@ public final class GameProfileEntry {
       e.printStackTrace();
     }
     return Optional.empty();
-  }
-
-  /**
-   * obtains the count.
-   *
-   * @return count.
-   */
-  public long getCount() {
-    return this.count;
-  }
-
-  /**
-   * obtains the expires on.
-   *
-   * @return expires on.
-   */
-  @NotNull
-  public Date getExpiresOn() {
-    return (Date) this.expiresOn.clone();
-  }
-
-  /**
-   * obtains the profile.
-   *
-   * @return profile.
-   */
-  @NotNull
-  public GameProfile getProfile() {
-    return this.profile;
   }
 
   /**

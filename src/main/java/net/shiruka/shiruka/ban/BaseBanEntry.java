@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,30 +50,35 @@ public abstract class BaseBanEntry<K> {
    * the created.
    */
   @NotNull
+  @Getter
   private final Date created;
 
   /**
    * the expires.
    */
   @Nullable
+  @Getter
   private final Date expires;
 
   /**
    * the key.
    */
   @Nullable
+  @Getter
   private final K key;
 
   /**
    * the reason.
    */
   @NotNull
+  @Getter
   private final String reason;
 
   /**
    * the source.
    */
   @NotNull
+  @Getter
   private final String source;
 
   /**
@@ -148,58 +154,6 @@ public abstract class BaseBanEntry<K> {
       return key;
     }
     return null;
-  }
-
-  /**
-   * obtains the created.
-   *
-   * @return created.
-   */
-  @NotNull
-  public final Date getCreated() {
-    return (Date) this.created.clone();
-  }
-
-  /**
-   * obtains the expires.
-   *
-   * @return expires.
-   */
-  @Nullable
-  public final Date getExpires() {
-    return this.expires == null
-      ? null
-      : (Date) this.expires.clone();
-  }
-
-  /**
-   * obtains the key.
-   *
-   * @return key.
-   */
-  @Nullable
-  public final K getKey() {
-    return this.key;
-  }
-
-  /**
-   * obtains the reason.
-   *
-   * @return reason.
-   */
-  @NotNull
-  public final String getReason() {
-    return this.reason;
-  }
-
-  /**
-   * obtains the source.
-   *
-   * @return source.
-   */
-  @NotNull
-  public final String getSource() {
-    return this.source;
   }
 
   /**

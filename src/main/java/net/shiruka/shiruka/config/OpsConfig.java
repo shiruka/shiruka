@@ -25,20 +25,26 @@
 
 package net.shiruka.shiruka.config;
 
-import io.github.portlek.configs.PathHolder;
-import io.github.portlek.configs.tree.FileConfiguration;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.configuration.FileConfiguration;
 import net.shiruka.shiruka.base.OpEntry;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * list of server operators.
  */
-public final class OpsConfig implements PathHolder {
+public final class OpsConfig implements ConfigHolder {
 
   /**
    * the configuration.
    */
   private static FileConfiguration configuration;
+
+  /**
+   * ctor.
+   */
+  private OpsConfig() {
+  }
 
   /**
    * adds the given {@code entry} to the op list.

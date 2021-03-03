@@ -25,9 +25,10 @@
 
 package net.shiruka.shiruka.config;
 
+import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
-import io.github.portlek.configs.PathHolder;
-import io.github.portlek.configs.tree.FileConfiguration;
+import io.github.portlek.configs.configuration.FileConfiguration;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
@@ -42,7 +43,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that represents ip ban config.
  */
-public final class IpBanConfig implements PathHolder {
+public final class IpBanConfig implements ConfigHolder {
 
   /**
    * the configuration.
@@ -55,6 +56,12 @@ public final class IpBanConfig implements PathHolder {
   private static ConfigLoader loader;
 
   /**
+   * ctor.
+   */
+  private IpBanConfig() {
+  }
+
+  /**
    * adds the given {@code entry} to the section.
    *
    * @param entry the entry to add.
@@ -62,7 +69,11 @@ public final class IpBanConfig implements PathHolder {
   public static void addBanEntry(@NotNull final IpBanEntry entry) {
     Optional.ofNullable(entry.getKey()).ifPresent(key -> {
       IpBanConfig.configuration.set(key, entry.serialize());
-      IpBanConfig.loader.save();
+      try {
+        IpBanConfig.loader.save();
+      } catch (final IOException e) {
+        e.printStackTrace();
+      }
     });
   }
 
@@ -125,7 +136,11 @@ public final class IpBanConfig implements PathHolder {
    */
   public static void remove(@NotNull final String target) {
     IpBanConfig.configuration.remove(target);
-    IpBanConfig.loader.save();
+    try {
+      IpBanConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**

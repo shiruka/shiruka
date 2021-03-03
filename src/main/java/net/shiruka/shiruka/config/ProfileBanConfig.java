@@ -25,9 +25,10 @@
 
 package net.shiruka.shiruka.config;
 
+import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
-import io.github.portlek.configs.PathHolder;
-import io.github.portlek.configs.tree.FileConfiguration;
+import io.github.portlek.configs.configuration.FileConfiguration;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -40,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that represents ip ban config.
  */
-public final class ProfileBanConfig implements PathHolder {
+public final class ProfileBanConfig implements ConfigHolder {
 
   /**
    * the configuration.
@@ -53,6 +54,12 @@ public final class ProfileBanConfig implements PathHolder {
   private static ConfigLoader loader;
 
   /**
+   * ctor.
+   */
+  private ProfileBanConfig() {
+  }
+
+  /**
    * adds the given {@code entry} to the section.
    *
    * @param entry the entry to add.
@@ -60,7 +67,11 @@ public final class ProfileBanConfig implements PathHolder {
   public static void addBanEntry(@NotNull final ProfileBanEntry entry) {
     Optional.ofNullable(entry.getKey()).ifPresent(key -> {
       ProfileBanConfig.configuration.set(key.getUniqueId().toString(), entry.serialize());
-      ProfileBanConfig.loader.save();
+      try {
+        ProfileBanConfig.loader.save();
+      } catch (final IOException e) {
+        e.printStackTrace();
+      }
     });
   }
 
@@ -117,6 +128,10 @@ public final class ProfileBanConfig implements PathHolder {
    */
   public static void remove(@NotNull final String target) {
     ProfileBanConfig.configuration.remove(target);
-    ProfileBanConfig.loader.save();
+    try {
+      ProfileBanConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 }

@@ -74,19 +74,9 @@ public final class UserCacheConfig implements ConfigHolder {
   public static void addProfile(@NotNull final GameProfile profile, final boolean asyncSave) {
     UserCacheConfig.configuration.set(profile.getUniqueId().toString(), profile.serialize());
     if (asyncSave) {
-      ShirukaMain.ASYNC_EXECUTOR.execute(() -> {
-        try {
-          UserCacheConfig.loader.save();
-        } catch (final IOException e) {
-          e.printStackTrace();
-        }
-      });
+      ShirukaMain.ASYNC_EXECUTOR.execute(UserCacheConfig::save);
     } else {
-      try {
-        UserCacheConfig.loader.save();
-      } catch (final IOException e) {
-        e.printStackTrace();
-      }
+      UserCacheConfig.save();
     }
   }
 
@@ -128,5 +118,16 @@ public final class UserCacheConfig implements ConfigHolder {
   @NotNull
   public static Optional<GameProfile> getProfileByXboxUniqueId(@NotNull final String xboxUniqueId) {
     throw new UnsupportedOperationException(" @todo #1:10m Implement UserCacheConfig#getProfileByXboxUniqueId.");
+  }
+
+  /**
+   * saves the file.
+   */
+  public static void save() {
+    try {
+      UserCacheConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 }

@@ -590,7 +590,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     // @todo #1:15m save and close all worlds here.
     if (ServerConfig.SAVE_USER_CACHE_ON_STOP_ONLY.getValue().orElse(false)) {
       this.getLogger().info("§eSaving usercache.json.");
-      UserCacheConfig.getInstance().save();
+      UserCacheConfig.save();
     }
     this.getLogger().info("§eClosing Server");
     try {

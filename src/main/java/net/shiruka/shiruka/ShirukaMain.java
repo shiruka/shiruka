@@ -28,6 +28,8 @@ package net.shiruka.shiruka;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.server.RakNetServer;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.ConfigLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -132,6 +134,22 @@ public final class ShirukaMain {
    * ctor.
    */
   private ShirukaMain() {
+  }
+
+  /**
+   * initiates the file.
+   *
+   * @param file the file to initiate.
+   * @param holder the holder to initiate.
+   */
+  public static void config(@NotNull final File file, @NotNull final Class<? extends ConfigHolder> holder) {
+    ConfigLoader.builder()
+      .setFolderPath(file.getParentFile())
+      .setFileName(com.google.common.io.Files.getNameWithoutExtension(file.getName()))
+      .setPathHolder(holder)
+      .setConfigType(SystemUtils.getType(file))
+      .build()
+      .load(true);
   }
 
   /**
@@ -280,11 +298,11 @@ public final class ShirukaMain {
   private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
     ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
     ShirukaMain.playersDirectory = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLAYERS, true);
-    ServerConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG));
-    OpsConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS));
-    UserCacheConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE));
-    IpBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS));
-    ProfileBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS));
-    WhitelistConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST));
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG), ServerConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS), OpsConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE), UserCacheConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS), IpBanConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS), ProfileBanConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST), WhitelistConfig.class);
   }
 }

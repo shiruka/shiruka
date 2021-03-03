@@ -28,7 +28,8 @@ package net.shiruka.shiruka.plugin;
 import com.google.common.base.Joiner;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.Commands;
 import net.shiruka.api.command.builder.LiteralBuilder;
@@ -40,13 +41,13 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a utility class to helps the parsing commands in the plugin files.
  */
-@UtilityClass
-public class PluginFileCommandParser {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class PluginFileCommandParser {
 
   /**
    * the permission key.
    */
-  private String PERMISSIONS = "shiruka.command.permission";
+  private static final String PERMISSIONS = "shiruka.command.permission";
 
   /**
    * parses the given commands of the given plugin's file.
@@ -58,7 +59,7 @@ public class PluginFileCommandParser {
    * @todo #1:15m Add language support when parsing the commands section of plugin's file.
    */
   @NotNull
-  public List<LiteralBuilder> parse(@NotNull final Plugin plugin) {
+  public static List<LiteralBuilder> parse(@NotNull final Plugin plugin) {
     final var builders = new ObjectArrayList<LiteralBuilder>();
     final var map = plugin.getDescription().getCommands();
     map.forEach((key, value) -> {

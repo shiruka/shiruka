@@ -113,6 +113,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the current tick.
    */
+  @Getter
   private static int currentTick = 0;
 
   /**

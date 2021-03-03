@@ -213,7 +213,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     hidingPlugins = new ObjectOpenHashSet<>();
     hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
     this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
-    this.unregisterPlayer(player);
+//    this.unregisterPlayer(player);
   }
 
   @Override
@@ -240,7 +240,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       return;
     }
     this.hiddenPlayers.remove(player.getUniqueId());
-    this.registerPlayer(player);
+//    this.registerPlayer(player);
   }
 
   /**
@@ -414,9 +414,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public boolean isOp() {
-    return OpsConfig.getInstance()
-      .getConfiguration()
-      .contains(this.getUniqueId().toString());
+    return OpsConfig.contains(this.getUniqueId().toString());
   }
 
   @Override
@@ -477,7 +475,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   private OpEntry getOpEntry() {
     if (this.opEntry == null) {
-      this.opEntry = new OpEntry(this.getProfile(), ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false));
+      this.opEntry = new OpEntry(ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false), this.getProfile());
     }
     return this.opEntry;
   }

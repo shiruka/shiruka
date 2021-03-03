@@ -172,8 +172,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
     if (this.connection.isConnected() && Shiruka.isPrimaryThread()) {
       this.handleQueuedPackets();
     }
-    if (PlayerConnection.oldTick != ShirukaTick.currentTick) {
-      PlayerConnection.oldTick = ShirukaTick.currentTick;
+    if (PlayerConnection.oldTick != ShirukaTick.getCurrentTick()) {
+      PlayerConnection.oldTick = ShirukaTick.getCurrentTick();
       PlayerConnection.joinAttemptsThisTick = 0;
     }
     final var handler = this.packetHandler.get();
@@ -509,7 +509,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
         Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
           Languages.addLoadedLanguage(chainData.getLanguageCode());
-          if (!chainData.getXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(true)) {
+          if (!chainData.isXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(true)) {
             PlayerConnection.this.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
             return;
           }

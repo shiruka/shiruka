@@ -56,6 +56,17 @@ public final class OpsConfig implements ConfigHolder {
   }
 
   /**
+   * checks if the unique id contains in the file.
+   *
+   * @param uniqueId the unique id to check.
+   *
+   * @return {@code true} if the unique id contains in the file.
+   */
+  public static boolean contains(@NotNull final String uniqueId) {
+    return OpsConfig.configuration.contains(uniqueId);
+  }
+
+  /**
    * remove the given {@code entry} from the op list.
    *
    * @param entry the entry to remove.

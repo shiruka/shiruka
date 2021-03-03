@@ -131,7 +131,7 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("C", "config"), "Server configuration file to use")
       .withRequiredArg()
       .ofType(File.class)
-      .defaultsTo(new File("shiruka.yml"))
+      .defaultsTo(new File("shiruka.yaml"))
       .describedAs("Server configuration file");
     PLUGINS = ShirukaConsoleParser.PARSER
       .acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")

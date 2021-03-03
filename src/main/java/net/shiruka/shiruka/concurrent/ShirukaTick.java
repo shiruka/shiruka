@@ -174,6 +174,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the last ping time.
    */
+  @Setter
   private long lastPingTime;
 
   /**

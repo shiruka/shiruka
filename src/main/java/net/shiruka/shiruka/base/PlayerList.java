@@ -253,7 +253,7 @@ public final class PlayerList {
       this.server.getDefaultWorld().orElse(null));
     player.spawnIn(world);
     // @todo #1:1m Continue to development here.
-    this.server.getTick().lastPingTime = 0L;
+    this.server.getTick().setLastPingTime(0L);
   }
 
   /**

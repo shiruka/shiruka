@@ -25,33 +25,20 @@
 
 package net.shiruka.shiruka.config;
 
-import java.io.File;
-import java.util.Objects;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.config.PathableConfig;
+import io.github.portlek.configs.PathHolder;
+import io.github.portlek.configs.tree.FileConfiguration;
 import net.shiruka.shiruka.base.OpEntry;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * list of server operators.
  */
-public final class OpsConfig extends PathableConfig {
+public final class OpsConfig implements PathHolder {
 
   /**
-   * the instance.
+   * the configuration.
    */
-  @Nullable
-  private static OpsConfig instance;
-
-  /**
-   * ctor.
-   *
-   * @param origin the origin.
-   */
-  private OpsConfig(@NotNull final Config origin) {
-    super(origin);
-  }
+  private static FileConfiguration configuration;
 
   /**
    * adds the given {@code entry} to the op list.
@@ -59,33 +46,7 @@ public final class OpsConfig extends PathableConfig {
    * @param entry the entry to add.
    */
   public static void addOp(@NotNull final OpEntry entry) {
-    OpsConfig.getInstance().getConfiguration().set(
-      entry.getProfile().getUniqueId().toString(),
-      entry.serialize());
-  }
-
-  /**
-   * obtains the instance.
-   *
-   * @return instance.
-   */
-  @NotNull
-  public static OpsConfig getInstance() {
-    return Objects.requireNonNull(OpsConfig.instance);
-  }
-
-  /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(OpsConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        OpsConfig.instance = config;
-      });
+    OpsConfig.configuration.set(entry.getProfile().getUniqueId().toString(), entry.serialize());
   }
 
   /**
@@ -94,6 +55,6 @@ public final class OpsConfig extends PathableConfig {
    * @param entry the entry to remove.
    */
   public static void removeOp(@NotNull final OpEntry entry) {
-    OpsConfig.getInstance().getConfiguration().remove(entry.getProfile().getUniqueId().toString());
+    OpsConfig.configuration.remove(entry.getProfile().getUniqueId().toString());
   }
 }

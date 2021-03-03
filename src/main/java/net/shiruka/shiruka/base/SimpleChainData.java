@@ -279,7 +279,7 @@ public final class SimpleChainData implements ChainData {
     final var data = Base64.getDecoder().decode(json.get("Image").textValue());
     final var width = json.get("ImageWidth").intValue();
     final var height = json.get("ImageHeight").intValue();
-    return new AnimationData(frames, ImageData.of(width, height, data), type);
+    return AnimationData.of(frames, ImageData.of(width, height, data), type);
   }
 
   /**

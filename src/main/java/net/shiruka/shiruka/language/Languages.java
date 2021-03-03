@@ -25,14 +25,14 @@
 
 package net.shiruka.shiruka.language;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import io.github.portlek.configs.json.Json;
+import com.fasterxml.jackson.core.type.TypeReference;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -41,7 +41,6 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.config.ServerConfig;
@@ -68,6 +67,12 @@ public final class Languages {
    * the vanilla keys.
    */
   static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
+
+  /**
+   * the map type reference.
+   */
+  private static final TypeReference<List<String>> LIST_TYPE_REFERENCE = new TypeReference<>() {
+  };
 
   /**
    * the shiruka variables.
@@ -222,12 +227,8 @@ public final class Languages {
     final var reader = new InputStreamReader(
       Languages.getResource("lang/languages.json"),
       StandardCharsets.UTF_8);
-    Shiruka.JSON_MAPPER.readValue(reader);
-    Languages.AVAILABLE_LANGUAGES.addAll(
-      Json.parse(reader)
-        .asArray().values().stream()
-        .map(JsonValue::asString)
-        .collect(Collectors.toUnmodifiableSet()));
+    final var languages = Shiruka.JSON_MAPPER.readValue(reader, Languages.LIST_TYPE_REFERENCE);
+    Languages.AVAILABLE_LANGUAGES.addAll(languages);
     Languages.AVAILABLE_LANGUAGES.forEach(s -> {
       Languages.SHIRUKA_VARIABLES.put(s, new Properties());
       Languages.VANILLA_VARIABLES.put(s, new Properties());
@@ -271,16 +272,16 @@ public final class Languages {
     if (serverLanguage.isPresent() && serverLanguage.get() != Locale.ROOT) {
       final var locale = serverLanguage.get();
       if (Languages.setLoadedLanguage(Languages.toString(locale))) {
-        ServerConfig.getInstance().save();
+        ServerConfig.save();
       }
       return locale;
     }
-    Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.LOGGER.info("§7" + s));
+    Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.log.info("§7" + s));
     Languages.log.info("§aChoose one of the available languages");
     final var locale = Languages.choosingLanguageLoop();
     ServerConfig.SERVER_LANGUAGE.setValue(locale);
     Languages.setLoadedLanguage(Languages.toString(locale));
-    ServerConfig.getInstance().save();
+    ServerConfig.save();
     return locale;
   }
 

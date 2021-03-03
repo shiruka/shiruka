@@ -144,7 +144,7 @@ public final class ShirukaMain {
    */
   public static void config(@NotNull final File file, @NotNull final Class<? extends ConfigHolder> holder) {
     ConfigLoader.builder()
-      .setFolderPath(file.getParentFile())
+      .setFolderPath(file.getAbsoluteFile().getParentFile())
       .setFileName(com.google.common.io.Files.getNameWithoutExtension(file.getName()))
       .setPathHolder(holder)
       .setConfigType(SystemUtils.getType(file))

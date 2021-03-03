@@ -32,12 +32,14 @@ import static io.github.portlek.configs.util.Paths.locale;
 import static io.github.portlek.configs.util.Paths.string;
 import static io.github.portlek.configs.util.Paths.stringList;
 import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.paths.comment.BooleanCommentPath;
 import io.github.portlek.configs.paths.comment.IntegerCommentPath;
 import io.github.portlek.configs.paths.comment.LocaleCommentPath;
 import io.github.portlek.configs.paths.comment.StringCommentPath;
 import io.github.portlek.configs.paths.comment.StringListCommentPath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -175,8 +177,24 @@ public final class ServerConfig implements ConfigHolder {
     "if its \"true\" players that are not in the white list can't join the server.");
 
   /**
+   * the loader.
+   */
+  private static ConfigLoader loader;
+
+  /**
    * ctor.
    */
   private ServerConfig() {
+  }
+
+  /**
+   * saves the file.
+   */
+  public static void save() {
+    try {
+      ServerConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 }

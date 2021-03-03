@@ -25,8 +25,8 @@
 
 package net.shiruka.shiruka.language;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonValue;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.github.portlek.configs.json.Json;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import org.jetbrains.annotations.NotNull;
@@ -92,7 +93,7 @@ public final class Languages {
   public static void addLoadedLanguage(@NotNull final String locale) {
     if (Languages.setLoadedLanguage(locale)) {
       Languages.loadVariables(locale);
-      ServerConfig.getInstance().save();
+      ServerConfig.save();
     }
   }
 
@@ -218,11 +219,12 @@ public final class Languages {
    * @throws IOException if something went wrong when reading the file.
    */
   private static void loadAvailableLanguages() throws IOException {
+    final var reader = new InputStreamReader(
+      Languages.getResource("lang/languages.json"),
+      StandardCharsets.UTF_8);
+    Shiruka.JSON_MAPPER.readValue(reader);
     Languages.AVAILABLE_LANGUAGES.addAll(
-      Json.parse(
-        new InputStreamReader(
-          Languages.getResource("lang/languages.json"),
-          StandardCharsets.UTF_8))
+      Json.parse(reader)
         .asArray().values().stream()
         .map(JsonValue::asString)
         .collect(Collectors.toUnmodifiableSet()));

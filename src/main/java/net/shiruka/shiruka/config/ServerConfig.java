@@ -26,18 +26,18 @@
 package net.shiruka.shiruka.config;
 
 import static io.github.portlek.configs.util.Paths.bool;
-import static io.github.portlek.configs.util.Paths.comment;
 import static io.github.portlek.configs.util.Paths.integer;
 import static io.github.portlek.configs.util.Paths.locale;
 import static io.github.portlek.configs.util.Paths.string;
 import static io.github.portlek.configs.util.Paths.stringList;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
-import io.github.portlek.configs.paths.comment.BooleanCommentPath;
-import io.github.portlek.configs.paths.comment.IntegerCommentPath;
-import io.github.portlek.configs.paths.comment.LocaleCommentPath;
-import io.github.portlek.configs.paths.comment.StringCommentPath;
-import io.github.portlek.configs.paths.comment.StringListCommentPath;
+import io.github.portlek.configs.annotation.Comment;
+import io.github.portlek.configs.paths.def.BooleanDefaultPath;
+import io.github.portlek.configs.paths.def.IntegerDefaultPath;
+import io.github.portlek.configs.paths.def.LocaleDefaultPath;
+import io.github.portlek.configs.paths.def.StringDefaultPath;
+import io.github.portlek.configs.paths.def.StringListDefaultPath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.util.Locale;
@@ -51,130 +51,112 @@ public final class ServerConfig implements ConfigHolder {
   /**
    * server's ip address.
    */
-  public static final StringCommentPath ADDRESS_IP = comment(string(
-    "ip", "127.0.0.1"),
-    "server's ip address.");
+  @Comment("server's ip address.")
+  public static final StringDefaultPath ADDRESS_IP = string("ip", "127.0.0.1");
 
   /**
    * the amount of bytes before compressing packets.
    * <p>
    * use -1 to disable.
    */
-  public static final IntegerCommentPath COMPRESSION_THRESHOLD = comment(integer(
-    "compression-threshold", 256),
-    "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
+  @Comment("the amount of bytes before compressing packets.\n" + "use -1 to disable.")
+  public static final IntegerDefaultPath COMPRESSION_THRESHOLD = integer("compression-threshold", 256);
 
   /**
    * name of the over world.
    */
-  public static final StringCommentPath DEFAULT_WORLD_NAME = comment(string(
-    "default-world-name", "world"),
-    "name of the over world.");
+  @Comment("name of the over world.")
+  public static final StringDefaultPath DEFAULT_WORLD_NAME = string("default-world-name", "world");
 
   /**
    * the game mode.
    */
-  public static final StringCommentPath DESCRIPTION_GAME_MODE = comment(string(
-    "description.game-mode", "survival"),
-    "Shiru ka server's game mode.");
+  @Comment("Shiru ka server's game mode.")
+  public static final StringDefaultPath DESCRIPTION_GAME_MODE = string("description.game-mode", "survival");
 
   /**
    * the max players that can be online at once.
    */
-  public static final IntegerCommentPath DESCRIPTION_MAX_PLAYERS = comment(integer(
-    "description.max-players", 20),
-    "the max players that can be online at once.");
+  @Comment("the max players that can be online at once.")
+  public static final IntegerDefaultPath DESCRIPTION_MAX_PLAYERS = integer("description.max-players", 20);
 
   /**
    * the description message shown in the server list.
    */
-  public static final StringCommentPath DESCRIPTION_MOTD = comment(string(
-    "description.motd", "Shiru ka server"),
-    "the description message shown in the server list.");
+  @Comment("the description message shown in the server list.")
+  public static final StringDefaultPath DESCRIPTION_MOTD = string("description.motd", "Shiru ka server");
 
   /**
    * forces to accept incoming resource packs.
    */
-  public static final BooleanCommentPath FORCE_RESOURCES = comment(bool(
-    "force-resources", true),
-    "forces to accept resource packs to players.");
+  @Comment("forces to accept resource packs to players.")
+  public static final BooleanDefaultPath FORCE_RESOURCES = bool("force-resources", true);
 
   /**
    * the loaded languages.
    */
-  public static final StringListCommentPath LOADED_LANGUAGES = comment(stringList(
-    "loaded-languages", new ObjectArrayList<>()),
-    "loaded languages of the Shiru ka. (will update automatically)");
+  @Comment("loaded languages of the Shiru ka. (will update automatically)")
+  public static final StringListDefaultPath LOADED_LANGUAGES = stringList("loaded-languages", new ObjectArrayList<>());
 
   /**
    * the maximum login handling per tick.
    */
-  public static final IntegerCommentPath MAX_LOGIN_PER_TICK = comment(integer(
-    "max-login-per-tick", 1),
-    "determines the maximum login process, that will handle, per tick.");
+  @Comment("determines the maximum login process, that will handle, per tick.")
+  public static final IntegerDefaultPath MAX_LOGIN_PER_TICK = integer("max-login-per-tick", 1);
 
   /**
    * whether to use Mojang auth to check players.
    */
-  public static final BooleanCommentPath ONLINE_MODE = comment(bool(
-    "online-mode", true),
-    "whether to use Mojang auth to check players.");
+  @Comment("whether to use Mojang auth to check players.")
+  public static final BooleanDefaultPath ONLINE_MODE = bool("online-mode", true);
 
   /**
    * ops pass player limit to join the server.
    */
-  public static final BooleanCommentPath OPS_PASS_PLAYER_LIMIT = comment(bool(
-    "ops-pass-player-limit", true),
-    "Ops will able to join the server which is full.");
+  @Comment("Ops will able to join the server which is full.")
+  public static final BooleanDefaultPath OPS_PASS_PLAYER_LIMIT = bool("ops-pass-player-limit", true);
 
   /**
    * server's ipv4 port.
    */
-  public static final IntegerCommentPath PORT = comment(integer(
-    "port", 19132),
-    "server's port.");
+  @Comment("server's port.")
+  public static final IntegerDefaultPath PORT = integer("port", 19132);
 
   /**
    * saves the user cache on stop only.
    */
-  public static final BooleanCommentPath SAVE_USER_CACHE_ON_STOP_ONLY = comment(bool(
-    "save-user-cache-on-stop-only", false),
-    "saves the user cache on stop only.");
+  @Comment("saves the user cache on stop only.")
+  public static final BooleanDefaultPath SAVE_USER_CACHE_ON_STOP_ONLY = bool("save-user-cache-on-stop-only", false);
 
   /**
    * the server language.
    */
-  public static final LocaleCommentPath SERVER_LANGUAGE = comment(locale(
-    "server-language", Locale.ROOT),
-    "language of the Shiru ka.");
+  @Comment("language of the Shiru ka.")
+  public static final LocaleDefaultPath SERVER_LANGUAGE = locale("server-language", Locale.ROOT);
 
   /**
    * the timings server name.
    */
-  public static final StringCommentPath TIMINGS_SERVER_NAME = comment(string(
-    "timings.server-name", "Unknown Server"),
-    "the timings server name.");
+  @Comment("the timings server name.")
+  public static final StringDefaultPath TIMINGS_SERVER_NAME = string("timings.server-name", "Unknown Server");
 
   /**
    * "true" to use linux natives when available.
    */
-  public static final BooleanCommentPath USE_NATIVE = comment(bool(
-    "use-native", true),
-    "\"true\" to use linux natives when available.");
+  @Comment("\"true\" to use linux natives when available.")
+  public static final BooleanDefaultPath USE_NATIVE = bool("use-native", true);
 
   /**
    * shows a warning message when server overloads.
    */
-  public static final BooleanCommentPath WARN_ON_OVERLOAD = comment(bool(
-    "warn-on-overload", true),
-    "shows warning when server overloads.");
+  @Comment("shows warning when server overloads.")
+  public static final BooleanDefaultPath WARN_ON_OVERLOAD = bool("warn-on-overload", true);
 
   /**
    * the white list to prevent join random players.
    */
-  public static final BooleanCommentPath WHITE_LIST = comment(bool(
-    "white-list", false),
-    "if its \"true\" players that are not in the white list can't join the server.");
+  @Comment("if its \"true\" players that are not in the white list can't join the server.")
+  public static final BooleanDefaultPath WHITE_LIST = bool("white-list", false);
 
   /**
    * the loader.

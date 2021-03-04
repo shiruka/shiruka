@@ -26,7 +26,6 @@
 package net.shiruka.shiruka.language;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.io.InputStream;
@@ -257,8 +256,7 @@ public final class Languages {
    * loads the loaded languages of the servers.
    */
   private static void loadLoadedLanguages() {
-    ServerConfig.LOADED_LANGUAGES.getValue().ifPresent(strings ->
-      strings.forEach(Languages::loadVariables));
+    ServerConfig.loadedLanguages.forEach(Languages::loadVariables);
   }
 
   /**
@@ -328,13 +326,12 @@ public final class Languages {
     if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
       return false;
     }
-    final var value = ServerConfig.LOADED_LANGUAGES.getValue()
-      .orElse(new ObjectArrayList<>());
+    final var value = ServerConfig.loadedLanguages;
     if (value.contains(locale)) {
       return false;
     }
     value.add(locale);
-    ServerConfig.LOADED_LANGUAGES.setValue(value);
+    ServerConfig.section.set("loaded-languages", value);
     return true;
   }
 }

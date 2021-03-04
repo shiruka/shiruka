@@ -127,8 +127,7 @@ public final class SimplePackManager implements PackManager {
   @Override
   public void closeRegistration() {
     this.checkClosed();
-    final var mustAccept = (boolean) ServerConfig.FORCE_RESOURCES.getValue()
-      .orElse(false);
+    final var mustAccept = ServerConfig.forceResources;
     this.packInfo.set(new PackInfoPacket(Collections.emptyList(),
       mustAccept,
       new ObjectArrayList<>(this.packs.values().stream()

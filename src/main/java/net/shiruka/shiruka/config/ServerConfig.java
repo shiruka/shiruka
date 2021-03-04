@@ -25,21 +25,16 @@
 
 package net.shiruka.shiruka.config;
 
-import static io.github.portlek.configs.util.Paths.bool;
-import static io.github.portlek.configs.util.Paths.integer;
 import static io.github.portlek.configs.util.Paths.locale;
-import static io.github.portlek.configs.util.Paths.string;
-import static io.github.portlek.configs.util.Paths.stringList;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.annotation.Comment;
-import io.github.portlek.configs.paths.def.BooleanDefaultPath;
-import io.github.portlek.configs.paths.def.IntegerDefaultPath;
+import io.github.portlek.configs.annotation.Route;
+import io.github.portlek.configs.configuration.ConfigurationSection;
 import io.github.portlek.configs.paths.def.LocaleDefaultPath;
-import io.github.portlek.configs.paths.def.StringDefaultPath;
-import io.github.portlek.configs.paths.def.StringListDefaultPath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -49,10 +44,10 @@ import java.util.Locale;
 public final class ServerConfig implements ConfigHolder {
 
   /**
-   * server's ip address.
+   * the server language.
    */
-  @Comment("server's ip address.")
-  public static final StringDefaultPath ADDRESS_IP = string("ip", "127.0.0.1");
+  @Comment("language of the Shiru ka.")
+  public static final LocaleDefaultPath SERVER_LANGUAGE = locale("server-language", Locale.ROOT);
 
   /**
    * the amount of bytes before compressing packets.
@@ -60,103 +55,102 @@ public final class ServerConfig implements ConfigHolder {
    * use -1 to disable.
    */
   @Comment("the amount of bytes before compressing packets.\n" + "use -1 to disable.")
-  public static final IntegerDefaultPath COMPRESSION_THRESHOLD = integer("compression-threshold", 256);
+  @Route("compression-threshold")
+  public static int compressionThreshold = 256;
 
   /**
    * name of the over world.
    */
   @Comment("name of the over world.")
-  public static final StringDefaultPath DEFAULT_WORLD_NAME = string("default-world-name", "world");
+  @Route("default-world-name")
+  public static String defaultWorldName = "world";
 
   /**
-   * the game mode.
+   * the description settings.
    */
-  @Comment("Shiru ka server's game mode.")
-  public static final StringDefaultPath DESCRIPTION_GAME_MODE = string("description.game-mode", "survival");
-
-  /**
-   * the max players that can be online at once.
-   */
-  @Comment("the max players that can be online at once.")
-  public static final IntegerDefaultPath DESCRIPTION_MAX_PLAYERS = integer("description.max-players", 20);
-
-  /**
-   * the description message shown in the server list.
-   */
-  @Comment("the description message shown in the server list.")
-  public static final StringDefaultPath DESCRIPTION_MOTD = string("description.motd", "Shiru ka server");
+  public static Description description;
 
   /**
    * forces to accept incoming resource packs.
    */
   @Comment("forces to accept resource packs to players.")
-  public static final BooleanDefaultPath FORCE_RESOURCES = bool("force-resources", true);
+  @Route("force-resources")
+  public static boolean forceResources = false;
+
+  /**
+   * server's ip address.
+   */
+  @Comment("server's ip address.")
+  @Route("ip")
+  public static String ip = "127.0.0.1";
 
   /**
    * the loaded languages.
    */
   @Comment("loaded languages of the Shiru ka. (will update automatically)")
-  public static final StringListDefaultPath LOADED_LANGUAGES = stringList("loaded-languages", new ObjectArrayList<>());
+  @Route("loaded-languages")
+  public static List<String> loadedLanguages = new ObjectArrayList<>();
 
   /**
    * the maximum login handling per tick.
    */
   @Comment("determines the maximum login process, that will handle, per tick.")
-  public static final IntegerDefaultPath MAX_LOGIN_PER_TICK = integer("max-login-per-tick", 1);
+  @Route("max-login-per-tick")
+  public static int maxLoginPerTick = 1;
 
   /**
    * whether to use Mojang auth to check players.
    */
   @Comment("whether to use Mojang auth to check players.")
-  public static final BooleanDefaultPath ONLINE_MODE = bool("online-mode", true);
+  @Route("online-mode")
+  public static boolean onlineMode = true;
 
   /**
    * ops pass player limit to join the server.
    */
   @Comment("Ops will able to join the server which is full.")
-  public static final BooleanDefaultPath OPS_PASS_PLAYER_LIMIT = bool("ops-pass-player-limit", true);
+  @Route("ops-pass-player-limit")
+  public static boolean opsPassPlayerLimit = true;
 
   /**
    * server's ipv4 port.
    */
   @Comment("server's port.")
-  public static final IntegerDefaultPath PORT = integer("port", 19132);
+  @Route("port")
+  public static int port = 19132;
 
   /**
    * saves the user cache on stop only.
    */
   @Comment("saves the user cache on stop only.")
-  public static final BooleanDefaultPath SAVE_USER_CACHE_ON_STOP_ONLY = bool("save-user-cache-on-stop-only", false);
+  @Route("save-user-cache-on-stop-only")
+  public static boolean saveUserCacheOnStopOnly = false;
 
   /**
-   * the server language.
+   * the section.
    */
-  @Comment("language of the Shiru ka.")
-  public static final LocaleDefaultPath SERVER_LANGUAGE = locale("server-language", Locale.ROOT);
-
-  /**
-   * the timings server name.
-   */
-  @Comment("the timings server name.")
-  public static final StringDefaultPath TIMINGS_SERVER_NAME = string("timings.server-name", "Unknown Server");
+  public static ConfigurationSection section;
 
   /**
    * "true" to use linux natives when available.
    */
   @Comment("\"true\" to use linux natives when available.")
-  public static final BooleanDefaultPath USE_NATIVE = bool("use-native", true);
+  @Route("use-native")
+  public static boolean useNative = true;
 
   /**
    * shows a warning message when server overloads.
    */
   @Comment("shows warning when server overloads.")
-  public static final BooleanDefaultPath WARN_ON_OVERLOAD = bool("warn-on-overload", true);
+  @Route("warn-on-overload")
+  public static boolean warnOnOverload = true;
 
   /**
    * the white list to prevent join random players.
    */
   @Comment("if its \"true\" players that are not in the white list can't join the server.")
-  public static final BooleanDefaultPath WHITE_LIST = bool("white-list", false);
+  @Route("white-list")
+  public static boolean whiteList = false;
 
   /**
    * the loader.
@@ -178,5 +172,32 @@ public final class ServerConfig implements ConfigHolder {
     } catch (final IOException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * a class that represents settings for description of the server.
+   */
+  public static final class Description implements ConfigHolder {
+
+    /**
+     * the game mode.
+     */
+    @Comment("Shiru ka server's game mode.")
+    @Route("game-mode")
+    public static String gameMode = "survival";
+
+    /**
+     * the max players that can be online at once.
+     */
+    @Comment("the max players that can be online at once.")
+    @Route("max-players")
+    public static int maxPlayers = 20;
+
+    /**
+     * the description message shown in the server list.
+     */
+    @Comment("the description message shown in the server list.")
+    @Route("motd")
+    public static String motd = "Shiru ka server";
   }
 }

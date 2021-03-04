@@ -41,6 +41,7 @@ import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
+import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.text.TranslatedTexts;
@@ -273,7 +274,9 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
         final var now = (currentTime = System.nanoTime()) / (1000L * 1000L) - this.nextTick;
         if (now > 5000L && this.nextTick - this.lastOverloadTime >= 30000L) {
           final var waitTime = now / 50L;
-          ShirukaTick.log.warn(TranslatedText.get(ShirukaTick.SERVER_OVERLOAD, now, waitTime));
+          if (ServerConfig.warnOnOverload) {
+            ShirukaTick.log.warn(TranslatedText.get(ShirukaTick.SERVER_OVERLOAD, now, waitTime));
+          }
           this.nextTick += waitTime * 50L;
           this.lastOverloadTime = this.nextTick;
         }

@@ -195,7 +195,7 @@ public final class PlayerList {
     try {
       var tempFile = file;
       boolean wrongFile = false;
-      if (ServerConfig.ONLINE_MODE.getValue().orElse(true) && !file.exists()) {
+      if (ServerConfig.onlineMode && !file.exists()) {
         tempFile = new File(player.getConnection().getServer().getPlayersDirectory(),
           UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)) + ".dat");
         if (tempFile.exists()) {

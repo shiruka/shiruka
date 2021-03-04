@@ -333,7 +333,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public boolean isWhitelistOn() {
-    return ServerConfig.WHITE_LIST.getValue().orElse(false);
+    return ServerConfig.whiteList;
   }
 
   @Override
@@ -526,8 +526,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   public void updatePing() {
     final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
-    identifier.setServerName(ServerConfig.DESCRIPTION_MOTD.getValue().orElse(""));
-    identifier.setWorldName(ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world"));
+    identifier.setServerName(ServerConfig.Description.motd);
+    identifier.setWorldName(ServerConfig.defaultWorldName);
     identifier.setMaxPlayerCount(this.getMaxPlayers());
     identifier.setOnlinePlayerCount(this.getOnlinePlayers().size());
   }
@@ -588,7 +588,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     // @todo #1:15m save all players data here.
     this.getLogger().info("§eSaving worlds.");
     // @todo #1:15m save and close all worlds here.
-    if (ServerConfig.SAVE_USER_CACHE_ON_STOP_ONLY.getValue().orElse(false)) {
+    if (ServerConfig.saveUserCacheOnStopOnly) {
       this.getLogger().info("§eSaving usercache.json.");
       UserCacheConfig.save();
     }

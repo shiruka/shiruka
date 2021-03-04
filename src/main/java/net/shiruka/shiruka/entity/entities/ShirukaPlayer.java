@@ -174,7 +174,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   public boolean canBypassWhitelist() {
     return this.isOp() ||
-      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
+      !ServerConfig.whiteList ||
       this.isWhitelisted();
   }
 
@@ -475,7 +475,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   private OpEntry getOpEntry() {
     if (this.opEntry == null) {
-      this.opEntry = new OpEntry(ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false), this.getProfile());
+      this.opEntry = new OpEntry(ServerConfig.opsPassPlayerLimit, this.getProfile());
     }
     return this.opEntry;
   }

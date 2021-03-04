@@ -72,11 +72,6 @@ import org.jetbrains.annotations.Nullable;
 public final class PlayerConnection implements PacketHandler, Tick {
 
   /**
-   * the maximum login per tick.
-   */
-  private static final int MAX_LOGIN_PER_TICK = ServerConfig.MAX_LOGIN_PER_TICK.getValue().orElse(1);
-
-  /**
    * the name pattern to check client's usernames.
    */
   private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
@@ -178,7 +173,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
     }
     final var handler = this.packetHandler.get();
     if (handler instanceof LoginListener &&
-      PlayerConnection.joinAttemptsThisTick++ < PlayerConnection.MAX_LOGIN_PER_TICK) {
+      PlayerConnection.joinAttemptsThisTick++ < ServerConfig.maxLoginPerTick) {
       handler.tick();
     }
     if (handler instanceof PlayerConnection) {
@@ -509,7 +504,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
         final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
         Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
           Languages.addLoadedLanguage(chainData.getLanguageCode());
-          if (!chainData.isXboxAuthed() && ServerConfig.ONLINE_MODE.getValue().orElse(true)) {
+          if (!chainData.isXboxAuthed() && ServerConfig.onlineMode) {
             PlayerConnection.this.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
             return;
           }
@@ -571,7 +566,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
       final var packManager = Shiruka.getPackManager();
       switch (status) {
         case REFUSED:
-          if (ServerConfig.FORCE_RESOURCES.getValue().orElse(false)) {
+          if (ServerConfig.forceResources) {
             PlayerConnection.this.disconnect(TranslatedTexts.NO_REASON);
           }
           break;

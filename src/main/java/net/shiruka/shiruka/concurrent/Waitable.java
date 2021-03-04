@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.concurrent;
 
 import java.util.concurrent.ExecutionException;
+import lombok.RequiredArgsConstructor;
 import org.cactoos.Scalar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> type of the end vlaue.
  */
+@RequiredArgsConstructor
 public final class Waitable<T> implements Runnable {
 
   /**
@@ -60,15 +62,6 @@ public final class Waitable<T> implements Runnable {
    */
   @Nullable
   private Throwable throwable;
-
-  /**
-   * ctor.
-   *
-   * @param scalar the scalar.
-   */
-  public Waitable(@NotNull final Scalar<T> scalar) {
-    this.scalar = scalar;
-  }
 
   /**
    * obtains the value when the calculation done.

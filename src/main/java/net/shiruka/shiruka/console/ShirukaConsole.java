@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.console;
 
 import java.nio.file.Paths;
+import lombok.RequiredArgsConstructor;
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
 import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +38,7 @@ import org.jline.reader.impl.DefaultParser;
 /**
  * a class that helps developers to run commands with suggestion support in the Shiru ka's console.
  */
+@RequiredArgsConstructor
 public final class ShirukaConsole extends SimpleTerminalConsole {
 
   /**
@@ -60,17 +62,6 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
    * ctor.
    *
    * @param server the server.
-   * @param completer the completer.
-   */
-  public ShirukaConsole(@NotNull final Completer completer, @NotNull final ShirukaServer server) {
-    this.completer = completer;
-    this.server = server;
-  }
-
-  /**
-   * ctor.
-   *
-   * @param server the server.
    */
   public ShirukaConsole(@NotNull final ShirukaServer server) {
     this(new ConsoleCommandCompleter(server), server);
@@ -83,7 +74,7 @@ public final class ShirukaConsole extends SimpleTerminalConsole {
 
   @Override
   protected void runCommand(@NotNull final String command) {
-    this.server.getTick().commandQueue.enqueue(command);
+    this.server.getTick().getCommandQueue().enqueue(command);
   }
 
   @Override

@@ -25,40 +25,40 @@
 
 package net.shiruka.shiruka.config;
 
-import java.io.File;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.ConfigLoader;
+import io.github.portlek.configs.configuration.FileConfiguration;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.shiruka.api.base.BanEntry;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.config.PathableConfig;
 import net.shiruka.shiruka.ban.IpBanEntry;
 import net.shiruka.shiruka.ban.ShirukaIpBanEntry;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents ip ban config.
  */
-public final class IpBanConfig extends PathableConfig {
+public final class IpBanConfig implements ConfigHolder {
 
   /**
-   * the instance.
+   * the configuration.
    */
-  @Nullable
-  private static IpBanConfig instance;
+  private static FileConfiguration configuration;
+
+  /**
+   * the loader.
+   */
+  private static ConfigLoader loader;
 
   /**
    * ctor.
-   *
-   * @param origin the origin.
    */
-  private IpBanConfig(@NotNull final Config origin) {
-    super(origin);
+  private IpBanConfig() {
   }
 
   /**
@@ -67,8 +67,14 @@ public final class IpBanConfig extends PathableConfig {
    * @param entry the entry to add.
    */
   public static void addBanEntry(@NotNull final IpBanEntry entry) {
-    Optional.ofNullable(entry.getKey()).ifPresent(key ->
-      IpBanConfig.getInstance().saveAfterDo(config -> config.set(key, entry.serialize())));
+    Optional.ofNullable(entry.getKey()).ifPresent(key -> {
+      IpBanConfig.configuration.set(key, entry.serialize());
+      try {
+        IpBanConfig.loader.save();
+      } catch (final IOException e) {
+        e.printStackTrace();
+      }
+    });
   }
 
   /**
@@ -78,7 +84,7 @@ public final class IpBanConfig extends PathableConfig {
    */
   @NotNull
   public static Set<BanEntry> getBanEntries() {
-    return IpBanConfig.getInstance().getConfiguration().getKeys(false).stream()
+    return IpBanConfig.configuration.getKeys(false).stream()
       .flatMap(key -> IpBanConfig.getBanEntry(key).stream())
       .collect(Collectors.toSet());
   }
@@ -93,36 +99,12 @@ public final class IpBanConfig extends PathableConfig {
   @NotNull
   public static Optional<BanEntry> getBanEntry(@NotNull final String target) {
     //noinspection unchecked
-    return IpBanConfig.getInstance().get(target)
+    return Optional.ofNullable(IpBanConfig.configuration.get(target))
       .filter(Map.class::isInstance)
       .map(o -> (Map<String, Object>) o)
       .map(IpBanEntry::new)
       .filter(entry -> !entry.hasExpired())
       .map(entry -> new ShirukaIpBanEntry(target, entry));
-  }
-
-  /**
-   * obtains the instance.
-   *
-   * @return instance.
-   */
-  @NotNull
-  public static IpBanConfig getInstance() {
-    return Objects.requireNonNull(IpBanConfig.instance);
-  }
-
-  /**
-   * initiates the ip ban config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(IpBanConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        IpBanConfig.instance = config;
-      });
   }
 
   /**
@@ -133,7 +115,7 @@ public final class IpBanConfig extends PathableConfig {
    * @return {@code true} if the target is banned, {@code false} otherwise.
    */
   public static boolean isBanned(@NotNull final InetSocketAddress target) {
-    return IpBanConfig.getInstance().get(IpBanConfig.convert(target)).isPresent();
+    return IpBanConfig.configuration.contains(IpBanConfig.convert(target));
   }
 
   /**
@@ -153,7 +135,12 @@ public final class IpBanConfig extends PathableConfig {
    * @param target the target to remove.
    */
   public static void remove(@NotNull final String target) {
-    IpBanConfig.getInstance().saveAfterDo(config -> config.remove(target));
+    IpBanConfig.configuration.remove(target);
+    try {
+      IpBanConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**

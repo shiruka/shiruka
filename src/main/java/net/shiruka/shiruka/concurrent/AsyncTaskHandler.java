@@ -30,9 +30,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.BooleanSupplier;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.text.TranslatedText;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,12 +42,9 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> type of the task.
  */
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Log4j2
 public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the tasks.
@@ -56,21 +55,13 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
    * the thread name.
    */
   @NotNull
+  @Getter
   private final String threadName;
 
   /**
    * the blocking count.
    */
   private int blockingCount;
-
-  /**
-   * ctor.
-   *
-   * @param threadName the thread name.
-   */
-  protected AsyncTaskHandler(@NotNull final String threadName) {
-    this.threadName = threadName;
-  }
 
   /**
    * waits for tasks.
@@ -134,16 +125,6 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
   }
 
   /**
-   * obtains the thread name.
-   *
-   * @return thread name.
-   */
-  @NotNull
-  public final String getThreadName() {
-    return this.threadName;
-  }
-
-  /**
    * checks if {@link Thread#currentThread()} is the main thread.
    *
    * @return {@code true} if the current thread is the main thread.
@@ -190,7 +171,7 @@ public abstract class AsyncTaskHandler<T extends Runnable> implements Executor {
       if (exception.getCause() instanceof ThreadDeath) {
         throw exception;
       }
-      AsyncTaskHandler.LOGGER.fatal(TranslatedText.get("shiruka.server.task_error", this.threadName), exception);
+      AsyncTaskHandler.log.fatal(TranslatedText.get("shiruka.server.task_error", this.threadName), exception);
     }
   }
 

@@ -25,6 +25,8 @@
 
 package net.shiruka.shiruka.event.events.server;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.event.events.server.ServerCommandEvent;
@@ -39,18 +41,22 @@ public final class SimpleServerCommandEvent extends SimpleCancellableEvent imple
   /**
    * the async.
    */
-  private final boolean async;
+  @Getter
+  private final boolean async = !Shiruka.isPrimaryThread();
 
   /**
    * the sender.
    */
   @NotNull
+  @Getter
   private final CommandSender sender;
 
   /**
    * the command.
    */
   @NotNull
+  @Getter
+  @Setter
   private String command;
 
   /**
@@ -62,28 +68,5 @@ public final class SimpleServerCommandEvent extends SimpleCancellableEvent imple
   public SimpleServerCommandEvent(@NotNull final CommandSender sender, @NotNull final String command) {
     this.sender = sender;
     this.command = command;
-    this.async = !Shiruka.isPrimaryThread();
-  }
-
-  @NotNull
-  @Override
-  public String getCommand() {
-    return this.command;
-  }
-
-  @Override
-  public void setCommand(@NotNull final String command) {
-    this.command = command;
-  }
-
-  @NotNull
-  @Override
-  public CommandSender getSender() {
-    return this.sender;
-  }
-
-  @Override
-  public boolean isAsync() {
-    return this.async;
   }
 }

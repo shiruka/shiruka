@@ -25,32 +25,25 @@
 
 package net.shiruka.shiruka.config;
 
-import java.io.File;
-import java.util.Objects;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.config.PathableConfig;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.configuration.FileConfiguration;
 import net.shiruka.shiruka.base.OpEntry;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * list of server operators.
  */
-public final class OpsConfig extends PathableConfig {
+public final class OpsConfig implements ConfigHolder {
 
   /**
-   * the instance.
+   * the configuration.
    */
-  @Nullable
-  private static OpsConfig instance;
+  private static FileConfiguration configuration;
 
   /**
    * ctor.
-   *
-   * @param origin the origin.
    */
-  private OpsConfig(@NotNull final Config origin) {
-    super(origin);
+  private OpsConfig() {
   }
 
   /**
@@ -59,33 +52,18 @@ public final class OpsConfig extends PathableConfig {
    * @param entry the entry to add.
    */
   public static void addOp(@NotNull final OpEntry entry) {
-    OpsConfig.getInstance().getConfiguration().set(
-      entry.getProfile().getUniqueId().toString(),
-      entry.serialize());
+    OpsConfig.configuration.set(entry.getProfile().getUniqueId().toString(), entry.serialize());
   }
 
   /**
-   * obtains the instance.
+   * checks if the unique id contains in the file.
    *
-   * @return instance.
-   */
-  @NotNull
-  public static OpsConfig getInstance() {
-    return Objects.requireNonNull(OpsConfig.instance);
-  }
-
-  /**
-   * initiates the server config to the given file.
+   * @param uniqueId the unique id to check.
    *
-   * @param file the file to create.
+   * @return {@code true} if the unique id contains in the file.
    */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(OpsConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        OpsConfig.instance = config;
-      });
+  public static boolean contains(@NotNull final String uniqueId) {
+    return OpsConfig.configuration.contains(uniqueId);
   }
 
   /**
@@ -94,6 +72,6 @@ public final class OpsConfig extends PathableConfig {
    * @param entry the entry to remove.
    */
   public static void removeOp(@NotNull final OpEntry entry) {
-    OpsConfig.getInstance().getConfiguration().remove(entry.getProfile().getUniqueId().toString());
+    OpsConfig.configuration.remove(entry.getProfile().getUniqueId().toString());
   }
 }

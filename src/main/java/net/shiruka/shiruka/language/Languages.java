@@ -25,14 +25,13 @@
 
 package net.shiruka.shiruka.language;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonValue;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import com.fasterxml.jackson.core.type.TypeReference;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -41,16 +40,16 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
+import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that contains language operations.
  */
+@Log4j2
 public final class Languages {
 
   /**
@@ -69,9 +68,10 @@ public final class Languages {
   static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
 
   /**
-   * the logger.
+   * the map type reference.
    */
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final TypeReference<List<String>> LIST_TYPE_REFERENCE = new TypeReference<>() {
+  };
 
   /**
    * the shiruka variables.
@@ -97,7 +97,7 @@ public final class Languages {
   public static void addLoadedLanguage(@NotNull final String locale) {
     if (Languages.setLoadedLanguage(locale)) {
       Languages.loadVariables(locale);
-      ServerConfig.getInstance().save();
+      ServerConfig.save();
     }
   }
 
@@ -180,12 +180,12 @@ public final class Languages {
     final var chosenLanguage = scanner.nextLine();
     final var split = chosenLanguage.split("_");
     if (split.length != 2) {
-      Languages.LOGGER.error("§cPlease write a valid language!");
+      Languages.log.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
     final var upperChosen = Languages.secondUpper(chosenLanguage);
     if (!Languages.AVAILABLE_LANGUAGES.contains(upperChosen)) {
-      Languages.LOGGER.error("§cPlease write a valid language!");
+      Languages.log.error("§cPlease write a valid language!");
       return Languages.choosingLanguageLoop();
     }
     return Languages.toLocale(upperChosen);
@@ -223,14 +223,11 @@ public final class Languages {
    * @throws IOException if something went wrong when reading the file.
    */
   private static void loadAvailableLanguages() throws IOException {
-    Languages.AVAILABLE_LANGUAGES.addAll(
-      Json.parse(
-        new InputStreamReader(
-          Languages.getResource("lang/languages.json"),
-          StandardCharsets.UTF_8))
-        .asArray().values().stream()
-        .map(JsonValue::asString)
-        .collect(Collectors.toUnmodifiableSet()));
+    final var reader = new InputStreamReader(
+      Languages.getResource("lang/languages.json"),
+      StandardCharsets.UTF_8);
+    final var languages = Shiruka.JSON_MAPPER.readValue(reader, Languages.LIST_TYPE_REFERENCE);
+    Languages.AVAILABLE_LANGUAGES.addAll(languages);
     Languages.AVAILABLE_LANGUAGES.forEach(s -> {
       Languages.SHIRUKA_VARIABLES.put(s, new Properties());
       Languages.VANILLA_VARIABLES.put(s, new Properties());
@@ -259,8 +256,7 @@ public final class Languages {
    * loads the loaded languages of the servers.
    */
   private static void loadLoadedLanguages() {
-    ServerConfig.LOADED_LANGUAGES.getValue().ifPresent(strings ->
-      strings.forEach(Languages::loadVariables));
+    ServerConfig.loadedLanguages.forEach(Languages::loadVariables);
   }
 
   /**
@@ -274,16 +270,16 @@ public final class Languages {
     if (serverLanguage.isPresent() && serverLanguage.get() != Locale.ROOT) {
       final var locale = serverLanguage.get();
       if (Languages.setLoadedLanguage(Languages.toString(locale))) {
-        ServerConfig.getInstance().save();
+        ServerConfig.save();
       }
       return locale;
     }
-    Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.LOGGER.info("§7" + s));
-    Languages.LOGGER.info("§aChoose one of the available languages");
+    Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.log.info("§7" + s));
+    Languages.log.info("§aChoose one of the available languages");
     final var locale = Languages.choosingLanguageLoop();
     ServerConfig.SERVER_LANGUAGE.setValue(locale);
     Languages.setLoadedLanguage(Languages.toString(locale));
-    ServerConfig.getInstance().save();
+    ServerConfig.save();
     return locale;
   }
 
@@ -330,13 +326,12 @@ public final class Languages {
     if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
       return false;
     }
-    final var value = ServerConfig.LOADED_LANGUAGES.getValue()
-      .orElse(new ObjectArrayList<>());
+    final var value = ServerConfig.loadedLanguages;
     if (value.contains(locale)) {
       return false;
     }
     value.add(locale);
-    ServerConfig.LOADED_LANGUAGES.setValue(value);
+    ServerConfig.section.set("loaded-languages", value);
     return true;
   }
 }

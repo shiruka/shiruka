@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.command;
 
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.command.CommandDispatcher;
 import net.shiruka.api.command.CommandException;
 import net.shiruka.api.command.CommandManager;
@@ -39,13 +40,12 @@ import net.shiruka.shiruka.command.commands.HelpCommand;
 import net.shiruka.shiruka.command.commands.MsPTCommand;
 import net.shiruka.shiruka.command.commands.StopCommand;
 import net.shiruka.shiruka.command.commands.TpsCommand;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link CommandManager}.
  */
+@Log4j2
 public final class SimpleCommandManager implements CommandManager {
 
   /**
@@ -53,11 +53,6 @@ public final class SimpleCommandManager implements CommandManager {
    */
   @NotNull
   private static final CommandDispatcher DISPATCHER;
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the not found.
@@ -110,7 +105,7 @@ public final class SimpleCommandManager implements CommandManager {
         return;
       }
       // @todo #1:5m Add language support for An exception caught when running a command.
-      SimpleCommandManager.LOGGER.error("An exception caught when running a command: ", e);
+      SimpleCommandManager.log.error("An exception caught when running a command: ", e);
     }
   }
 

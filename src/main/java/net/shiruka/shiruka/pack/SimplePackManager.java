@@ -41,11 +41,14 @@ import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.pack.Pack;
 import net.shiruka.api.pack.PackLoader;
 import net.shiruka.api.pack.PackManager;
 import net.shiruka.api.pack.PackManifest;
+import net.shiruka.api.pack.PackType;
 import net.shiruka.api.pack.ResourcePackType;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaMain;
@@ -55,19 +58,13 @@ import net.shiruka.shiruka.network.packets.PackStackPacket;
 import net.shiruka.shiruka.pack.loader.RplDirectory;
 import net.shiruka.shiruka.pack.loader.RplZip;
 import net.shiruka.shiruka.pack.pack.ResourcePack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link PackManager}.
  */
+@Log4j2
 public final class SimplePackManager implements PackManager {
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the manifest path.
@@ -92,7 +89,7 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs.
    */
-  private final EnumMap<PackManifest.PackType, Pack.Factory> packFactories = new EnumMap<>(PackManifest.PackType.class);
+  private final EnumMap<PackType, Pack.Factory> packFactories = new EnumMap<>(PackType.class);
 
   /**
    * the packs info packet.
@@ -107,6 +104,7 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs.
    */
+  @Getter
   private final Map<String, Pack> packs = new Object2ObjectOpenHashMap<>();
 
   /**
@@ -129,8 +127,7 @@ public final class SimplePackManager implements PackManager {
   @Override
   public void closeRegistration() {
     this.checkClosed();
-    final var mustAccept = (boolean) ServerConfig.FORCE_RESOURCES.getValue()
-      .orElse(false);
+    final var mustAccept = ServerConfig.forceResources;
     this.packInfo.set(new PackInfoPacket(Collections.emptyList(),
       mustAccept,
       new ObjectArrayList<>(this.packs.values().stream()
@@ -181,7 +178,7 @@ public final class SimplePackManager implements PackManager {
         return Optional.of(PackManifest.load(asset.get()));
       }
     } catch (final IllegalStateException | IOException e) {
-      SimplePackManager.LOGGER.error(String.format("Failed to load %s", loader.getLocation()), e);
+      SimplePackManager.log.error(String.format("Failed to load %s", loader.getLocation()), e);
     }
     return Optional.empty();
   }
@@ -208,12 +205,6 @@ public final class SimplePackManager implements PackManager {
   @Override
   public Object getPackStack() {
     return this.packStack.get();
-  }
-
-  @NotNull
-  @Override
-  public Map<String, Pack> getPacks() {
-    return Collections.unmodifiableMap(this.packs);
   }
 
   @Override
@@ -245,7 +236,7 @@ public final class SimplePackManager implements PackManager {
         loaders.add(loader.get());
       }
     } catch (final IOException e) {
-      SimplePackManager.LOGGER.error("", e);
+      SimplePackManager.log.error("", e);
     }
     final var manifestMap = new Object2ObjectOpenHashMap<UUID, PackManifest>();
     final var loaderMap = new Object2ObjectOpenHashMap<UUID, PackLoader>();
@@ -255,7 +246,7 @@ public final class SimplePackManager implements PackManager {
         return;
       }
       final var manifest = optional.get();
-      final var uuid = manifest.getHeader().getUuid();
+      final var uuid = manifest.getHeader().getUniqueId();
       manifestMap.put(uuid, manifest);
       loaderMap.put(uuid, loader);
     });
@@ -285,19 +276,19 @@ public final class SimplePackManager implements PackManager {
       missingDependencies.stream()
         .map(pack -> pack.getHeader().getName() + ":" + pack.getHeader().getVersion())
         .forEach(joiner::add);
-      SimplePackManager.LOGGER.error("Could not load packs due to missing dependencies {}", joiner);
+      SimplePackManager.log.error("Could not load packs due to missing dependencies {}", joiner);
     }
     for (final var manifest : manifestMap.values()) {
-      final var loader = loaderMap.get(manifest.getHeader().getUuid());
+      final var loader = loaderMap.get(manifest.getHeader().getUniqueId());
       final var module = manifest.getModules().get(0);
       final var factory = this.packFactories.get(module.getType());
       if (factory == null) {
-        SimplePackManager.LOGGER.warn("Unsupported pack type {}", module.getType());
+        SimplePackManager.log.warn("Unsupported pack type {}", module.getType());
         continue;
       }
       this.putPack(manifest, loader, factory, module);
     }
-    SimplePackManager.LOGGER.debug(TranslatedText.get(SimplePackManager.PACK_SUCCESS, manifestMap.size()));
+    SimplePackManager.log.debug(TranslatedText.get(SimplePackManager.PACK_SUCCESS, manifestMap.size()));
   }
 
   @Override
@@ -308,7 +299,7 @@ public final class SimplePackManager implements PackManager {
   }
 
   @Override
-  public void registerPack(@NotNull final PackManifest.PackType type, @NotNull final Pack.Factory factory) {
+  public void registerPack(@NotNull final PackType type, @NotNull final Pack.Factory factory) {
     Preconditions.checkArgument(this.packFactories.putIfAbsent(type, factory) == null,
       "The pack factory is already registered!");
   }
@@ -320,7 +311,7 @@ public final class SimplePackManager implements PackManager {
     Shiruka.getLogger().debug("§7Reloading packs.");
     this.registerLoader(RplZip.class, RplZip.FACTORY);
     this.registerLoader(RplDirectory.class, RplDirectory.FACTORY);
-    this.registerPack(PackManifest.PackType.RESOURCES, ResourcePack.FACTORY);
+    this.registerPack(PackType.RESOURCES, ResourcePack.FACTORY);
     if (Files.notExists(SimplePackManager.PACKS_PATH)) {
       try {
         Files.createDirectory(SimplePackManager.PACKS_PATH);
@@ -351,7 +342,7 @@ public final class SimplePackManager implements PackManager {
    */
   private void putPack(@NotNull final PackManifest manifest, @NotNull final PackLoader loader, @NotNull final Pack.Factory factory,
                        @NotNull final PackManifest.Module module) {
-    final var uuid = manifest.getHeader().getUuid();
+    final var uuid = manifest.getHeader().getUniqueId();
     final var pack = factory.create(loader, manifest, module);
     this.packs.put(uuid + "_" + manifest.getHeader().getVersion(), pack);
     this.packsById.put(uuid, pack);

@@ -25,9 +25,9 @@
 
 package net.shiruka.shiruka.plugin;
 
+import io.github.portlek.configs.configuration.FileConfiguration;
 import java.io.File;
 import java.io.InputStream;
-import net.shiruka.api.config.config.YamlConfig;
 import net.shiruka.api.plugin.InvalidDescriptionException;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.plugin.PluginDescriptionFile;
@@ -65,7 +65,7 @@ public final class InternalShirukaPlugin implements Plugin {
 
   @NotNull
   @Override
-  public YamlConfig getConfig() {
+  public FileConfiguration getConfig() {
     throw new UnsupportedOperationException();
   }
 

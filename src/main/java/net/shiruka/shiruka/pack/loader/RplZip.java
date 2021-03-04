@@ -36,15 +36,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.pack.PackLoader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple zip implementation for {@link PackLoader}.
  */
+@RequiredArgsConstructor
 public final class RplZip implements PackLoader {
 
   /**
@@ -53,10 +55,11 @@ public final class RplZip implements PackLoader {
   public static final Factory FACTORY = new ZipFactory();
 
   /**
-   * the path.
+   * the location.
    */
   @NotNull
-  private final Path path;
+  @Getter
+  private final Path location;
 
   /**
    * the zip file.
@@ -73,23 +76,12 @@ public final class RplZip implements PackLoader {
   /**
    * ctor.
    *
-   * @param path tha path.
-   * @param zipFile the zip file.
-   */
-  private RplZip(@NotNull final Path path, @NotNull final ZipFile zipFile) {
-    this.path = path;
-    this.zipFile = zipFile;
-  }
-
-  /**
-   * ctor.
-   *
-   * @param path the path.
+   * @param location the path.
    *
    * @throws IOException if an I/O error has occurred.
    */
-  public RplZip(@NotNull final Path path) throws IOException {
-    this(path, new ZipFile(path.toFile()));
+  public RplZip(@NotNull final Path location) throws IOException {
+    this(location, new ZipFile(location.toFile()));
   }
 
   @Override
@@ -124,15 +116,9 @@ public final class RplZip implements PackLoader {
 
   @NotNull
   @Override
-  public Path getLocation() {
-    return this.path;
-  }
-
-  @NotNull
-  @Override
   public CompletableFuture<Path> getPreparedFile() {
     if (this.preparedFile == null) {
-      this.preparedFile = CompletableFuture.completedFuture(this.path);
+      this.preparedFile = CompletableFuture.completedFuture(this.location);
     }
     return this.preparedFile;
   }
@@ -169,12 +155,8 @@ public final class RplZip implements PackLoader {
   /**
    * a class that represents zip pack loader factories.
    */
+  @Log4j2
   private static final class ZipFactory implements PackLoader.Factory {
-
-    /**
-     * the logger.
-     */
-    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * zip pack loader name matcher.
@@ -192,7 +174,7 @@ public final class RplZip implements PackLoader {
       try {
         return new RplZip(path);
       } catch (final IOException e) {
-        ZipFactory.LOGGER.error("The path is not a zip file!", e);
+        ZipFactory.log.error("The path is not a zip file!", e);
       }
       return null;
     }

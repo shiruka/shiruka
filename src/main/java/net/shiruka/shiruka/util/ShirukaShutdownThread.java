@@ -25,12 +25,14 @@
 
 package net.shiruka.shiruka.util;
 
+import lombok.RequiredArgsConstructor;
 import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that tries to shutdown Shiru ka server.
  */
+@RequiredArgsConstructor
 public final class ShirukaShutdownThread extends Thread {
 
   /**
@@ -38,15 +40,6 @@ public final class ShirukaShutdownThread extends Thread {
    */
   @NotNull
   private final ShirukaServer server;
-
-  /**
-   * ctor.
-   *
-   * @param server the server.
-   */
-  public ShirukaShutdownThread(@NotNull final ShirukaServer server) {
-    this.server = server;
-  }
 
   @Override
   public void run() {
@@ -63,7 +56,7 @@ public final class ShirukaShutdownThread extends Thread {
       }
       AsyncCatcher.enabled = false;
       AsyncCatcher.shuttingDown = true;
-      this.server.getTick().forceTicks = true;
+      this.server.getTick().setForceTicks(true);
       this.server.stopServer();
       while (!this.server.hasFullyShutdown) {
         Thread.sleep(1000L);

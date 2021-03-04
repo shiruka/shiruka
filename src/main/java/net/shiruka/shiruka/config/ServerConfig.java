@@ -25,193 +25,179 @@
 
 package net.shiruka.shiruka.config;
 
-import static net.shiruka.api.config.Paths.booleanPath;
-import static net.shiruka.api.config.Paths.commented;
-import static net.shiruka.api.config.Paths.integerPath;
-import static net.shiruka.api.config.Paths.listStringPath;
-import static net.shiruka.api.config.Paths.localePath;
-import static net.shiruka.api.config.Paths.stringPath;
+import static io.github.portlek.configs.util.Paths.locale;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.ConfigLoader;
+import io.github.portlek.configs.annotation.Comment;
+import io.github.portlek.configs.annotation.Route;
+import io.github.portlek.configs.configuration.ConfigurationSection;
+import io.github.portlek.configs.paths.def.LocaleDefaultPath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.ConfigPath;
-import net.shiruka.api.config.config.PathableConfig;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * this class contains the constant values whenever the server loads the properties file in order to shortcut access to
  * each of the values.
  */
-public final class ServerConfig extends PathableConfig {
+public final class ServerConfig implements ConfigHolder {
 
   /**
-   * server's ip address.
+   * the server language.
    */
-  public static final ConfigPath<String> ADDRESS_IP = commented(stringPath(
-    "ip", "127.0.0.1"),
-    "server's ip address.");
+  @Comment("language of the Shiru ka.")
+  public static final LocaleDefaultPath SERVER_LANGUAGE = locale("server-language", Locale.ROOT);
 
   /**
    * the amount of bytes before compressing packets.
    * <p>
    * use -1 to disable.
    */
-  public static final ConfigPath<Integer> COMPRESSION_THRESHOLD = commented(integerPath(
-    "compression-threshold", 256),
-    "the amount of bytes before compressing packets.\n" + "use -1 to disable.");
+  @Comment("the amount of bytes before compressing packets.\n" + "use -1 to disable.")
+  @Route("compression-threshold")
+  public static int compressionThreshold = 256;
 
   /**
    * name of the over world.
    */
-  public static final ConfigPath<String> DEFAULT_WORLD_NAME = commented(stringPath(
-    "default-world-name", "world"),
-    "name of the over world.");
+  @Comment("name of the over world.")
+  @Route("default-world-name")
+  public static String defaultWorldName = "world";
 
   /**
-   * the game mode.
+   * the description settings.
    */
-  public static final ConfigPath<String> DESCRIPTION_GAME_MODE = commented(stringPath(
-    "description.game-mode", "survival"),
-    "Shiru ka server's game mode.");
-
-  /**
-   * the max players that can be online at once.
-   */
-  public static final ConfigPath<Integer> DESCRIPTION_MAX_PLAYERS = commented(integerPath(
-    "description.max-players", 20),
-    "the max players that can be online at once.");
-
-  /**
-   * the description message shown in the server list.
-   */
-  public static final ConfigPath<String> DESCRIPTION_MOTD = commented(stringPath(
-    "description.motd", "Shiru ka server"),
-    "the description message shown in the server list.");
+  public static Description description;
 
   /**
    * forces to accept incoming resource packs.
    */
-  public static final ConfigPath<Boolean> FORCE_RESOURCES = commented(booleanPath(
-    "force-resources", true),
-    "forces to accept resource packs to players.");
+  @Comment("forces to accept resource packs to players.")
+  @Route("force-resources")
+  public static boolean forceResources = false;
+
+  /**
+   * server's ip address.
+   */
+  @Comment("server's ip address.")
+  @Route("ip")
+  public static String ip = "127.0.0.1";
 
   /**
    * the loaded languages.
    */
-  public static final ConfigPath<List<String>> LOADED_LANGUAGES = commented(listStringPath(
-    "loaded-languages", new ObjectArrayList<>()),
-    "loaded languages of the Shiru ka. (will update automatically)");
+  @Comment("loaded languages of the Shiru ka. (will update automatically)")
+  @Route("loaded-languages")
+  public static List<String> loadedLanguages = new ObjectArrayList<>();
 
   /**
    * the maximum login handling per tick.
    */
-  public static final ConfigPath<Integer> MAX_LOGIN_PER_TICK = commented(integerPath(
-    "max-login-per-tick", 1),
-    "determines the maximum login process, that will handle, per tick.");
+  @Comment("determines the maximum login process, that will handle, per tick.")
+  @Route("max-login-per-tick")
+  public static int maxLoginPerTick = 1;
 
   /**
    * whether to use Mojang auth to check players.
    */
-  public static final ConfigPath<Boolean> ONLINE_MODE = commented(booleanPath(
-    "online-mode", true),
-    "whether to use Mojang auth to check players.");
+  @Comment("whether to use Mojang auth to check players.")
+  @Route("online-mode")
+  public static boolean onlineMode = true;
 
   /**
    * ops pass player limit to join the server.
    */
-  public static final ConfigPath<Boolean> OPS_PASS_PLAYER_LIMIT = commented(booleanPath(
-    "ops-pass-player-limit", true),
-    "Ops will able to join the server which is full.");
+  @Comment("Ops will able to join the server which is full.")
+  @Route("ops-pass-player-limit")
+  public static boolean opsPassPlayerLimit = true;
 
   /**
    * server's ipv4 port.
    */
-  public static final ConfigPath<Integer> PORT = commented(integerPath(
-    "port", 19132),
-    "server's port.");
+  @Comment("server's port.")
+  @Route("port")
+  public static int port = 19132;
 
   /**
    * saves the user cache on stop only.
    */
-  public static final ConfigPath<Boolean> SAVE_USER_CACHE_ON_STOP_ONLY = commented(booleanPath(
-    "save-user-cache-on-stop-only", false),
-    "saves the user cache on stop only.");
+  @Comment("saves the user cache on stop only.")
+  @Route("save-user-cache-on-stop-only")
+  public static boolean saveUserCacheOnStopOnly = false;
 
   /**
-   * the server language.
+   * the section.
    */
-  public static final ConfigPath<Locale> SERVER_LANGUAGE = commented(localePath(
-    "server-language", Locale.ROOT),
-    "language of the Shiru ka.");
-
-  /**
-   * the timings server name.
-   */
-  public static final ConfigPath<String> TIMINGS_SERVER_NAME = commented(stringPath(
-    "timings.server-name", "Unknown Server"),
-    "the timings server name.");
+  public static ConfigurationSection section;
 
   /**
    * "true" to use linux natives when available.
    */
-  public static final ConfigPath<Boolean> USE_NATIVE = commented(booleanPath(
-    "use-native", true),
-    "\"true\" to use linux natives when available.");
+  @Comment("\"true\" to use linux natives when available.")
+  @Route("use-native")
+  public static boolean useNative = true;
 
   /**
    * shows a warning message when server overloads.
    */
-  public static final ConfigPath<Boolean> WARN_ON_OVERLOAD = commented(booleanPath(
-    "warn-on-overload", true),
-    "shows warning when server overloads.");
+  @Comment("shows warning when server overloads.")
+  @Route("warn-on-overload")
+  public static boolean warnOnOverload = true;
 
   /**
    * the white list to prevent join random players.
    */
-  public static final ConfigPath<Boolean> WHITE_LIST = commented(booleanPath(
-    "white-list", false),
-    "if its \"true\" players that are not in the white list can't join the server.");
+  @Comment("if its \"true\" players that are not in the white list can't join the server.")
+  @Route("white-list")
+  public static boolean whiteList = false;
 
   /**
-   * the instance.
+   * the loader.
    */
-  @Nullable
-  private static ServerConfig instance;
+  private static ConfigLoader loader;
 
   /**
    * ctor.
-   *
-   * @param origin the origin.
    */
-  private ServerConfig(@NotNull final Config origin) {
-    super(origin);
+  private ServerConfig() {
   }
 
   /**
-   * obtains the instance.
-   *
-   * @return instance.
+   * saves the file.
    */
-  @NotNull
-  public static Config getInstance() {
-    return Objects.requireNonNull(ServerConfig.instance);
+  public static void save() {
+    try {
+      ServerConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
+   * a class that represents settings for description of the server.
    */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(ServerConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        ServerConfig.instance = config;
-      });
+  public static final class Description implements ConfigHolder {
+
+    /**
+     * the game mode.
+     */
+    @Comment("Shiru ka server's game mode.")
+    @Route("game-mode")
+    public static String gameMode = "survival";
+
+    /**
+     * the max players that can be online at once.
+     */
+    @Comment("the max players that can be online at once.")
+    @Route("max-players")
+    public static int maxPlayers = 20;
+
+    /**
+     * the description message shown in the server list.
+     */
+    @Comment("the description message shown in the server list.")
+    @Route("motd")
+    public static String motd = "Shiru ka server";
   }
 }

@@ -28,6 +28,8 @@ package net.shiruka.shiruka;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.server.RakNetServer;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.ConfigLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -42,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.util.ThrowableRunnable;
 import net.shiruka.shiruka.config.IpBanConfig;
@@ -60,7 +63,6 @@ import net.shiruka.shiruka.util.ShirukaShutdownThread;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -68,6 +70,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a Java main class to start the Shiru ka's server.
  */
+@Log4j2
 public final class ShirukaMain {
 
   /**
@@ -99,11 +102,6 @@ public final class ShirukaMain {
    * the Path directory to the working dir.
    */
   public static final Path HOME_PATH = Paths.get(ShirukaMain.HOME);
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the players directory.
@@ -139,6 +137,22 @@ public final class ShirukaMain {
   }
 
   /**
+   * initiates the file.
+   *
+   * @param file the file to initiate.
+   * @param holder the holder to initiate.
+   */
+  public static void config(@NotNull final File file, @NotNull final Class<? extends ConfigHolder> holder) {
+    ConfigLoader.builder()
+      .setFolderPath(file.getAbsoluteFile().getParentFile())
+      .setFileName(com.google.common.io.Files.getNameWithoutExtension(file.getName()))
+      .setPathHolder(holder)
+      .setConfigType(SystemUtils.getType(file))
+      .build()
+      .load(true);
+  }
+
+  /**
    * runs the Java program.
    *
    * @param args the args to run.
@@ -163,8 +177,8 @@ public final class ShirukaMain {
     }
     final var here = ShirukaMain.HOME;
     if (here.contains("!") || here.contains("+")) {
-      ShirukaMain.LOGGER.warn("§cCannot run server in a directory with ! or + in the pathname.");
-      ShirukaMain.LOGGER.warn("§cPlease rename the affected folders and try again.");
+      ShirukaMain.log.warn("§cCannot run server in a directory with ! or + in the pathname.");
+      ShirukaMain.log.warn("§cPlease rename the affected folders and try again.");
       return;
     }
     if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
@@ -197,19 +211,15 @@ public final class ShirukaMain {
    */
   @NotNull
   private static RakNetServer createSocket() {
-    final var ip = ServerConfig.ADDRESS_IP.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"ip\" not found in the server config!"));
-    final var port = ServerConfig.PORT.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"port\" not found in the server config!"));
-    final var maxPlayer = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue()
-      .orElseThrow(() -> new IllegalStateException("\"max-players\" not found in the server config!"));
-    final var gameMode = ServerConfig.DESCRIPTION_GAME_MODE.getValue().orElse("Survival");
-    final var maxPlayers = ServerConfig.DESCRIPTION_MAX_PLAYERS.getValue().orElse(10);
-    final var motd = ServerConfig.DESCRIPTION_MOTD.getValue().orElse("");
-    final var worldName = ServerConfig.DEFAULT_WORLD_NAME.getValue().orElse("world");
+    final var ip = ServerConfig.ip;
+    final var port = ServerConfig.port;
+    final var gameMode = ServerConfig.Description.gameMode;
+    final var maxPlayers = ServerConfig.Description.maxPlayers;
+    final var motd = ServerConfig.Description.motd;
+    final var worldName = ServerConfig.defaultWorldName;
     final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
       ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, 0L, worldName, gameMode);
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayer, identifier);
+    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayers, identifier);
     identifier.setServerGloballyUniqueId(socket.getGloballyUniqueId());
     return socket;
   }
@@ -227,16 +237,16 @@ public final class ShirukaMain {
   @NotNull
   private static File createsServerFile(@NotNull final File file, final boolean directory) throws IOException {
     if (directory) {
-      ShirukaMain.LOGGER.debug("§7Checking for {} directory.", file.getName());
+      ShirukaMain.log.debug("§7Checking for {} directory.", file.getName());
       if (!Files.exists(file.toPath())) {
-        ShirukaMain.LOGGER.debug("§7Directory {} not present, creating one for you.", file.getName());
+        ShirukaMain.log.debug("§7Directory {} not present, creating one for you.", file.getName());
         Files.createDirectory(file.toPath());
       }
       return file;
     }
-    ShirukaMain.LOGGER.debug("§7Checking for {} file.", file.getName());
+    ShirukaMain.log.debug("§7Checking for {} file.", file.getName());
     if (!Files.exists(file.toPath())) {
-      ShirukaMain.LOGGER.debug("§7File {} not present, creating one for you.", file.getName());
+      ShirukaMain.log.debug("§7File {} not present, creating one for you.", file.getName());
       Files.createFile(file.toPath());
     }
     return file;
@@ -284,11 +294,11 @@ public final class ShirukaMain {
   private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
     ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
     ShirukaMain.playersDirectory = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLAYERS, true);
-    ServerConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG));
-    OpsConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS));
-    UserCacheConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE));
-    IpBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS));
-    ProfileBanConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS));
-    WhitelistConfig.init(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST));
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG), ServerConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS), OpsConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE), UserCacheConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS), IpBanConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS), ProfileBanConfig.class);
+    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST), WhitelistConfig.class);
   }
 }

@@ -25,36 +25,35 @@
 
 package net.shiruka.shiruka.config;
 
-import java.io.File;
-import java.util.Objects;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.ConfigLoader;
+import io.github.portlek.configs.configuration.FileConfiguration;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import net.shiruka.api.base.GameProfile;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.config.PathableConfig;
 import net.shiruka.shiruka.ShirukaMain;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.simpleyaml.configuration.file.FileConfiguration;
 
 /**
  * list of server operators.
  */
-public final class UserCacheConfig extends PathableConfig {
+public final class UserCacheConfig implements ConfigHolder {
 
   /**
-   * the instance.
+   * the configuration.
    */
-  @Nullable
-  private static UserCacheConfig instance;
+  private static FileConfiguration configuration;
+
+  /**
+   * the loader.
+   */
+  private static ConfigLoader loader;
 
   /**
    * ctor.
-   *
-   * @param origin the origin.
    */
-  private UserCacheConfig(@NotNull final Config origin) {
-    super(origin);
+  private UserCacheConfig() {
   }
 
   /**
@@ -73,33 +72,12 @@ public final class UserCacheConfig extends PathableConfig {
    * @param asyncSave the async save to add.
    */
   public static void addProfile(@NotNull final GameProfile profile, final boolean asyncSave) {
-    final var config = UserCacheConfig.getInstance();
-    config.set(profile.getUniqueId().toString(), profile.serialize());
+    UserCacheConfig.configuration.set(profile.getUniqueId().toString(), profile.serialize());
     if (asyncSave) {
-      ShirukaMain.ASYNC_EXECUTOR.execute(config::save);
+      ShirukaMain.ASYNC_EXECUTOR.execute(UserCacheConfig::save);
     } else {
-      config.save();
+      UserCacheConfig.save();
     }
-  }
-
-  /**
-   * obtains the instance.
-   *
-   * @return instance.
-   */
-  @NotNull
-  public static FileConfiguration getConfig() {
-    return UserCacheConfig.getInstance().getConfiguration();
-  }
-
-  /**
-   * obtains the instance.
-   *
-   * @return instance.
-   */
-  @NotNull
-  public static UserCacheConfig getInstance() {
-    return Objects.requireNonNull(UserCacheConfig.instance);
   }
 
   /**
@@ -123,9 +101,9 @@ public final class UserCacheConfig extends PathableConfig {
    */
   @NotNull
   public static Optional<GameProfile> getProfileByUniqueId(@NotNull final UUID uniqueId) {
-    var section = UserCacheConfig.getConfig().getConfigurationSection(uniqueId.toString());
+    var section = UserCacheConfig.configuration.getConfigurationSection(uniqueId.toString());
     if (section == null) {
-      section = UserCacheConfig.getConfig().createSection(uniqueId.toString());
+      section = UserCacheConfig.configuration.createSection(uniqueId.toString());
     }
     return GameProfile.deserialize(section.getMapValues(false));
   }
@@ -143,16 +121,13 @@ public final class UserCacheConfig extends PathableConfig {
   }
 
   /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
+   * saves the file.
    */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(UserCacheConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        UserCacheConfig.instance = config;
-      });
+  public static void save() {
+    try {
+      UserCacheConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 }

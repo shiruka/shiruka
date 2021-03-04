@@ -26,6 +26,10 @@
 package net.shiruka.shiruka.event.events.player;
 
 import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.event.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.text.Text;
@@ -36,54 +40,27 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a simple implementation for {@link PlayerPreLoginEvent}.
  */
+@AllArgsConstructor
+@RequiredArgsConstructor
 public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent implements PlayerPreLoginEvent {
 
   /**
    * the chain data.
    */
   @NotNull
+  @Getter
   private final ChainData chainData;
 
   /**
    * the kick message.
    */
   @Nullable
+  @Setter
   private Text kickMessage;
-
-  /**
-   * ctor.
-   *
-   * @param chainData the chain data.
-   * @param kickMessage the kick message.
-   */
-  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData, @Nullable final Text kickMessage) {
-    this.chainData = chainData;
-    this.kickMessage = kickMessage;
-  }
-
-  /**
-   * ctor.
-   *
-   * @param chainData the chain data.
-   */
-  public SimplePlayerPreLoginEvent(@NotNull final ChainData chainData) {
-    this(chainData, null);
-  }
-
-  @NotNull
-  @Override
-  public ChainData getChainData() {
-    return this.chainData;
-  }
 
   @NotNull
   @Override
   public Optional<Text> getKickMessage() {
     return Optional.ofNullable(this.kickMessage);
-  }
-
-  @Override
-  public void setKickMessage(@Nullable final Text message) {
-    this.kickMessage = message;
   }
 }

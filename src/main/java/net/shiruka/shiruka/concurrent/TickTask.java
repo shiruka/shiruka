@@ -25,11 +25,14 @@
 
 package net.shiruka.shiruka.concurrent;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents tick tasks.
  */
+@RequiredArgsConstructor
 public final class TickTask implements Runnable {
 
   /**
@@ -41,27 +44,8 @@ public final class TickTask implements Runnable {
   /**
    * the job.
    */
+  @Getter
   private final int tick;
-
-  /**
-   * ctor.
-   *
-   * @param job the job.
-   * @param tick the tick.
-   */
-  public TickTask(@NotNull final Runnable job, final int tick) {
-    this.job = job;
-    this.tick = tick;
-  }
-
-  /**
-   * obtains the tick.
-   *
-   * @return tick.
-   */
-  public int getTick() {
-    return this.tick;
-  }
 
   @Override
   public void run() {

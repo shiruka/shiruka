@@ -25,56 +25,25 @@
 
 package net.shiruka.shiruka.config;
 
-import java.io.File;
-import java.util.Objects;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.configuration.FileConfiguration;
 import java.util.UUID;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.config.PathableConfig;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a configuration to hold white-listed players.
  */
-public final class WhitelistConfig extends PathableConfig {
+public final class WhitelistConfig implements ConfigHolder {
 
   /**
-   * the instance.
+   * the configuration.
    */
-  @Nullable
-  private static WhitelistConfig instance;
+  private static FileConfiguration configuration;
 
   /**
    * ctor.
-   *
-   * @param origin the origin.
    */
-  private WhitelistConfig(@NotNull final Config origin) {
-    super(origin);
-  }
-
-  /**
-   * obtains the instance.
-   *
-   * @return instance.
-   */
-  @NotNull
-  public static Config getInstance() {
-    return Objects.requireNonNull(WhitelistConfig.instance);
-  }
-
-  /**
-   * initiates the server config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(WhitelistConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        WhitelistConfig.instance = config;
-      });
+  private WhitelistConfig() {
   }
 
   /**
@@ -85,6 +54,6 @@ public final class WhitelistConfig extends PathableConfig {
    * @return {@code true} if the xbox unique id is in the whitelist.
    */
   public static boolean isInWhitelist(@NotNull final UUID uniqueId) {
-    return WhitelistConfig.getInstance().getConfiguration().contains(uniqueId.toString());
+    return WhitelistConfig.configuration.contains(uniqueId.toString());
   }
 }

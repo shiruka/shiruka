@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.event.events.LoginResultEvent;
@@ -56,6 +57,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents player list.
  */
+@RequiredArgsConstructor
 public final class PlayerList {
 
   /**
@@ -98,15 +100,6 @@ public final class PlayerList {
    */
   @NotNull
   private final ShirukaServer server;
-
-  /**
-   * ctor.
-   *
-   * @param server the server.
-   */
-  public PlayerList(@NotNull final ShirukaServer server) {
-    this.server = server;
-  }
 
   /**
    * gets the active player from {@link #playersByUniqueId} or {@link #pendingPlayers}.
@@ -202,7 +195,7 @@ public final class PlayerList {
     try {
       var tempFile = file;
       boolean wrongFile = false;
-      if (ServerConfig.ONLINE_MODE.getValue().orElse(true) && !file.exists()) {
+      if (ServerConfig.onlineMode && !file.exists()) {
         tempFile = new File(player.getConnection().getServer().getPlayersDirectory(),
           UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)) + ".dat");
         if (tempFile.exists()) {
@@ -260,7 +253,7 @@ public final class PlayerList {
       this.server.getDefaultWorld().orElse(null));
     player.spawnIn(world);
     // @todo #1:1m Continue to development here.
-    this.server.getTick().lastPingTime = 0L;
+    this.server.getTick().setLastPingTime(0L);
   }
 
   /**

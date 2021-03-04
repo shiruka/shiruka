@@ -25,38 +25,38 @@
 
 package net.shiruka.shiruka.config;
 
-import java.io.File;
+import io.github.portlek.configs.ConfigHolder;
+import io.github.portlek.configs.ConfigLoader;
+import io.github.portlek.configs.configuration.FileConfiguration;
+import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.shiruka.api.base.BanEntry;
-import net.shiruka.api.config.Config;
-import net.shiruka.api.config.config.PathableConfig;
 import net.shiruka.shiruka.ban.ProfileBanEntry;
 import net.shiruka.shiruka.ban.ShirukaProfileBanEntry;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents ip ban config.
  */
-public final class ProfileBanConfig extends PathableConfig {
+public final class ProfileBanConfig implements ConfigHolder {
 
   /**
-   * the instance.
+   * the configuration.
    */
-  @Nullable
-  private static ProfileBanConfig instance;
+  private static FileConfiguration configuration;
+
+  /**
+   * the loader.
+   */
+  private static ConfigLoader loader;
 
   /**
    * ctor.
-   *
-   * @param origin the origin.
    */
-  private ProfileBanConfig(@NotNull final Config origin) {
-    super(origin);
+  private ProfileBanConfig() {
   }
 
   /**
@@ -65,9 +65,14 @@ public final class ProfileBanConfig extends PathableConfig {
    * @param entry the entry to add.
    */
   public static void addBanEntry(@NotNull final ProfileBanEntry entry) {
-    Optional.ofNullable(entry.getKey()).ifPresent(key ->
-      ProfileBanConfig.getInstance().saveAfterDo(config ->
-        config.set(key.getUniqueId().toString(), entry.serialize())));
+    Optional.ofNullable(entry.getKey()).ifPresent(key -> {
+      ProfileBanConfig.configuration.set(key.getUniqueId().toString(), entry.serialize());
+      try {
+        ProfileBanConfig.loader.save();
+      } catch (final IOException e) {
+        e.printStackTrace();
+      }
+    });
   }
 
   /**
@@ -77,7 +82,7 @@ public final class ProfileBanConfig extends PathableConfig {
    */
   @NotNull
   public static Set<BanEntry> getBanEntries() {
-    return ProfileBanConfig.getInstance().getConfiguration().getKeys(false).stream()
+    return ProfileBanConfig.configuration.getKeys(false).stream()
       .flatMap(key -> ProfileBanConfig.getBanEntry(key).stream())
       .collect(Collectors.toSet());
   }
@@ -97,36 +102,12 @@ public final class ProfileBanConfig extends PathableConfig {
     }
     final var profile = optional.get();
     //noinspection unchecked
-    return ProfileBanConfig.getInstance().get(target)
+    return Optional.ofNullable(ProfileBanConfig.configuration.get(target))
       .filter(Map.class::isInstance)
       .map(o -> (Map<String, Object>) o)
       .map(ProfileBanEntry::new)
       .filter(entry -> !entry.hasExpired())
       .map(entry -> new ShirukaProfileBanEntry(profile, entry));
-  }
-
-  /**
-   * obtains the instance.
-   *
-   * @return instance.
-   */
-  @NotNull
-  public static ProfileBanConfig getInstance() {
-    return Objects.requireNonNull(ProfileBanConfig.instance);
-  }
-
-  /**
-   * initiates the ip ban config to the given file.
-   *
-   * @param file the file to create.
-   */
-  public static void init(@NotNull final File file) {
-    Config.fromFile(file)
-      .map(ProfileBanConfig::new)
-      .ifPresent(config -> {
-        config.save();
-        ProfileBanConfig.instance = config;
-      });
   }
 
   /**
@@ -137,7 +118,7 @@ public final class ProfileBanConfig extends PathableConfig {
    * @return {@code true} if the target is banned, {@code false} otherwise.
    */
   public static boolean isBanned(@NotNull final String target) {
-    return ProfileBanConfig.getInstance().getConfiguration().contains(target);
+    return ProfileBanConfig.configuration.contains(target);
   }
 
   /**
@@ -146,6 +127,11 @@ public final class ProfileBanConfig extends PathableConfig {
    * @param target the target to remove.
    */
   public static void remove(@NotNull final String target) {
-    ProfileBanConfig.getInstance().saveAfterDo(config -> config.remove(target));
+    ProfileBanConfig.configuration.remove(target);
+    try {
+      ProfileBanConfig.loader.save();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
   }
 }

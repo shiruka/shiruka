@@ -27,12 +27,16 @@ package net.shiruka.shiruka.base;
 
 import java.util.Map;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.base.GameProfile;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents op entries.
  */
+@RequiredArgsConstructor
+@Getter
 public final class OpEntry {
 
   /**
@@ -47,17 +51,6 @@ public final class OpEntry {
   private final GameProfile profile;
 
   /**
-   * ctor.
-   *
-   * @param profile the profile.
-   * @param bypassesPlayerLimit the bypasses player limit.
-   */
-  public OpEntry(@NotNull final GameProfile profile, final boolean bypassesPlayerLimit) {
-    this.profile = profile;
-    this.bypassesPlayerLimit = bypassesPlayerLimit;
-  }
-
-  /**
    * creates a new op entry instance from given {@code map}.
    *
    * @param map the map to create.
@@ -67,32 +60,13 @@ public final class OpEntry {
   @NotNull
   public static Optional<OpEntry> deserialize(@NotNull final Map<String, Object> map) {
     try {
-      final var bypassesPlayerLimit = (boolean) map.get("bypasses-player-limit");
+      final var bypass = (boolean) map.get("bypasses-player-limit");
       return GameProfile.deserialize(map)
-        .map(profile -> new OpEntry(profile, bypassesPlayerLimit));
+        .map(profile -> new OpEntry(bypass, profile));
     } catch (final Exception e) {
       e.printStackTrace();
     }
     return Optional.empty();
-  }
-
-  /**
-   * obtains the bypasses player limit.
-   *
-   * @return bypasses player limit.
-   */
-  public boolean canBypassesPlayerLimit() {
-    return this.bypassesPlayerLimit;
-  }
-
-  /**
-   * obtains the profile.
-   *
-   * @return profile.
-   */
-  @NotNull
-  public GameProfile getProfile() {
-    return this.profile;
   }
 
   /**

@@ -35,37 +35,30 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
+import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.RollingAverage;
 import net.shiruka.shiruka.util.SystemUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that represents the server heartbeat pulse called "tick" which occurs every 1/20th of a second.
  */
+@Log4j2
 public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> implements Runnable {
 
   /**
    * the tps.
    */
   public static final int TPS = 20;
-
-  /**
-   * the tick time.
-   */
-  public static final int TICK_TIME = 1000000000 / ShirukaTick.TPS;
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * the sample interval.
@@ -76,6 +69,11 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * the server overload.
    */
   private static final String SERVER_OVERLOAD = "shiruka.server.overload";
+
+  /**
+   * the tick time.
+   */
+  private static final int TICK_TIME = 1000000000 / ShirukaTick.TPS;
 
   /**
    * tick times for 10 seconds.
@@ -116,32 +114,32 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   /**
    * the current tick.
    */
-  public static int currentTick = 0;
+  @Getter
+  private static int currentTick = 0;
 
   /**
    * the command queue.
    */
-  public final PriorityQueue<String> commandQueue = new ObjectArrayFIFOQueue<>();
+  @Getter
+  private final PriorityQueue<String> commandQueue = new ObjectArrayFIFOQueue<>();
 
   /**
    * the connected players.
    */
-  public final Map<InetSocketAddress, PlayerConnection> connectedPlayers = new ConcurrentHashMap<>();
+  @Getter
+  private final Map<InetSocketAddress, PlayerConnection> connectedPlayers = new ConcurrentHashMap<>();
 
   /**
    * the pending.
    */
-  public final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
+  @Getter
+  private final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
 
   /**
    * the process queue.
    */
-  public final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
-
-  /**
-   * the tick times.
-   */
-  public final long[] tickTimes = new long[100];
+  @Getter
+  private final Queue<Runnable> processQueue = new ConcurrentLinkedQueue<>();
 
   /**
    * the server.
@@ -150,24 +148,20 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private final ShirukaServer server;
 
   /**
-   * the force ticks.
+   * the tick times.
    */
-  public boolean forceTicks;
-
-  /**
-   * the last ping time.
-   */
-  public long lastPingTime;
-
-  /**
-   * the next tick.
-   */
-  public long nextTick = SystemUtils.getMonotonicMillis();
+  private final long[] tickTimes = new long[100];
 
   /**
    * the current average tick time.
    */
   private float currentAverageTickTime;
+
+  /**
+   * the force ticks.
+   */
+  @Setter
+  private boolean forceTicks;
 
   /**
    * the executed task.
@@ -180,9 +174,21 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private long lastOverloadTime;
 
   /**
+   * the last ping time.
+   */
+  @Setter
+  private long lastPingTime;
+
+  /**
    * the last tick.
    */
   private long lastTick;
+
+  /**
+   * the next tick.
+   */
+  @Setter
+  private long nextTick = SystemUtils.getMonotonicMillis();
 
   /**
    * the is oversleep.
@@ -268,7 +274,9 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
         final var now = (currentTime = System.nanoTime()) / (1000L * 1000L) - this.nextTick;
         if (now > 5000L && this.nextTick - this.lastOverloadTime >= 30000L) {
           final var waitTime = now / 50L;
-          ShirukaTick.LOGGER.warn(TranslatedText.get(ShirukaTick.SERVER_OVERLOAD, now, waitTime));
+          if (ServerConfig.warnOnOverload) {
+            ShirukaTick.log.warn(TranslatedText.get(ShirukaTick.SERVER_OVERLOAD, now, waitTime));
+          }
           this.nextTick += waitTime * 50L;
           this.lastOverloadTime = this.nextTick;
         }

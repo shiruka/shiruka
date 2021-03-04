@@ -29,6 +29,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
 import net.shiruka.api.base.BanEntry;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.shiruka.config.ProfileBanConfig;
@@ -50,12 +52,15 @@ public final class ShirukaProfileBanEntry implements BanEntry {
    * the profile.
    */
   @NotNull
+  @Getter
   private final GameProfile profile;
 
   /**
    * the created.
    */
   @NotNull
+  @Getter
+  @Setter
   private Date created;
 
   /**
@@ -68,12 +73,16 @@ public final class ShirukaProfileBanEntry implements BanEntry {
    * the reason.
    */
   @NotNull
+  @Getter
+  @Setter
   private String reason;
 
   /**
    * the source.
    */
   @NotNull
+  @Getter
+  @Setter
   private String source;
 
   /**
@@ -92,17 +101,6 @@ public final class ShirukaProfileBanEntry implements BanEntry {
 
   @NotNull
   @Override
-  public Date getCreated() {
-    return (Date) this.created.clone();
-  }
-
-  @Override
-  public void setCreated(@NotNull final Date created) {
-    this.created = (Date) created.clone();
-  }
-
-  @NotNull
-  @Override
   public Optional<Date> getExpiration() {
     return Optional.ofNullable(this.expiration);
   }
@@ -116,28 +114,6 @@ public final class ShirukaProfileBanEntry implements BanEntry {
     } else {
       this.expiration = (Date) expiration.clone();
     }
-  }
-
-  @NotNull
-  @Override
-  public String getReason() {
-    return this.reason;
-  }
-
-  @Override
-  public void setReason(@NotNull final String reason) {
-    this.reason = reason;
-  }
-
-  @NotNull
-  @Override
-  public String getSource() {
-    return this.source;
-  }
-
-  @Override
-  public void setSource(@NotNull final String source) {
-    this.source = source;
   }
 
   @NotNull

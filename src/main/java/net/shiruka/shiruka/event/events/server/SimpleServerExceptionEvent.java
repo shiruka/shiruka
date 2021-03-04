@@ -25,6 +25,8 @@
 
 package net.shiruka.shiruka.event.events.server;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.event.events.server.ServerExceptionEvent;
 import net.shiruka.api.event.events.server.exception.ServerException;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a simple implementation for {@link ServerExceptionEvent}.
  */
+@RequiredArgsConstructor
+@Getter
 public final class SimpleServerExceptionEvent implements ServerExceptionEvent {
 
   /**
@@ -44,26 +48,4 @@ public final class SimpleServerExceptionEvent implements ServerExceptionEvent {
    */
   @NotNull
   private final ServerException serverException;
-
-  /**
-   * ctor.
-   *
-   * @param serverException the server exception.
-   * @param isAsync the is async.
-   */
-  public SimpleServerExceptionEvent(@NotNull final ServerException serverException, final boolean isAsync) {
-    this.serverException = serverException;
-    this.isAsync = isAsync;
-  }
-
-  @NotNull
-  @Override
-  public ServerException getServerException() {
-    return this.serverException;
-  }
-
-  @Override
-  public boolean isAsync() {
-    return this.isAsync;
-  }
 }

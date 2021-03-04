@@ -158,51 +158,13 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       : ShirukaPlayer.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
   }
 
-  @Override
-  public boolean addViewer(@NotNull final Player player) {
-    if (this.equals(player)) {
-      return false;
-    }
-    if (!super.addViewer(player)) {
-      return false;
-    }
-    this.showPlayer(null, player);
-    return true;
-  }
-
-  @Override
-  public boolean removeViewer(final @NotNull Player player) {
-    if (this.equals(player) || !(player instanceof ShirukaPlayer)) {
-      return false;
-    }
-    final var result = super.removeViewer(player);
-    final var viewerConnection = ((ShirukaPlayer) player).getConnection();
-//    viewerConnection.sendPacket(getRemovePlayerToList());
-//    if (this.getTeam() != null && this.getTeam().getMembers().size() == 1) {
-//      viewerConnection.sendPacket(this.getTeam().createTeamDestructionPacket());
-//    }
-    return result;
-  }
-
-  @Override
-  public void tick() {
-  }
-
-  @Override
-  public void spawnIn(@Nullable final World world) {
-    super.spawnIn(world);
-    if (world == null) {
-      return;
-    }
-  }
-
   /**
    * checks if the player can bypass the player limit.
    *
    * @return {@code true} if the player can bypass the player limit.
    */
   public boolean canBypassPlayerLimit() {
-    return this.isOp() && !this.getOpEntry().canBypassesPlayerLimit();
+    return this.isOp() && !this.getOpEntry().isBypassesPlayerLimit();
   }
 
   /**
@@ -212,7 +174,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   public boolean canBypassWhitelist() {
     return this.isOp() ||
-      !ServerConfig.WHITE_LIST.getValue().orElse(false) ||
+      !ServerConfig.whiteList ||
       this.isWhitelisted();
   }
 
@@ -230,7 +192,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   @Override
   public ChainData getChainData() {
-    return Objects.requireNonNull(this.loginData, "player did not initialize").chainData();
+    return Objects.requireNonNull(this.loginData, "player did not initialize").getChainData();
   }
 
   @Override
@@ -251,7 +213,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     hidingPlugins = new ObjectOpenHashSet<>();
     hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
     this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
-    this.unregisterPlayer(player);
+//    this.unregisterPlayer(player);
   }
 
   @Override
@@ -278,7 +240,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       return;
     }
     this.hiddenPlayers.remove(player.getUniqueId());
-    this.registerPlayer(player);
+//    this.registerPlayer(player);
   }
 
   /**
@@ -452,9 +414,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public boolean isOp() {
-    return OpsConfig.getInstance()
-      .getConfiguration()
-      .contains(this.getUniqueId().toString());
+    return OpsConfig.contains(this.getUniqueId().toString());
   }
 
   @Override
@@ -495,6 +455,18 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     }
   }
 
+  @Override
+  public void tick() {
+  }
+
+  @Override
+  public void spawnIn(@Nullable final World world) {
+    super.spawnIn(world);
+    if (world == null) {
+      return;
+    }
+  }
+
   /**
    * obtains the {@link #opEntry}.
    *
@@ -503,31 +475,8 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   private OpEntry getOpEntry() {
     if (this.opEntry == null) {
-      this.opEntry = new OpEntry(this.getProfile(), ServerConfig.OPS_PASS_PLAYER_LIMIT.getValue().orElse(false));
+      this.opEntry = new OpEntry(ServerConfig.opsPassPlayerLimit, this.getProfile());
     }
     return this.opEntry;
-  }
-
-  private void registerPlayer(@NotNull final Player player) {
-//    final var tracker = world.getChunkProvider().playerChunkMap;
-//    this.connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.ADD_PLAYER, player));
-//    final var entry = tracker.trackedEntities.get(player.getEntityId());
-//    if (entry != null && !entry.trackedPlayers.contains(this)) {
-//      entry.updatePlayer(this);
-//    }
-  }
-
-  private void unregisterPlayer(@NotNull final Player player) {
-//    if (!(player instanceof ShirukaPlayer)) {
-//      return;
-//    }
-//    final var shirukaPlayer = (ShirukaPlayer) player;
-//    final var entry = world.getChunkProvider().playerChunkMap.trackedEntities.get(shirukaPlayer.getEntityId());
-//    if (entry != null) {
-//      entry.clear(this);
-//    }
-//    if (shirukaPlayer.sentListPacket) {
-//      this.connection.sendPacket(new PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, shirukaPlayer));
-//    }
   }
 }

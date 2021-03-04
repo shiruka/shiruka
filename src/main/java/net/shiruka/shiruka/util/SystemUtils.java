@@ -25,18 +25,18 @@
 
 package net.shiruka.shiruka.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import io.github.portlek.configs.ConfigType;
+import io.github.portlek.configs.json.JsonType;
+import io.github.portlek.configs.yaml.YamlType;
+import java.io.File;
+import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * a class that contains utility methods for system.
  */
+@Log4j2
 public final class SystemUtils {
-
-  /**
-   * the logger.
-   */
-  private static final Logger LOGGER = LogManager.getLogger();
 
   /**
    * ctor.
@@ -54,6 +54,25 @@ public final class SystemUtils {
   }
 
   /**
+   * gets the config type of the given file.
+   *
+   * @param file the file to get.
+   *
+   * @return config type instance.
+   */
+  public static ConfigType getType(@NotNull final File file) {
+    final var name = file.getName();
+    if (name.contains(".yaml") ||
+      name.contains(".yml")) {
+      return YamlType.get();
+    }
+    if (name.contains(".json")) {
+      return JsonType.get();
+    }
+    throw new IllegalStateException("The file " + file.getName() + " has not a valid ConfigType instance.");
+  }
+
+  /**
    * starts the timer hack.
    */
   public static void startTimerHack() {
@@ -65,7 +84,7 @@ public final class SystemUtils {
           try {
             Thread.sleep(2147483647L);
           } catch (final InterruptedException interruptedexception) {
-            SystemUtils.LOGGER.warn("Timer hack interrupted, that really should not happen!");
+            SystemUtils.log.warn("Timer hack interrupted, that really should not happen!");
             return;
           }
         }
@@ -73,7 +92,7 @@ public final class SystemUtils {
     };
     thread.setDaemon(true);
     thread.setUncaughtExceptionHandler((t, e) ->
-      SystemUtils.LOGGER.error(exceptionMessage, e));
+      SystemUtils.log.error(exceptionMessage, e));
     thread.start();
   }
 }

@@ -135,7 +135,7 @@ public final class IpBanConfig implements ConfigHolder {
    * @param target the target to remove.
    */
   public static void remove(@NotNull final String target) {
-    IpBanConfig.configuration.remove(target);
+    IpBanConfig.configuration.set(target, null);
     try {
       IpBanConfig.loader.save();
     } catch (final IOException e) {

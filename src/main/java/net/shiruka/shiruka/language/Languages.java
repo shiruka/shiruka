@@ -68,7 +68,7 @@ public final class Languages {
   static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
 
   /**
-   * the map type reference.
+   * the list type reference.
    */
   private static final TypeReference<List<String>> LIST_TYPE_REFERENCE = new TypeReference<>() {
   };

@@ -34,19 +34,14 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import net.shiruka.shiruka.language.Languages;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * this class contains the constant values whenever the server loads the properties file in order to shortcut access to
  * each of the values.
  */
 public final class ServerConfig implements ConfigHolder {
-
-  /**
-   * the server language.
-   */
-  @Comment("language of the Shiru ka.")
-  @Route("server-language")
-  public static Locale serverLanguage = Locale.ROOT;
 
   /**
    * the amount of bytes before compressing packets.
@@ -131,6 +126,13 @@ public final class ServerConfig implements ConfigHolder {
   public static ConfigurationSection section;
 
   /**
+   * the server language.
+   */
+  @Comment("language of the Shiru ka.")
+  @Route("server-language")
+  public static Locale serverLanguage = Locale.ROOT;
+
+  /**
    * "true" to use linux natives when available.
    */
   @Comment("\"true\" to use linux natives when available.")
@@ -171,6 +173,16 @@ public final class ServerConfig implements ConfigHolder {
     } catch (final IOException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * sets the server language.
+   *
+   * @param locale the locale to set.
+   */
+  public static void setServerLanguage(@NotNull final Locale locale) {
+    ServerConfig.serverLanguage = locale;
+    ServerConfig.section.set("server-language", Languages.toString(locale));
   }
 
   /**

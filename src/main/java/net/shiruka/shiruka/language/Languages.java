@@ -68,7 +68,7 @@ public final class Languages {
   static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
 
   /**
-   * the map type reference.
+   * the list type reference.
    */
   private static final TypeReference<List<String>> LIST_TYPE_REFERENCE = new TypeReference<>() {
   };
@@ -266,18 +266,17 @@ public final class Languages {
    */
   @NotNull
   private static Locale loadServerLanguage() {
-    final var serverLanguage = ServerConfig.SERVER_LANGUAGE.getValue();
-    if (serverLanguage.isPresent() && serverLanguage.get() != Locale.ROOT) {
-      final var locale = serverLanguage.get();
-      if (Languages.setLoadedLanguage(Languages.toString(locale))) {
+    final var serverLanguage = ServerConfig.serverLanguage;
+    if (serverLanguage != Locale.ROOT) {
+      if (Languages.setLoadedLanguage(Languages.toString(serverLanguage))) {
         ServerConfig.save();
       }
-      return locale;
+      return serverLanguage;
     }
     Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.log.info("§7" + s));
     Languages.log.info("§aChoose one of the available languages");
     final var locale = Languages.choosingLanguageLoop();
-    ServerConfig.SERVER_LANGUAGE.setValue(locale);
+    ServerConfig.setServerLanguage(locale);
     Languages.setLoadedLanguage(Languages.toString(locale));
     ServerConfig.save();
     return locale;
@@ -326,12 +325,6 @@ public final class Languages {
     if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
       return false;
     }
-    final var value = ServerConfig.loadedLanguages;
-    if (value.contains(locale)) {
-      return false;
-    }
-    value.add(locale);
-    ServerConfig.section.set("loaded-languages", value);
-    return true;
+    return ServerConfig.addLoadedLanguage(locale);
   }
 }

@@ -25,29 +25,23 @@
 
 package net.shiruka.shiruka.config;
 
-import static io.github.portlek.configs.util.Paths.locale;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.annotation.Comment;
 import io.github.portlek.configs.annotation.Route;
 import io.github.portlek.configs.configuration.ConfigurationSection;
-import io.github.portlek.configs.paths.def.LocaleDefaultPath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import net.shiruka.shiruka.language.Languages;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * this class contains the constant values whenever the server loads the properties file in order to shortcut access to
  * each of the values.
  */
 public final class ServerConfig implements ConfigHolder {
-
-  /**
-   * the server language.
-   */
-  @Comment("language of the Shiru ka.")
-  public static final LocaleDefaultPath SERVER_LANGUAGE = locale("server-language", Locale.ROOT);
 
   /**
    * the amount of bytes before compressing packets.
@@ -132,6 +126,13 @@ public final class ServerConfig implements ConfigHolder {
   public static ConfigurationSection section;
 
   /**
+   * the server language.
+   */
+  @Comment("language of the Shiru ka.")
+  @Route("server-language")
+  public static Locale serverLanguage = Locale.ROOT;
+
+  /**
    * "true" to use linux natives when available.
    */
   @Comment("\"true\" to use linux natives when available.")
@@ -164,6 +165,22 @@ public final class ServerConfig implements ConfigHolder {
   }
 
   /**
+   * adds the given locale into the {@link #loadedLanguages}.
+   *
+   * @param locale the locale to add.
+   *
+   * @return {@code true} if the given language added successfully.
+   */
+  public static boolean addLoadedLanguage(@NotNull final String locale) {
+    if (ServerConfig.loadedLanguages.contains(locale)) {
+      return false;
+    }
+    ServerConfig.loadedLanguages.add(locale);
+    ServerConfig.section.set("loaded-languages", ServerConfig.loadedLanguages);
+    return true;
+  }
+
+  /**
    * saves the file.
    */
   public static void save() {
@@ -172,6 +189,16 @@ public final class ServerConfig implements ConfigHolder {
     } catch (final IOException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * sets the server language.
+   *
+   * @param locale the locale to set.
+   */
+  public static void setServerLanguage(@NotNull final Locale locale) {
+    ServerConfig.serverLanguage = locale;
+    ServerConfig.section.set("server-language", Languages.toString(locale));
   }
 
   /**

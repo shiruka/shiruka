@@ -137,7 +137,7 @@ public final class SimplePermissionManager implements PermissionManager {
 
   @Override
   public void unsubscribeFromPermission(@NotNull final String permission, @NotNull final Permissible permissible) {
-    final var name = permission.toLowerCase(Locale.ENGLISH);
+    final var name = permission.toLowerCase(Locale.ROOT);
     final var map = this.permSubs.get(name);
     if (map == null) {
       return;

@@ -72,6 +72,6 @@ public final class OpsConfig implements ConfigHolder {
    * @param entry the entry to remove.
    */
   public static void removeOp(@NotNull final OpEntry entry) {
-    OpsConfig.configuration.remove(entry.getProfile().getUniqueId().toString());
+    OpsConfig.configuration.set(entry.getProfile().getUniqueId().toString(), null);
   }
 }

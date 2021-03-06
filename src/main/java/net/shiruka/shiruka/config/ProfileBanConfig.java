@@ -127,7 +127,7 @@ public final class ProfileBanConfig implements ConfigHolder {
    * @param target the target to remove.
    */
   public static void remove(@NotNull final String target) {
-    ProfileBanConfig.configuration.remove(target);
+    ProfileBanConfig.configuration.set(target, null);
     try {
       ProfileBanConfig.loader.save();
     } catch (final IOException e) {

@@ -213,9 +213,9 @@ public final class ShirukaMain {
   private static RakNetServer createSocket() {
     final var ip = ServerConfig.ip;
     final var port = ServerConfig.port;
-    final var gameMode = ServerConfig.Description.gameMode;
-    final var maxPlayers = ServerConfig.Description.maxPlayers;
-    final var motd = ServerConfig.Description.motd;
+    final var gameMode = ServerConfig.gameMode;
+    final var maxPlayers = ServerConfig.maxPlayers;
+    final var motd = ServerConfig.motd;
     final var worldName = ServerConfig.defaultWorldName;
     final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
       ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, 0L, worldName, gameMode);

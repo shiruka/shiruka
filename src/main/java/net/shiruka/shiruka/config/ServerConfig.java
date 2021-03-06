@@ -60,16 +60,18 @@ public final class ServerConfig implements ConfigHolder {
   public static String defaultWorldName = "world";
 
   /**
-   * the description settings.
-   */
-  public static Description description;
-
-  /**
    * forces to accept incoming resource packs.
    */
   @Comment("forces to accept resource packs to players.")
   @Route("force-resources")
   public static boolean forceResources = false;
+
+  /**
+   * the game mode.
+   */
+  @Comment("Shiru ka server's game mode.")
+  @Route("game-mode")
+  public static String gameMode = "survival";
 
   /**
    * server's ip address.
@@ -91,6 +93,20 @@ public final class ServerConfig implements ConfigHolder {
   @Comment("determines the maximum login process, that will handle, per tick.")
   @Route("max-login-per-tick")
   public static int maxLoginPerTick = 1;
+
+  /**
+   * the max players that can be online at once.
+   */
+  @Comment("the max players that can be online at once.")
+  @Route("max-players")
+  public static int maxPlayers = 20;
+
+  /**
+   * the description message shown in the server list.
+   */
+  @Comment("the description message shown in the server list.")
+  @Route("motd")
+  public static String motd = "Shiru ka server";
 
   /**
    * whether to use Mojang auth to check players.
@@ -199,32 +215,5 @@ public final class ServerConfig implements ConfigHolder {
   public static void setServerLanguage(@NotNull final Locale locale) {
     ServerConfig.serverLanguage = locale;
     ServerConfig.section.set("server-language", Languages.toString(locale));
-  }
-
-  /**
-   * a class that represents settings for description of the server.
-   */
-  public static final class Description implements ConfigHolder {
-
-    /**
-     * the game mode.
-     */
-    @Comment("Shiru ka server's game mode.")
-    @Route("game-mode")
-    public static String gameMode = "survival";
-
-    /**
-     * the max players that can be online at once.
-     */
-    @Comment("the max players that can be online at once.")
-    @Route("max-players")
-    public static int maxPlayers = 20;
-
-    /**
-     * the description message shown in the server list.
-     */
-    @Comment("the description message shown in the server list.")
-    @Route("motd")
-    public static String motd = "Shiru ka server";
   }
 }

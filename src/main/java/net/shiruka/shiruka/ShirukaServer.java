@@ -526,7 +526,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   public void updatePing() {
     final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
-    identifier.setServerName(ServerConfig.Description.motd);
+    identifier.setServerName(ServerConfig.motd);
     identifier.setWorldName(ServerConfig.defaultWorldName);
     identifier.setMaxPlayerCount(this.getMaxPlayers());
     identifier.setOnlinePlayerCount(this.getOnlinePlayers().size());

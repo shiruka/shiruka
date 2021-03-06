@@ -25,11 +25,13 @@
 
 package net.shiruka.shiruka.config;
 
+import static io.github.portlek.configs.util.Paths.locale;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.annotation.Comment;
 import io.github.portlek.configs.annotation.Route;
 import io.github.portlek.configs.configuration.ConfigurationSection;
+import io.github.portlek.configs.paths.def.LocaleDefaultPath;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.util.List;
@@ -45,8 +47,7 @@ public final class ServerConfig implements ConfigHolder {
    * the server language.
    */
   @Comment("language of the Shiru ka.")
-  @Route("server-language")
-  public static Locale serverLanguage = Locale.ROOT;
+  public static final LocaleDefaultPath SERVER_LANGUAGE = locale("server-language", Locale.ROOT);
 
   /**
    * the amount of bytes before compressing packets.

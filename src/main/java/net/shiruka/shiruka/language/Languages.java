@@ -325,12 +325,6 @@ public final class Languages {
     if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
       return false;
     }
-    final var value = ServerConfig.loadedLanguages;
-    if (value.contains(locale)) {
-      return false;
-    }
-    value.add(locale);
-    ServerConfig.section.set("loaded-languages", value);
-    return true;
+    return ServerConfig.addLoadedLanguage(locale);
   }
 }

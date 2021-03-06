@@ -165,6 +165,22 @@ public final class ServerConfig implements ConfigHolder {
   }
 
   /**
+   * adds the given locale into the {@link #loadedLanguages}.
+   *
+   * @param locale the locale to add.
+   *
+   * @return {@code true} if the given language added successfully.
+   */
+  public static boolean addLoadedLanguage(@NotNull final String locale) {
+    if (ServerConfig.loadedLanguages.contains(locale)) {
+      return false;
+    }
+    ServerConfig.loadedLanguages.add(locale);
+    ServerConfig.section.set("loaded-languages", ServerConfig.loadedLanguages);
+    return true;
+  }
+
+  /**
    * saves the file.
    */
   public static void save() {

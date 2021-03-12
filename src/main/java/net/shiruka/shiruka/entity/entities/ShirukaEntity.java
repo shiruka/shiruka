@@ -135,16 +135,14 @@ public abstract class ShirukaEntity implements Entity {
    * @param tag the tag to load.
    */
   public void load(@NotNull final CompoundTag tag) {
-    try {
+    JiraExceptionCatcher.run(() -> {
       final var dataVersion = tag.hasKeyOfType("DataVersion", (byte) 1)
         ? tag.getInteger("DataVersion").orElse(0)
         : -1;
       final var positions = tag.getListTag("Pos", (byte) 6).orElse(Tag.createList());
       final var motion = tag.getListTag("Motion", (byte) 6).orElse(Tag.createList());
       final var rotation = tag.getListTag("Rotation", (byte) 5).orElse(Tag.createList());
-    } catch (final Throwable t) {
-      JiraExceptionCatcher.serverException(t);
-    }
+    });
   }
 
   @Override

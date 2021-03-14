@@ -278,7 +278,8 @@ public final class Languages {
     Languages.log.info("§aChoose one of the available languages");
     final var now = System.currentTimeMillis();
     final var locale = Languages.choosingLanguageLoop();
-    ShirukaMain.START_TIME.set(System.currentTimeMillis() - now - ShirukaMain.START_TIME.get());
+    final var finishChoosing = System.currentTimeMillis() - now;
+    ShirukaMain.START_TIME.set(ShirukaMain.START_TIME.get() + finishChoosing);
     ServerConfig.setServerLanguage(locale);
     Languages.setLoadedLanguage(Languages.toString(locale));
     ServerConfig.save();

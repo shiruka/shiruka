@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.misc;
 
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;

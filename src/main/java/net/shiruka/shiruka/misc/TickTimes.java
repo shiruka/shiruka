@@ -23,46 +23,47 @@
  *
  */
 
-package net.shiruka.shiruka.util;
+package net.shiruka.shiruka.misc;
 
-import lombok.RequiredArgsConstructor;
-import net.shiruka.shiruka.ShirukaServer;
-import org.jetbrains.annotations.NotNull;
+import java.util.Arrays;
+import lombok.Getter;
 
 /**
- * a class that tries to shutdown Shiru ka server.
+ * a class that represents calculator for tick times.
  */
-@RequiredArgsConstructor
-public final class ShirukaShutdownThread extends Thread {
+public final class TickTimes {
 
   /**
-   * the server.
+   * the tick times.
    */
-  @NotNull
-  private final ShirukaServer server;
+  @Getter
+  private final long[] times;
 
-  @Override
-  public void run() {
-    try {
-      this.server.safeShutdown(false, false);
-      for (var index = 1000; index > 0 && !this.server.isStopping(); index -= 100) {
-        Thread.sleep(100L);
-      }
-      if (this.server.isStopping()) {
-        while (!this.server.hasFullyShutdown) {
-          Thread.sleep(1000L);
-        }
-        return;
-      }
-      AsyncCatcher.enabled = false;
-      AsyncCatcher.shuttingDown = true;
-      this.server.getTick().setForceTicks(true);
-      this.server.stopServer();
-      while (!this.server.hasFullyShutdown) {
-        Thread.sleep(1000L);
-      }
-    } catch (final InterruptedException e) {
-      e.printStackTrace();
-    }
+  /**
+   * ctor.
+   *
+   * @param length the length.
+   */
+  public TickTimes(final int length) {
+    this.times = new long[length];
+  }
+
+  /**
+   * set the given time to the given index.
+   *
+   * @param index the index to set.
+   * @param time the time to set.
+   */
+  public void add(final int index, final long time) {
+    this.times[index % this.times.length] = time;
+  }
+
+  /**
+   * calculates and gives the average tick time.
+   *
+   * @return average tick time.
+   */
+  public double getAverage() {
+    return (double) Arrays.stream(this.times).sum() / (double) this.times.length * 1.0E-6D;
   }
 }

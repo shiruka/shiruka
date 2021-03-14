@@ -23,7 +23,7 @@
  *
  */
 
-package net.shiruka.shiruka.util;
+package net.shiruka.shiruka.misc;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -23,32 +23,47 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.misc;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.shiruka.shiruka.ShirukaServer;
+import net.shiruka.shiruka.util.AsyncCatcher;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents tick tasks.
+ * a class that tries to shutdown Shiru ka server.
  */
 @RequiredArgsConstructor
-public final class TickTask implements Runnable {
+public final class ShirukaShutdownThread extends Thread {
 
   /**
-   * the job.
+   * the server.
    */
   @NotNull
-  private final Runnable job;
-
-  /**
-   * the job.
-   */
-  @Getter
-  private final int tick;
+  private final ShirukaServer server;
 
   @Override
   public void run() {
-    this.job.run();
+    try {
+      this.server.safeShutdown(false, false);
+      for (var index = 1000; index > 0 && !this.server.isStopping(); index -= 100) {
+        Thread.sleep(100L);
+      }
+      if (this.server.isStopping()) {
+        while (!this.server.hasFullyShutdown) {
+          Thread.sleep(1000L);
+        }
+        return;
+      }
+      AsyncCatcher.enabled = false;
+      AsyncCatcher.shuttingDown = true;
+      this.server.getTick().setForceTicks(true);
+      this.server.stopServer();
+      while (!this.server.hasFullyShutdown) {
+        Thread.sleep(1000L);
+      }
+    } catch (final InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 }

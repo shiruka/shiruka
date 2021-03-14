@@ -39,6 +39,21 @@ import org.jetbrains.annotations.NotNull;
 public final class SystemUtils {
 
   /**
+   * the config type error format.
+   */
+  private static final String CONFIG_TYPE_ERROR_FORMAT = "The file %s has not a valid ConfigType instance.";
+
+  /**
+   * the exception message.
+   */
+  private static final String EXCEPTION_MESSAGE = "Caught previously unhandled exception :";
+
+  /**
+   * the interrupted message.
+   */
+  private static final String INTERRUPTED = "Timer hack interrupted, that really should not happen!";
+
+  /**
    * ctor.
    */
   private SystemUtils() {
@@ -70,27 +85,26 @@ public final class SystemUtils {
     if (name.contains(".json")) {
       return JsonType.get();
     }
-    throw new IllegalStateException(String.format("The file %s has not a valid ConfigType instance.", file.getName()));
+    throw new IllegalStateException(String.format(SystemUtils.CONFIG_TYPE_ERROR_FORMAT, file.getName()));
   }
 
   /**
    * starts the timer hack.
    */
   public static void startTimerHack() {
-    final var exceptionMessage = "Caught previously unhandled exception :";
     final var thread = new Thread(() -> {
       while (true) {
         try {
           Thread.sleep(2147483647L);
         } catch (final InterruptedException interruptedexception) {
-          SystemUtils.log.warn("Timer hack interrupted, that really should not happen!");
+          SystemUtils.log.warn(SystemUtils.INTERRUPTED);
           return;
         }
       }
     }, "Timer Hack");
     thread.setDaemon(true);
     thread.setUncaughtExceptionHandler((t, e) ->
-      SystemUtils.log.error(exceptionMessage, e));
+      SystemUtils.log.error(SystemUtils.EXCEPTION_MESSAGE, e));
     thread.start();
   }
 }

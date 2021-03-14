@@ -312,6 +312,7 @@ public final class Languages {
    *
    * @return upper cased text.
    */
+  @NotNull
   private static String secondUpper(@NotNull final String text) {
     final var split = text.split("_");
     return split[0] + "_" + split[1].toUpperCase(Locale.ROOT);
@@ -325,9 +326,7 @@ public final class Languages {
    * @return {@code true} if the language is loaded.
    */
   private static boolean setLoadedLanguage(@NotNull final String locale) {
-    if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
-      return false;
-    }
-    return ServerConfig.addLoadedLanguage(locale);
+    return Languages.AVAILABLE_LANGUAGES.contains(locale) &&
+      ServerConfig.addLoadedLanguage(locale);
   }
 }

@@ -69,7 +69,7 @@ public final class SystemUtils {
     if (name.contains(".json")) {
       return JsonType.get();
     }
-    throw new IllegalStateException("The file " + file.getName() + " has not a valid ConfigType instance.");
+    throw new IllegalStateException(String.format("The file %s has not a valid ConfigType instance.", file.getName()));
   }
 
   /**
@@ -77,19 +77,16 @@ public final class SystemUtils {
    */
   public static void startTimerHack() {
     final var exceptionMessage = "Caught previously unhandled exception :";
-    final var thread = new Thread("Timer Hack") {
-      @Override
-      public void run() {
-        while (true) {
-          try {
-            Thread.sleep(2147483647L);
-          } catch (final InterruptedException interruptedexception) {
-            SystemUtils.log.warn("Timer hack interrupted, that really should not happen!");
-            return;
-          }
+    final var thread = new Thread(() -> {
+      while (true) {
+        try {
+          Thread.sleep(2147483647L);
+        } catch (final InterruptedException interruptedexception) {
+          SystemUtils.log.warn("Timer hack interrupted, that really should not happen!");
+          return;
         }
       }
-    };
+    }, "Timer Hack");
     thread.setDaemon(true);
     thread.setUncaughtExceptionHandler((t, e) ->
       SystemUtils.log.error(exceptionMessage, e));

@@ -60,6 +60,7 @@ public final class SystemUtils {
    *
    * @return config type instance.
    */
+  @NotNull
   public static ConfigType getType(@NotNull final File file) {
     final var name = file.getName();
     if (name.contains(".yaml") ||

@@ -27,11 +27,11 @@ package net.shiruka.shiruka.language;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -56,17 +56,17 @@ public final class Languages {
   /**
    * the available languages.
    */
-  static final Collection<String> AVAILABLE_LANGUAGES = new ArrayDeque<>();
+  static final Collection<String> AVAILABLE_LANGUAGES = new ObjectOpenHashSet<>();
 
   /**
    * the shiruka keys.
    */
-  static final Collection<String> SHIRUKA_KEYS = new ArrayDeque<>();
+  static final Collection<String> SHIRUKA_KEYS = new ObjectOpenHashSet<>();
 
   /**
    * the vanilla keys.
    */
-  static final Collection<String> VANILLA_KEYS = new ArrayDeque<>();
+  static final Collection<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
 
   /**
    * the list type reference.

@@ -250,7 +250,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   @NotNull
   public CompoundTag createDefaultTag() {
-    final var defaultWorld = this.connection.getServer().getDefaultWorld().orElseThrow();
+    final var defaultWorld = this.connection.getServer().getDefaultWorld();
     final var spawn = defaultWorld.getSpawn();
     final var tag = Tag.createCompound();
     tag.setLong("first-played", System.currentTimeMillis() / 1000L);

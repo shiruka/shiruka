@@ -33,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.CommandDispatcher;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.command.SimpleCommandManager;
 import net.shiruka.shiruka.concurrent.Waitable;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Candidate;
@@ -73,7 +72,8 @@ final class ConsoleCommandCompleter implements Completer {
       return;
     }
     final var calculation = new Waitable<>(() -> {
-      final var parse = SimpleCommandManager.getDispatcher().parse(event.getText(), event.getSender());
+      final var parse = this.server.getCommandManager().getDispatcher()
+        .parse(event.getText(), event.getSender());
       return CommandDispatcher.getCompletionSuggestions(parse).get().getSuggestionList();
     });
     this.server.getTick().getProcessQueue().add(calculation);

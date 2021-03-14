@@ -76,46 +76,10 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private static final int TICK_TIME = 1000000000 / ShirukaTick.TPS;
 
   /**
-   * tick times for 10 seconds.
-   */
-  private static final TickTimes TICK_TIMES_10_S = new TickTimes(200);
-
-  /**
-   * tick times for 5 seconds.
-   */
-  private static final TickTimes TICK_TIMES_5_S = new TickTimes(100);
-
-  /**
-   * tick times for 60 seconds.
-   */
-  private static final TickTimes TICK_TIMES_60_S = new TickTimes(1200);
-
-  /**
-   * tps for 1 minute.
-   */
-  private static final RollingAverage TPS_1 = new RollingAverage(60);
-
-  /**
-   * tps for 15 minutes.
-   */
-  private static final RollingAverage TPS_15 = new RollingAverage(60 * 15);
-
-  /**
-   * tps for 5 minutes.
-   */
-  private static final RollingAverage TPS_5 = new RollingAverage(60 * 5);
-
-  /**
    * the tps base.
    */
   private static final BigDecimal TPS_BASE = new BigDecimal("1E9")
     .multiply(new BigDecimal(ShirukaTick.SAMPLE_INTERVAL));
-
-  /**
-   * the current tick.
-   */
-  @Getter
-  private static int currentTick = 0;
 
   /**
    * the command queue.
@@ -153,9 +117,51 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   private final long[] tickTimes = new long[100];
 
   /**
+   * tick times for 10 seconds.
+   */
+  private final TickTimes tickTimes10S = new TickTimes(200);
+
+  /**
+   * tick times for 5 seconds.
+   */
+  private final TickTimes tickTimes5S = new TickTimes(100);
+
+  /**
+   * tick times for 60 seconds.
+   */
+  private final TickTimes tickTimes60S = new TickTimes(1200);
+
+  /**
+   * tps for 1 minute.
+   */
+  private final RollingAverage tps1 = new RollingAverage(60);
+
+  /**
+   * tps for 15 minutes.
+   */
+  private final RollingAverage tps15 = new RollingAverage(60 * 15);
+
+  /**
+   * tps for 5 minutes.
+   */
+  private final RollingAverage tps5 = new RollingAverage(60 * 5);
+
+  /**
    * the current average tick time.
    */
   private float currentAverageTickTime;
+
+  /**
+   * the current tick.
+   */
+  @Getter
+  private int currentTick = 0;
+
+  /**
+   * the current tick as long.
+   */
+  @Getter
+  private long currentTickLong = 0L;
 
   /**
    * the force ticks.
@@ -216,32 +222,6 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
   }
 
   /**
-   * obtains the tick times of the server.
-   *
-   * @return a double array which has 3 average tick times numbers for 5, 10, and 60 seconds.
-   */
-  public static long[][] getTickTimes() {
-    return new long[][]{
-      ShirukaTick.TICK_TIMES_5_S.getTimes(),
-      ShirukaTick.TICK_TIMES_10_S.getTimes(),
-      ShirukaTick.TICK_TIMES_60_S.getTimes()
-    };
-  }
-
-  /**
-   * obtains the tps of the server.
-   *
-   * @return a double array which has 3 average tps numbers for 1, 5, and 15 minutes.
-   */
-  public static double[] getTps() {
-    return new double[]{
-      ShirukaTick.TPS_1.getAverage(),
-      ShirukaTick.TPS_5.getAverage(),
-      ShirukaTick.TPS_15.getAverage()
-    };
-  }
-
-  /**
    * checks if the thread can sleep for tick.
    *
    * @return {@code true} if the thread can sleep for tick.
@@ -253,6 +233,32 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     return this.forceTicks ||
       this.isEntered() ||
       SystemUtils.getMonotonicMillis() < (this.hasExecutedTask ? this.tickOversleepMaxTime : this.nextTick);
+  }
+
+  /**
+   * obtains the tick times of the server.
+   *
+   * @return a double array which has 3 average tick times numbers for 5, 10, and 60 seconds.
+   */
+  public long[][] getTickTimes() {
+    return new long[][]{
+      this.tickTimes5S.getTimes(),
+      this.tickTimes10S.getTimes(),
+      this.tickTimes60S.getTimes()
+    };
+  }
+
+  /**
+   * obtains the tps of the server.
+   *
+   * @return a double array which has 3 average tps numbers for 1, 5, and 15 minutes.
+   */
+  public double[] getTps() {
+    return new double[]{
+      this.tps1.getAverage(),
+      this.tps5.getAverage(),
+      this.tps15.getAverage()
+    };
   }
 
   @Override
@@ -280,13 +286,14 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
           this.nextTick += waitTime * 50L;
           this.lastOverloadTime = this.nextTick;
         }
-        if (++ShirukaTick.currentTick % ShirukaTick.SAMPLE_INTERVAL == 0) {
+        this.currentTickLong++;
+        if (++this.currentTick % ShirukaTick.SAMPLE_INTERVAL == 0) {
           final var different = currentTime - tickSection;
           final var currentTps = ShirukaTick.TPS_BASE.divide(new BigDecimal(different), 30,
             RoundingMode.HALF_UP);
-          ShirukaTick.TPS_1.add(currentTps, different);
-          ShirukaTick.TPS_5.add(currentTps, different);
-          ShirukaTick.TPS_15.add(currentTps, different);
+          this.tps1.add(currentTps, different);
+          this.tps5.add(currentTps, different);
+          this.tps15.add(currentTps, different);
           tickSection = currentTime;
         }
         this.lastTick = currentTime;
@@ -404,9 +411,9 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     final var tickTime = System.nanoTime() - start;
     this.tickTimes[this.ticks % 100] = tickTime;
     this.currentAverageTickTime = this.currentAverageTickTime * 0.8F + (float) tickTime / 1000000.0F * 0.19999999F;
-    ShirukaTick.TICK_TIMES_5_S.add(this.ticks, tickTime);
-    ShirukaTick.TICK_TIMES_10_S.add(this.ticks, tickTime);
-    ShirukaTick.TICK_TIMES_60_S.add(this.ticks, tickTime);
+    this.tickTimes5S.add(this.ticks, tickTime);
+    this.tickTimes10S.add(this.ticks, tickTime);
+    this.tickTimes60S.add(this.ticks, tickTime);
   }
 
   /**

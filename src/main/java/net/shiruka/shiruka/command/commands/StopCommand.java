@@ -29,6 +29,7 @@ import static net.shiruka.api.command.CommandResult.of;
 import static net.shiruka.api.command.Commands.literal;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.builder.LiteralBuilder;
+import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,17 +44,28 @@ public final class StopCommand extends CommandHelper {
   private static final String CONFIRM_SUB_COMMAND = "confirm";
 
   /**
-   * ctor.
+   * the server.
    */
-  private StopCommand() {
-    super("stop", "Stops the server.", "shiruka.command.stop");
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   */
+  private StopCommand(@NotNull final ShirukaServer server) {
+    super("stop", "Stops the server.", "shiruka.command.stop", server);
+    this.server = server;
   }
 
   /**
    * registers the command.
+   *
+   * @param server the server.
    */
-  public static void init() {
-    new StopCommand().register();
+  public static void init(@NotNull final ShirukaServer server) {
+    new StopCommand(server).register();
   }
 
   /**

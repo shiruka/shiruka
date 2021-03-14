@@ -26,6 +26,8 @@
 package net.shiruka.shiruka.command;
 
 import java.util.Map;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.command.CommandDispatcher;
 import net.shiruka.api.command.CommandException;
@@ -36,6 +38,7 @@ import net.shiruka.api.command.exceptions.CommandSyntaxException;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.command.commands.HelpCommand;
 import net.shiruka.shiruka.command.commands.MsPTCommand;
 import net.shiruka.shiruka.command.commands.StopCommand;
@@ -46,59 +49,31 @@ import org.jetbrains.annotations.NotNull;
  * a simple implementation for {@link CommandManager}.
  */
 @Log4j2
+@RequiredArgsConstructor
 public final class SimpleCommandManager implements CommandManager {
-
-  /**
-   * the dispatcher.
-   */
-  @NotNull
-  private static final CommandDispatcher DISPATCHER;
 
   /**
    * the not found.
    */
   private static final String NOT_FOUND = "shiruka.command.not_found";
 
-  static {
-    DISPATCHER = new CommandDispatcher();
-    StopCommand.init();
-    TpsCommand.init();
-    HelpCommand.init();
-    MsPTCommand.init();
-  }
-
   /**
-   * obtains the dispatcher.
-   *
-   * @return dispatcher.
+   * the dispatcher.
    */
   @NotNull
-  public static CommandDispatcher getDispatcher() {
-    return SimpleCommandManager.DISPATCHER;
-  }
+  @Getter
+  private final CommandDispatcher dispatcher = new CommandDispatcher();
 
   /**
-   * registers internal(Shiru ka) commands.
-   *
-   * @param commands the commands to register.
+   * the server.
    */
-  public static void registerInternal(@NotNull final CommandNode... commands) {
-    SimpleCommandManager.getDispatcher().register(commands);
-  }
-
-  /**
-   * registers the given commands.
-   *
-   * @param builders the builders to register.
-   */
-  public static void registerInternal(@NotNull final LiteralBuilder... builders) {
-    SimpleCommandManager.getDispatcher().register(builders);
-  }
+  @NotNull
+  private final ShirukaServer server;
 
   @Override
   public void execute(@NotNull final String command, @NotNull final CommandSender sender) {
     try {
-      SimpleCommandManager.getDispatcher().execute(command, sender);
+      this.dispatcher.execute(command, sender);
     } catch (final CommandSyntaxException e) {
       if (e.getType() == CommandException.DISPATCHER_UNKNOWN_COMMAND) {
         sender.sendMessage(TranslatedText.get(SimpleCommandManager.NOT_FOUND, command));
@@ -123,5 +98,33 @@ public final class SimpleCommandManager implements CommandManager {
   @Override
   public void unregister(@NotNull final String... commands) {
     throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleCommandManager#unregister.");
+  }
+
+  /**
+   * registers the default commands.
+   */
+  public void register() {
+    StopCommand.init(this.server);
+    TpsCommand.init(this.server);
+    HelpCommand.init(this.server);
+    MsPTCommand.init(this.server);
+  }
+
+  /**
+   * registers internal(Shiru ka) commands.
+   *
+   * @param commands the commands to register.
+   */
+  public void registerInternal(@NotNull final CommandNode... commands) {
+    this.dispatcher.register(commands);
+  }
+
+  /**
+   * registers the given commands.
+   *
+   * @param builders the builders to register.
+   */
+  public void registerInternal(@NotNull final LiteralBuilder... builders) {
+    this.dispatcher.register(builders);
   }
 }

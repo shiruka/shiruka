@@ -33,7 +33,7 @@ import net.shiruka.api.command.context.CommandContext;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
-import net.shiruka.shiruka.command.SimpleCommandManager;
+import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,6 +73,12 @@ abstract class CommandHelper {
   private final String permission;
 
   /**
+   * the server.
+   */
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
    * the permission message.
    * <p>
    * Placeholders:
@@ -87,9 +93,11 @@ abstract class CommandHelper {
    * @param command the command.
    * @param description the description.
    * @param permission the permission.
+   * @param server the server.
    */
-  CommandHelper(@NotNull final String command, @NotNull final String description, @NotNull final String permission) {
-    this(new String[0], command, description, permission);
+  CommandHelper(@NotNull final String command, @NotNull final String description, @NotNull final String permission,
+                @NotNull final ShirukaServer server) {
+    this(new String[0], command, description, permission, server);
   }
 
   /**
@@ -140,7 +148,7 @@ abstract class CommandHelper {
    * registers the command.
    */
   protected final void register() {
-    SimpleCommandManager.registerInternal(this.build());
+    this.server.getCommandManager().registerInternal(this.build());
   }
 
   /**

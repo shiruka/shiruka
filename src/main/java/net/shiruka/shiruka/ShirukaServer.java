@@ -43,6 +43,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import net.shiruka.api.Server;
@@ -119,7 +120,9 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the command manager.
    */
-  private final SimpleCommandManager commandManager = new SimpleCommandManager();
+  @NotNull
+  @Getter
+  private final SimpleCommandManager commandManager;
 
   /**
    * the console.
@@ -204,7 +207,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * the tick.
    */
-  private final ShirukaTick tick = new ShirukaTick(this);
+  @NotNull
+  private final ShirukaTick tick;
 
   /**
    * the world manager.
@@ -260,6 +264,8 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
     this.languageManager = new SimpleLanguageManager(serverLanguage);
     this.playersDirectory = playersDirectory;
+    this.tick = new ShirukaTick(this);
+    this.commandManager = new SimpleCommandManager(this);
   }
 
   @NotNull
@@ -553,6 +559,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.registerInterface(PluginManager.class, this.pluginManager);
     this.registerInterface(Scheduler.class, this.scheduler);
     this.registerInterface(WorldManager.class, this.worldManager);
+    this.commandManager.register();
     this.registerInterface(CommandManager.class, this.commandManager);
     JiraExceptionCatcher.run(() -> {
       Class.forName("net.shiruka.shiruka.network.PacketRegistry");

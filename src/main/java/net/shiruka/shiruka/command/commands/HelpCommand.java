@@ -27,6 +27,7 @@ package net.shiruka.shiruka.command.commands;
 
 import static net.shiruka.api.command.CommandResult.of;
 import net.shiruka.api.command.builder.LiteralBuilder;
+import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,17 +38,28 @@ import org.jetbrains.annotations.NotNull;
 public final class HelpCommand extends CommandHelper {
 
   /**
-   * ctor.
+   * the server.
    */
-  private HelpCommand() {
-    super(new String[]{"?"}, "help", "Shows the help menu", "shiruka.command.help");
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   */
+  private HelpCommand(@NotNull final ShirukaServer server) {
+    super(new String[]{"?"}, "help", "Shows the help menu", "shiruka.command.help", server);
+    this.server = server;
   }
 
   /**
    * registers the command.
+   *
+   * @param server the server.
    */
-  public static void init() {
-    new HelpCommand().register();
+  public static void init(@NotNull final ShirukaServer server) {
+    new HelpCommand(server).register();
   }
 
   @NotNull

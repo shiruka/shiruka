@@ -49,7 +49,6 @@ import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.SimpleChainData;
-import net.shiruka.shiruka.concurrent.ShirukaTick;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
 import net.shiruka.shiruka.language.Languages;
@@ -167,8 +166,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
     if (this.connection.isConnected() && Shiruka.isPrimaryThread()) {
       this.handleQueuedPackets();
     }
-    if (PlayerConnection.oldTick != ShirukaTick.getCurrentTick()) {
-      PlayerConnection.oldTick = ShirukaTick.getCurrentTick();
+    if (PlayerConnection.oldTick != this.server.getTick().getCurrentTick()) {
+      PlayerConnection.oldTick = this.server.getTick().getCurrentTick();
       PlayerConnection.joinAttemptsThisTick = 0;
     }
     final var handler = this.packetHandler.get();

@@ -29,7 +29,7 @@ import static net.shiruka.api.command.CommandResult.of;
 import java.util.Arrays;
 import net.shiruka.api.command.builder.LiteralBuilder;
 import net.shiruka.api.text.ChatColor;
-import net.shiruka.shiruka.concurrent.ShirukaTick;
+import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,17 +43,42 @@ public final class TpsCommand extends CommandHelper {
   private static final String MESSAGE = "shiruka.command.tps_command.show_tps";
 
   /**
-   * ctor.
+   * the server.
    */
-  private TpsCommand() {
-    super("tps", "Gets the current ticks per second for the server.", "shiruka.command.tps");
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   */
+  private TpsCommand(@NotNull final ShirukaServer server) {
+    super("tps", "Gets the current ticks per second for the server.", "shiruka.command.tps", server);
+    this.server = server;
+  }
+
+  /**
+   * registers the command.
+   *
+   * @param server the server to init.
+   */
+  public static void init(@NotNull final ShirukaServer server) {
+    new TpsCommand(server).register();
   }
 
   /**
    * registers the command.
    */
-  public static void init() {
-    new TpsCommand().register();
+  @NotNull
+  @Override
+  protected LiteralBuilder build() {
+    return super.build()
+      .executes(context -> {
+        final var tpsAvg = this.getTps();
+        CommandHelper.sendTranslated(context, TpsCommand.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
+        return of();
+      });
   }
 
   /**
@@ -62,8 +87,8 @@ public final class TpsCommand extends CommandHelper {
    * @return tps numbers as string array.
    */
   @NotNull
-  private static String[] getTps() {
-    return Arrays.stream(ShirukaTick.getTps())
+  private String[] getTps() {
+    return Arrays.stream(this.server.getTick().getTps())
       .mapToObj(value -> {
         final ChatColor color;
         if (value > 18.0d) {
@@ -77,19 +102,5 @@ public final class TpsCommand extends CommandHelper {
         return color + putStar + Math.min(Math.round(value * 100.0) / 100.0, 20.0) + ChatColor.RESET;
       })
       .toArray(String[]::new);
-  }
-
-  /**
-   * registers the command.
-   */
-  @NotNull
-  @Override
-  protected LiteralBuilder build() {
-    return super.build()
-      .executes(context -> {
-        final var tpsAvg = TpsCommand.getTps();
-        CommandHelper.sendTranslated(context, TpsCommand.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
-        return of();
-      });
   }
 }

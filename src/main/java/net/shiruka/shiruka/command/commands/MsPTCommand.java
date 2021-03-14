@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import net.shiruka.api.command.builder.LiteralBuilder;
 import net.shiruka.api.text.ChatColor;
-import net.shiruka.shiruka.concurrent.ShirukaTick;
+import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -46,17 +46,28 @@ public final class MsPTCommand extends CommandHelper {
   private static final DecimalFormat FORMAT = new DecimalFormat("########0.0");
 
   /**
-   * ctor.
+   * the server.
    */
-  private MsPTCommand() {
-    super("mspt", "Shows how much a tick took to calculate as millisecond.", "shiruka.command.mspt");
+  @NotNull
+  private final ShirukaServer server;
+
+  /**
+   * ctor.
+   *
+   * @param server the server.
+   */
+  private MsPTCommand(@NotNull final ShirukaServer server) {
+    super("mspt", "Shows how much a tick took to calculate as millisecond.", "shiruka.command.mspt", server);
+    this.server = server;
   }
 
   /**
    * registers the command.
+   *
+   * @param server the server.
    */
-  public static void init() {
-    new MsPTCommand().register();
+  public static void init(@NotNull final ShirukaServer server) {
+    new MsPTCommand(server).register();
   }
 
   @NotNull
@@ -91,30 +102,30 @@ public final class MsPTCommand extends CommandHelper {
     return ChatColor.ESCAPE + (average >= 50 ? "c" : average >= 40 ? "e" : "a") + MsPTCommand.FORMAT.format(average);
   }
 
+  @NotNull
+  @Override
+  protected LiteralBuilder build() {
+    return super.build()
+      .executes(context -> {
+        final var tickTimes = this.getTickTimes();
+        CommandHelper.sendTranslated(context, "shiruka.command.tick_times.first_line");
+        CommandHelper.sendTranslated(context, "shiruka.command.tick_times.second_line", tickTimes);
+        return of();
+      });
+  }
+
   /**
    * calculates the tick times and convert them to string array.
    *
    * @return a string array that contains tick times with color support.
    */
   @NotNull
-  private static Object[] getTickTimes() {
+  private Object[] getTickTimes() {
     final var tickTimes = new ObjectArrayList<>();
-    final var times = ShirukaTick.getTickTimes();
+    final var times = this.server.getTick().getTickTimes();
     tickTimes.addAll(MsPTCommand.calculate(times[0]));
     tickTimes.addAll(MsPTCommand.calculate(times[1]));
     tickTimes.addAll(MsPTCommand.calculate(times[2]));
     return tickTimes.toArray(Object[]::new);
-  }
-
-  @NotNull
-  @Override
-  protected LiteralBuilder build() {
-    return super.build()
-      .executes(context -> {
-        final var tickTimes = MsPTCommand.getTickTimes();
-        CommandHelper.sendTranslated(context, "shiruka.command.tick_times.first_line");
-        CommandHelper.sendTranslated(context, "shiruka.command.tick_times.second_line", tickTimes);
-        return of();
-      });
   }
 }

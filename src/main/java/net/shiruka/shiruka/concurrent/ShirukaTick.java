@@ -43,12 +43,12 @@ import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
+import net.shiruka.shiruka.misc.RollingAverage;
 import net.shiruka.shiruka.misc.TickTask;
+import net.shiruka.shiruka.misc.TickTimes;
 import net.shiruka.shiruka.network.PlayerConnection;
 import net.shiruka.shiruka.text.TranslatedTexts;
-import net.shiruka.shiruka.misc.RollingAverage;
 import net.shiruka.shiruka.util.SystemUtils;
-import net.shiruka.shiruka.misc.TickTimes;
 import org.jetbrains.annotations.NotNull;
 
 /**

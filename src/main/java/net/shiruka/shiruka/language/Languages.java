@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
+import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import org.jetbrains.annotations.NotNull;
@@ -275,7 +276,9 @@ public final class Languages {
     }
     Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.log.info("§7" + s));
     Languages.log.info("§aChoose one of the available languages");
+    final var now = System.currentTimeMillis();
     final var locale = Languages.choosingLanguageLoop();
+    ShirukaMain.START_TIME.set(System.currentTimeMillis() - now - ShirukaMain.START_TIME.get());
     ServerConfig.setServerLanguage(locale);
     Languages.setLoadedLanguage(Languages.toString(locale));
     ServerConfig.save();

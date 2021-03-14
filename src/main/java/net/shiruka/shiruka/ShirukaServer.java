@@ -32,11 +32,9 @@ import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.server.RakNetServer;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -163,12 +161,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private final SimplePermissionManager permissionManager = new SimplePermissionManager();
 
   /**
-   * the players direcotry.
-   */
-  @NotNull
-  private final File playersDirectory;
-
-  /**
    * the plugin manager.
    */
   private final SimplePluginManager pluginManager = new SimplePluginManager();
@@ -193,11 +185,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   @NotNull
   private final RakNetServer socket;
-
-  /**
-   * the start time.
-   */
-  private final long startTime;
 
   /**
    * the stop lock.
@@ -249,21 +236,14 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   /**
    * ctor.
    *
-   * @param startTime the start time.
    * @param console the console.
-   * @param serverLanguage the server language.
    * @param socket the socket.
-   * @param playersDirectory the players directory.
    */
-  ShirukaServer(final long startTime, @NotNull final Function<ShirukaServer, ShirukaConsole> console,
-                @NotNull final Locale serverLanguage, @NotNull final RakNetServer socket,
-                @NotNull final File playersDirectory) {
-    this.startTime = startTime;
+  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final RakNetServer socket) {
     this.console = console.apply(this);
     this.socket = socket;
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
-    this.languageManager = new SimpleLanguageManager(serverLanguage);
-    this.playersDirectory = playersDirectory;
+    this.languageManager = new SimpleLanguageManager(ShirukaMain.serverLocale);
     this.tick = new ShirukaTick(this);
     this.commandManager = new SimpleCommandManager(this);
   }
@@ -369,7 +349,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     consoleThread.start();
     this.tick.setNextTick(SystemUtils.getMonotonicMillis());
     this.scheduler.mainThreadHeartbeat(0);
-    final var end = System.currentTimeMillis() - this.startTime;
+    final var end = System.currentTimeMillis() - ShirukaMain.START_TIME.get();
     this.getLogger().info(TranslatedText.get(ShirukaServer.SERVER_DONE, end));
     this.tick.run();
     this.stopServer();
@@ -397,16 +377,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   @NotNull
   public Optional<World> getDefaultWorld() {
     return this.getWorld(World.OVER_WORLD);
-  }
-
-  /**
-   * obtains the players directory.
-   *
-   * @return player directory.
-   */
-  @NotNull
-  public File getPlayersDirectory() {
-    return this.playersDirectory;
   }
 
   /**

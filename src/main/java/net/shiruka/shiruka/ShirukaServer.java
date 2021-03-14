@@ -375,8 +375,10 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @return default world.
    */
   @NotNull
-  public Optional<World> getDefaultWorld() {
-    return this.getWorld(World.OVER_WORLD);
+  public World getDefaultWorld() {
+    return this.getWorld(World.OVER_WORLD).orElseThrow(() ->
+      // @todo #1:5m Add language support for "Default world not found!".
+      new IllegalStateException("Default world not found!"));
   }
 
   /**

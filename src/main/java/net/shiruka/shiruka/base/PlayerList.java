@@ -250,8 +250,7 @@ public final class PlayerList {
         : lastKnownName;
     }
     final var resourced = DimensionManager.fromTag(tag);
-    final var world = this.server.getWorld(resourced).orElseGet(() ->
-      this.server.getDefaultWorld().orElse(null));
+    final var world = this.server.getWorld(resourced).orElseGet(this.server::getDefaultWorld);
     player.spawnIn(world);
     // @todo #1:1m Continue to development here.
     this.server.getTick().setLastPingTime(0L);

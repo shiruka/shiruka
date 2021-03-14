@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.language;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.ShirukaMain;
@@ -77,12 +77,12 @@ public final class Languages {
   /**
    * the shiruka variables.
    */
-  private static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
+  private static final Map<String, Properties> SHIRUKA_VARIABLES = new Object2ObjectOpenHashMap<>();
 
   /**
    * the vanilla variables.
    */
-  private static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
+  private static final Map<String, Properties> VANILLA_VARIABLES = new Object2ObjectOpenHashMap<>();
 
   /**
    * ctor.

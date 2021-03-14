@@ -60,7 +60,7 @@ import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.log.ForwardLogHandler;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.util.AsyncCatcher;
-import net.shiruka.shiruka.util.ShirukaShutdownThread;
+import net.shiruka.shiruka.misc.ShirukaShutdownThread;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

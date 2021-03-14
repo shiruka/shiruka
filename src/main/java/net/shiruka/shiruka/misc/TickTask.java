@@ -23,47 +23,32 @@
  *
  */
 
-package net.shiruka.shiruka.concurrent;
+package net.shiruka.shiruka.misc;
 
-import java.util.Arrays;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents calculator for tick times.
+ * a class that represents tick tasks.
  */
-public final class TickTimes {
+@RequiredArgsConstructor
+public final class TickTask implements Runnable {
 
   /**
-   * the tick times.
+   * the job.
+   */
+  @NotNull
+  private final Runnable job;
+
+  /**
+   * the job.
    */
   @Getter
-  private final long[] times;
+  private final int tick;
 
-  /**
-   * ctor.
-   *
-   * @param length the length.
-   */
-  public TickTimes(final int length) {
-    this.times = new long[length];
-  }
-
-  /**
-   * set the given time to the given index.
-   *
-   * @param index the index to set.
-   * @param time the time to set.
-   */
-  public void add(final int index, final long time) {
-    this.times[index % this.times.length] = time;
-  }
-
-  /**
-   * calculates and gives the average tick time.
-   *
-   * @return average tick time.
-   */
-  public double getAverage() {
-    return (double) Arrays.stream(this.times).sum() / (double) this.times.length * 1.0E-6D;
+  @Override
+  public void run() {
+    this.job.run();
   }
 }

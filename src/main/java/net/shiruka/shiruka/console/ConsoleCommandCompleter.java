@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.command.CommandDispatcher;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.concurrent.Waitable;
+import net.shiruka.shiruka.misc.Waitable;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;

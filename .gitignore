@@ -1,3 +1,7 @@
 .idea/
 target/
+.settings/
 *.iml
+*.classpath
+*.factorypath
+*.project

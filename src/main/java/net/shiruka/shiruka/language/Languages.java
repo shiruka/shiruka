@@ -27,7 +27,7 @@ package net.shiruka.shiruka.language;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -39,7 +39,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.Set;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.shiruka.ShirukaMain;
@@ -56,17 +55,17 @@ public final class Languages {
   /**
    * the available languages.
    */
-  static final Set<String> AVAILABLE_LANGUAGES = new ObjectOpenHashSet<>();
+  static final List<String> AVAILABLE_LANGUAGES = new ObjectArrayList<>();
 
   /**
    * the shiruka keys.
    */
-  static final Set<String> SHIRUKA_KEYS = new ObjectOpenHashSet<>();
+  static final List<String> SHIRUKA_KEYS = new ObjectArrayList<>();
 
   /**
    * the vanilla keys.
    */
-  static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
+  static final List<String> VANILLA_KEYS = new ObjectArrayList<>();
 
   /**
    * the list type reference.

@@ -40,6 +40,7 @@ import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.BanList;
 import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.text.TranslatedText;
+import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
@@ -196,7 +197,7 @@ public final class PlayerList {
       var tempFile = file;
       boolean wrongFile = false;
       if (ServerConfig.onlineMode && !file.exists()) {
-        tempFile = new File(player.getConnection().getServer().getPlayersDirectory(),
+        tempFile = new File(ShirukaMain.players,
           UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)) + ".dat");
         if (tempFile.exists()) {
           wrongFile = true;

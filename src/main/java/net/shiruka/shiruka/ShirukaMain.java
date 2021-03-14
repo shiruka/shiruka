@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -94,6 +95,11 @@ public final class ShirukaMain {
   public static final String MINECRAFT_VERSION = "1.16.210";
 
   /**
+   * the start time.
+   */
+  public static final AtomicLong START_TIME = new AtomicLong();
+
+  /**
    * the working directory as a string.
    */
   private static final String HOME = System.getProperty("user.dir");
@@ -104,31 +110,71 @@ public final class ShirukaMain {
   public static final Path HOME_PATH = Paths.get(ShirukaMain.HOME);
 
   /**
+   * the server runnable.
+   */
+  private static final ThrowableRunnable SERVER_RUNNABLE = () -> {
+    final var socket = ShirukaMain.createSocket();
+    final var server = new ShirukaServer(ShirukaConsole::new, socket);
+    AsyncCatcher.server = server;
+    Shiruka.setServer(server);
+    Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
+    socket.addListener(server);
+    socket.start();
+  };
+
+  /**
+   * the ip bans file.
+   */
+  @NotNull
+  public static File ipBans = new File("ip_bans.json");
+
+  /**
+   * the ops file.
+   */
+  @NotNull
+  public static File ops = new File("ops.json");
+
+  /**
    * the players directory.
    */
   @NotNull
-  private static File playersDirectory = new File("players");
+  public static File players = new File("players");
+
+  /**
+   * the plugins directory.
+   */
+  @NotNull
+  public static File plugins = new File("plugins");
+
+  /**
+   * the profile bans file.
+   */
+  @NotNull
+  public static File profileBans = new File("profile_bans.json");
+
+  /**
+   * the server config file.
+   */
+  @NotNull
+  public static File serverConfig = new File("shiruka.yml");
 
   /**
    * the server locale.
    */
   @NotNull
-  private static Locale serverLocale = Locale.ENGLISH;
+  public static Locale serverLocale = Locale.ENGLISH;
 
   /**
-   * the server runnable.
+   * the user cache file.
    */
-  private static final ThrowableRunnable SERVER_RUNNABLE = () -> {
-    final var startTime = System.currentTimeMillis();
-    final var socket = ShirukaMain.createSocket();
-    final var server = new ShirukaServer(startTime, ShirukaConsole::new, ShirukaMain.serverLocale, socket,
-      ShirukaMain.playersDirectory);
-    AsyncCatcher.server = server;
-    Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
-    Shiruka.setServer(server);
-    socket.addListener(server);
-    socket.start();
-  };
+  @NotNull
+  public static File userCache = new File("user_cache.json");
+
+  /**
+   * the whitelist file.
+   */
+  @NotNull
+  public static File whitelist = new File("whitelist.json");
 
   /**
    * ctor.
@@ -143,6 +189,7 @@ public final class ShirukaMain {
    * @param holder the holder to initiate.
    */
   public static void config(@NotNull final File file, @NotNull final Class<? extends ConfigHolder> holder) {
+    //noinspection UnstableApiUsage
     ConfigLoader.builder()
       .setFolderPath(file.getAbsoluteFile().getParentFile())
       .setFileName(com.google.common.io.Files.getNameWithoutExtension(file.getName()))
@@ -158,6 +205,7 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
+    ShirukaMain.START_TIME.set(System.currentTimeMillis());
     final var parsed = ShirukaConsoleParser.parse(args);
     if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
       ShirukaConsoleParser.printHelpOn();
@@ -292,13 +340,19 @@ public final class ShirukaMain {
    * @param options the options to load.
    */
   private static void loadFilesAndDirectories(@NotNull final OptionSet options) throws Exception {
-    ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
-    ShirukaMain.playersDirectory = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLAYERS, true);
-    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG), ServerConfig.class);
-    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS), OpsConfig.class);
-    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE), UserCacheConfig.class);
-    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS), IpBanConfig.class);
-    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS), ProfileBanConfig.class);
-    ShirukaMain.config(ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST), WhitelistConfig.class);
+    ShirukaMain.plugins = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLUGINS, true);
+    ShirukaMain.players = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PLAYERS, true);
+    ShirukaMain.serverConfig = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.CONFIG);
+    ShirukaMain.ops = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.OPS);
+    ShirukaMain.userCache = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.USER_CACHE);
+    ShirukaMain.ipBans = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS);
+    ShirukaMain.profileBans = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS);
+    ShirukaMain.whitelist = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST);
+    ShirukaMain.config(ShirukaMain.serverConfig, ServerConfig.class);
+    ShirukaMain.config(ShirukaMain.ops, OpsConfig.class);
+    ShirukaMain.config(ShirukaMain.userCache, UserCacheConfig.class);
+    ShirukaMain.config(ShirukaMain.ipBans, IpBanConfig.class);
+    ShirukaMain.config(ShirukaMain.profileBans, ProfileBanConfig.class);
+    ShirukaMain.config(ShirukaMain.whitelist, WhitelistConfig.class);
   }
 }

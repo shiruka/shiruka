@@ -26,11 +26,13 @@
 package net.shiruka.shiruka.language;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,10 +40,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
+import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import org.jetbrains.annotations.NotNull;
@@ -55,17 +56,17 @@ public final class Languages {
   /**
    * the available languages.
    */
-  static final Set<String> AVAILABLE_LANGUAGES = new ObjectOpenHashSet<>();
+  static final Collection<String> AVAILABLE_LANGUAGES = new ObjectOpenHashSet<>();
 
   /**
    * the shiruka keys.
    */
-  static final Set<String> SHIRUKA_KEYS = new ObjectOpenHashSet<>();
+  static final Collection<String> SHIRUKA_KEYS = new ObjectOpenHashSet<>();
 
   /**
    * the vanilla keys.
    */
-  static final Set<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
+  static final Collection<String> VANILLA_KEYS = new ObjectOpenHashSet<>();
 
   /**
    * the list type reference.
@@ -76,12 +77,12 @@ public final class Languages {
   /**
    * the shiruka variables.
    */
-  private static final Map<String, Properties> SHIRUKA_VARIABLES = new ConcurrentHashMap<>();
+  private static final Map<String, Properties> SHIRUKA_VARIABLES = new Object2ObjectOpenHashMap<>();
 
   /**
    * the vanilla variables.
    */
-  private static final Map<String, Properties> VANILLA_VARIABLES = new ConcurrentHashMap<>();
+  private static final Map<String, Properties> VANILLA_VARIABLES = new Object2ObjectOpenHashMap<>();
 
   /**
    * ctor.
@@ -275,7 +276,9 @@ public final class Languages {
     }
     Languages.AVAILABLE_LANGUAGES.forEach(s -> Languages.log.info("§7" + s));
     Languages.log.info("§aChoose one of the available languages");
+    final var now = System.currentTimeMillis();
     final var locale = Languages.choosingLanguageLoop();
+    ShirukaMain.START_TIME.set(ShirukaMain.START_TIME.get() + System.currentTimeMillis() - now);
     ServerConfig.setServerLanguage(locale);
     Languages.setLoadedLanguage(Languages.toString(locale));
     ServerConfig.save();
@@ -309,6 +312,7 @@ public final class Languages {
    *
    * @return upper cased text.
    */
+  @NotNull
   private static String secondUpper(@NotNull final String text) {
     final var split = text.split("_");
     return split[0] + "_" + split[1].toUpperCase(Locale.ROOT);
@@ -322,9 +326,7 @@ public final class Languages {
    * @return {@code true} if the language is loaded.
    */
   private static boolean setLoadedLanguage(@NotNull final String locale) {
-    if (!Languages.AVAILABLE_LANGUAGES.contains(locale)) {
-      return false;
-    }
-    return ServerConfig.addLoadedLanguage(locale);
+    return Languages.AVAILABLE_LANGUAGES.contains(locale) &&
+      ServerConfig.addLoadedLanguage(locale);
   }
 }

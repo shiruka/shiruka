@@ -10,7 +10,7 @@ COPY --from=0 /opt/shiruka /opt/shiruka
 RUN mvn clean install -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -B
 
 FROM adoptopenjdk/openjdk11:alpine
-WORKDIR /app
+WORKDIR /opt/shiruka
 COPY --from=1 /opt/shiruka/target/Shiruka.jar /opt/shiruka
 COPY --from=1 /opt/shiruka/entrypoint.sh /opt/shiruka
 EXPOSE 19132

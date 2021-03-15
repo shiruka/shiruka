@@ -12,4 +12,5 @@ FROM adoptopenjdk/openjdk11:alpine
 WORKDIR /app
 COPY --from=1 /app/target/Shiruka.jar /app
 EXPOSE 19132
-CMD ["java", "-jar", "Shiruka.jar"]
+ENTRYPOINT ["java"]
+CMD ["-jar", "Shiruka.jar"]

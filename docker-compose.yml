@@ -8,4 +8,4 @@ services:
       - MIN_MEMORY=1G
       - MAX_MEMORY=1G
       - JAVA_FLAGS=
-      - SERVER_ARGUMENTS=-locale=EN_US
+      - SERVER_ARGUMENTS=--locale=en_US

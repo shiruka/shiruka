@@ -7,7 +7,7 @@ FROM adoptopenjdk/maven-openjdk11
 RUN mkdir -p /opt/shiruka
 WORKDIR /opt/shiruka
 COPY --from=0 /opt/shiruka /opt/shiruka
-RUN mvn clean install -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -B
+RUN mvn clean install -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -B -ntp
 
 FROM adoptopenjdk/openjdk11:alpine
 RUN mkdir -p /opt/shiruka

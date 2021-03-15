@@ -46,6 +46,7 @@ import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that contains language operations.
@@ -96,7 +97,7 @@ public final class Languages {
    * @param locale the locale to load.
    */
   public static void addLoadedLanguage(@NotNull final String locale) {
-    if (Languages.setLoadedLanguage(locale)) {
+    if (Languages.addLoadedLanguage0(locale)) {
       Languages.loadVariables(locale);
       ServerConfig.save();
     }
@@ -131,16 +132,18 @@ public final class Languages {
   /**
    * starts the choosing language sequence if it has never chosen before.
    *
+   * @param def the default locale comes from java arguments.
+   *
    * @return the chosen server language.
    *
    * @throws IOException if something went wrong when reading the file.
    */
   @NotNull
-  public static Locale startSequence() throws IOException {
+  public static Locale startSequence(@Nullable final String def) throws IOException {
     Languages.clean();
     Languages.loadAvailableLanguages();
     Languages.loadKeys();
-    final var locale = Languages.loadServerLanguage();
+    final var locale = Languages.loadServerLanguage(def == null ? "_" : def);
     Languages.loadLoadedLanguages();
     return locale;
   }
@@ -155,7 +158,10 @@ public final class Languages {
   @NotNull
   public static Locale toLocale(@NotNull final String locale) {
     final var split = locale.split("_");
-    return new Locale(split[0], split[1]);
+    if (split.length != 2) {
+      return Locale.ROOT;
+    }
+    return new Locale(split[0], split[1].toUpperCase(Locale.ROOT));
   }
 
   /**
@@ -168,6 +174,18 @@ public final class Languages {
   @NotNull
   public static String toString(@NotNull final Locale locale) {
     return locale.getLanguage() + "_" + locale.getCountry();
+  }
+
+  /**
+   * adds the given language to the loaded languages.
+   *
+   * @param locale the locale to load.
+   *
+   * @return {@code true} if the language is loaded.
+   */
+  private static boolean addLoadedLanguage0(@NotNull final String locale) {
+    return Languages.AVAILABLE_LANGUAGES.contains(locale) &&
+      ServerConfig.addLoadedLanguage(locale);
   }
 
   /**
@@ -263,13 +281,27 @@ public final class Languages {
   /**
    * loads the server language.
    *
+   * @param def the default locale comes from java arguments.
+   *
    * @return server language.
    */
   @NotNull
-  private static Locale loadServerLanguage() {
-    final var serverLanguage = ServerConfig.serverLanguage;
-    if (serverLanguage != Locale.ROOT) {
-      if (Languages.setLoadedLanguage(Languages.toString(serverLanguage))) {
+  private static Locale loadServerLanguage(@NotNull final String def) {
+    final Locale serverLanguage;
+    if (Languages.AVAILABLE_LANGUAGES.contains(Languages.secondUpper(def))) {
+      final var defaultLocale = Languages.toLocale(def);
+      if (defaultLocale.equals(Locale.ROOT)) {
+        serverLanguage = ServerConfig.serverLanguage;
+      } else {
+        serverLanguage = defaultLocale;
+        ServerConfig.setServerLanguage(serverLanguage);
+        ServerConfig.save();
+      }
+    } else {
+      serverLanguage = ServerConfig.serverLanguage;
+    }
+    if (!serverLanguage.equals(Locale.ROOT)) {
+      if (Languages.addLoadedLanguage0(Languages.toString(serverLanguage))) {
         ServerConfig.save();
       }
       return serverLanguage;
@@ -280,7 +312,7 @@ public final class Languages {
     final var locale = Languages.choosingLanguageLoop();
     ShirukaMain.START_TIME.set(ShirukaMain.START_TIME.get() + System.currentTimeMillis() - now);
     ServerConfig.setServerLanguage(locale);
-    Languages.setLoadedLanguage(Languages.toString(locale));
+    Languages.addLoadedLanguage0(Languages.toString(locale));
     ServerConfig.save();
     return locale;
   }
@@ -315,18 +347,9 @@ public final class Languages {
   @NotNull
   private static String secondUpper(@NotNull final String text) {
     final var split = text.split("_");
+    if (split.length != 2) {
+      return text;
+    }
     return split[0] + "_" + split[1].toUpperCase(Locale.ROOT);
-  }
-
-  /**
-   * adds the given language to the loaded languages.
-   *
-   * @param locale the locale to load.
-   *
-   * @return {@code true} if the language is loaded.
-   */
-  private static boolean setLoadedLanguage(@NotNull final String locale) {
-    return Languages.AVAILABLE_LANGUAGES.contains(locale) &&
-      ServerConfig.addLoadedLanguage(locale);
   }
 }

@@ -193,7 +193,7 @@ public final class ShirukaConsoleParser {
       .acceptsAll(Arrays.asList("L", "locale"), "Server locale to use")
       .withRequiredArg()
       .ofType(String.class)
-      .defaultsTo("en_US")
+      .defaultsTo("_")
       .describedAs("Server locale");
   }
 

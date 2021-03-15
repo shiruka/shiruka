@@ -71,7 +71,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a Java main class to start the Shiru ka's server.
  *
- * @todo 1#:60m Add docker support.
+ * @todo #1:60m Add docker support.
  */
 @Log4j2
 public final class ShirukaMain {

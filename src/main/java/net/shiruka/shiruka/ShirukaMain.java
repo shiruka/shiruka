@@ -246,7 +246,7 @@ public final class ShirukaMain {
     System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
     JiraExceptionCatcher.run(() -> {
       ShirukaMain.loadFilesAndDirectories(parsed);
-      ShirukaMain.serverLocale = Languages.startSequence();
+      ShirukaMain.serverLocale = Languages.startSequence(parsed.valueOf(ShirukaConsoleParser.LOCALE));
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
       thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
       thread.setPriority(Thread.NORM_PRIORITY + 2);

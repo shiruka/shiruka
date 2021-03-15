@@ -3,7 +3,8 @@ services:
   shiruka:
     image: portlek/shiruka
     ports:
-      - 19132:19132
+      - "19132:19132"
+      - "19132:19132/udp"
     environment:
       - MIN_MEMORY=1G
       - MAX_MEMORY=1G

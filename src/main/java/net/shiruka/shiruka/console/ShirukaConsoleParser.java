@@ -68,6 +68,12 @@ public final class ShirukaConsoleParser {
   public static final OptionSpec<File> IP_BANS;
 
   /**
+   * the server locale option spec.
+   */
+  @NotNull
+  public static final OptionSpec<String> LOCALE;
+
+  /**
    * the ops file option spec.
    */
   @NotNull
@@ -183,6 +189,12 @@ public final class ShirukaConsoleParser {
       .ofType(File.class)
       .defaultsTo(new File("players"))
       .describedAs("Players directory");
+    LOCALE = ShirukaConsoleParser.PARSER
+      .acceptsAll(Arrays.asList("L", "locale"), "Server locale to use")
+      .withRequiredArg()
+      .ofType(String.class)
+      .defaultsTo("en_US")
+      .describedAs("Server locale");
   }
 
   /**

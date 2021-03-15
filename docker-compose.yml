@@ -1,0 +1,11 @@
+version: '3'
+services:
+  shiruka:
+    image: portlek/shiruka
+    ports:
+      - 19132:19132
+    environment:
+      - MIN_MEMORY=1G
+      - MAX_MEMORY=1G
+      - JAVA_FLAGS=
+      - SERVER_ARGUMENTS=-locale=EN_US

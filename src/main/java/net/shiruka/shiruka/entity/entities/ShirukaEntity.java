@@ -26,13 +26,10 @@
 package net.shiruka.shiruka.entity.entities;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.Vector3D;
 import net.shiruka.api.entity.Entity;
-import net.shiruka.api.entity.Player;
 import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
@@ -52,11 +49,6 @@ public abstract class ShirukaEntity implements Entity {
    * the last entity id.
    */
   private static final AtomicInteger LAST_ENTITY_ID = new AtomicInteger();
-
-  /**
-   * the viewers.
-   */
-  protected final Set<Player> viewers = new CopyOnWriteArraySet<>();
 
   /**
    * the entity id.

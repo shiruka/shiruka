@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Tick;
@@ -68,6 +69,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents player connections.
  */
+@RequiredArgsConstructor
 public final class PlayerConnection implements PacketHandler, Tick {
 
   /**
@@ -129,17 +131,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
   @Nullable
   private GameProfile profile;
 
-  /**
-   * ctor.
-   *
-   * @param connection the connection.
-   * @param server the server.
-   */
-  public PlayerConnection(@NotNull final RakNetClientPeer connection, @NotNull final ShirukaServer server) {
-    this.connection = connection;
-    this.server = server;
-  }
-
   @Override
   public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
     this.blobCacheSupport = packet.isBlobCacheSupport();
@@ -159,25 +150,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
     final var chunk = pack.getChunk(1048576 * chunkSize, 1048576);
     final var send = new ResourcePackChunkDataPacket(chunkSize, chunk, packId, version, 1048576L * chunkSize);
     this.sendPacket(send);
-  }
-
-  @Override
-  public void tick() {
-    if (this.connection.isConnected() && Shiruka.isPrimaryThread()) {
-      this.handleQueuedPackets();
-    }
-    if (PlayerConnection.oldTick != this.server.getTick().getCurrentTick()) {
-      PlayerConnection.oldTick = this.server.getTick().getCurrentTick();
-      PlayerConnection.joinAttemptsThisTick = 0;
-    }
-    final var handler = this.packetHandler.get();
-    if (handler instanceof LoginListener &&
-      PlayerConnection.joinAttemptsThisTick++ < ServerConfig.maxLoginPerTick) {
-      handler.tick();
-    }
-    if (handler instanceof PlayerConnection) {
-      ((PlayerConnection) handler).doTick();
-    }
   }
 
   @Override
@@ -317,6 +289,25 @@ public final class PlayerConnection implements PacketHandler, Tick {
    */
   public void sendPacketImmediately(@NotNull final ShirukaPacket packet) {
     this.sendWrapped(Collections.singleton(packet));
+  }
+
+  @Override
+  public void tick() {
+    if (this.connection.isConnected() && Shiruka.isPrimaryThread()) {
+      this.handleQueuedPackets();
+    }
+    if (PlayerConnection.oldTick != this.server.getTick().getCurrentTick()) {
+      PlayerConnection.oldTick = this.server.getTick().getCurrentTick();
+      PlayerConnection.joinAttemptsThisTick = 0;
+    }
+    final var handler = this.packetHandler.get();
+    if (handler instanceof LoginListener &&
+      PlayerConnection.joinAttemptsThisTick++ < ServerConfig.maxLoginPerTick) {
+      handler.tick();
+    }
+    if (handler instanceof PlayerConnection) {
+      ((PlayerConnection) handler).doTick();
+    }
   }
 
   /**

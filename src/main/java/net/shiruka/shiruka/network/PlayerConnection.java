@@ -76,7 +76,8 @@ public final class PlayerConnection implements PacketHandler, Tick {
   /**
    * the login listener.
    */
-  public final LoginListener loginListener = new LoginListener(this);
+  @Getter
+  private final LoginListener loginListener = new LoginListener(this);
 
   /**
    * the connection.

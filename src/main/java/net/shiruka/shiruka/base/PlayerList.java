@@ -265,7 +265,7 @@ public final class PlayerList {
     final var uniqueId = player.getUniqueId();
     if (this.pendingPlayers.containsKey(uniqueId) ||
       this.playersByUniqueId.containsKey(uniqueId)) {
-      player.getConnection().loginListener.wantsToJoin = player;
+      player.getConnection().getLoginListener().setWantsToJoin(player);
       return;
     }
     this.login(player);

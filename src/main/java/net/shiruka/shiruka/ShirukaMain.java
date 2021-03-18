@@ -207,44 +207,44 @@ public final class ShirukaMain {
    * @param args the args to run.
    */
   public static void main(final String[] args) {
-    ShirukaMain.START_TIME.set(System.currentTimeMillis());
-    final var parsed = ShirukaConsoleParser.parse(args);
-    if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
-      ShirukaConsoleParser.printHelpOn();
-      return;
-    }
-    if (parsed.has(ShirukaConsoleParser.VERSION)) {
-      ShirukaConsoleParser.printVersion();
-      return;
-    }
-    if (parsed.has(ShirukaConsoleParser.DEBUG) &&
-      parsed.valueOf(ShirukaConsoleParser.DEBUG)) {
-      final var context = (LoggerContext) LogManager.getContext(false);
-      context.getConfiguration()
-        .getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
-        .setLevel(Level.DEBUG);
-      context.updateLoggers();
-    }
-    final var here = ShirukaMain.HOME;
-    if (here.contains("!") || here.contains("+")) {
-      ShirukaMain.log.warn("§cCannot run server in a directory with ! or + in the pathname.");
-      ShirukaMain.log.warn("§cPlease rename the affected folders and try again.");
-      return;
-    }
-    if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
-      System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
-    }
-    System.setProperty("library.jansi.version", "Shiru ka");
-    SystemUtils.startTimerHack();
-    final var global = java.util.logging.Logger.getLogger("");
-    global.setUseParentHandlers(false);
-    Stream.of(global.getHandlers())
-      .forEach(global::removeHandler);
-    global.addHandler(new ForwardLogHandler());
-    final var rootLogger = LogManager.getRootLogger();
-    System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
-    System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
     JiraExceptionCatcher.run(() -> {
+      ShirukaMain.START_TIME.set(System.currentTimeMillis());
+      final var parsed = ShirukaConsoleParser.parse(args);
+      if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
+        ShirukaConsoleParser.printHelpOn();
+        return;
+      }
+      if (parsed.has(ShirukaConsoleParser.VERSION)) {
+        ShirukaConsoleParser.printVersion();
+        return;
+      }
+      if (parsed.has(ShirukaConsoleParser.DEBUG) &&
+        parsed.valueOf(ShirukaConsoleParser.DEBUG)) {
+        final var context = (LoggerContext) LogManager.getContext(false);
+        context.getConfiguration()
+          .getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
+          .setLevel(Level.DEBUG);
+        context.updateLoggers();
+      }
+      final var here = ShirukaMain.HOME;
+      if (here.contains("!") || here.contains("+")) {
+        ShirukaMain.log.warn("§cCannot run server in a directory with ! or + in the pathname.");
+        ShirukaMain.log.warn("§cPlease rename the affected folders and try again.");
+        return;
+      }
+      if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
+        System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
+      }
+      System.setProperty("library.jansi.version", "Shiru ka");
+      SystemUtils.startTimerHack();
+      final var global = java.util.logging.Logger.getLogger("");
+      global.setUseParentHandlers(false);
+      Stream.of(global.getHandlers())
+        .forEach(global::removeHandler);
+      global.addHandler(new ForwardLogHandler());
+      final var rootLogger = LogManager.getRootLogger();
+      System.setOut(IoBuilder.forLogger(rootLogger).setLevel(Level.INFO).buildPrintStream());
+      System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.serverLocale = Languages.startSequence(parsed.valueOf(ShirukaConsoleParser.LOCALE));
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");

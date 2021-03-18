@@ -86,7 +86,7 @@ public final class ViolationWarningPacket extends ShirukaPacket {
 
   @Override
   public void handle(@NotNull final PacketHandler handler) {
-    handler.violationWarningPacket(this);
+    handler.violationWarning(this);
   }
 
   /**

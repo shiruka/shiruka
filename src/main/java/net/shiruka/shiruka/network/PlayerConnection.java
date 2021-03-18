@@ -36,30 +36,22 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 import java.util.zip.Deflater;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Tick;
-import net.shiruka.api.event.events.LoginResultEvent;
-import net.shiruka.api.text.ChatColor;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
-import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.base.LoginData;
-import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
-import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
 import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
@@ -68,12 +60,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents player connections.
  */
+@RequiredArgsConstructor
 public final class PlayerConnection implements PacketHandler, Tick {
-
-  /**
-   * the name pattern to check client's usernames.
-   */
-  private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z\\s\\d_]{3,16}+$");
 
   /**
    * the join attempts this tick.
@@ -86,15 +74,17 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private static int oldTick;
 
   /**
-   * the login listener.
-   */
-  public final LoginListener loginListener = new LoginListener();
-
-  /**
    * the connection.
    */
   @NotNull
+  @Getter
   private final RakNetClientPeer connection;
+
+  /**
+   * the login listener.
+   */
+  @Getter
+  private final LoginListener loginListener = new LoginListener(this);
 
   /**
    * the packet handler.
@@ -110,6 +100,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * the server.
    */
   @NotNull
+  @Getter
   private final ShirukaServer server;
 
   /**
@@ -121,32 +112,24 @@ public final class PlayerConnection implements PacketHandler, Tick {
    * the player.
    */
   @Nullable
+  @Getter
   private ShirukaPlayer player;
 
   /**
    * the profile.
    */
   @Nullable
+  @Getter
+  @Setter
   private GameProfile profile;
 
-  /**
-   * ctor.
-   *
-   * @param connection the connection.
-   * @param server the server.
-   */
-  public PlayerConnection(@NotNull final RakNetClientPeer connection, @NotNull final ShirukaServer server) {
-    this.connection = connection;
-    this.server = server;
-  }
-
   @Override
-  public void clientCacheStatusPacket(@NotNull final ClientCacheStatusPacket packet) {
+  public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
     this.blobCacheSupport = packet.isBlobCacheSupport();
   }
 
   @Override
-  public void resourcePackChunkRequestPacket(@NotNull final ResourcePackChunkRequestPacket packet) {
+  public void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
     final var packId = packet.getPackId();
     final var version = packet.getVersion();
     final var chunkSize = packet.getChunkSize();
@@ -162,26 +145,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   @Override
-  public void tick() {
-    if (this.connection.isConnected() && Shiruka.isPrimaryThread()) {
-      this.handleQueuedPackets();
-    }
-    if (PlayerConnection.oldTick != this.server.getTick().getCurrentTick()) {
-      PlayerConnection.oldTick = this.server.getTick().getCurrentTick();
-      PlayerConnection.joinAttemptsThisTick = 0;
-    }
-    final var handler = this.packetHandler.get();
-    if (handler instanceof LoginListener &&
-      PlayerConnection.joinAttemptsThisTick++ < ServerConfig.maxLoginPerTick) {
-      handler.tick();
-    }
-    if (handler instanceof PlayerConnection) {
-      ((PlayerConnection) handler).doTick();
-    }
-  }
-
-  @Override
-  public void violationWarningPacket(@NotNull final ViolationWarningPacket packet) {
+  public void violationWarning(@NotNull final ViolationWarningPacket packet) {
     Shiruka.getLogger().error("Something went wrong when reading a packet!");
   }
 
@@ -217,16 +181,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   /**
-   * obtains the connection.
-   *
-   * @return connection.
-   */
-  @NotNull
-  public RakNetClientPeer getConnection() {
-    return this.connection;
-  }
-
-  /**
    * obtains the packet handler.
    *
    * @return packet handler.
@@ -243,26 +197,6 @@ public final class PlayerConnection implements PacketHandler, Tick {
    */
   public void setPacketHandler(@NotNull final PacketHandler handler) {
     this.packetHandler.set(handler);
-  }
-
-  /**
-   * obtains the player.
-   *
-   * @return player.
-   */
-  @Nullable
-  public ShirukaPlayer getPlayer() {
-    return this.player;
-  }
-
-  /**
-   * obtains the server.
-   *
-   * @return server.
-   */
-  @NotNull
-  public ShirukaServer getServer() {
-    return this.server;
   }
 
   /**
@@ -317,6 +251,25 @@ public final class PlayerConnection implements PacketHandler, Tick {
    */
   public void sendPacketImmediately(@NotNull final ShirukaPacket packet) {
     this.sendWrapped(Collections.singleton(packet));
+  }
+
+  @Override
+  public void tick() {
+    if (this.connection.isConnected() && Shiruka.isPrimaryThread()) {
+      this.handleQueuedPackets();
+    }
+    if (PlayerConnection.oldTick != this.server.getTick().getCurrentTick()) {
+      PlayerConnection.oldTick = this.server.getTick().getCurrentTick();
+      PlayerConnection.joinAttemptsThisTick = 0;
+    }
+    final var handler = this.packetHandler.get();
+    if (handler instanceof LoginListener &&
+      PlayerConnection.joinAttemptsThisTick++ < ServerConfig.maxLoginPerTick) {
+      handler.tick();
+    }
+    if (handler instanceof PlayerConnection) {
+      ((PlayerConnection) handler).doTick();
+    }
   }
 
   /**
@@ -404,202 +357,5 @@ public final class PlayerConnection implements PacketHandler, Tick {
      * accepted.
      */
     ACCEPTED
-  }
-
-  /**
-   * a class that represents login listener.
-   */
-  public final class LoginListener implements PacketHandler {
-
-    /**
-     * the wants to join.
-     */
-    @Nullable
-    public ShirukaPlayer wantsToJoin;
-
-    /**
-     * the latest login packet.
-     */
-    @Nullable
-    private LoginPacket latestLoginPacket;
-
-    /**
-     * the latest resource packet.
-     */
-    @Nullable
-    private ResourcePackResponsePacket latestResourcePacket;
-
-    /**
-     * the login data.
-     */
-    @Nullable
-    private LoginData loginData;
-
-    /**
-     * the login timeout counter.
-     */
-    private int loginTimeoutCounter;
-
-    @Override
-    public void loginPacket(@NotNull final LoginPacket packet) {
-      this.latestLoginPacket = packet;
-    }
-
-    @Override
-    public void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
-      this.latestResourcePacket = packet;
-    }
-
-    @Override
-    public void tick() {
-      if (!Shiruka.getServer().isRunning()) {
-        PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
-        return;
-      }
-      if (this.wantsToJoin == null) {
-        if (this.latestLoginPacket != null) {
-          this.loginPacket0(this.latestLoginPacket);
-        }
-        if (this.latestResourcePacket != null) {
-          this.resourcePackResponsePacket0(this.latestResourcePacket);
-        }
-      } else if (PlayerConnection.this.profile != null) {
-        final var pending = PlayerConnection.this.server.playerList
-          .getActivePlayer(PlayerConnection.this.profile.getUniqueId());
-        if (pending == null) {
-          this.wantsToJoin = null;
-        }
-      }
-      if (this.loginTimeoutCounter++ >= 600) {
-        PlayerConnection.this.disconnect(TranslatedTexts.SLOW_LOGIN_REASON);
-      }
-    }
-
-    /**
-     * handles the login packet.
-     *
-     * @param packet the packet to handle.
-     *
-     * @todo #1:60m Add ServerToClientHandshake ClientToServerHandshake packets to request encryption key.
-     */
-    private void loginPacket0(@NotNull final LoginPacket packet) {
-      this.latestLoginPacket = null;
-      if (Shiruka.isStopping()) {
-        PlayerConnection.this.disconnect(TranslatedTexts.RESTART_REASON);
-        return;
-      }
-      final var protocolVersion = packet.getProtocolVersion();
-      final var encodedChainData = packet.getChainData().toString();
-      final var encodedSkinData = packet.getSkinData().toString();
-      if (protocolVersion < ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-        PlayerConnection.this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD));
-        return;
-      }
-      if (protocolVersion > ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-        PlayerConnection.this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD));
-        return;
-      }
-      Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
-        final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
-        Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-          Languages.addLoadedLanguage(chainData.getLanguageCode());
-          if (!chainData.isXboxAuthed() && ServerConfig.onlineMode) {
-            PlayerConnection.this.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
-            return;
-          }
-          final var username = chainData.getUsername();
-          final var matcher = PlayerConnection.NAME_PATTERN.matcher(username);
-          if (!matcher.matches() ||
-            username.equalsIgnoreCase("rcon") ||
-            username.equalsIgnoreCase("console")) {
-            PlayerConnection.this.disconnect(TranslatedTexts.INVALID_NAME_REASON);
-            return;
-          }
-          if (!chainData.getSkin().isValid()) {
-            PlayerConnection.this.disconnect(TranslatedTexts.INVALID_SKIN_REASON);
-            return;
-          }
-          PlayerConnection.this.profile = new GameProfile(
-            () -> ChatColor.clean(username),
-            chainData.getUniqueId(),
-            chainData.getXboxUniqueId());
-          this.loginData = new LoginData(chainData, PlayerConnection.this, PlayerConnection.this.profile);
-          final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData);
-          preLogin.callEvent();
-          if (preLogin.isCancelled()) {
-            PlayerConnection.this.disconnect(preLogin.getKickMessage().orElse(null));
-            return;
-          }
-          final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
-          this.loginData.setAsyncLogin(asyncLogin);
-          this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
-            asyncLogin.callEvent();
-            if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
-              Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
-                PlayerConnection.this.disconnect(asyncLogin.getKickMessage().orElse(null)));
-              return;
-            }
-            Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-              if (this.loginData.shouldLogin()) {
-                this.loginData.initialize();
-              }
-            });
-          }));
-          PlayerConnection.this.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
-          final var packInfo = Shiruka.getPackManager().getPackInfo();
-          if (packInfo instanceof ShirukaPacket) {
-            PlayerConnection.this.sendPacket((ShirukaPacket) packInfo);
-          }
-        });
-      });
-    }
-
-    /**
-     * handles the resource pack response packet.
-     *
-     * @param packet the packet to handle.
-     */
-    private void resourcePackResponsePacket0(@NotNull final ResourcePackResponsePacket packet) {
-      final var status = packet.getStatus();
-      final var packs = packet.getPacks();
-      final var packManager = Shiruka.getPackManager();
-      switch (status) {
-        case REFUSED:
-          if (ServerConfig.forceResources) {
-            PlayerConnection.this.disconnect(TranslatedTexts.NO_REASON);
-          }
-          break;
-        case COMPLETED:
-          if (this.loginData == null) {
-            return;
-          }
-          if (this.loginData.getTask() != null &&
-            Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
-            this.loginData.setShouldLogin(true);
-          } else {
-            this.loginData.initialize();
-          }
-          break;
-        case SEND_PACKS:
-          packs.forEach(pack -> {
-            final var optional = packManager.getPackByUniqueId(pack.getUniqueId());
-            if (optional.isEmpty()) {
-              PlayerConnection.this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON);
-              return;
-            }
-            final var loaded = optional.get();
-            PlayerConnection.this.sendPacket(new ResourcePackDataInfoPacket(loaded));
-          });
-          break;
-        case HAVE_ALL_PACKS:
-          final var packStack = packManager.getPackStack();
-          if (packStack instanceof ShirukaPacket) {
-            PlayerConnection.this.sendPacket((ShirukaPacket) packStack);
-          }
-          break;
-        default:
-          break;
-      }
-    }
   }
 }

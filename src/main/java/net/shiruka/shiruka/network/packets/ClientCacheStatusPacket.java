@@ -65,7 +65,7 @@ public final class ClientCacheStatusPacket extends ShirukaPacket {
 
   @Override
   public void handle(@NotNull final PacketHandler handler) {
-    handler.clientCacheStatusPacket(this);
+    handler.clientCacheStatus(this);
   }
 
   /**

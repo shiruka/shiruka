@@ -70,10 +70,6 @@ public interface PacketHandler extends Tick {
   default void resourcePackResponse(@NotNull final ResourcePackResponsePacket packet) {
   }
 
-  @Override
-  default void tick() {
-  }
-
   /**
    * handles the violation warning packet.
    *

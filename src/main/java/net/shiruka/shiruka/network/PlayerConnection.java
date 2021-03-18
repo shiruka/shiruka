@@ -74,17 +74,17 @@ public final class PlayerConnection implements PacketHandler, Tick {
   private static int oldTick;
 
   /**
-   * the login listener.
-   */
-  @Getter
-  private final LoginListener loginListener = new LoginListener(this);
-
-  /**
    * the connection.
    */
   @NotNull
   @Getter
   private final RakNetClientPeer connection;
+
+  /**
+   * the login listener.
+   */
+  @Getter
+  private final LoginListener loginListener = new LoginListener(this);
 
   /**
    * the packet handler.

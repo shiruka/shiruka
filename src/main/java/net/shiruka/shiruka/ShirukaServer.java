@@ -523,6 +523,11 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * registers the implementation of the interfaces which are singleton.
    */
   private void registerImplementations() {
+    JiraExceptionCatcher.run(() -> {
+      Class.forName("net.shiruka.shiruka.network.PacketRegistry");
+      Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
+      Class.forName("net.shiruka.shiruka.text.TranslatedTexts");
+    });
     this.registerInterface(ConsoleCommandSender.class, this.consoleCommandSender);
     this.registerInterface(EventManager.class, this.eventManager);
     this.registerInterface(LanguageManager.class, this.languageManager);
@@ -533,11 +538,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.registerInterface(WorldManager.class, this.worldManager);
     this.commandManager.register();
     this.registerInterface(CommandManager.class, this.commandManager);
-    JiraExceptionCatcher.run(() -> {
-      Class.forName("net.shiruka.shiruka.network.PacketRegistry");
-      Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
-      Class.forName("net.shiruka.shiruka.text.TranslatedTexts");
-    });
   }
 
   /**

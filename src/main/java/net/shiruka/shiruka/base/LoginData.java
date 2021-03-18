@@ -36,7 +36,7 @@ import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
-import net.shiruka.shiruka.network.PlayerConnection;
+import net.shiruka.shiruka.network.NetworkManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,10 +54,10 @@ public final class LoginData {
   private final ChainData chainData;
 
   /**
-   * the player.
+   * the network manager.
    */
   @NotNull
-  private final PlayerConnection connection;
+  private final NetworkManager networkManager;
 
   /**
    * the profile.
@@ -109,16 +109,16 @@ public final class LoginData {
     if (this.asyncLogin == null) {
       return;
     }
-    if (this.connection.getConnection().isDisconnected()) {
+    if (this.networkManager.getClient().isDisconnected()) {
       return;
     }
+    final var player = new ShirukaPlayer(this.networkManager, this, this.profile);
     if (this.asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
-      this.connection.disconnect(this.asyncLogin.getKickMessage().orElse(null));
+      player.getPlayerConnection().disconnect(this.asyncLogin.getKickMessage());
       return;
     }
-    final var player = new ShirukaPlayer(this.connection, this, this.profile);
-    this.connection.initialize(player);
-    this.asyncLogin.getActions().forEach(action -> action.accept(player));
+    this.networkManager.initialize(player);
+    this.asyncLogin.getObjects().forEach(action -> action.accept(player));
   }
 
   /**

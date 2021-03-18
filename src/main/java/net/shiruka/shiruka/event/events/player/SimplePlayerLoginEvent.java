@@ -25,7 +25,6 @@
 
 package net.shiruka.shiruka.event.events.player;
 
-import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -33,7 +32,6 @@ import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.events.player.PlayerLoginEvent;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple implementation for {@link PlayerLoginEvent}.
@@ -42,17 +40,19 @@ import org.jetbrains.annotations.Nullable;
 public final class SimplePlayerLoginEvent implements PlayerLoginEvent {
 
   /**
-   * the player.
+   * the player entity.
    */
   @NotNull
-  private final Player player;
+  @Getter
+  private final Player entity;
 
   /**
    * the kick message.
    */
-  @Nullable
+  @NotNull
+  @Getter
   @Setter
-  private Text kickMessage;
+  private Text kickMessage = Text.empty();
 
   /**
    * the login result.
@@ -61,16 +61,4 @@ public final class SimplePlayerLoginEvent implements PlayerLoginEvent {
   @Getter
   @Setter
   private LoginResult loginResult = LoginResult.ALLOWED;
-
-  @NotNull
-  @Override
-  public Player getEntity() {
-    return this.player;
-  }
-
-  @NotNull
-  @Override
-  public Optional<Text> getKickMessage() {
-    return Optional.ofNullable(this.kickMessage);
-  }
 }

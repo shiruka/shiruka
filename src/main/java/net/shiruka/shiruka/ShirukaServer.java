@@ -111,11 +111,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   private static final String SERVER_STOPPING_EXCEPTION = "shiruka.server.stopping_exception";
 
   /**
-   * the player list.
-   */
-  public final PlayerList playerList = new PlayerList(this);
-
-  /**
    * the command manager.
    */
   @NotNull
@@ -159,6 +154,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the permission manager.
    */
   private final SimplePermissionManager permissionManager = new SimplePermissionManager();
+
+  /**
+   * the player list.
+   */
+  @Getter
+  private final PlayerList playerList = new PlayerList(this);
 
   /**
    * the plugin manager.

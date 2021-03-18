@@ -29,10 +29,12 @@ import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.text.ChatColor;
+import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.base.LoginData;
@@ -40,6 +42,7 @@ import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
 import net.shiruka.shiruka.language.Languages;
+import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
@@ -52,6 +55,7 @@ import org.jetbrains.annotations.Nullable;
  * a class that represents login listener.
  */
 @RequiredArgsConstructor
+@Log4j2
 public final class LoginListener implements PacketHandler {
 
   /**
@@ -64,7 +68,7 @@ public final class LoginListener implements PacketHandler {
    */
   @NotNull
   @Getter
-  private final PlayerConnection connection;
+  private final NetworkManager networkManager;
 
   /**
    * the latest login packet.
@@ -90,15 +94,58 @@ public final class LoginListener implements PacketHandler {
   private int loginTimeoutCounter;
 
   /**
+   * the profile.
+   */
+  @Nullable
+  @Getter
+  private GameProfile profile;
+
+  /**
    * the wants to join.
    */
   @Nullable
   @Setter
   private ShirukaPlayer wantsToJoin;
 
+  /**
+   * disconnects the connection.
+   *
+   * @param kickMessage the kick message to send.
+   */
+  public void disconnect(@NotNull final Text kickMessage) {
+    try {
+      // @todo #1:5m Add language support for Disconnecting {}: {}.
+      LoginListener.log.info("Disconnecting {}: {}", this.getNetworkName(), kickMessage.asString());
+      this.networkManager.sendPacket(new DisconnectPacket(kickMessage.asString(), false));
+      this.networkManager.close(kickMessage);
+    } catch (final Exception exception) {
+      // @todo #1:5m Add language support for Error whilst disconnecting player.
+      LoginListener.log.error("Error whilst disconnecting player", exception);
+    }
+  }
+
+  /**
+   * obtains the network name before login.
+   *
+   * @return network name of the connection.
+   */
+  @NotNull
+  public String getNetworkName() {
+    if (this.profile == null) {
+      return this.networkManager.getSocketAddress().toString();
+    }
+    return this.profile + " (" + this.networkManager.getSocketAddress() + ")";
+  }
+
   @Override
   public void login(@NotNull final LoginPacket packet) {
     this.latestLoginPacket = packet;
+  }
+
+  @Override
+  public void onDisconnect(@NotNull final Text disconnectMessage) {
+    // @todo #1:5m Add language support for {} lost connection: {}.
+    LoginListener.log.info("{} lost connection: {}", this.getNetworkName(), disconnectMessage.asString());
   }
 
   @Override
@@ -109,7 +156,7 @@ public final class LoginListener implements PacketHandler {
   @Override
   public void tick() {
     if (!Shiruka.getServer().isRunning()) {
-      this.connection.disconnect(TranslatedTexts.RESTART_REASON);
+      this.disconnect(TranslatedTexts.RESTART_REASON);
       return;
     }
     if (this.wantsToJoin == null) {
@@ -119,15 +166,15 @@ public final class LoginListener implements PacketHandler {
       if (this.latestResourcePacket != null) {
         this.resourcePackResponsePacket0(this.latestResourcePacket);
       }
-    } else if (this.connection.getProfile() != null) {
-      final var pending = this.connection.getServer().playerList
-        .getActivePlayer(this.connection.getProfile().getUniqueId());
+    } else if (this.profile != null) {
+      final var pending = this.networkManager.getServer().getPlayerList()
+        .getActivePlayer(this.profile.getUniqueId());
       if (pending == null) {
         this.wantsToJoin = null;
       }
     }
     if (this.loginTimeoutCounter++ >= 600) {
-      this.connection.disconnect(TranslatedTexts.SLOW_LOGIN_REASON);
+      this.disconnect(TranslatedTexts.SLOW_LOGIN_REASON);
     }
   }
 
@@ -141,18 +188,18 @@ public final class LoginListener implements PacketHandler {
   private void loginPacket0(@NotNull final LoginPacket packet) {
     this.latestLoginPacket = null;
     if (Shiruka.isStopping()) {
-      this.connection.disconnect(TranslatedTexts.RESTART_REASON);
+      this.disconnect(TranslatedTexts.RESTART_REASON);
       return;
     }
     final var protocolVersion = packet.getProtocolVersion();
     final var encodedChainData = packet.getChainData().toString();
     final var encodedSkinData = packet.getSkinData().toString();
     if (protocolVersion < ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-      this.connection.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD));
+      this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD));
       return;
     }
     if (protocolVersion > ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-      this.connection.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD));
+      this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD));
       return;
     }
     Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
@@ -160,7 +207,7 @@ public final class LoginListener implements PacketHandler {
       Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
         Languages.addLoadedLanguage(chainData.getLanguageCode());
         if (!chainData.isXboxAuthed() && ServerConfig.onlineMode) {
-          this.connection.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
+          this.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
           return;
         }
         final var username = chainData.getUsername();
@@ -168,23 +215,22 @@ public final class LoginListener implements PacketHandler {
         if (!matcher.matches() ||
           username.equalsIgnoreCase("rcon") ||
           username.equalsIgnoreCase("console")) {
-          this.connection.disconnect(TranslatedTexts.INVALID_NAME_REASON);
+          this.disconnect(TranslatedTexts.INVALID_NAME_REASON);
           return;
         }
         if (!chainData.getSkin().isValid()) {
-          this.connection.disconnect(TranslatedTexts.INVALID_SKIN_REASON);
+          this.disconnect(TranslatedTexts.INVALID_SKIN_REASON);
           return;
         }
-        this.connection.setProfile(new GameProfile(
+        this.profile = new GameProfile(
           () -> ChatColor.clean(username),
           chainData.getUniqueId(),
-          chainData.getXboxUniqueId()));
-        assert this.connection.getProfile() != null;
-        this.loginData = new LoginData(chainData, this.connection, this.connection.getProfile());
+          chainData.getXboxUniqueId());
+        this.loginData = new LoginData(chainData, this.networkManager, this.profile);
         final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData);
         preLogin.callEvent();
         if (preLogin.isCancelled()) {
-          this.connection.disconnect(preLogin.getKickMessage().orElse(null));
+          this.disconnect(preLogin.getKickMessage());
           return;
         }
         final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
@@ -193,7 +239,7 @@ public final class LoginListener implements PacketHandler {
           asyncLogin.callEvent();
           if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
             Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
-              this.connection.disconnect(asyncLogin.getKickMessage().orElse(null)));
+              this.disconnect(asyncLogin.getKickMessage()));
             return;
           }
           Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
@@ -202,10 +248,10 @@ public final class LoginListener implements PacketHandler {
             }
           });
         }));
-        this.connection.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
+        this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
         final var packInfo = Shiruka.getPackManager().getPackInfo();
         if (packInfo instanceof ShirukaPacket) {
-          this.connection.sendPacket((ShirukaPacket) packInfo);
+          this.networkManager.sendPacket((ShirukaPacket) packInfo);
         }
       });
     });
@@ -223,7 +269,7 @@ public final class LoginListener implements PacketHandler {
     switch (status) {
       case REFUSED:
         if (ServerConfig.forceResources) {
-          this.connection.disconnect(TranslatedTexts.NO_REASON);
+          this.disconnect(TranslatedTexts.NO_REASON);
         }
         break;
       case COMPLETED:
@@ -241,17 +287,17 @@ public final class LoginListener implements PacketHandler {
         packs.forEach(pack -> {
           final var optional = packManager.getPackByUniqueId(pack.getUniqueId());
           if (optional.isEmpty()) {
-            this.connection.disconnect(TranslatedTexts.RESOURCE_PACK_REASON);
+            this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON);
             return;
           }
           final var loaded = optional.get();
-          this.connection.sendPacket(new ResourcePackDataInfoPacket(loaded));
+          this.networkManager.sendPacket(new ResourcePackDataInfoPacket(loaded));
         });
         break;
       case HAVE_ALL_PACKS:
         final var packStack = packManager.getPackStack();
         if (packStack instanceof ShirukaPacket) {
-          this.connection.sendPacket((ShirukaPacket) packStack);
+          this.networkManager.sendPacket((ShirukaPacket) packStack);
         }
         break;
       default:

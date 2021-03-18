@@ -41,12 +41,15 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.Getter;
+import lombok.Setter;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.events.LoginResultEvent;
+import net.shiruka.api.event.events.player.PlayerQuitEvent;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
@@ -58,6 +61,7 @@ import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
+import net.shiruka.shiruka.network.NetworkManager;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -78,12 +82,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   protected final Set<ShirukaEntity> viewableEntities = new CopyOnWriteArraySet<>();
 
   /**
-   * the connection.
-   */
-  @NotNull
-  private final PlayerConnection connection;
-
-  /**
    * the hidden players.
    */
   private final Map<UUID, Set<WeakReference<Plugin>>> hiddenPlayers = new Object2ObjectOpenHashMap<>();
@@ -95,9 +93,22 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private final LoginData loginData;
 
   /**
+   * the connection.
+   */
+  @NotNull
+  private final NetworkManager networkManager;
+
+  /**
    * the ping.
    */
   private final AtomicInteger ping = new AtomicInteger();
+
+  /**
+   * the player connection.
+   */
+  @NotNull
+  @Getter
+  private final PlayerConnection playerConnection;
 
   /**
    * the is real player.
@@ -138,17 +149,31 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private File playerFile;
 
   /**
+   * the quit reason.
+   */
+  @Nullable
+  @Setter
+  private PlayerQuitEvent.QuitReason quitReason;
+
+  /**
+   * the valid.
+   */
+  @Getter
+  private boolean valid;
+
+  /**
    * ctor.
    *
-   * @param connection the connection.
+   * @param networkManager the connection.
    * @param loginData the login data.
    * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final PlayerConnection connection, @NotNull final LoginData loginData,
+  public ShirukaPlayer(@NotNull final NetworkManager networkManager, @NotNull final LoginData loginData,
                        @NotNull final GameProfile profile) {
     super(profile);
-    this.connection = connection;
+    this.networkManager = networkManager;
     this.loginData = loginData;
+    this.playerConnection = new PlayerConnection(this);
   }
 
   @Nullable
@@ -186,7 +211,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   @Override
   public InetSocketAddress getAddress() {
-    return this.connection.getConnection().getAddress();
+    return this.networkManager.getClient().getAddress();
   }
 
   @NotNull
@@ -213,15 +238,14 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     hidingPlugins = new ObjectOpenHashSet<>();
     hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
     this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
-//    this.unregisterPlayer(player);
   }
 
   @Override
   public boolean kick(@NotNull final LoginResultEvent.LoginResult reason, @Nullable final Text reasonString,
                       final boolean isAdmin) {
-    final var done = Shiruka.getEventManager().playerKick(this, reason).callEvent();
+    final var done = Shiruka.getEventManager().playerKick(this, reasonString).callEvent();
     if (done) {
-      this.connection.disconnect(reasonString);
+      this.playerConnection.disconnect(reasonString);
     }
     return done;
   }
@@ -240,7 +264,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       return;
     }
     this.hiddenPlayers.remove(player.getUniqueId());
-//    this.registerPlayer(player);
   }
 
   /**
@@ -250,7 +273,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
    */
   @NotNull
   public CompoundTag createDefaultTag() {
-    final var defaultWorld = this.connection.getServer().getDefaultWorld();
+    final var defaultWorld = this.networkManager.getServer().getDefaultWorld();
     final var spawn = defaultWorld.getSpawn();
     final var tag = Tag.createCompound();
     tag.setLong("first-played", System.currentTimeMillis() / 1000L);
@@ -322,16 +345,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   }
 
   /**
-   * obtains the connection.
-   *
-   * @return connection.
-   */
-  @NotNull
-  public PlayerConnection getConnection() {
-    return this.connection;
-  }
-
-  /**
    * obtains the {@link #dataFile}.
    *
    * @return data file.
@@ -342,6 +355,16 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       this.dataFile = new File(ShirukaMain.HOME_PATH + "/players/" + this.getUniqueId() + ".dat");
     }
     return this.dataFile;
+  }
+
+  /**
+   * obtains the connection.
+   *
+   * @return connection.
+   */
+  @NotNull
+  public NetworkManager getNetworkManager() {
+    return this.networkManager;
   }
 
   /**
@@ -377,7 +400,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     try {
       Files.createFile(path);
     } catch (final IOException e) {
-      this.connection.getServer().getLogger().error("Failed to create player data file for {}",
+      this.networkManager.getServer().getLogger().error("Failed to create player data file for {}",
         this.getName().asString());
     }
     return this.playerFile;

@@ -93,11 +93,12 @@ public final class Protocol {
    * @param packets the packets to serialize.
    * @param level the level to serialize.
    */
-  public static void serialize(@NotNull final ByteBuf result, @NotNull final Collection<ShirukaPacket> packets,
+  public static void serialize(@NotNull final ByteBuf result, @NotNull final Collection<QueuedPacket> packets,
                                final int level) {
     final var uncompressed = Unpooled.buffer(packets.size() << 3);
     try {
-      for (final var packet : packets) {
+      for (final var queued : packets) {
+        final var packet = queued.getPacket();
         final var buffer = Unpooled.buffer();
         try {
           final var packetId = packet.getId();

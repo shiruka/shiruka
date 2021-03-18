@@ -23,24 +23,31 @@
  *
  */
 
-package net.shiruka.shiruka.event.events;
+package net.shiruka.shiruka.network;
 
-import lombok.AccessLevel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import net.shiruka.api.event.events.Cancellable;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * an abstract implementation for {@link Cancellable}.
+ * a class that represents queued packets.
  */
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class SimpleCancellableEvent implements Cancellable {
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Getter
+public final class QueuedPacket {
 
   /**
-   * the cancelled.
+   * the wrapped packet.
    */
-  @Getter
-  @Setter
-  private boolean cancelled;
+  private final ShirukaPacket packet;
+
+  /**
+   * the listener.
+   */
+  @Nullable
+  private GenericFutureListener<? extends Future<? super Void>> listener;
 }

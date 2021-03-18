@@ -31,6 +31,7 @@ import io.netty.util.AsciiString;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.EntityRemovePacket;
@@ -49,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a generic abstract packet for Shiru ka packets.
  */
+@RequiredArgsConstructor
 public abstract class ShirukaPacket extends Packet {
 
   /**
@@ -139,15 +141,6 @@ public abstract class ShirukaPacket extends Packet {
    */
   protected ShirukaPacket(final int id, @NotNull final ByteBuf original) {
     super(original);
-    this.id = id;
-  }
-
-  /**
-   * ctor.
-   *
-   * @param id the id.
-   */
-  protected ShirukaPacket(final int id) {
     this.id = id;
   }
 

@@ -25,8 +25,6 @@
 
 package net.shiruka.shiruka.event.events.player;
 
-import java.util.Optional;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,12 +33,10 @@ import net.shiruka.api.event.events.player.PlayerPreLoginEvent;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.event.events.SimpleCancellableEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a simple implementation for {@link PlayerPreLoginEvent}.
  */
-@AllArgsConstructor
 @RequiredArgsConstructor
 public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent implements PlayerPreLoginEvent {
 
@@ -54,13 +50,8 @@ public final class SimplePlayerPreLoginEvent extends SimpleCancellableEvent impl
   /**
    * the kick message.
    */
-  @Nullable
+  @NotNull
+  @Getter
   @Setter
   private Text kickMessage;
-
-  @NotNull
-  @Override
-  public Optional<Text> getKickMessage() {
-    return Optional.ofNullable(this.kickMessage);
-  }
 }

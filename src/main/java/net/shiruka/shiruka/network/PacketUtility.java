@@ -49,7 +49,7 @@ public final class PacketUtility {
    * @param connection the connection to disconnect.
    * @param reason the reason to disconnect.
    */
-  public static void disconnect(@NotNull final PlayerConnection connection, @Nullable final String reason) {
+  public static void disconnect(@NotNull final NetworkManager connection, @Nullable final String reason) {
     if (reason == null) {
       PacketUtility.disconnect(connection);
     } else {
@@ -62,7 +62,7 @@ public final class PacketUtility {
    *
    * @param connection the connection to disconnect.
    */
-  public static void disconnect(@NotNull final PlayerConnection connection) {
+  public static void disconnect(@NotNull final NetworkManager connection) {
     PacketUtility.disconnect(connection, (Text) null);
   }
 
@@ -72,8 +72,8 @@ public final class PacketUtility {
    * @param connection the connection to disconnect.
    * @param reason the reason to disconnect.
    */
-  public static void disconnect(@NotNull final PlayerConnection connection, @Nullable final Text reason) {
-    Preconditions.checkState(connection.getConnection().isConnected(), "not connected");
+  public static void disconnect(@NotNull final NetworkManager connection, @Nullable final Text reason) {
+    Preconditions.checkState(connection.getClient().isConnected(), "not connected");
     final var message = reason == null ? TranslatedTexts.DISCONNECTED_NO_REASON : reason;
     connection.sendPacket(new DisconnectPacket(message.asString(), reason == null));
   }

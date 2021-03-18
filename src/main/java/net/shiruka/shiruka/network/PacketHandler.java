@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.network;
 
 import net.shiruka.api.base.Tick;
+import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
@@ -53,6 +54,13 @@ public interface PacketHandler extends Tick {
    */
   default void login(@NotNull final LoginPacket packet) {
   }
+
+  /**
+   * runs when the connection is disconnected.
+   *
+   * @param disconnectMessage the disconnect message to disconnect.
+   */
+  void onDisconnect(@NotNull Text disconnectMessage);
 
   /**
    * handles the resource pack chunk request packet.

@@ -28,6 +28,7 @@ package net.shiruka.shiruka.network;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.event.events.LoginResultEvent;
@@ -66,12 +67,6 @@ public final class LoginListener implements PacketHandler {
   private final PlayerConnection connection;
 
   /**
-   * the wants to join.
-   */
-  @Nullable
-  public ShirukaPlayer wantsToJoin;
-
-  /**
    * the latest login packet.
    */
   @Nullable
@@ -93,6 +88,13 @@ public final class LoginListener implements PacketHandler {
    * the login timeout counter.
    */
   private int loginTimeoutCounter;
+
+  /**
+   * the wants to join.
+   */
+  @Nullable
+  @Setter
+  private ShirukaPlayer wantsToJoin;
 
   @Override
   public void login(@NotNull final LoginPacket packet) {

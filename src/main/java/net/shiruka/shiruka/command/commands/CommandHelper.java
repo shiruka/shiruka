@@ -101,54 +101,44 @@ abstract class CommandHelper {
   }
 
   /**
-   * sends a {@link TranslatedText} to the given {@code sender}.
-   *
-   * @param sender the sender to send.
-   * @param key the key to send.
-   * @param params the params to send.
-   */
-  protected static void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
-                                       @NotNull final Object... params) {
-    CommandHelper.sendTranslated(sender, TranslatedText.get(key, params));
-  }
-
-  /**
-   * sends a {@link TranslatedText} to the given {@code sender}.
-   *
-   * @param sender the sender to send.
-   * @param text the text to send.
-   */
-  protected static void sendTranslated(@NotNull final CommandSender sender, @NotNull final TranslatedText text) {
-    sender.sendMessage(text);
-  }
-
-  /**
-   * sends a {@link TranslatedText} to the given {@code context}'s command sender.
-   *
-   * @param context the context to send.
-   * @param key the key to send.
-   * @param params the params to send.
-   */
-  protected static void sendTranslated(@NotNull final CommandContext context, @NotNull final String key,
-                                       @NotNull final Object... params) {
-    CommandHelper.sendTranslated(context.getSender(), key, params);
-  }
-
-  /**
-   * sends a {@link TranslatedText} to the given {@code context}'s command sender.
-   *
-   * @param context the context to send.
-   * @param text the text to send.
-   */
-  protected static void sendTranslated(@NotNull final CommandContext context, @NotNull final TranslatedText text) {
-    CommandHelper.sendTranslated(context.getSender(), text);
-  }
-
-  /**
    * registers the command.
    */
   protected final void register() {
     this.server.getCommandManager().registerInternal(this.build());
+  }
+
+  /**
+   * sends a {@link TranslatedText} to the given {@code context}'s command sender.
+   *
+   * @param context the context to send.
+   * @param key the key to send.
+   * @param params the params to send.
+   */
+  protected final void sendTranslated(@NotNull final CommandContext context, @NotNull final String key,
+                                      @NotNull final Object... params) {
+    this.sendTranslated(context.getSender(), key, params);
+  }
+
+  /**
+   * sends a {@link TranslatedText} to the given {@code context}'s command sender.
+   *
+   * @param context the context to send.
+   * @param text the text to send.
+   */
+  protected final void sendTranslated(@NotNull final CommandContext context, @NotNull final TranslatedText text) {
+    context.getSender().sendMessage(text);
+  }
+
+  /**
+   * sends a {@link TranslatedText} to the given {@code sender}.
+   *
+   * @param sender the sender to send.
+   * @param key the key to send.
+   * @param params the params to send.
+   */
+  protected final void sendTranslated(@NotNull final CommandSender sender, @NotNull final String key,
+                                      @NotNull final Object... params) {
+    sender.sendMessage(TranslatedText.get(key, params));
   }
 
   /**
@@ -163,7 +153,7 @@ abstract class CommandHelper {
       .permission((sender, permissions) -> {
         final var joined = Joiner.on(", ").join(permissions);
         if (this.permissionMessage == null) {
-          CommandHelper.sendTranslated(sender, CommandHelper.TEST_PERMISSION, joined);
+          this.sendTranslated(sender, CommandHelper.TEST_PERMISSION, joined);
         } else {
           sender.sendMessage(this.permissionMessage, joined);
         }

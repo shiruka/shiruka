@@ -76,7 +76,7 @@ public final class StopCommand extends CommandHelper {
   protected LiteralBuilder build() {
     return super.build()
       .executes(context -> {
-        CommandHelper.sendTranslated(context, TranslatedTexts.ADD_CONFIRM);
+        this.sendTranslated(context, TranslatedTexts.ADD_CONFIRM);
         return of();
       })
       .then(literal(StopCommand.CONFIRM_SUB_COMMAND)

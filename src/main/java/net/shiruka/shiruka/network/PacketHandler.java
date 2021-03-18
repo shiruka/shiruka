@@ -43,7 +43,7 @@ public interface PacketHandler extends Tick {
    *
    * @param packet the packet to handle.
    */
-  default void clientCacheStatusPacket(@NotNull final ClientCacheStatusPacket packet) {
+  default void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
   }
 
   /**
@@ -51,7 +51,7 @@ public interface PacketHandler extends Tick {
    *
    * @param packet the packet to handle.
    */
-  default void loginPacket(@NotNull final LoginPacket packet) {
+  default void login(@NotNull final LoginPacket packet) {
   }
 
   /**
@@ -59,7 +59,7 @@ public interface PacketHandler extends Tick {
    *
    * @param packet the packet to handle.
    */
-  default void resourcePackChunkRequestPacket(@NotNull final ResourcePackChunkRequestPacket packet) {
+  default void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
   }
 
   /**
@@ -67,7 +67,7 @@ public interface PacketHandler extends Tick {
    *
    * @param packet the packet to handle.
    */
-  default void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
+  default void resourcePackResponse(@NotNull final ResourcePackResponsePacket packet) {
   }
 
   @Override
@@ -79,6 +79,6 @@ public interface PacketHandler extends Tick {
    *
    * @param packet the packet to handle.
    */
-  default void violationWarningPacket(@NotNull final ViolationWarningPacket packet) {
+  default void violationWarning(@NotNull final ViolationWarningPacket packet) {
   }
 }

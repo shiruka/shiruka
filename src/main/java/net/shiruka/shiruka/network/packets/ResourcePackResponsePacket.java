@@ -83,7 +83,7 @@ public final class ResourcePackResponsePacket extends ShirukaPacket {
 
   @Override
   public void handle(@NotNull final PacketHandler handler) {
-    handler.resourcePackResponsePacket(this);
+    handler.resourcePackResponse(this);
   }
 
   /**

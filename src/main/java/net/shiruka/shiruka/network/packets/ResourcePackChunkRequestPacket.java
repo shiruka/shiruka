@@ -79,7 +79,7 @@ public final class ResourcePackChunkRequestPacket extends ShirukaPacket {
 
   @Override
   public void handle(@NotNull final PacketHandler handler) {
-    handler.resourcePackChunkRequestPacket(this);
+    handler.resourcePackChunkRequest(this);
   }
 
   /**

@@ -141,12 +141,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   @Override
-  public void clientCacheStatusPacket(@NotNull final ClientCacheStatusPacket packet) {
+  public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
     this.blobCacheSupport = packet.isBlobCacheSupport();
   }
 
   @Override
-  public void resourcePackChunkRequestPacket(@NotNull final ResourcePackChunkRequestPacket packet) {
+  public void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
     final var packId = packet.getPackId();
     final var version = packet.getVersion();
     final var chunkSize = packet.getChunkSize();
@@ -181,7 +181,7 @@ public final class PlayerConnection implements PacketHandler, Tick {
   }
 
   @Override
-  public void violationWarningPacket(@NotNull final ViolationWarningPacket packet) {
+  public void violationWarning(@NotNull final ViolationWarningPacket packet) {
     Shiruka.getLogger().error("Something went wrong when reading a packet!");
   }
 
@@ -441,12 +441,12 @@ public final class PlayerConnection implements PacketHandler, Tick {
     private int loginTimeoutCounter;
 
     @Override
-    public void loginPacket(@NotNull final LoginPacket packet) {
+    public void login(@NotNull final LoginPacket packet) {
       this.latestLoginPacket = packet;
     }
 
     @Override
-    public void resourcePackResponsePacket(@NotNull final ResourcePackResponsePacket packet) {
+    public void resourcePackResponse(@NotNull final ResourcePackResponsePacket packet) {
       this.latestResourcePacket = packet;
     }
 

@@ -75,7 +75,7 @@ public final class LoginPacket extends ShirukaPacket {
 
   @Override
   public void handle(@NotNull final PacketHandler handler) {
-    handler.loginPacket(this);
+    handler.login(this);
   }
 
   /**

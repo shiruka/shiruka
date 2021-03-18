@@ -192,7 +192,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   @NotNull
   @Override
   public ChainData getChainData() {
-    return Objects.requireNonNull(this.loginData, "player did not initialize").getChainData();
+    return Objects.requireNonNull(this.loginData, "player not initialized").getChainData();
   }
 
   @Override

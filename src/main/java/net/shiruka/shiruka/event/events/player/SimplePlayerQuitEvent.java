@@ -25,66 +25,37 @@
 
 package net.shiruka.shiruka.event.events.player;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.shiruka.api.base.ChainData;
 import net.shiruka.api.entity.Player;
-import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
+import net.shiruka.api.event.events.player.PlayerQuitEvent;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * a simple implementation for {@link PlayerAsyncLoginEvent}.
+ * a simple implementation for {@link PlayerQuitEvent}.
  */
 @RequiredArgsConstructor
-public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent {
+@Getter
+public final class SimplePlayerQuitEvent implements PlayerQuitEvent {
 
   /**
-   * the actions that will run after player initialization.
-   */
-  private final List<Consumer<Player>> actions = new ObjectArrayList<>();
-
-  /**
-   * the chain data.
+   * the player entity.
    */
   @NotNull
-  @Getter
-  private final ChainData chainData;
+  private final Player entity;
 
   /**
-   * the kick message.
+   * the quit reason.
    */
   @NotNull
-  @Getter
+  private final QuitReason quitReason;
+
+  /**
+   * the quit message.
+   */
+  @NotNull
   @Setter
-  private Text kickMessage = Text.empty();
-
-  /**
-   * the login result.
-   */
-  @NotNull
-  @Getter
-  @Setter
-  private LoginResult loginResult = LoginResult.ALLOWED;
-
-  @Override
-  public void addObject(@NotNull final Consumer<Player> action) {
-    this.actions.add(action);
-  }
-
-  @NotNull
-  @Override
-  public List<Consumer<Player>> getObjects() {
-    return Collections.unmodifiableList(this.actions);
-  }
-
-  @Override
-  public void removeObject(@NotNull final Consumer<Player> action) {
-    this.actions.remove(action);
-  }
+  private Text quitMessage;
 }

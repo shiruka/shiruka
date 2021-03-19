@@ -25,66 +25,52 @@
 
 package net.shiruka.shiruka.event.events.player;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
+import java.net.InetSocketAddress;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import net.shiruka.api.base.ChainData;
-import net.shiruka.api.entity.Player;
-import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
+import net.shiruka.api.event.events.player.PlayerConnectionCloseEvent;
 import net.shiruka.api.text.Text;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * a simple implementation for {@link PlayerAsyncLoginEvent}.
+ * a simple implementation for {@link PlayerConnectionCloseEvent}.
  */
 @RequiredArgsConstructor
-public final class SimplePlayerAsyncLoginEvent implements PlayerAsyncLoginEvent {
+public final class SimplePlayerConnectionCloseEvent implements PlayerConnectionCloseEvent {
 
   /**
-   * the actions that will run after player initialization.
-   */
-  private final List<Consumer<Player>> actions = new ObjectArrayList<>();
-
-  /**
-   * the chain data.
+   * the address.
    */
   @NotNull
   @Getter
-  private final ChainData chainData;
+  private final InetSocketAddress address;
 
   /**
-   * the kick message.
+   * the name.
    */
   @NotNull
   @Getter
-  @Setter
-  private Text kickMessage = Text.empty();
+  private final Text name;
 
   /**
-   * the login result.
+   * the unique id.
    */
   @NotNull
   @Getter
-  @Setter
-  private LoginResult loginResult = LoginResult.ALLOWED;
+  private final UUID uniqueId;
 
-  @Override
-  public void addObject(@NotNull final Consumer<Player> action) {
-    this.actions.add(action);
-  }
+  /**
+   * the xbox unique id.
+   */
+  @Nullable
+  private final String xboxUniqueId;
 
   @NotNull
   @Override
-  public List<Consumer<Player>> getObjects() {
-    return Collections.unmodifiableList(this.actions);
-  }
-
-  @Override
-  public void removeObject(@NotNull final Consumer<Player> action) {
-    this.actions.remove(action);
+  public Optional<String> getXboxUniqueId() {
+    return Optional.ofNullable(this.xboxUniqueId);
   }
 }

@@ -76,7 +76,7 @@ public final class TpsCommand extends CommandHelper {
     return super.build()
       .executes(context -> {
         final var tpsAvg = this.getTps();
-        CommandHelper.sendTranslated(context, TpsCommand.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
+        this.sendTranslated(context, TpsCommand.MESSAGE, tpsAvg[0], tpsAvg[1], tpsAvg[2]);
         return of();
       });
   }

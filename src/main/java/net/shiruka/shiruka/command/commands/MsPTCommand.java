@@ -108,8 +108,8 @@ public final class MsPTCommand extends CommandHelper {
     return super.build()
       .executes(context -> {
         final var tickTimes = this.getTickTimes();
-        CommandHelper.sendTranslated(context, "shiruka.command.tick_times.first_line");
-        CommandHelper.sendTranslated(context, "shiruka.command.tick_times.second_line", tickTimes);
+        this.sendTranslated(context, "shiruka.command.tick_times.first_line");
+        this.sendTranslated(context, "shiruka.command.tick_times.second_line", tickTimes);
         return of();
       });
   }

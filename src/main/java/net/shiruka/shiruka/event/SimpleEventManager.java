@@ -25,18 +25,21 @@
 
 package net.shiruka.shiruka.event;
 
+import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.UUID;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.command.sender.CommandSender;
 import net.shiruka.api.entity.Player;
 import net.shiruka.api.event.EventManager;
 import net.shiruka.api.event.Listener;
 import net.shiruka.api.event.events.Event;
-import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
+import net.shiruka.api.event.events.player.PlayerConnectionCloseEvent;
 import net.shiruka.api.event.events.player.PlayerKickEvent;
 import net.shiruka.api.event.events.player.PlayerLoginEvent;
 import net.shiruka.api.event.events.player.PlayerPreLoginEvent;
+import net.shiruka.api.event.events.player.PlayerQuitEvent;
 import net.shiruka.api.event.events.server.AsyncTabCompleteEvent;
 import net.shiruka.api.event.events.server.ServerCommandEvent;
 import net.shiruka.api.event.events.server.ServerExceptionEvent;
@@ -47,9 +50,11 @@ import net.shiruka.api.event.method.MethodAdapter;
 import net.shiruka.api.event.method.SimpleMethodAdapter;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.event.events.player.SimplePlayerAsyncLoginEvent;
+import net.shiruka.shiruka.event.events.player.SimplePlayerConnectionCloseEvent;
 import net.shiruka.shiruka.event.events.player.SimplePlayerKickEvent;
 import net.shiruka.shiruka.event.events.player.SimplePlayerLoginEvent;
 import net.shiruka.shiruka.event.events.player.SimplePlayerPreLoginEvent;
+import net.shiruka.shiruka.event.events.player.SimplePlayerQuitEvent;
 import net.shiruka.shiruka.event.events.server.SimpleAsyncTabCompleteEvent;
 import net.shiruka.shiruka.event.events.server.SimpleServerCommandEvent;
 import net.shiruka.shiruka.event.events.server.SimpleServerExceptionEvent;
@@ -88,9 +93,17 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final LoginResultEvent.LoginResult reason,
-                                    @NotNull final Text kickMessage) {
-    return new SimplePlayerKickEvent(player, reason, kickMessage);
+  public PlayerConnectionCloseEvent playerConnectionClose(@NotNull final InetSocketAddress address,
+                                                          @NotNull final Text name, @NotNull final UUID uniqueId,
+                                                          @Nullable final String xboxUniqueId) {
+    return new SimplePlayerConnectionCloseEvent(address, name, uniqueId, xboxUniqueId);
+  }
+
+  @NotNull
+  @Override
+  public PlayerKickEvent playerKick(@NotNull final Player player, @NotNull final Text kickMessage,
+                                    @NotNull final Text leaveMessage) {
+    return new SimplePlayerKickEvent(player, kickMessage, leaveMessage);
   }
 
   @NotNull
@@ -101,9 +114,15 @@ public final class SimpleEventManager implements EventManager {
 
   @NotNull
   @Override
-  public PlayerPreLoginEvent playerPreLogin(@NotNull final ChainData chainData,
-                                            @Nullable final Text kickMessage) {
+  public PlayerPreLoginEvent playerPreLogin(@NotNull final ChainData chainData, @NotNull final Text kickMessage) {
     return new SimplePlayerPreLoginEvent(chainData, kickMessage);
+  }
+
+  @NotNull
+  @Override
+  public PlayerQuitEvent playerQuit(@NotNull final Player player, @NotNull final Text quitMessage,
+                                    @NotNull final PlayerQuitEvent.QuitReason quitReason) {
+    return new SimplePlayerQuitEvent(player, quitReason, quitMessage);
   }
 
   @Override

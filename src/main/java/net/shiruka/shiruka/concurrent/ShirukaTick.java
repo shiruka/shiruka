@@ -46,7 +46,8 @@ import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.misc.RollingAverage;
 import net.shiruka.shiruka.misc.TickTask;
 import net.shiruka.shiruka.misc.TickTimes;
-import net.shiruka.shiruka.network.PlayerConnection;
+import net.shiruka.shiruka.network.NetworkManager;
+import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.jetbrains.annotations.NotNull;
@@ -93,7 +94,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * the connected players.
    */
   @Getter
-  private final Map<InetSocketAddress, PlayerConnection> connectedPlayers = new ConcurrentHashMap<>();
+  private final Map<InetSocketAddress, NetworkManager> connectedPlayers = new ConcurrentHashMap<>();
 
   /**
    * the pending.
@@ -366,21 +367,26 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    */
   private void connectionTick() {
     while (!this.pending.isEmpty()) {
-      final var peer = this.pending.dequeue();
-      this.connectedPlayers.put(peer.getAddress(), new PlayerConnection(peer, this.server));
+      final var client = this.pending.dequeue();
+      this.connectedPlayers.put(client.getAddress(), new NetworkManager(client, this.server));
     }
     final var iterator = this.connectedPlayers.values().iterator();
     while (iterator.hasNext()) {
-      final var connection = iterator.next();
-      if (connection.getConnection().isDisconnected()) {
+      final var manager = iterator.next();
+      if (manager.isConnected()) {
+        try {
+          manager.tick();
+        } catch (final Exception e) {
+          // @todo #1:5m Add language support for Failed to handle packet for {}.
+          ShirukaTick.log.warn("Failed to handle packet for {}", manager.getSocketAddress(), e);
+          final var kickMessage = TranslatedTexts.LOGIN_ERROR;
+          manager.sendPacketImmediately(new DisconnectPacket(kickMessage.asString(), false), future ->
+            manager.close(kickMessage));
+          JiraExceptionCatcher.serverException(e);
+        }
+      } else {
         iterator.remove();
-        continue;
-      }
-      try {
-        connection.tick();
-      } catch (final Exception e) {
-        connection.disconnect(TranslatedTexts.LOGIN_ERROR);
-        JiraExceptionCatcher.serverException(e);
+        manager.handleDisconnection();
       }
     }
   }

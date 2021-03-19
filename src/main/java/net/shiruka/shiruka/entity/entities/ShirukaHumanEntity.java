@@ -27,6 +27,7 @@ package net.shiruka.shiruka.entity.entities;
 
 import java.util.Optional;
 import java.util.Set;
+import lombok.Getter;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.entity.HumanEntity;
 import net.shiruka.api.permission.PermissibleBase;
@@ -45,12 +46,14 @@ public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanE
   /**
    * the permissible.
    */
+  @NotNull
   protected final PermissibleBase permissible;
 
   /**
    * the profile.
    */
   @NotNull
+  @Getter
   private final GameProfile profile;
 
   /**
@@ -134,16 +137,6 @@ public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanE
   @Override
   public Text getName() {
     return this.getProfile().getName();
-  }
-
-  /**
-   * obtains the profile.
-   *
-   * @return profile.
-   */
-  @NotNull
-  public GameProfile getProfile() {
-    return this.profile;
   }
 
   @Override

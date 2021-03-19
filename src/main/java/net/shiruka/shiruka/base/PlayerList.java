@@ -139,7 +139,7 @@ public final class PlayerList {
     final var pendingPlayer = this.pendingPlayers.get(uniqueId);
     if (pendingPlayer != null) {
       this.pendingPlayers.remove(uniqueId);
-      pendingPlayer.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      pendingPlayer.getPlayerConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
     this.players.stream()
       .filter(oldPlayer -> oldPlayer.getUniqueId().equals(player.getUniqueId()))
@@ -175,7 +175,7 @@ public final class PlayerList {
       event.disallow(LoginResultEvent.LoginResult.KICK_FULL, TranslatedTexts.SERVER_FULL_REASON);
     }
     if (event.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
-      player.kick(event.getLoginResult(), event.getKickMessage().orElse(null));
+      player.kick(event.getLoginResult(), event.getKickMessage());
       return;
     }
     this.tryToLogin(player);
@@ -234,7 +234,7 @@ public final class PlayerList {
     player.isRealPlayer = true;
     final var oldPending = this.pendingPlayers.put(player.getUniqueId(), player);
     if (oldPending != null) {
-      oldPending.getConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
+      oldPending.getPlayerConnection().disconnect(TranslatedTexts.ALREADY_LOGGED_IN_REASON);
     }
     player.loginTime = System.currentTimeMillis();
     final var optional = UserCacheConfig.getProfileByUniqueId(player.getUniqueId());
@@ -265,7 +265,7 @@ public final class PlayerList {
     final var uniqueId = player.getUniqueId();
     if (this.pendingPlayers.containsKey(uniqueId) ||
       this.playersByUniqueId.containsKey(uniqueId)) {
-      player.getConnection().getLoginListener().setWantsToJoin(player);
+      player.getNetworkManager().getLoginListener().setWantsToJoin(player);
       return;
     }
     this.login(player);

@@ -195,7 +195,7 @@ public final class ShirukaMain {
     ConfigLoader.builder()
       .setFolderPath(file.getAbsoluteFile().getParentFile())
       .setFileName(com.google.common.io.Files.getNameWithoutExtension(file.getName()))
-      .setPathHolder(holder)
+      .setConfigHolder(holder)
       .setConfigType(SystemUtils.getType(file))
       .build()
       .load(true);

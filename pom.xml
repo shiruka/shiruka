@@ -110,7 +110,7 @@
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-core</artifactId>
-      <version>5.9.1</version>
+      <version>5.10.1</version>
     </dependency>
     <dependency>
       <groupId>io.github.portlek</groupId>
@@ -120,7 +120,7 @@
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-json</artifactId>
-      <version>5.9.1</version>
+      <version>5.10.1</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jopt-simple</groupId>

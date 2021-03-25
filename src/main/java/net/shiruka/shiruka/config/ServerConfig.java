@@ -31,7 +31,6 @@ import io.github.portlek.configs.annotation.Comment;
 import io.github.portlek.configs.annotation.Route;
 import io.github.portlek.configs.configuration.ConfigurationSection;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import net.shiruka.shiruka.language.Languages;
@@ -194,11 +193,7 @@ public final class ServerConfig implements ConfigHolder {
    * saves the file.
    */
   public static void save() {
-    try {
-      ServerConfig.loader.save();
-    } catch (final IOException e) {
-      e.printStackTrace();
-    }
+    ServerConfig.loader.save();
   }
 
   /**
@@ -209,5 +204,12 @@ public final class ServerConfig implements ConfigHolder {
   public static void setServerLanguage(@NotNull final Locale locale) {
     ServerConfig.serverLanguage = locale;
     ServerConfig.section.set("server-language", Languages.toString(locale));
+  }
+
+  /**
+   * the ignored class.
+   */
+  public void ignored() {
+    // ignored.
   }
 }

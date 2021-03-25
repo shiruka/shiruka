@@ -28,7 +28,6 @@ package net.shiruka.shiruka.config;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.configuration.FileConfiguration;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import net.shiruka.api.base.GameProfile;
@@ -118,10 +117,13 @@ public final class UserCacheConfig implements ConfigHolder {
    * saves the file.
    */
   public static void save() {
-    try {
-      UserCacheConfig.loader.save();
-    } catch (final IOException e) {
-      e.printStackTrace();
-    }
+    UserCacheConfig.loader.save();
+  }
+
+  /**
+   * the ignored class.
+   */
+  public void ignored() {
+    // ignored.
   }
 }

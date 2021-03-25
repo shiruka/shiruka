@@ -28,7 +28,6 @@ package net.shiruka.shiruka.config;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.configuration.FileConfiguration;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
@@ -56,12 +55,6 @@ public final class IpBanConfig implements ConfigHolder {
   private static ConfigLoader loader;
 
   /**
-   * ctor.
-   */
-  private IpBanConfig() {
-  }
-
-  /**
    * adds the given {@code entry} to the section.
    *
    * @param entry the entry to add.
@@ -69,11 +62,7 @@ public final class IpBanConfig implements ConfigHolder {
   public static void addBanEntry(@NotNull final IpBanEntry entry) {
     Optional.ofNullable(entry.getKey()).ifPresent(key -> {
       IpBanConfig.configuration.set(key, entry.serialize());
-      try {
-        IpBanConfig.loader.save();
-      } catch (final IOException e) {
-        e.printStackTrace();
-      }
+      IpBanConfig.loader.save();
     });
   }
 
@@ -136,11 +125,7 @@ public final class IpBanConfig implements ConfigHolder {
    */
   public static void remove(@NotNull final String target) {
     IpBanConfig.configuration.set(target, null);
-    try {
-      IpBanConfig.loader.save();
-    } catch (final IOException e) {
-      e.printStackTrace();
-    }
+    IpBanConfig.loader.save();
   }
 
   /**
@@ -160,5 +145,12 @@ public final class IpBanConfig implements ConfigHolder {
       var1 = var1.substring(0, var1.indexOf(58));
     }
     return var1;
+  }
+
+  /**
+   * the ignored class.
+   */
+  public void ignored() {
+    // ignored.
   }
 }

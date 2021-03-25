@@ -41,12 +41,6 @@ public final class WhitelistConfig implements ConfigHolder {
   private static FileConfiguration configuration;
 
   /**
-   * ctor.
-   */
-  private WhitelistConfig() {
-  }
-
-  /**
    * checks if the given {@code xboxUniqueId} is in the whitelist.
    *
    * @param uniqueId the unique id to check.
@@ -55,5 +49,12 @@ public final class WhitelistConfig implements ConfigHolder {
    */
   public static boolean isInWhitelist(@NotNull final UUID uniqueId) {
     return WhitelistConfig.configuration.contains(uniqueId.toString());
+  }
+
+  /**
+   * the ignored class.
+   */
+  public void ignored() {
+    // ignored.
   }
 }

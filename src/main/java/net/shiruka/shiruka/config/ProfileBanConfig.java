@@ -28,7 +28,6 @@ package net.shiruka.shiruka.config;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.configuration.FileConfiguration;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -54,12 +53,6 @@ public final class ProfileBanConfig implements ConfigHolder {
   private static ConfigLoader loader;
 
   /**
-   * ctor.
-   */
-  private ProfileBanConfig() {
-  }
-
-  /**
    * adds the given {@code entry} to the section.
    *
    * @param entry the entry to add.
@@ -67,11 +60,7 @@ public final class ProfileBanConfig implements ConfigHolder {
   public static void addBanEntry(@NotNull final ProfileBanEntry entry) {
     Optional.ofNullable(entry.getKey()).ifPresent(key -> {
       ProfileBanConfig.configuration.set(key.getUniqueId().toString(), entry.serialize());
-      try {
-        ProfileBanConfig.loader.save();
-      } catch (final IOException e) {
-        e.printStackTrace();
-      }
+      ProfileBanConfig.loader.save();
     });
   }
 
@@ -128,10 +117,13 @@ public final class ProfileBanConfig implements ConfigHolder {
    */
   public static void remove(@NotNull final String target) {
     ProfileBanConfig.configuration.set(target, null);
-    try {
-      ProfileBanConfig.loader.save();
-    } catch (final IOException e) {
-      e.printStackTrace();
-    }
+    ProfileBanConfig.loader.save();
+  }
+
+  /**
+   * the ignored class.
+   */
+  public void ignored() {
+    // ignored.
   }
 }

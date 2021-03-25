@@ -434,25 +434,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     return Optional.ofNullable(this.worlds.get(resource));
   }
 
-  /**
-   * obtains the is stopped.
-   *
-   * @return is stopped.
-   */
-  public boolean isStopped() {
-    return this.isStopped;
-  }
-
-  @Override
-  public void onStart(final RakNetServer server) {
-    this.startServer();
-  }
-
-  @Override
-  public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    this.tick.getPending().enqueue(peer);
-  }
-
   @Override
   public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
                             final int channel) {
@@ -471,6 +452,25 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   public void onHandlerException(final RakNetServer server, final InetSocketAddress address,
                                  final Throwable throwable) {
     throwable.printStackTrace();
+  }
+
+  @Override
+  public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
+    this.tick.getPending().enqueue(peer);
+  }
+
+  @Override
+  public void onStart(final RakNetServer server) {
+    this.startServer();
+  }
+
+  /**
+   * obtains the is stopped.
+   *
+   * @return is stopped.
+   */
+  public boolean isStopped() {
+    return this.isStopped;
   }
 
   /**

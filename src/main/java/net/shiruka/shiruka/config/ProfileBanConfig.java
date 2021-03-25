@@ -28,7 +28,6 @@ package net.shiruka.shiruka.config;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import io.github.portlek.configs.configuration.FileConfiguration;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;

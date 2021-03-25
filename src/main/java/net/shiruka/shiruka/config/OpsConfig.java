@@ -68,4 +68,11 @@ public final class OpsConfig implements ConfigHolder {
   public static void removeOp(@NotNull final OpEntry entry) {
     OpsConfig.configuration.set(entry.getProfile().getUniqueId().toString(), null);
   }
+
+  /**
+   * the ignored class.
+   */
+  public void ignored() {
+    // ignored.
+  }
 }

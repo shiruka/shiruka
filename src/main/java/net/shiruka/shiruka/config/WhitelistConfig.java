@@ -50,4 +50,11 @@ public final class WhitelistConfig implements ConfigHolder {
   public static boolean isInWhitelist(@NotNull final UUID uniqueId) {
     return WhitelistConfig.configuration.contains(uniqueId.toString());
   }
+
+  /**
+   * the ignored class.
+   */
+  public void ignored() {
+    // ignored.
+  }
 }

@@ -41,12 +41,6 @@ public final class OpsConfig implements ConfigHolder {
   private static FileConfiguration configuration;
 
   /**
-   * ctor.
-   */
-  private OpsConfig() {
-  }
-
-  /**
    * adds the given {@code entry} to the op list.
    *
    * @param entry the entry to add.

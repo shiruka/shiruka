@@ -56,12 +56,6 @@ public final class IpBanConfig implements ConfigHolder {
   private static ConfigLoader loader;
 
   /**
-   * ctor.
-   */
-  private IpBanConfig() {
-  }
-
-  /**
    * adds the given {@code entry} to the section.
    *
    * @param entry the entry to add.

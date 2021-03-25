@@ -51,12 +51,6 @@ public final class UserCacheConfig implements ConfigHolder {
   private static ConfigLoader loader;
 
   /**
-   * ctor.
-   */
-  private UserCacheConfig() {
-  }
-
-  /**
    * adds the given {@code profile} to the file.
    *
    * @param profile the profile to add.

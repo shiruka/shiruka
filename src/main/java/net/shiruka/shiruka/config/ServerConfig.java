@@ -175,12 +175,6 @@ public final class ServerConfig implements ConfigHolder {
   private static ConfigLoader loader;
 
   /**
-   * ctor.
-   */
-  private ServerConfig() {
-  }
-
-  /**
    * adds the given locale into the {@link #loadedLanguages}.
    *
    * @param locale the locale to add.

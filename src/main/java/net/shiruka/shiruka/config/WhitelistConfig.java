@@ -41,12 +41,6 @@ public final class WhitelistConfig implements ConfigHolder {
   private static FileConfiguration configuration;
 
   /**
-   * ctor.
-   */
-  private WhitelistConfig() {
-  }
-
-  /**
    * checks if the given {@code xboxUniqueId} is in the whitelist.
    *
    * @param uniqueId the unique id to check.

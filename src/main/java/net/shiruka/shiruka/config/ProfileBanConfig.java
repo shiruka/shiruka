@@ -54,12 +54,6 @@ public final class ProfileBanConfig implements ConfigHolder {
   private static ConfigLoader loader;
 
   /**
-   * ctor.
-   */
-  private ProfileBanConfig() {
-  }
-
-  /**
    * adds the given {@code entry} to the section.
    *
    * @param entry the entry to add.

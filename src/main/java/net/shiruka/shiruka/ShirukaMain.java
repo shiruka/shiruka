@@ -190,10 +190,10 @@ public final class ShirukaMain {
    * @param file the file to initiate.
    * @param holder the holder to initiate.
    */
-  public static void config(@NotNull final File file, @NotNull final Class<? extends ConfigHolder> holder) {
+  public static void config(@NotNull final File file, @NotNull final ConfigHolder holder) {
     //noinspection UnstableApiUsage
     ConfigLoader.builder()
-      .setFolderPath(file.getAbsoluteFile().getParentFile())
+      .setFolder(file.getAbsoluteFile().getParentFile())
       .setFileName(com.google.common.io.Files.getNameWithoutExtension(file.getName()))
       .setConfigHolder(holder)
       .setConfigType(SystemUtils.getType(file))
@@ -350,11 +350,11 @@ public final class ShirukaMain {
     ShirukaMain.ipBans = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.IP_BANS);
     ShirukaMain.profileBans = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.PROFILE_BANS);
     ShirukaMain.whitelist = ShirukaMain.createsServerFile(options, ShirukaConsoleParser.WHITE_LIST);
-    ShirukaMain.config(ShirukaMain.serverConfig, ServerConfig.class);
-    ShirukaMain.config(ShirukaMain.ops, OpsConfig.class);
-    ShirukaMain.config(ShirukaMain.userCache, UserCacheConfig.class);
-    ShirukaMain.config(ShirukaMain.ipBans, IpBanConfig.class);
-    ShirukaMain.config(ShirukaMain.profileBans, ProfileBanConfig.class);
-    ShirukaMain.config(ShirukaMain.whitelist, WhitelistConfig.class);
+    ShirukaMain.config(ShirukaMain.serverConfig, new ServerConfig());
+    ShirukaMain.config(ShirukaMain.ops, new OpsConfig());
+    ShirukaMain.config(ShirukaMain.userCache, new UserCacheConfig());
+    ShirukaMain.config(ShirukaMain.ipBans, new IpBanConfig());
+    ShirukaMain.config(ShirukaMain.profileBans, new ProfileBanConfig());
+    ShirukaMain.config(ShirukaMain.whitelist, new WhitelistConfig());
   }
 }

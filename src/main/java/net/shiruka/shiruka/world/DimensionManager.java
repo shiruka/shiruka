@@ -67,7 +67,9 @@ public final class DimensionManager {
     if (dimension.isEmpty() || !dimension.get().isNumber()) {
       return World.OVER_WORLD;
     }
-    final int dimensionId = dimension.get().asNumber().intValue();
+    final var dimensionId = dimension.get()
+      .asNumber()
+      .intValue();
     if (dimensionId == -1) {
       return World.THE_NETHER;
     }

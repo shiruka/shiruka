@@ -48,28 +48,34 @@ public abstract class NumberTagEnvelope implements NumberTag {
     this.number = original;
   }
 
-  @NotNull
   @Override
-  public final Double doubleValue() {
+  public final byte byteValue() {
+    return this.number.byteValue();
+  }
+
+  @Override
+  public final double doubleValue() {
     return this.number.doubleValue();
   }
 
-  @NotNull
   @Override
-  public final Float floatValue() {
+  public final float floatValue() {
     return this.number.floatValue();
   }
 
-  @NotNull
   @Override
-  public final Integer intValue() {
+  public final int intValue() {
     return this.number.intValue();
   }
 
-  @NotNull
   @Override
-  public final Long longValue() {
+  public final long longValue() {
     return this.number.longValue();
+  }
+
+  @Override
+  public final short shortValue() {
+    return this.number.shortValue();
   }
 
   @Override

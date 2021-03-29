@@ -46,62 +46,44 @@ public interface NumberTag extends PrimitiveTag<Double> {
   /**
    * returns the value of the specified number as a {@code byte}.
    *
-   * @return the numeric value represented by this object after conversion
-   *   to type {@code byte}.
+   * @return the numeric value represented by this object after conversion to type {@code byte}.
    */
-  @NotNull
-  default Byte byteValue() {
-    return this.intValue()
-      .byteValue();
-  }
+  byte byteValue();
 
   /**
    * returns the value of the specified number as a {@code double}.
    *
-   * @return the numeric value represented by this object after conversion
-   *   to type {@code double}.
+   * @return the numeric value represented by this object after conversion to type {@code double}.
    */
-  @NotNull
-  Double doubleValue();
+  double doubleValue();
 
   /**
    * returns the value of the specified number as a {@code float}.
    *
-   * @return the numeric value represented by this object after conversion
-   *   to type {@code float}.
+   * @return the numeric value represented by this object after conversion to type {@code float}.
    */
-  @NotNull
-  Float floatValue();
+  float floatValue();
 
   /**
    * returns the value of the specified number as an {@code int}.
    *
-   * @return the numeric value represented by this object after conversion
-   *   to type {@code int}.
+   * @return the numeric value represented by this object after conversion to type {@code int}.
    */
-  @NotNull
-  Integer intValue();
+  int intValue();
 
   /**
    * returns the value of the specified number as a {@code long}.
    *
-   * @return the numeric value represented by this object after conversion
-   *   to type {@code long}.
+   * @return the numeric value represented by this object after conversion to type {@code long}.
    */
-  @NotNull
-  Long longValue();
+  long longValue();
 
   /**
    * returns the value of the specified number as a {@code short}.
    *
-   * @return the numeric value represented by this object after conversion
-   *   to type {@code short}.
+   * @return the numeric value represented by this object after conversion to type {@code short}.
    */
-  @NotNull
-  default Short shortValue() {
-    return this.intValue()
-      .shortValue();
-  }
+  short shortValue();
 
   @Override
   @NotNull

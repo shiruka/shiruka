@@ -36,7 +36,7 @@ public interface PrimitiveTag<T> extends Tag {
 
   @NotNull
   @Override
-  default PrimitiveTag<?> asPrimitive() {
+  default PrimitiveTag<T> asPrimitive() {
     return this;
   }
 

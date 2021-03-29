@@ -50,7 +50,7 @@ import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
-import net.shiruka.shiruka.world.DimensionManager;
+import net.shiruka.shiruka.world.Dimensions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -251,8 +251,11 @@ public final class PlayerList {
         ? shiruka.getString("lastKnownName").orElseThrow()
         : lastKnownName;
     }
-    final var resourced = DimensionManager.fromTag(tag);
+    final var resourced = Dimensions.fromTag(tag);
     final var world = this.server.getWorld(resourced).orElseGet(this.server::getDefaultWorld);
+    if (tag.isEmpty()) {
+      player.moveToSpawn(world);
+    }
     player.spawnIn(world);
     // @todo #1:1m Continue to development here.
     this.server.getTick().setLastPingTime(0L);

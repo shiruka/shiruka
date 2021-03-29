@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
 import net.shiruka.api.Shiruka;
+import net.shiruka.api.base.BlockPosition;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
@@ -451,6 +452,17 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
       OpsConfig.removeOp(this.getOpEntry());
     }
     this.permissible.recalculatePermissions();
+  }
+
+  /**
+   * moves the player to the given {@code world}'s spawn location.
+   *
+   * @param world the world to spawn.
+   */
+  public void moveToSpawn(@NotNull final World world) {
+    final var spawn = world.getSpawn();
+    final var dimensionManager = world.getDimensionManager();
+    if (dimensionManager.)
   }
 
   @Override

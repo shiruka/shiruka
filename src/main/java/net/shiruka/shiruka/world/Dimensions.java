@@ -34,14 +34,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a class that represents dimension managers.
+ * a class that contains utility method for dimensions.
  */
-public final class DimensionManager {
+public final class Dimensions {
 
   /**
    * ctor.
    */
-  private DimensionManager() {
+  private Dimensions() {
   }
 
   /**

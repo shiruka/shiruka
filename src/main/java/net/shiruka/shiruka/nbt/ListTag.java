@@ -70,6 +70,11 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
     return this.size() > key;
   }
 
+  @Override
+  default boolean isEmpty() {
+    return this.all().isEmpty();
+  }
+
   /**
    * obtains list's inside id of the tags.
    *

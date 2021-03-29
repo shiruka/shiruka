@@ -78,4 +78,9 @@ public interface CompoundTag extends Tag, StoredTag<String> {
   default boolean hasKeyOfType(@NotNull final String key, final int id) {
     return this.hasKeyOfType(key, (byte) id);
   }
+
+  @Override
+  default boolean isEmpty() {
+    return this.all().isEmpty();
+  }
 }

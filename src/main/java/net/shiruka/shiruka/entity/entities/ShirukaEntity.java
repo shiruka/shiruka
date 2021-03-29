@@ -127,6 +127,9 @@ public abstract class ShirukaEntity implements Entity {
    * @param tag the tag to load.
    */
   public void load(@NotNull final CompoundTag tag) {
+    if (tag.isEmpty()) {
+      return;
+    }
     try {
       final var dataVersion = tag.hasKeyOfType("DataVersion", (byte) 1)
         ? tag.getInteger("DataVersion").orElse(0)

@@ -201,6 +201,7 @@ public final class PlayerList {
           UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)) + ".dat");
         if (tempFile.exists()) {
           wrongFile = true;
+          // @todo #1:5m Add language support for Using offline mode UUID file for player {} as it is the only copy we can find.
           this.server.getLogger().warn("Using offline mode UUID file for player {} as it is the only copy we can find.",
             player.getName().asString());
         }
@@ -212,6 +213,7 @@ public final class PlayerList {
         tempFile.renameTo(new File(tempFile.getPath() + ".offline-read"));
       }
     } catch (final Exception e) {
+      // @todo #1:5m Add language support for Failed to load player data for {}.
       this.server.getLogger().error("Failed to load player data for {}", player.getName().asString());
     }
     if (tag == null && create) {

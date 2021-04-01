@@ -68,7 +68,7 @@ import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.config.WhitelistConfig;
 import net.shiruka.shiruka.console.ShirukaConsole;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
@@ -286,7 +286,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @NotNull
   @Override
-  public Collection<? extends ShirukaPlayer> getOnlinePlayers() {
+  public Collection<? extends ShirukaPlayerEntity> getOnlinePlayers() {
     return this.playerList.getPlayers();
   }
 

@@ -40,7 +40,7 @@ import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
@@ -105,7 +105,7 @@ public final class LoginListener implements PacketHandler {
    */
   @Nullable
   @Setter
-  private ShirukaPlayer wantsToJoin;
+  private ShirukaPlayerEntity wantsToJoin;
 
   /**
    * disconnects the connection.

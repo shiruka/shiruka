@@ -35,7 +35,7 @@ import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.event.events.LoginResultEvent;
 import net.shiruka.api.event.events.player.PlayerAsyncLoginEvent;
 import net.shiruka.api.scheduler.Task;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.network.NetworkManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -112,7 +112,8 @@ public final class LoginData {
     if (this.networkManager.getClient().isDisconnected()) {
       return;
     }
-    final var player = new ShirukaPlayer(this.networkManager, this, this.profile);
+    final var player = new ShirukaPlayerEntity(this.networkManager.getServer().getDefaultWorld(), this.networkManager, this,
+      this.profile);
     if (this.asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
       player.getPlayerConnection().disconnect(this.asyncLogin.getKickMessage());
       return;

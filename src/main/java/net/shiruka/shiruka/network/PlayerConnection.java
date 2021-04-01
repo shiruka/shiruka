@@ -31,7 +31,7 @@ import net.shiruka.api.event.events.player.PlayerQuitEvent;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
@@ -57,7 +57,7 @@ public final class PlayerConnection implements PacketHandler {
    */
   @NotNull
   @Getter
-  private final ShirukaPlayer player;
+  private final ShirukaPlayerEntity player;
 
   /**
    * the server.
@@ -86,7 +86,7 @@ public final class PlayerConnection implements PacketHandler {
    *
    * @param player the player.
    */
-  public PlayerConnection(@NotNull final ShirukaPlayer player) {
+  public PlayerConnection(@NotNull final ShirukaPlayerEntity player) {
     this.player = player;
     this.networkManager = player.getNetworkManager();
     this.server = this.networkManager.getServer();
@@ -183,7 +183,7 @@ public final class PlayerConnection implements PacketHandler {
   }
 
   /**
-   * the internal simple translation..
+   * the internal simple translation.
    *
    * @param reason the reason to translate.
    * @param fallback the fallback to translate.

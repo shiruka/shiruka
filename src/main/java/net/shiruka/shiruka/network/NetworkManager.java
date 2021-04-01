@@ -48,7 +48,7 @@ import net.shiruka.api.base.Tick;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -148,7 +148,7 @@ public final class NetworkManager implements Tick {
    * @return player.
    */
   @NotNull
-  public Optional<ShirukaPlayer> getPlayer() {
+  public Optional<ShirukaPlayerEntity> getPlayer() {
     final var handler = this.getPacketHandler();
     if (handler instanceof PlayerConnection) {
       return Optional.of(((PlayerConnection) handler).getPlayer());
@@ -225,7 +225,7 @@ public final class NetworkManager implements Tick {
    *
    * @param player the player to initialize.
    */
-  public void initialize(@NotNull final ShirukaPlayer player) {
+  public void initialize(@NotNull final ShirukaPlayerEntity player) {
     this.setPacketHandler(player.getPlayerConnection());
     this.server.getPlayerList().initialize(player);
   }

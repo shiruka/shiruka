@@ -36,6 +36,8 @@ import net.shiruka.api.permission.PermissionAttachment;
 import net.shiruka.api.permission.PermissionAttachmentInfo;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
+import net.shiruka.api.world.World;
+import net.shiruka.shiruka.entity.EntityTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -64,9 +66,11 @@ public abstract class ShirukaHumanEntity extends ShirukaEntity implements HumanE
   /**
    * ctor.
    *
+   * @param world the world.
    * @param profile the profile.
    */
-  protected ShirukaHumanEntity(@NotNull final GameProfile profile) {
+  protected ShirukaHumanEntity(@NotNull final World world, @NotNull final GameProfile profile) {
+    super(EntityTypes.PLAYER, world);
     this.profile = profile;
     this.permissible = new PermissibleBase(this);
   }

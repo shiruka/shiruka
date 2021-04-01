@@ -44,8 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
 import net.shiruka.api.Shiruka;
-import net.shiruka.api.base.BlockPosition;
 import net.shiruka.api.base.ChainData;
+import net.shiruka.api.base.GameMode;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
@@ -70,7 +70,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an implementation for {@link Player}.
  */
-public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
+public final class ShirukaPlayerEntity extends ShirukaHumanEntity implements Player {
 
   /**
    * the plugin weak references.
@@ -165,13 +165,14 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   /**
    * ctor.
    *
+   * @param world the world.
    * @param networkManager the connection.
    * @param loginData the login data.
    * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final NetworkManager networkManager, @NotNull final LoginData loginData,
-                       @NotNull final GameProfile profile) {
-    super(profile);
+  public ShirukaPlayerEntity(@NotNull final World world, @NotNull final NetworkManager networkManager,
+                             @NotNull final LoginData loginData, @NotNull final GameProfile profile) {
+    super(world, profile);
     this.networkManager = networkManager;
     this.loginData = loginData;
     this.playerConnection = new PlayerConnection(this);
@@ -181,7 +182,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private static WeakReference<Plugin> getPluginWeakReference(@Nullable final Plugin plugin) {
     return plugin == null
       ? null
-      : ShirukaPlayer.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
+      : ShirukaPlayerEntity.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
   }
 
   /**
@@ -233,11 +234,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     }
     var hidingPlugins = this.hiddenPlayers.get(player.getUniqueId());
     if (hidingPlugins != null) {
-      hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+      hidingPlugins.add(ShirukaPlayerEntity.getPluginWeakReference(plugin));
       return;
     }
     hidingPlugins = new ObjectOpenHashSet<>();
-    hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+    hidingPlugins.add(ShirukaPlayerEntity.getPluginWeakReference(plugin));
     this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
   }
 
@@ -260,7 +261,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     if (hidingPlugins == null) {
       return;
     }
-    hidingPlugins.remove(ShirukaPlayer.getPluginWeakReference(plugin));
+    hidingPlugins.remove(ShirukaPlayerEntity.getPluginWeakReference(plugin));
     if (!hidingPlugins.isEmpty()) {
       return;
     }
@@ -462,7 +463,13 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   public void moveToSpawn(@NotNull final World world) {
     final var spawn = world.getSpawn();
     final var dimensionManager = world.getDimensionManager();
-    if (dimensionManager.)
+    if (dimensionManager.hasSkylight() && world.getGameMode() != GameMode.ADVENTURE) {
+    } else {
+      this.setPositionRotation(spawn, 0.0F, 0.0F);
+      while (!world.noCollision(this) && this.getLocationAsY() < 255.0D) {
+        this.setPosition(this.getLocationAsX(), this.getLocationAsY() + 1.0D, this.getLocationAsZ());
+      }
+    }
   }
 
   @Override

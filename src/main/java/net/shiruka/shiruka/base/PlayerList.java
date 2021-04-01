@@ -46,7 +46,7 @@ import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
@@ -69,27 +69,27 @@ public final class PlayerList {
   /**
    * the pending players.
    */
-  public final Map<UUID, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
+  public final Map<UUID, ShirukaPlayerEntity> pendingPlayers = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players.
    */
-  public final List<ShirukaPlayer> players = new CopyOnWriteArrayList<>();
+  public final List<ShirukaPlayerEntity> players = new CopyOnWriteArrayList<>();
 
   /**
    * the players by name.
    */
-  public final Map<String, ShirukaPlayer> playersByName = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayerEntity> playersByName = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by unique id.
    */
-  public final Map<UUID, ShirukaPlayer> playersByUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<UUID, ShirukaPlayerEntity> playersByUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by xbox unique id.
    */
-  public final Map<String, ShirukaPlayer> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayerEntity> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the profile ban list.
@@ -110,7 +110,7 @@ public final class PlayerList {
    * @return active player instance.
    */
   @Nullable
-  public ShirukaPlayer getActivePlayer(@NotNull final UUID uniqueId) {
+  public ShirukaPlayerEntity getActivePlayer(@NotNull final UUID uniqueId) {
     final var player = this.playersByUniqueId.get(uniqueId);
     return player != null ? player : this.pendingPlayers.get(uniqueId);
   }
@@ -121,7 +121,7 @@ public final class PlayerList {
    * @return online players.
    */
   @NotNull
-  public Collection<? extends ShirukaPlayer> getPlayers() {
+  public Collection<? extends ShirukaPlayerEntity> getPlayers() {
     synchronized (this.players) {
       return Collections.unmodifiableList(this.players);
     }
@@ -134,7 +134,7 @@ public final class PlayerList {
    *
    * @param player the player to initialize.
    */
-  public void initialize(@NotNull final ShirukaPlayer player) {
+  public void initialize(@NotNull final ShirukaPlayerEntity player) {
     final var uniqueId = player.getUniqueId();
     final var pendingPlayer = this.pendingPlayers.get(uniqueId);
     if (pendingPlayer != null) {
@@ -190,7 +190,7 @@ public final class PlayerList {
    * @return loaded compound tag instance.
    */
   @Contract("_, true -> !null")
-  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player, final boolean create) {
+  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayerEntity player, final boolean create) {
     CompoundTag tag = null;
     final var file = player.getPlayerFile();
     try {
@@ -232,7 +232,7 @@ public final class PlayerList {
    *
    * @param player the player to login.
    */
-  private void login(@NotNull final ShirukaPlayer player) {
+  private void login(@NotNull final ShirukaPlayerEntity player) {
     player.isRealPlayer = true;
     final var oldPending = this.pendingPlayers.put(player.getUniqueId(), player);
     if (oldPending != null) {
@@ -266,7 +266,7 @@ public final class PlayerList {
    *
    * @param player the player to try.
    */
-  private void tryToLogin(@NotNull final ShirukaPlayer player) {
+  private void tryToLogin(@NotNull final ShirukaPlayerEntity player) {
     final var uniqueId = player.getUniqueId();
     if (this.pendingPlayers.containsKey(uniqueId) ||
       this.playersByUniqueId.containsKey(uniqueId)) {

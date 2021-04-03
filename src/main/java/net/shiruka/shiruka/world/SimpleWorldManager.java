@@ -28,9 +28,7 @@ package net.shiruka.shiruka.world;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import net.shiruka.api.world.ChunkData;
 import net.shiruka.api.world.World;
-import net.shiruka.api.world.WorldCreator;
 import net.shiruka.api.world.WorldManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,24 +36,6 @@ import org.jetbrains.annotations.NotNull;
  * a simple implementation for {@link WorldManager}.
  */
 public final class SimpleWorldManager implements WorldManager {
-
-  @NotNull
-  @Override
-  public ChunkData createChunkData(@NotNull final World world) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createChunkData.");
-  }
-
-  @NotNull
-  @Override
-  public ChunkData createNativeChunkData(@NotNull final World world, final int x, final int z) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createNativeChunkData.");
-  }
-
-  @NotNull
-  @Override
-  public Optional<World> createWorld(@NotNull final WorldCreator worldCreator) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createWorld.");
-  }
 
   @NotNull
   @Override

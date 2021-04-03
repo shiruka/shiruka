@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,7 +44,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.ChainData;
-import net.shiruka.api.base.GameMode;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.base.Location;
 import net.shiruka.api.entity.Player;
@@ -60,8 +58,6 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.nbt.CompoundTag;
-import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.network.NetworkManager;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
@@ -268,28 +264,6 @@ public final class ShirukaPlayerEntity extends ShirukaHumanEntity implements Pla
     this.hiddenPlayers.remove(player.getUniqueId());
   }
 
-  /**
-   * creates a default compound tag when the player joins the server for first time.
-   *
-   * @return default compound tag.
-   */
-  @NotNull
-  public CompoundTag createDefaultTag() {
-    final var defaultWorld = this.networkManager.getServer().getDefaultWorld();
-    final var spawn = defaultWorld.getSpawn();
-    final var tag = Tag.createCompound();
-    tag.setLong("first-played", System.currentTimeMillis() / 1000L);
-    tag.setLong("last-played", System.currentTimeMillis() / 1000L);
-    tag.setList("Pos", List.of(
-      Tag.createString(String.valueOf(spawn.getX())),
-      Tag.createString(String.valueOf(spawn.getY())),
-      Tag.createString(String.valueOf(spawn.getZ()))));
-    final var worldUniqueId = defaultWorld.getUniqueId();
-    tag.setLong("WorldUUIDMost", worldUniqueId.getMostSignificantBits());
-    tag.setLong("WorldUUIDLeast", worldUniqueId.getLeastSignificantBits());
-    return tag;
-  }
-
   @Nullable
   @Override
   public Location getBedSpawnLocation() {
@@ -455,23 +429,6 @@ public final class ShirukaPlayerEntity extends ShirukaHumanEntity implements Pla
     this.permissible.recalculatePermissions();
   }
 
-  /**
-   * moves the player to the given {@code world}'s spawn location.
-   *
-   * @param world the world to spawn.
-   */
-  public void moveToSpawn(@NotNull final World world) {
-    final var spawn = world.getSpawn();
-    final var dimensionManager = world.getDimensionManager();
-    if (dimensionManager.hasSkylight() && world.getGameMode() != GameMode.ADVENTURE) {
-    } else {
-      this.setPositionRotation(spawn, 0.0F, 0.0F);
-      while (!world.noCollision(this) && this.getLocationAsY() < 255.0D) {
-        this.setPosition(this.getLocationAsX(), this.getLocationAsY() + 1.0D, this.getLocationAsZ());
-      }
-    }
-  }
-
   @Override
   public void sendMessage(@NotNull final TranslatedText message) {
     final var translated = message.translate(this);
@@ -499,14 +456,6 @@ public final class ShirukaPlayerEntity extends ShirukaHumanEntity implements Pla
 
   @Override
   public void tick() {
-  }
-
-  @Override
-  public void spawnIn(@Nullable final World world) {
-    super.spawnIn(world);
-    if (world == null) {
-      return;
-    }
   }
 
   /**

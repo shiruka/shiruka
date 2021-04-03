@@ -217,7 +217,7 @@ public final class PlayerList {
       this.server.getLogger().error("Failed to load player data for {}", player.getName().asString());
     }
     if (tag == null && create) {
-      tag = player.createDefaultTag();
+      tag = Tag.createCompound();
     }
     final var modified = player.getPlayerFile().lastModified();
     if (modified < player.getFirstPlayed()) {
@@ -254,10 +254,8 @@ public final class PlayerList {
     final var resourced = Dimensions.fromTag(tag);
     final var world = this.server.getWorld(resourced).orElseGet(this.server::getDefaultWorld);
     if (tag.isEmpty()) {
-      player.moveToSpawn(world);
     }
-    player.spawnIn(world);
-    // @todo #1:1m Continue to development here.
+    // @todo #1:5m Spawn in the world.
     this.server.getTick().setLastPingTime(0L);
   }
 

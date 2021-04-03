@@ -112,7 +112,8 @@ public final class LoginData {
     if (this.networkManager.getClient().isDisconnected()) {
       return;
     }
-    final var player = new ShirukaPlayerEntity(this.networkManager.getServer().getDefaultWorld(), this.networkManager, this,
+    final var player = new ShirukaPlayerEntity(this.networkManager.getServer().getWorldManager().getDefaultWorld(),
+      this.networkManager, this,
       this.profile);
     if (this.asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
       player.getPlayerConnection().disconnect(this.asyncLogin.getKickMessage());

@@ -59,7 +59,7 @@ public final class Dimensions {
     if (tag.containsKey("WorldUUIDMost") && tag.containsKey("WorldUUIDLeast")) {
       final var worldUniqueId = new UUID(tag.getLong("WorldUUIDMost").orElseThrow(),
         tag.getLong("WorldUUIDLeast").orElseThrow());
-      return Shiruka.getWorldManager().getWorld(worldUniqueId)
+      return Shiruka.getWorldManager().getWorldByUniqueId(worldUniqueId)
         .map(World::getDimensionKey)
         .orElse(World.OVER_WORLD);
     }

@@ -252,10 +252,10 @@ public final class PlayerList {
         : lastKnownName;
     }
     final var resourced = Dimensions.fromTag(tag);
-    final var world = this.server.getWorld(resourced).orElseGet(this.server::getDefaultWorld);
+    final var world = this.server.getWorldManager().getWorldByResource(resourced)
+      .orElseGet(this.server.getWorldManager()::getDefaultWorld);
     if (tag.isEmpty()) {
     }
-    // @todo #1:5m Spawn in the world.
     this.server.getTick().setLastPingTime(0L);
   }
 

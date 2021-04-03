@@ -362,8 +362,8 @@ public final class SimpleChainData implements ChainData {
    * @throws JOSEException if something went wrong when verifying the given key and object.
    */
   private static boolean verify(@NotNull final PublicKey key, @NotNull final JWSObject object) throws JOSEException {
-    final var verifier = new DefaultJWSVerifierFactory().createJWSVerifier(object.getHeader(), key);
-    return object.verify(verifier);
+    return object.verify(new DefaultJWSVerifierFactory()
+      .createJWSVerifier(object.getHeader(), key));
   }
 
   /**

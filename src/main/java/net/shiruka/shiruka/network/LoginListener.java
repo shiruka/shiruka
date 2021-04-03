@@ -204,8 +204,8 @@ public final class LoginListener implements PacketHandler {
     }
     Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
+      Languages.addLoadedLanguage(chainData.getLanguageCode());
       Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-        Languages.addLoadedLanguage(chainData.getLanguageCode());
         if (!chainData.isXboxAuthed() && ServerConfig.onlineMode) {
           this.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
           return;

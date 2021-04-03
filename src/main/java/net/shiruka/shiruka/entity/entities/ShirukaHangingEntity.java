@@ -40,8 +40,8 @@ public abstract class ShirukaHangingEntity extends ShirukaEntity {
    * @param entityType the entity type.
    * @param world the world.
    */
-  public ShirukaHangingEntity(@NotNull final EntityTypes<? extends ShirukaHangingEntity> entityType,
-                              @NotNull final World world) {
+  protected ShirukaHangingEntity(@NotNull final EntityTypes<? extends ShirukaHangingEntity> entityType,
+                                 @NotNull final World world) {
     super(entityType, world);
   }
 }

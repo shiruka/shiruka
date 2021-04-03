@@ -226,7 +226,6 @@ public final class LoginListener implements PacketHandler {
           () -> ChatColor.clean(username),
           chainData.getUniqueId(),
           chainData.getXboxUniqueId());
-        this.loginData = new LoginData(chainData, this.networkManager, this.profile);
         final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData);
         preLogin.callEvent();
         if (preLogin.isCancelled()) {
@@ -234,20 +233,20 @@ public final class LoginListener implements PacketHandler {
           return;
         }
         final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
-        this.loginData.setAsyncLogin(asyncLogin);
-        this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
-          asyncLogin.callEvent();
-          if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
-            Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
-              this.disconnect(asyncLogin.getKickMessage()));
-            return;
-          }
-          Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-            if (this.loginData.shouldLogin()) {
-              this.loginData.initialize();
+        this.loginData = new LoginData(asyncLogin, chainData, this.networkManager, this.profile, data ->
+          Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
+            asyncLogin.callEvent();
+            if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
+              Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
+                this.disconnect(asyncLogin.getKickMessage()));
+              return;
             }
-          });
-        }));
+            Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
+              if (data.shouldLogin()) {
+                data.initialize();
+              }
+            });
+          }));
         this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
         final var packInfo = Shiruka.getPackManager().getPackInfo();
         if (packInfo instanceof ShirukaPacket) {

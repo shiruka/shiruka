@@ -26,10 +26,9 @@
 package net.shiruka.shiruka.base;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import net.shiruka.api.base.ChainData;
 import net.shiruka.api.base.GameProfile;
 import net.shiruka.api.event.events.LoginResultEvent;
@@ -38,13 +37,19 @@ import net.shiruka.api.scheduler.Task;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.network.NetworkManager;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents login data.
  */
 @RequiredArgsConstructor
 public final class LoginData {
+
+  /**
+   * the async login event.
+   */
+  @NotNull
+  @Getter
+  private final PlayerAsyncLoginEvent asyncLogin;
 
   /**
    * the chain data.
@@ -74,41 +79,31 @@ public final class LoginData {
    * the task.
    */
   @NotNull
-  private final AtomicReference<Task> task = new AtomicReference<>();
+  private final Task task;
 
   /**
-   * the async login event.
-   */
-  @Nullable
-  @Setter
-  private PlayerAsyncLoginEvent asyncLogin;
-
-  /**
-   * obtains the task.
+   * ctor.
    *
-   * @return task.
+   * @param asyncLogin the async login.
+   * @param chainData the chain data.
+   * @param networkManager the networkd manager.
+   * @param profile the profile.
+   * @param task the task function.
    */
-  @Nullable
-  public Task getTask() {
-    return this.task.get();
-  }
-
-  /**
-   * sets the task.
-   *
-   * @param task task to set.
-   */
-  public void setTask(@NotNull final Task task) {
-    this.task.set(task);
+  public LoginData(@NotNull final PlayerAsyncLoginEvent asyncLogin, @NotNull final ChainData chainData,
+                   @NotNull final NetworkManager networkManager, @NotNull final GameProfile profile,
+                   @NotNull final Function<LoginData, Task> task) {
+    this.asyncLogin = asyncLogin;
+    this.chainData = chainData;
+    this.networkManager = networkManager;
+    this.profile = profile;
+    this.task = task.apply(this);
   }
 
   /**
    * initializes the player.
    */
   public void initialize() {
-    if (this.asyncLogin == null) {
-      return;
-    }
     if (this.networkManager.getClient().isDisconnected()) {
       return;
     }

@@ -79,6 +79,7 @@ public final class LoginData {
    * the task.
    */
   @NotNull
+  @Getter
   private final Task task;
 
   /**

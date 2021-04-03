@@ -275,8 +275,7 @@ public final class LoginListener implements PacketHandler {
         if (this.loginData == null) {
           return;
         }
-        if (this.loginData.getTask() != null &&
-          Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
+        if (Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
           this.loginData.setShouldLogin(true);
         } else {
           this.loginData.initialize();

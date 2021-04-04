@@ -237,6 +237,7 @@ public final class ShirukaMain {
         System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
       }
       System.setProperty("library.jansi.version", "Shiru ka");
+      System.setProperty("io.netty.tryReflectionSetAccessible", "true");
       SystemUtils.startTimerHack();
       final var global = java.util.logging.Logger.getLogger("");
       global.setUseParentHandlers(false);

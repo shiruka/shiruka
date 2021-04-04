@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.network;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Objects;
@@ -92,29 +93,26 @@ public final class Protocol {
   @NotNull
   public static ByteBuf serialize(@NotNull final NetworkManager networkManager,
                                   @NotNull final Collection<QueuedPacket> packets) {
-    final var uncompressed = Unpooled.buffer(packets.size() << 3);
-    try {
-      for (final var queued : packets) {
-        final var packet = queued.getPacket();
-        final var buffer = Unpooled.buffer();
-        try {
-          final var packetId = packet.getId();
-          var header = 0;
-          header |= packetId & 0x3ff;
-          header |= (packet.getSenderId() & 3) << 10;
-          header |= (packet.getClientId() & 3) << 12;
-          VarInts.writeUnsignedInt(buffer, header);
-          packet.setBuffer(buffer);
-          packet.encode();
-          VarInts.writeUnsignedInt(uncompressed, buffer.readableBytes());
-          uncompressed.writeBytes(buffer);
-        } finally {
-          buffer.release();
-        }
+    final var uncompressed = PooledByteBufAllocator.DEFAULT.directBuffer(packets.size() << 3);
+    for (final var queued : packets) {
+      final var packet = queued.getPacket();
+      final var buffer = PooledByteBufAllocator.DEFAULT.directBuffer();
+      try {
+        final var packetId = packet.getId();
+        Protocol.log.debug("§7Outgoing packet id -> {}", packetId);
+        var header = 0;
+        header |= packetId & 0x3ff;
+        header |= (packet.getSenderId() & 3) << 10;
+        header |= (packet.getClientId() & 3) << 12;
+        VarInts.writeUnsignedInt(buffer, header);
+        packet.setBuffer(buffer);
+        packet.encode();
+        VarInts.writeUnsignedInt(uncompressed, buffer.readableBytes());
+        uncompressed.writeBytes(buffer);
+      } finally {
+        buffer.release();
       }
-      return networkManager.getOutputProcessor().process(uncompressed);
-    } finally {
-      uncompressed.release();
     }
+    return networkManager.getOutputProcessor().process(uncompressed);
   }
 }

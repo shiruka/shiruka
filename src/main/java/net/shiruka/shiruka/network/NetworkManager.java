@@ -382,7 +382,7 @@ public final class NetworkManager implements Tick {
    */
   private synchronized void sendWrapped(@NotNull final ByteBuf compressed,
                                         @Nullable final GenericFutureListener<? extends Future<? super Void>> listener) {
-    final var packet = Unpooled.buffer(compressed.readableBytes() + 9);
+    final var packet = Unpooled.directBuffer(compressed.readableBytes() + 9);
     packet.writeByte(0xfe);
     packet.writeBytes(compressed);
     this.client.sendMessage(Reliability.RELIABLE_ORDERED, packet, listener);

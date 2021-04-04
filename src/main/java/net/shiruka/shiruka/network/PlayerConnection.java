@@ -67,11 +67,6 @@ public final class PlayerConnection implements PacketHandler {
   private final ShirukaServer server;
 
   /**
-   * the blob cache support.
-   */
-  private boolean blobCacheSupport;
-
-  /**
    * the join runnable with async support.
    */
   @Nullable
@@ -91,11 +86,6 @@ public final class PlayerConnection implements PacketHandler {
     this.player = player;
     this.networkManager = player.getNetworkManager();
     this.server = this.networkManager.getServer();
-  }
-
-  @Override
-  public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
-    this.blobCacheSupport = packet.isBlobCacheSupport();
   }
 
   @Override

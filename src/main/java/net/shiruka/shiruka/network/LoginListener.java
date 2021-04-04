@@ -45,6 +45,7 @@ import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.jwt.EncryptionHandler;
 import net.shiruka.shiruka.jwt.EncryptionRequestForger;
 import net.shiruka.shiruka.language.Languages;
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
@@ -75,6 +76,11 @@ public final class LoginListener implements PacketHandler {
   @NotNull
   @Getter
   private final NetworkManager networkManager;
+
+  /**
+   * the blob cache support.
+   */
+  private boolean blobCacheSupport;
 
   /**
    * the latest login packet.
@@ -112,6 +118,11 @@ public final class LoginListener implements PacketHandler {
   @Nullable
   @Setter
   private ShirukaPlayerEntity wantsToJoin;
+
+  @Override
+  public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
+    this.blobCacheSupport = packet.isBlobCacheSupport();
+  }
 
   @Override
   public void clientToServerHandshake(@NotNull final ClientToServerHandshakePacket packet) {

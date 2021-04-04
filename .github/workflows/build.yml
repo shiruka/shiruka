@@ -22,10 +22,12 @@ jobs:
 
       - uses: codecov/codecov-action@v1.0.14
 
-      - uses: actions/upload-artifact@v2
+      - run: cp target/Shiruka.jar .
+
+      - uses: actions/upload-artifact@v2.2.2
         with:
           name: shiruka
           path: |
-            target/Shiruka.jar
+            Shiruka.jar
             start.bat
             start.sh

@@ -32,7 +32,6 @@ import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
@@ -88,36 +87,6 @@ public final class PlayerConnection implements PacketHandler {
     this.server = this.networkManager.getServer();
   }
 
-  @Override
-  public void onDisconnect(@NotNull final Text disconnectMessage) {
-    if (this.processedDisconnect) {
-      return;
-    } else {
-      this.processedDisconnect = true;
-    }
-  }
-
-  @Override
-  public void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
-    final var packId = packet.getPackId();
-    final var version = packet.getVersion();
-    final var chunkSize = packet.getChunkSize();
-    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
-    if (resourcePack.isEmpty()) {
-      this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
-      return;
-    }
-    final var pack = resourcePack.get();
-    final var chunk = pack.getChunk(1048576 * chunkSize, 1048576);
-    final var send = new ResourcePackChunkDataPacket(chunkSize, chunk, packId, version, 1048576L * chunkSize);
-    this.player.getNetworkManager().sendPacket(send);
-  }
-
-  @Override
-  public void violationWarning(@NotNull final ViolationWarningPacket packet) {
-    Shiruka.getLogger().error("Something went wrong when reading a packet!");
-  }
-
   /**
    * disconnects the connection.
    *
@@ -160,6 +129,36 @@ public final class PlayerConnection implements PacketHandler {
     this.networkManager.sendPacketImmediately(new DisconnectPacket(kickMessage.asString(), false), future ->
       this.networkManager.close(reasonWithFallback));
     this.onDisconnect(reasonWithFallback);
+  }
+
+  @Override
+  public void onDisconnect(@NotNull final Text disconnectMessage) {
+    if (this.processedDisconnect) {
+      return;
+    } else {
+      this.processedDisconnect = true;
+    }
+  }
+
+  @Override
+  public void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
+    final var packId = packet.getPackId();
+    final var version = packet.getVersion();
+    final var chunkSize = packet.getChunkSize();
+    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
+    if (resourcePack.isEmpty()) {
+      this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
+      return;
+    }
+    final var pack = resourcePack.get();
+    final var chunk = pack.getChunk(1048576 * chunkSize, 1048576);
+    final var send = new ResourcePackChunkDataPacket(chunkSize, chunk, packId, version, 1048576L * chunkSize);
+    this.player.getNetworkManager().sendPacket(send);
+  }
+
+  @Override
+  public void violationWarning(@NotNull final ViolationWarningPacket packet) {
+    Shiruka.getLogger().error("Something went wrong when reading a packet!");
   }
 
   @Override

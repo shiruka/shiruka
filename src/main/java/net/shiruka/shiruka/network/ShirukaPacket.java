@@ -57,11 +57,6 @@ import org.jetbrains.annotations.NotNull;
 public abstract class ShirukaPacket extends Packet {
 
   /**
-   * the id of the {@link NetworkSettingsPacket}.
-   */
-  protected static final int ID_NETWORK_SETTINGS = 143;
-
-  /**
    * the id of the {@link ClientCacheStatusPacket}.
    */
   protected static final int ID_CLIENT_CACHE_STATUS = 129;
@@ -80,6 +75,11 @@ public abstract class ShirukaPacket extends Packet {
    * the id of the {@link LoginPacket}.
    */
   protected static final int ID_LOGIN = 1;
+
+  /**
+   * the id of the {@link NetworkSettingsPacket}.
+   */
+  protected static final int ID_NETWORK_SETTINGS = 143;
 
   /**
    * the id of the {@link PackStackPacket}.

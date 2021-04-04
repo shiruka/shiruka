@@ -27,7 +27,6 @@ package net.shiruka.shiruka.network;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.zip.DataFormatException;

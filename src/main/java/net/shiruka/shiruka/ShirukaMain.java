@@ -254,10 +254,7 @@ public final class ShirukaMain {
       System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.serverLocale = Languages.startSequence(parsed.valueOf(ShirukaConsoleParser.LOCALE));
-      Class.forName("io.gomint.crypto.Processor");
-      if (!LibraryLoader.load()) {
-        throw new UnsupportedOperationException("unsupported operation system.");
-      }
+      ShirukaMain.loadSomeNativeFiles();
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
       thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
       thread.setPriority(Thread.NORM_PRIORITY + 2);
@@ -383,5 +380,18 @@ public final class ShirukaMain {
     ShirukaMain.config(ShirukaMain.ipBans, new IpBanConfig());
     ShirukaMain.config(ShirukaMain.profileBans, new ProfileBanConfig());
     ShirukaMain.config(ShirukaMain.whitelist, new WhitelistConfig());
+  }
+
+  /**
+   * loads some native files.
+   */
+  private static void loadSomeNativeFiles() throws ClassNotFoundException {
+    Class.forName("io.gomint.crypto.Processor");
+    Class.forName("io.gomint.leveldb.DB");
+    Class.forName("io.gomint.leveldb.WriteBatch");
+    Class.forName("io.gomint.leveldb.Iterator");
+    if (!LibraryLoader.load()) {
+      throw new UnsupportedOperationException("unsupported operation system.");
+    }
   }
 }

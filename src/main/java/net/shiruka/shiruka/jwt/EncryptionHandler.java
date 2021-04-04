@@ -98,10 +98,10 @@ public final class EncryptionHandler {
   private static byte @Nullable [] generateECDHSecret(@NotNull final PrivateKey privateKey,
                                                       @NotNull final PublicKey publicKey) {
     try {
-      final var ka = KeyAgreement.getInstance("ECDH");
-      ka.init(privateKey);
-      ka.doPhase(publicKey, true);
-      return ka.generateSecret();
+      final var agreement = KeyAgreement.getInstance("ECDH");
+      agreement.init(privateKey);
+      agreement.doPhase(publicKey, true);
+      return agreement.generateSecret();
     } catch (final NoSuchAlgorithmException | InvalidKeyException e) {
       EncryptionHandler.log.error(
         "Failed to generate Elliptic-Curve-Diffie-Hellman Shared Secret for clientside encryption", e);

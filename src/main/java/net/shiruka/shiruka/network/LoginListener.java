@@ -48,6 +48,7 @@ import net.shiruka.shiruka.language.Languages;
 import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.NetworkSettingsPacket;
 import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
@@ -114,7 +115,13 @@ public final class LoginListener implements PacketHandler {
 
   @Override
   public void clientToServerHandshake(@NotNull final ClientToServerHandshakePacket packet) {
-    System.out.println("LoginListener#clientToServerHandshake(" + packet + ")");
+    final var networkSettings = new NetworkSettingsPacket((short) 1);
+    this.networkManager.sendPacket(networkSettings);
+    this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
+    final var packInfo = Shiruka.getPackManager().getPackInfo();
+    if (packInfo instanceof ShirukaPacket) {
+      this.networkManager.sendPacket((ShirukaPacket) packInfo);
+    }
   }
 
   @Override
@@ -241,22 +248,22 @@ public final class LoginListener implements PacketHandler {
           this.disconnect(preLogin.getKickMessage());
           return;
         }
-        if (SimpleChainData.getKeyPair() == null) {
-          final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
-          this.loginData = new LoginData(asyncLogin, chainData, this.networkManager, this.profile, data ->
-            Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
-              asyncLogin.callEvent();
-              if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
-                Shiruka.getScheduler().schedule(internalPlugin, () ->
-                  this.disconnect(asyncLogin.getKickMessage()));
-                return;
+        final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
+        this.loginData = new LoginData(asyncLogin, chainData, this.networkManager, this.profile, data ->
+          Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
+            asyncLogin.callEvent();
+            if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
+              Shiruka.getScheduler().schedule(internalPlugin, () ->
+                this.disconnect(asyncLogin.getKickMessage()));
+              return;
+            }
+            Shiruka.getScheduler().schedule(internalPlugin, () -> {
+              if (data.shouldLogin()) {
+                data.initialize();
               }
-              Shiruka.getScheduler().schedule(internalPlugin, () -> {
-                if (data.shouldLogin()) {
-                  data.initialize();
-                }
-              });
-            }));
+            });
+          }));
+        if (SimpleChainData.getKeyPair() == null) {
           this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
           final var packInfo = Shiruka.getPackManager().getPackInfo();
           if (packInfo instanceof ShirukaPacket) {

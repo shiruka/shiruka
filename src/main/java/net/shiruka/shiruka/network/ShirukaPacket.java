@@ -37,6 +37,7 @@ import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.EntityRemovePacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.NetworkSettingsPacket;
 import net.shiruka.shiruka.network.packets.PackInfoPacket;
 import net.shiruka.shiruka.network.packets.PackStackPacket;
 import net.shiruka.shiruka.network.packets.PlayStatusPacket;
@@ -54,6 +55,11 @@ import org.jetbrains.annotations.NotNull;
  */
 @RequiredArgsConstructor
 public abstract class ShirukaPacket extends Packet {
+
+  /**
+   * the id of the {@link NetworkSettingsPacket}.
+   */
+  protected static final int ID_NETWORK_SETTINGS = 143;
 
   /**
    * the id of the {@link ClientCacheStatusPacket}.

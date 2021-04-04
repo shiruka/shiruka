@@ -238,18 +238,9 @@ public final class NetworkManager implements Tick {
     if (this.queuedPackets.isEmpty()) {
       return;
     }
-    var toBatch = new ObjectArrayList<QueuedPacket>();
+    final var toBatch = new ObjectArrayList<QueuedPacket>();
     while (!this.queuedPackets.isEmpty()) {
-      final var packet = this.queuedPackets.dequeue();
-      if (!packet.getClass().isAnnotationPresent(NoEncryption.class)) {
-        toBatch.add(packet);
-        continue;
-      }
-      if (!toBatch.isEmpty()) {
-        this.sendWrapped(toBatch);
-        toBatch = new ObjectArrayList<>();
-      }
-      this.sendWrapped(Collections.singletonList(packet));
+      toBatch.add(this.queuedPackets.dequeue());
     }
     if (!toBatch.isEmpty()) {
       this.sendWrapped(toBatch);

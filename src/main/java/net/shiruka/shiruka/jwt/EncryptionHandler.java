@@ -39,6 +39,7 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.crypto.KeyAgreement;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.shiruka.base.SimpleChainData;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
  * a class that handles encryption.
  */
 @Log4j2
+@RequiredArgsConstructor
 public final class EncryptionHandler {
 
   /**
@@ -65,7 +67,7 @@ public final class EncryptionHandler {
    * the key pair.
    */
   @NotNull
-  private final KeyPair keyPair;
+  private final KeyPair keyPair = Objects.requireNonNull(SimpleChainData.getKeyPair(), "key pair");
 
   /**
    * the client salt.
@@ -84,32 +86,6 @@ public final class EncryptionHandler {
    */
   @Getter
   private byte[] key;
-
-  /**
-   * the server iv.
-   */
-  private byte[] serverIv;
-
-  /**
-   * the server key.
-   */
-  private byte[] serverKey;
-
-  /**
-   * the server public key.
-   */
-  @Nullable
-  private PublicKey serverPublicKey;
-
-  /**
-   * ctor.
-   *
-   * @param clientPublicKey the client public key.
-   */
-  public EncryptionHandler(@NotNull final ECPublicKey clientPublicKey) {
-    this.keyPair = Objects.requireNonNull(SimpleChainData.getKeyPair(), "key pair");
-    this.clientPublicKey = clientPublicKey;
-  }
 
   /**
    * generates ECDH secret key.
@@ -210,32 +186,6 @@ public final class EncryptionHandler {
       return false;
     }
     this.iv = EncryptionHandler.takeBytesFromArray(this.key, 0, 16);
-    return true;
-  }
-
-  /**
-   * begins the server side encryption.
-   *
-   * @param salt the salt to prepend in front of the ECDH derived shared secret before hashing it.
-   *
-   * @return {@code true} if the server side encryption has succeeded.
-   */
-  public boolean beginServersideEncryption(final byte[] salt) {
-    if (this.serverKey != null && this.serverIv != null) {
-      EncryptionHandler.log.debug("Already initialized");
-      return true;
-    }
-    final var secret = EncryptionHandler.generateECDHSecret(this.getServerPrivate(), this.serverPublicKey);
-    if (secret == null) {
-      return false;
-    }
-    try {
-      this.serverKey = EncryptionHandler.hashSHA256(salt, secret);
-    } catch (final NoSuchAlgorithmException e) {
-      EncryptionHandler.log.error("no sha-265 found", e);
-      return false;
-    }
-    this.serverIv = EncryptionHandler.takeBytesFromArray(this.serverKey, 0, 16);
     return true;
   }
 

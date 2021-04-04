@@ -178,6 +178,7 @@ public final class SimplePackManager implements PackManager {
         return Optional.of(PackManifest.load(asset.get()));
       }
     } catch (final IllegalStateException | IOException e) {
+      // @todo #1:5m Add language support for Failed to load %s.
       SimplePackManager.log.error(String.format("Failed to load %s", loader.getLocation()), e);
     }
     return Optional.empty();

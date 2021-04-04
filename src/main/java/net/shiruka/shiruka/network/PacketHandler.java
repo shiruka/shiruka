@@ -28,6 +28,7 @@ package net.shiruka.shiruka.network;
 import net.shiruka.api.base.Tick;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
@@ -46,6 +47,22 @@ public interface PacketHandler extends Tick {
    */
   default void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
   }
+
+  /**
+   * handles the client to server handshake packet.
+   *
+   * @param packet the packet to handle.
+   */
+  default void clientToServerHandshake(@NotNull final ClientToServerHandshakePacket packet) {
+  }
+
+  /**
+   * obtains the network manager.
+   *
+   * @return network manager.
+   */
+  @NotNull
+  NetworkManager getNetworkManager();
 
   /**
    * handles the login packet.

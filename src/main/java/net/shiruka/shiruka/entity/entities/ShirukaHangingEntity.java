@@ -23,18 +23,25 @@
  *
  */
 
-package net.shiruka.shiruka.network;
+package net.shiruka.shiruka.entity.entities;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.shiruka.api.world.World;
+import net.shiruka.shiruka.entity.EntityTypes;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * an annotation that represents packets which are not need encryption.
+ * an abstract that represents hanging entities.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface NoEncryption {
+public abstract class ShirukaHangingEntity extends ShirukaEntity {
 
+  /**
+   * ctor.
+   *
+   * @param entityType the entity type.
+   * @param world the world.
+   */
+  protected ShirukaHangingEntity(@NotNull final EntityTypes<? extends ShirukaHangingEntity> entityType,
+                                 @NotNull final World world) {
+    super(entityType, world);
+  }
 }

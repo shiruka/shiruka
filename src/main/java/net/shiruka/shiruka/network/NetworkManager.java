@@ -27,6 +27,7 @@ package net.shiruka.shiruka.network;
 
 import com.whirvis.jraknet.peer.RakNetClientPeer;
 import com.whirvis.jraknet.protocol.Reliability;
+import io.gomint.crypto.Processor;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.concurrent.Future;
@@ -40,15 +41,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.zip.Deflater;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.base.Tick;
 import net.shiruka.api.text.Text;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +55,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents network connections.
  */
-@RequiredArgsConstructor
 public final class NetworkManager implements Tick {
 
   /**
@@ -77,10 +75,24 @@ public final class NetworkManager implements Tick {
   private final RakNetClientPeer client;
 
   /**
+   * the input processor.
+   */
+  @NotNull
+  @Getter
+  private final Processor inputProcessor = new Processor(false);
+
+  /**
    * the login listener.
    */
   @Getter
   private final LoginListener loginListener = new LoginListener(this);
+
+  /**
+   * the output processor.
+   */
+  @NotNull
+  @Getter
+  private final Processor outputProcessor = new Processor(true);
 
   /**
    * the packet handler.
@@ -109,6 +121,18 @@ public final class NetworkManager implements Tick {
    * the disconnection handled.
    */
   private boolean disconnectionHandled;
+
+  /**
+   * ctor.
+   *
+   * @param client the client.
+   * @param server the server.
+   */
+  public NetworkManager(@NotNull final RakNetClientPeer client, @NotNull final ShirukaServer server) {
+    this.client = client;
+    this.server = server;
+    this.inputProcessor.preallocSize(5 * 1024 * 1024);
+  }
 
   /**
    * closes the network connection.
@@ -148,7 +172,7 @@ public final class NetworkManager implements Tick {
    * @return player.
    */
   @NotNull
-  public Optional<ShirukaPlayer> getPlayer() {
+  public Optional<ShirukaPlayerEntity> getPlayer() {
     final var handler = this.getPacketHandler();
     if (handler instanceof PlayerConnection) {
       return Optional.of(((PlayerConnection) handler).getPlayer());
@@ -164,6 +188,18 @@ public final class NetworkManager implements Tick {
   @NotNull
   public InetSocketAddress getSocketAddress() {
     return this.client.getAddress();
+  }
+
+  /**
+   * handles compressed batch packets directly by decoding their payload.
+   *
+   * @param buffer the buffer containing the batch packet's data.
+   *
+   * @return decompressed and decrypted data.
+   */
+  @NotNull
+  public ByteBuf handleBatchPacket(@NotNull final ByteBuf buffer) {
+    return this.inputProcessor.process(buffer);
   }
 
   /**
@@ -202,18 +238,9 @@ public final class NetworkManager implements Tick {
     if (this.queuedPackets.isEmpty()) {
       return;
     }
-    var toBatch = new ObjectArrayList<QueuedPacket>();
+    final var toBatch = new ObjectArrayList<QueuedPacket>();
     while (!this.queuedPackets.isEmpty()) {
-      final var packet = this.queuedPackets.dequeue();
-      if (!packet.getClass().isAnnotationPresent(NoEncryption.class)) {
-        toBatch.add(packet);
-        continue;
-      }
-      if (!toBatch.isEmpty()) {
-        this.sendWrapped(toBatch);
-        toBatch = new ObjectArrayList<>();
-      }
-      this.sendWrapped(Collections.singletonList(packet));
+      toBatch.add(this.queuedPackets.dequeue());
     }
     if (!toBatch.isEmpty()) {
       this.sendWrapped(toBatch);
@@ -225,7 +252,7 @@ public final class NetworkManager implements Tick {
    *
    * @param player the player to initialize.
    */
-  public void initialize(@NotNull final ShirukaPlayer player) {
+  public void initialize(@NotNull final ShirukaPlayerEntity player) {
     this.setPacketHandler(player.getPlayerConnection());
     this.server.getPlayerList().initialize(player);
   }
@@ -322,9 +349,9 @@ public final class NetworkManager implements Tick {
    * @param packets the packets to send.
    */
   private void sendWrapped(@NotNull final List<QueuedPacket> packets) {
-    final var compressed = Unpooled.buffer();
+    ByteBuf compressed = null;
     try {
-      Protocol.serialize(compressed, packets, Deflater.DEFAULT_COMPRESSION);
+      compressed = Protocol.serialize(this, packets);
       final var finalListener = packets.size() == 1
         ? packets.get(0).getListener()
         : null;
@@ -332,7 +359,9 @@ public final class NetworkManager implements Tick {
     } catch (final Exception e) {
       Shiruka.getLogger().error("Unable to compress packets", e);
     } finally {
-      compressed.release();
+      if (compressed != null) {
+        compressed.release();
+      }
     }
   }
 
@@ -344,7 +373,7 @@ public final class NetworkManager implements Tick {
    */
   private synchronized void sendWrapped(@NotNull final ByteBuf compressed,
                                         @Nullable final GenericFutureListener<? extends Future<? super Void>> listener) {
-    final var packet = Unpooled.buffer(compressed.readableBytes() + 9);
+    final var packet = Unpooled.directBuffer(compressed.readableBytes() + 9);
     packet.writeByte(0xfe);
     packet.writeBytes(compressed);
     this.client.sendMessage(Reliability.RELIABLE_ORDERED, packet, listener);

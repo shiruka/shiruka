@@ -27,18 +27,20 @@ package net.shiruka.shiruka.entity.entities;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.shiruka.api.Shiruka;
+import lombok.Getter;
+import net.shiruka.api.base.ImmutableBlockPosition;
+import net.shiruka.api.base.Location;
 import net.shiruka.api.base.Vector3D;
 import net.shiruka.api.entity.Entity;
 import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.world.World;
+import net.shiruka.shiruka.entity.EntityTypes;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * an abstract implementation for {@link Entity}.
@@ -56,21 +58,62 @@ public abstract class ShirukaEntity implements Entity {
   private final long entityId = ShirukaEntity.LAST_ENTITY_ID.incrementAndGet();
 
   /**
+   * the entity type.
+   */
+  @NotNull
+  private final EntityTypes<? extends ShirukaEntity> entityType;
+
+  /**
+   * the location.
+   */
+  @NotNull
+  @Getter
+  private final Location location;
+
+  /**
+   * the location block.
+   */
+  @NotNull
+  private final ImmutableBlockPosition locationBlock = ImmutableBlockPosition.ZERO;
+
+  /**
    * the motion.
    */
   @NotNull
-  private final Vector3D motion = new Vector3D();
+  private final Vector3D motion = Vector3D.ZERO;
+
+  /**
+   * the preserve motion.
+   */
+  private final boolean preserveMotion = true;
+
+  /**
+   * the valid.
+   */
+  public boolean valid;
 
   /**
    * the world.
    */
-  @Nullable
+  @NotNull
   public World world;
 
   /**
-   * the death.
+   * the moved.
    */
-  private boolean death;
+  private boolean moved;
+
+  /**
+   * ctor.
+   *
+   * @param entityType the entity type.
+   * @param world the world.
+   */
+  protected ShirukaEntity(@NotNull final EntityTypes<? extends ShirukaEntity> entityType, @NotNull final World world) {
+    this.entityType = entityType;
+    this.world = world;
+    this.location = new Location(world, 0.0d, 0.0d, 0.0d);
+  }
 
   @Override
   public final long getEntityId() {
@@ -83,10 +126,30 @@ public abstract class ShirukaEntity implements Entity {
   }
 
   /**
-   * entity dies.
+   * obtains {@link #location}'s x value.
+   *
+   * @return x value of the location.
    */
-  public void die() {
-    this.death = true;
+  public final double getLocationAsX() {
+    return this.location.getX();
+  }
+
+  /**
+   * obtains {@link #location}'sy value.
+   *
+   * @return y value of the location.
+   */
+  public final double getLocationAsY() {
+    return this.location.getY();
+  }
+
+  /**
+   * obtains {@link #location}'s z value.
+   *
+   * @return z value of the location.
+   */
+  public final double getLocationAsZ() {
+    return this.location.getZ();
   }
 
   @NotNull
@@ -127,6 +190,9 @@ public abstract class ShirukaEntity implements Entity {
    * @param tag the tag to load.
    */
   public void load(@NotNull final CompoundTag tag) {
+    if (tag.isEmpty()) {
+      return;
+    }
     try {
       final var dataVersion = tag.hasKeyOfType("DataVersion", (byte) 1)
         ? tag.getInteger("DataVersion").orElse(0)
@@ -142,19 +208,5 @@ public abstract class ShirukaEntity implements Entity {
   @Override
   public void tick() {
     throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaEntity#tick.");
-  }
-
-  /**
-   * entity spawns in the given {@code world}.
-   *
-   * @param world the world to spawn.
-   */
-  protected void spawnIn(@Nullable final World world) {
-    if (world == null) {
-      this.die();
-      this.world = Shiruka.getWorldManager().getWorlds().get(0);
-    } else {
-      this.world = world;
-    }
   }
 }

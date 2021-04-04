@@ -31,8 +31,7 @@ import net.shiruka.api.event.events.player.PlayerQuitEvent;
 import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
@@ -50,6 +49,7 @@ public final class PlayerConnection implements PacketHandler {
    * the network manager.
    */
   @NotNull
+  @Getter
   private final NetworkManager networkManager;
 
   /**
@@ -57,18 +57,13 @@ public final class PlayerConnection implements PacketHandler {
    */
   @NotNull
   @Getter
-  private final ShirukaPlayer player;
+  private final ShirukaPlayerEntity player;
 
   /**
    * the server.
    */
   @NotNull
   private final ShirukaServer server;
-
-  /**
-   * the blob cache support.
-   */
-  private boolean blobCacheSupport;
 
   /**
    * the join runnable with async support.
@@ -86,45 +81,10 @@ public final class PlayerConnection implements PacketHandler {
    *
    * @param player the player.
    */
-  public PlayerConnection(@NotNull final ShirukaPlayer player) {
+  public PlayerConnection(@NotNull final ShirukaPlayerEntity player) {
     this.player = player;
     this.networkManager = player.getNetworkManager();
     this.server = this.networkManager.getServer();
-  }
-
-  @Override
-  public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
-    this.blobCacheSupport = packet.isBlobCacheSupport();
-  }
-
-  @Override
-  public void onDisconnect(@NotNull final Text disconnectMessage) {
-    if (this.processedDisconnect) {
-      return;
-    } else {
-      this.processedDisconnect = true;
-    }
-  }
-
-  @Override
-  public void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
-    final var packId = packet.getPackId();
-    final var version = packet.getVersion();
-    final var chunkSize = packet.getChunkSize();
-    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
-    if (resourcePack.isEmpty()) {
-      this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
-      return;
-    }
-    final var pack = resourcePack.get();
-    final var chunk = pack.getChunk(1048576 * chunkSize, 1048576);
-    final var send = new ResourcePackChunkDataPacket(chunkSize, chunk, packId, version, 1048576L * chunkSize);
-    this.player.getNetworkManager().sendPacket(send);
-  }
-
-  @Override
-  public void violationWarning(@NotNull final ViolationWarningPacket packet) {
-    Shiruka.getLogger().error("Something went wrong when reading a packet!");
   }
 
   /**
@@ -172,6 +132,36 @@ public final class PlayerConnection implements PacketHandler {
   }
 
   @Override
+  public void onDisconnect(@NotNull final Text disconnectMessage) {
+    if (this.processedDisconnect) {
+      return;
+    } else {
+      this.processedDisconnect = true;
+    }
+  }
+
+  @Override
+  public void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
+    final var packId = packet.getPackId();
+    final var version = packet.getVersion();
+    final var chunkSize = packet.getChunkSize();
+    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
+    if (resourcePack.isEmpty()) {
+      this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
+      return;
+    }
+    final var pack = resourcePack.get();
+    final var chunk = pack.getChunk(1048576 * chunkSize, 1048576);
+    final var send = new ResourcePackChunkDataPacket(chunkSize, chunk, packId, version, 1048576L * chunkSize);
+    this.player.getNetworkManager().sendPacket(send);
+  }
+
+  @Override
+  public void violationWarning(@NotNull final ViolationWarningPacket packet) {
+    Shiruka.getLogger().error("Something went wrong when reading a packet!");
+  }
+
+  @Override
   public void tick() {
     final Runnable join = this.joinRunnable;
     if (join != null) {
@@ -183,7 +173,7 @@ public final class PlayerConnection implements PacketHandler {
   }
 
   /**
-   * the internal simple translation..
+   * the internal simple translation.
    *
    * @param reason the reason to translate.
    * @param fallback the fallback to translate.

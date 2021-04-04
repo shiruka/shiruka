@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.network;
 
+import java.security.interfaces.ECPublicKey;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -40,13 +41,19 @@ import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
+import net.shiruka.shiruka.jwt.EncryptionHandler;
+import net.shiruka.shiruka.jwt.EncryptionRequestForger;
 import net.shiruka.shiruka.language.Languages;
+import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
+import net.shiruka.shiruka.network.packets.NetworkSettingsPacket;
 import net.shiruka.shiruka.network.packets.PlayStatusPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.ServerToClientHandshakePacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,6 +76,11 @@ public final class LoginListener implements PacketHandler {
   @NotNull
   @Getter
   private final NetworkManager networkManager;
+
+  /**
+   * the blob cache support.
+   */
+  private boolean blobCacheSupport;
 
   /**
    * the latest login packet.
@@ -105,7 +117,39 @@ public final class LoginListener implements PacketHandler {
    */
   @Nullable
   @Setter
-  private ShirukaPlayer wantsToJoin;
+  private ShirukaPlayerEntity wantsToJoin;
+
+  @Override
+  public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
+    this.blobCacheSupport = packet.isBlobCacheSupport();
+  }
+
+  @Override
+  public void clientToServerHandshake(@NotNull final ClientToServerHandshakePacket packet) {
+    final var networkSettings = new NetworkSettingsPacket((short) 1);
+    this.networkManager.sendPacket(networkSettings);
+    this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
+    final var packInfo = Shiruka.getPackManager().getPackInfo();
+    if (packInfo instanceof ShirukaPacket) {
+      this.networkManager.sendPacket((ShirukaPacket) packInfo);
+    }
+  }
+
+  @Override
+  public void login(@NotNull final LoginPacket packet) {
+    this.latestLoginPacket = packet;
+  }
+
+  @Override
+  public void onDisconnect(@NotNull final Text disconnectMessage) {
+    // @todo #1:5m Add language support for {} lost connection: {}.
+    LoginListener.log.info("{} lost connection: {}", this.getNetworkName(), disconnectMessage.asString());
+  }
+
+  @Override
+  public void resourcePackResponse(@NotNull final ResourcePackResponsePacket packet) {
+    this.latestResourcePacket = packet;
+  }
 
   /**
    * disconnects the connection.
@@ -138,22 +182,6 @@ public final class LoginListener implements PacketHandler {
   }
 
   @Override
-  public void login(@NotNull final LoginPacket packet) {
-    this.latestLoginPacket = packet;
-  }
-
-  @Override
-  public void onDisconnect(@NotNull final Text disconnectMessage) {
-    // @todo #1:5m Add language support for {} lost connection: {}.
-    LoginListener.log.info("{} lost connection: {}", this.getNetworkName(), disconnectMessage.asString());
-  }
-
-  @Override
-  public void resourcePackResponse(@NotNull final ResourcePackResponsePacket packet) {
-    this.latestResourcePacket = packet;
-  }
-
-  @Override
   public void tick() {
     if (!Shiruka.getServer().isRunning()) {
       this.disconnect(TranslatedTexts.RESTART_REASON);
@@ -182,8 +210,6 @@ public final class LoginListener implements PacketHandler {
    * handles the login packet.
    *
    * @param packet the packet to handle.
-   *
-   * @todo #1:60m Add ServerToClientHandshake ClientToServerHandshake packets to request encryption key.
    */
   private void loginPacket0(@NotNull final LoginPacket packet) {
     this.latestLoginPacket = null;
@@ -202,10 +228,11 @@ public final class LoginListener implements PacketHandler {
       this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD));
       return;
     }
-    Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
+    final var internalPlugin = ShirukaServer.INTERNAL_PLUGIN;
+    Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
-      Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-        Languages.addLoadedLanguage(chainData.getLanguageCode());
+      Languages.addLoadedLanguage(chainData.getLanguageCode());
+      Shiruka.getScheduler().schedule(internalPlugin, () -> {
         if (!chainData.isXboxAuthed() && ServerConfig.onlineMode) {
           this.disconnect(TranslatedTexts.NOT_AUTHENTICATED_REASON);
           return;
@@ -226,7 +253,6 @@ public final class LoginListener implements PacketHandler {
           () -> ChatColor.clean(username),
           chainData.getUniqueId(),
           chainData.getXboxUniqueId());
-        this.loginData = new LoginData(chainData, this.networkManager, this.profile);
         final var preLogin = Shiruka.getEventManager().playerPreLogin(chainData);
         preLogin.callEvent();
         if (preLogin.isCancelled()) {
@@ -234,24 +260,48 @@ public final class LoginListener implements PacketHandler {
           return;
         }
         final var asyncLogin = Shiruka.getEventManager().playerAsyncLogin(chainData);
-        this.loginData.setAsyncLogin(asyncLogin);
-        this.loginData.setTask(Shiruka.getScheduler().scheduleAsync(ShirukaServer.INTERNAL_PLUGIN, () -> {
-          asyncLogin.callEvent();
-          if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
-            Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () ->
-              this.disconnect(asyncLogin.getKickMessage()));
-            return;
+        this.loginData = new LoginData(asyncLogin, chainData, this.networkManager, this.profile, data ->
+          Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
+            asyncLogin.callEvent();
+            if (asyncLogin.getLoginResult() != LoginResultEvent.LoginResult.ALLOWED) {
+              Shiruka.getScheduler().schedule(internalPlugin, () ->
+                this.disconnect(asyncLogin.getKickMessage()));
+              return;
+            }
+            Shiruka.getScheduler().schedule(internalPlugin, () -> {
+              if (data.shouldLogin()) {
+                data.initialize();
+              }
+            });
+          }));
+        if (SimpleChainData.getKeyPair() == null) {
+          this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
+          final var packInfo = Shiruka.getPackManager().getPackInfo();
+          if (packInfo instanceof ShirukaPacket) {
+            this.networkManager.sendPacket((ShirukaPacket) packInfo);
           }
-          Shiruka.getScheduler().schedule(ShirukaServer.INTERNAL_PLUGIN, () -> {
-            if (this.loginData.shouldLogin()) {
-              this.loginData.initialize();
+        } else {
+          Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
+            try {
+              final var publicKey = (ECPublicKey) SimpleChainData.generateKey(chainData.getPublicKey());
+              final var encryption = new EncryptionHandler(publicKey);
+              if (encryption.beginClientsideEncryption()) {
+                final var key = encryption.getKey();
+                final var iv = encryption.getIv();
+                this.networkManager.getInputProcessor().enableCrypto(key, iv);
+                final var jwt = EncryptionRequestForger.forge(encryption.serverPublic(),
+                  encryption.getServerPrivate(), encryption.getClientSalt());
+                if (jwt != null) {
+                  final var encryptionRequest = new ServerToClientHandshakePacket(jwt);
+                  this.networkManager.sendPacket(encryptionRequest, v ->
+                    this.networkManager.getOutputProcessor().enableCrypto(key, iv));
+                }
+              }
+            } catch (final Exception e) {
+              // @todo #1:5m Add language support for Error when generating client's public key.
+              LoginListener.log.fatal("Error when generating client's public key", e);
             }
           });
-        }));
-        this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
-        final var packInfo = Shiruka.getPackManager().getPackInfo();
-        if (packInfo instanceof ShirukaPacket) {
-          this.networkManager.sendPacket((ShirukaPacket) packInfo);
         }
       });
     });
@@ -276,8 +326,7 @@ public final class LoginListener implements PacketHandler {
         if (this.loginData == null) {
           return;
         }
-        if (this.loginData.getTask() != null &&
-          Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
+        if (Shiruka.getScheduler().isCurrentlyRunning(this.loginData.getTask().getTaskId())) {
           this.loginData.setShouldLogin(true);
         } else {
           this.loginData.initialize();

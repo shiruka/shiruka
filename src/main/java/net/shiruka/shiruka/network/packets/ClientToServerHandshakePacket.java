@@ -23,33 +23,29 @@
  *
  */
 
-package net.shiruka.shiruka.nbt;
+package net.shiruka.shiruka.network.packets;
 
+import io.netty.buffer.ByteBuf;
+import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.network.ShirukaPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine primitive tags.
- *
- * @param <T> type of the tag's value.
+ * the handshake packet to finish encryption.
  */
-public interface PrimitiveTag<T> extends Tag {
-
-  @NotNull
-  @Override
-  default PrimitiveTag<T> asPrimitive() {
-    return this;
-  }
-
-  @Override
-  default boolean isPrimitive() {
-    return true;
-  }
+public final class ClientToServerHandshakePacket extends ShirukaPacket {
 
   /**
-   * obtains the tag's value.
+   * ctor.
    *
-   * @return the tag's value.
+   * @param original the original.
    */
-  @NotNull
-  T value();
+  public ClientToServerHandshakePacket(@NotNull final ByteBuf original) {
+    super(ShirukaPacket.ID_CLIENT_TO_SERVER_HANDSHAKE, original);
+  }
+
+  @Override
+  public void handle(@NotNull final PacketHandler handler) {
+    handler.clientToServerHandshake(this);
+  }
 }

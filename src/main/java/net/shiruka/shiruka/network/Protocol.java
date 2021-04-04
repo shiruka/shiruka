@@ -26,7 +26,7 @@
 package net.shiruka.shiruka.network;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.PooledByteBufAllocator;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.zip.DataFormatException;
@@ -39,11 +39,6 @@ import org.jetbrains.annotations.NotNull;
  */
 @Log4j2
 public final class Protocol {
-
-  /**
-   * the zlib.
-   */
-  private static final Zlib ZLIB = Zlib.RAW;
 
   /**
    * ctor.
@@ -60,7 +55,7 @@ public final class Protocol {
   public static void deserialize(@NotNull final PacketHandler handler, @NotNull final ByteBuf compressed) {
     ByteBuf decompressed = null;
     try {
-      decompressed = Protocol.ZLIB.inflate(compressed, 12 * 1024 * 1024);
+      decompressed = handler.getNetworkManager().handleBatchPacket(compressed);
       while (decompressed.isReadable()) {
         final var length = VarInts.readUnsignedVarInt(decompressed);
         final var buffer = decompressed.readSlice(length);
@@ -69,13 +64,14 @@ public final class Protocol {
         }
         final var header = VarInts.readUnsignedVarInt(buffer);
         final var packetId = header & 0x3ff;
+        // @todo #1:5m Add language support for §7Incoming packet id -> {}.
         Protocol.log.debug("§7Incoming packet id -> {}", packetId);
-        final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
+        final var packet = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
           String.format("The packet id %s not found!", packetId)).apply(buffer);
-        shirukaPacket.setSenderId(header >>> 10 & 3);
-        shirukaPacket.setClientId(header >>> 12 & 3);
-        shirukaPacket.decode();
-        shirukaPacket.handle(handler);
+        packet.setSenderId(header >>> 10 & 3);
+        packet.setClientId(header >>> 12 & 3);
+        packet.decode();
+        packet.handle(handler);
       }
     } catch (final Exception e) {
       JiraExceptionCatcher.serverException(e);
@@ -89,35 +85,35 @@ public final class Protocol {
   /**
    * serializes the given {@code packet}.
    *
-   * @param result the result.
+   * @param networkManager the network manager.
    * @param packets the packets to serialize.
-   * @param level the level to serialize.
+   *
+   * @return serialized packet.
    */
-  public static void serialize(@NotNull final ByteBuf result, @NotNull final Collection<QueuedPacket> packets,
-                               final int level) {
-    final var uncompressed = Unpooled.buffer(packets.size() << 3);
-    try {
-      for (final var queued : packets) {
-        final var packet = queued.getPacket();
-        final var buffer = Unpooled.buffer();
-        try {
-          final var packetId = packet.getId();
-          var header = 0;
-          header |= packetId & 0x3ff;
-          header |= (packet.getSenderId() & 3) << 10;
-          header |= (packet.getClientId() & 3) << 12;
-          VarInts.writeUnsignedInt(buffer, header);
-          packet.setBuffer(buffer);
-          packet.encode();
-          VarInts.writeUnsignedInt(uncompressed, buffer.readableBytes());
-          uncompressed.writeBytes(buffer);
-        } finally {
-          buffer.release();
-        }
+  @NotNull
+  public static ByteBuf serialize(@NotNull final NetworkManager networkManager,
+                                  @NotNull final Collection<QueuedPacket> packets) {
+    final var uncompressed = PooledByteBufAllocator.DEFAULT.directBuffer(packets.size() << 3);
+    for (final var queued : packets) {
+      final var packet = queued.getPacket();
+      final var buffer = PooledByteBufAllocator.DEFAULT.directBuffer();
+      try {
+        final var packetId = packet.getId();
+        // @todo #1:5m Add language support for §7Outgoing packet id -> {}.
+        Protocol.log.debug("§7Outgoing packet id -> {}", packetId);
+        var header = 0;
+        header |= packetId & 0x3ff;
+        header |= (packet.getSenderId() & 3) << 10;
+        header |= (packet.getClientId() & 3) << 12;
+        VarInts.writeUnsignedInt(buffer, header);
+        packet.setBuffer(buffer);
+        packet.encode();
+        VarInts.writeUnsignedInt(uncompressed, buffer.readableBytes());
+        uncompressed.writeBytes(buffer);
+      } finally {
+        buffer.release();
       }
-      Protocol.ZLIB.deflate(uncompressed, result, level);
-    } finally {
-      uncompressed.release();
     }
+    return networkManager.getOutputProcessor().process(uncompressed);
   }
 }

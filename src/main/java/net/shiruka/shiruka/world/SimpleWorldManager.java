@@ -25,12 +25,13 @@
 
 package net.shiruka.shiruka.world;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import net.shiruka.api.world.ChunkData;
+import net.shiruka.api.registry.Resourced;
 import net.shiruka.api.world.World;
-import net.shiruka.api.world.WorldCreator;
 import net.shiruka.api.world.WorldManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,33 +40,54 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class SimpleWorldManager implements WorldManager {
 
+  /**
+   * the worlds by {@link String}.
+   */
+  private final Map<String, World> worldsByName = new Object2ObjectLinkedOpenHashMap<>();
+
+  /**
+   * the worlds by {@link Resourced}.
+   */
+  private final Map<Resourced, World> worldsByResource = new Object2ObjectLinkedOpenHashMap<>();
+
+  /**
+   * the worlds by {@link UUID}.
+   */
+  private final Map<UUID, World> worldsByUniqueId = new Object2ObjectLinkedOpenHashMap<>();
+
+  /**
+   * gets the default world.
+   *
+   * @return default world.
+   */
   @NotNull
-  @Override
-  public ChunkData createChunkData(@NotNull final World world) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createChunkData.");
+  public World getDefaultWorld() {
+    return this.getWorldByResource(World.OVER_WORLD).orElseThrow(() ->
+      // @todo #1:5m Add language support for "Default world not found!".
+      new IllegalStateException("Default world not found!"));
   }
 
   @NotNull
   @Override
-  public ChunkData createNativeChunkData(@NotNull final World world, final int x, final int z) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createNativeChunkData.");
+  public Optional<World> getWorldByName(@NotNull final String name) {
+    return Optional.ofNullable(this.worldsByName.get(name));
   }
 
   @NotNull
   @Override
-  public Optional<World> createWorld(@NotNull final WorldCreator worldCreator) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#createWorld.");
+  public Optional<World> getWorldByResource(@NotNull final Resourced resource) {
+    return Optional.ofNullable(this.worldsByResource.get(resource));
   }
 
   @NotNull
   @Override
-  public Optional<World> getWorld(@NotNull final UUID uniqueId) {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#getWorld.");
+  public Optional<World> getWorldByUniqueId(@NotNull final UUID uniqueId) {
+    return Optional.of(this.worldsByUniqueId.get(uniqueId));
   }
 
   @NotNull
   @Override
-  public List<World> getWorlds() {
-    throw new UnsupportedOperationException(" @todo #1:10m Implement SimpleWorldManager#getWorlds.");
+  public Collection<World> getWorlds() {
+    return this.worldsByResource.values();
   }
 }

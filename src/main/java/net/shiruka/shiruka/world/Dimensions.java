@@ -34,14 +34,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * a class that represents dimension managers.
+ * a class that contains utility method for dimensions.
  */
-public final class DimensionManager {
+public final class Dimensions {
 
   /**
    * ctor.
    */
-  private DimensionManager() {
+  private Dimensions() {
   }
 
   /**
@@ -59,7 +59,7 @@ public final class DimensionManager {
     if (tag.containsKey("WorldUUIDMost") && tag.containsKey("WorldUUIDLeast")) {
       final var worldUniqueId = new UUID(tag.getLong("WorldUUIDMost").orElseThrow(),
         tag.getLong("WorldUUIDLeast").orElseThrow());
-      return Shiruka.getWorldManager().getWorld(worldUniqueId)
+      return Shiruka.getWorldManager().getWorldByUniqueId(worldUniqueId)
         .map(World::getDimensionKey)
         .orElse(World.OVER_WORLD);
     }
@@ -67,7 +67,9 @@ public final class DimensionManager {
     if (dimension.isEmpty() || !dimension.get().isNumber()) {
       return World.OVER_WORLD;
     }
-    final int dimensionId = dimension.get().asNumber().intValue();
+    final var dimensionId = dimension.get()
+      .asNumber()
+      .intValue();
     if (dimensionId == -1) {
       return World.THE_NETHER;
     }

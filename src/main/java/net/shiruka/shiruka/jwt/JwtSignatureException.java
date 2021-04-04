@@ -23,33 +23,29 @@
  *
  */
 
-package net.shiruka.shiruka.nbt;
-
-import org.jetbrains.annotations.NotNull;
+package net.shiruka.shiruka.jwt;
 
 /**
- * an interface to determine primitive tags.
- *
- * @param <T> type of the tag's value.
+ * an exception thrown when something goes wrong about jwt signature verification.
  */
-public interface PrimitiveTag<T> extends Tag {
+public final class JwtSignatureException extends Exception {
 
-  @NotNull
-  @Override
-  default PrimitiveTag<T> asPrimitive() {
-    return this;
-  }
-
-  @Override
-  default boolean isPrimitive() {
-    return true;
+  /**
+   * ctor.
+   *
+   * @param message the message.
+   */
+  public JwtSignatureException(final String message) {
+    super(message);
   }
 
   /**
-   * obtains the tag's value.
+   * ctor.
    *
-   * @return the tag's value.
+   * @param message the message.
+   * @param cause the cause.
    */
-  @NotNull
-  T value();
+  public JwtSignatureException(final String message, final Throwable cause) {
+    super(message, cause);
+  }
 }

@@ -40,16 +40,22 @@ public final class SystemUtils {
 
   /**
    * the config type error format.
+   *
+   * @todo #1:5m Add language support for The file %s has not a valid ConfigType instance..
    */
   private static final String CONFIG_TYPE_ERROR_FORMAT = "The file %s has not a valid ConfigType instance.";
 
   /**
    * the exception message.
+   *
+   * @todo #1:5m Add language support for Caught previously unhandled exception :.
    */
   private static final String EXCEPTION_MESSAGE = "Caught previously unhandled exception :";
 
   /**
    * the interrupted message.
+   *
+   * @todo #1:5m Add language support for Timer hack interrupted, that really should not happen!.
    */
   private static final String INTERRUPTED = "Timer hack interrupted, that really should not happen!";
 

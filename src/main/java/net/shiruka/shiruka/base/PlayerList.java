@@ -46,11 +46,11 @@ import net.shiruka.shiruka.ban.IpBanList;
 import net.shiruka.shiruka.ban.ProfileBanList;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.config.UserCacheConfig;
-import net.shiruka.shiruka.entity.entities.ShirukaPlayer;
+import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.text.TranslatedTexts;
-import net.shiruka.shiruka.world.DimensionManager;
+import net.shiruka.shiruka.world.Dimensions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,27 +69,27 @@ public final class PlayerList {
   /**
    * the pending players.
    */
-  public final Map<UUID, ShirukaPlayer> pendingPlayers = new Object2ObjectOpenHashMap<>();
+  public final Map<UUID, ShirukaPlayerEntity> pendingPlayers = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players.
    */
-  public final List<ShirukaPlayer> players = new CopyOnWriteArrayList<>();
+  public final List<ShirukaPlayerEntity> players = new CopyOnWriteArrayList<>();
 
   /**
    * the players by name.
    */
-  public final Map<String, ShirukaPlayer> playersByName = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayerEntity> playersByName = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by unique id.
    */
-  public final Map<UUID, ShirukaPlayer> playersByUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<UUID, ShirukaPlayerEntity> playersByUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the players by xbox unique id.
    */
-  public final Map<String, ShirukaPlayer> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
+  public final Map<String, ShirukaPlayerEntity> playersByXboxUniqueId = new Object2ObjectOpenHashMap<>();
 
   /**
    * the profile ban list.
@@ -110,7 +110,7 @@ public final class PlayerList {
    * @return active player instance.
    */
   @Nullable
-  public ShirukaPlayer getActivePlayer(@NotNull final UUID uniqueId) {
+  public ShirukaPlayerEntity getActivePlayer(@NotNull final UUID uniqueId) {
     final var player = this.playersByUniqueId.get(uniqueId);
     return player != null ? player : this.pendingPlayers.get(uniqueId);
   }
@@ -121,7 +121,7 @@ public final class PlayerList {
    * @return online players.
    */
   @NotNull
-  public Collection<? extends ShirukaPlayer> getPlayers() {
+  public Collection<? extends ShirukaPlayerEntity> getPlayers() {
     synchronized (this.players) {
       return Collections.unmodifiableList(this.players);
     }
@@ -134,7 +134,7 @@ public final class PlayerList {
    *
    * @param player the player to initialize.
    */
-  public void initialize(@NotNull final ShirukaPlayer player) {
+  public void initialize(@NotNull final ShirukaPlayerEntity player) {
     final var uniqueId = player.getUniqueId();
     final var pendingPlayer = this.pendingPlayers.get(uniqueId);
     if (pendingPlayer != null) {
@@ -190,7 +190,7 @@ public final class PlayerList {
    * @return loaded compound tag instance.
    */
   @Contract("_, true -> !null")
-  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayer player, final boolean create) {
+  private CompoundTag loadPlayerCompound(@NotNull final ShirukaPlayerEntity player, final boolean create) {
     CompoundTag tag = null;
     final var file = player.getPlayerFile();
     try {
@@ -201,6 +201,7 @@ public final class PlayerList {
           UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName().asString()).getBytes(StandardCharsets.UTF_8)) + ".dat");
         if (tempFile.exists()) {
           wrongFile = true;
+          // @todo #1:5m Add language support for Using offline mode UUID file for player {} as it is the only copy we can find.
           this.server.getLogger().warn("Using offline mode UUID file for player {} as it is the only copy we can find.",
             player.getName().asString());
         }
@@ -212,10 +213,11 @@ public final class PlayerList {
         tempFile.renameTo(new File(tempFile.getPath() + ".offline-read"));
       }
     } catch (final Exception e) {
+      // @todo #1:5m Add language support for Failed to load player data for {}.
       this.server.getLogger().error("Failed to load player data for {}", player.getName().asString());
     }
     if (tag == null && create) {
-      tag = player.createDefaultTag();
+      tag = Tag.createCompound();
     }
     final var modified = player.getPlayerFile().lastModified();
     if (modified < player.getFirstPlayed()) {
@@ -230,7 +232,7 @@ public final class PlayerList {
    *
    * @param player the player to login.
    */
-  private void login(@NotNull final ShirukaPlayer player) {
+  private void login(@NotNull final ShirukaPlayerEntity player) {
     player.isRealPlayer = true;
     final var oldPending = this.pendingPlayers.put(player.getUniqueId(), player);
     if (oldPending != null) {
@@ -249,10 +251,11 @@ public final class PlayerList {
         ? shiruka.getString("lastKnownName").orElseThrow()
         : lastKnownName;
     }
-    final var resourced = DimensionManager.fromTag(tag);
-    final var world = this.server.getWorld(resourced).orElseGet(this.server::getDefaultWorld);
-    player.spawnIn(world);
-    // @todo #1:1m Continue to development here.
+    final var resourced = Dimensions.fromTag(tag);
+    final var world = this.server.getWorldManager().getWorldByResource(resourced)
+      .orElseGet(this.server.getWorldManager()::getDefaultWorld);
+    if (tag.isEmpty()) {
+    }
     this.server.getTick().setLastPingTime(0L);
   }
 
@@ -261,7 +264,7 @@ public final class PlayerList {
    *
    * @param player the player to try.
    */
-  private void tryToLogin(@NotNull final ShirukaPlayer player) {
+  private void tryToLogin(@NotNull final ShirukaPlayerEntity player) {
     final var uniqueId = player.getUniqueId();
     if (this.pendingPlayers.containsKey(uniqueId) ||
       this.playersByUniqueId.containsKey(uniqueId)) {

@@ -29,6 +29,7 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import java.util.function.Function;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
@@ -47,6 +48,7 @@ public final class PacketRegistry {
   static {
     PACKETS = new Int2ReferenceOpenHashMap<>() {{
       this.put(1, LoginPacket::new);
+      this.put(4, ClientToServerHandshakePacket::new);
       this.put(8, ResourcePackResponsePacket::new);
       this.put(84, ResourcePackChunkRequestPacket::new);
       this.put(129, ClientCacheStatusPacket::new);

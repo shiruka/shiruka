@@ -23,33 +23,35 @@
  *
  */
 
-package net.shiruka.shiruka.nbt;
+package net.shiruka.shiruka.network.packets;
 
+import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine primitive tags.
- *
- * @param <T> type of the tag's value.
+ * the handshake packet to start encryption.
  */
-public interface PrimitiveTag<T> extends Tag {
-
-  @NotNull
-  @Override
-  default PrimitiveTag<T> asPrimitive() {
-    return this;
-  }
-
-  @Override
-  default boolean isPrimitive() {
-    return true;
-  }
+public final class ServerToClientHandshakePacket extends ShirukaPacket {
 
   /**
-   * obtains the tag's value.
-   *
-   * @return the tag's value.
+   * the jwt.
    */
   @NotNull
-  T value();
+  private final String jwt;
+
+  /**
+   * ctor.
+   *
+   * @param jwt the jwt.
+   */
+  public ServerToClientHandshakePacket(@NotNull final String jwt) {
+    super(ShirukaPacket.ID_SERVER_TO_CLIENT_HANDSHAKE);
+    this.jwt = jwt;
+  }
+
+  @Override
+  public void encode() {
+    VarInts.writeString(this.buffer(), this.jwt);
+  }
 }

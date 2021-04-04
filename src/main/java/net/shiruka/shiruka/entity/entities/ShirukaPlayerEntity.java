@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,8 +58,6 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.OpEntry;
 import net.shiruka.shiruka.config.OpsConfig;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.nbt.CompoundTag;
-import net.shiruka.shiruka.nbt.Tag;
 import net.shiruka.shiruka.network.NetworkManager;
 import net.shiruka.shiruka.network.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +66,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * an implementation for {@link Player}.
  */
-public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
+public final class ShirukaPlayerEntity extends ShirukaHumanEntity implements Player {
 
   /**
    * the plugin weak references.
@@ -164,13 +161,14 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   /**
    * ctor.
    *
+   * @param world the world.
    * @param networkManager the connection.
    * @param loginData the login data.
    * @param profile the profile.
    */
-  public ShirukaPlayer(@NotNull final NetworkManager networkManager, @NotNull final LoginData loginData,
-                       @NotNull final GameProfile profile) {
-    super(profile);
+  public ShirukaPlayerEntity(@NotNull final World world, @NotNull final NetworkManager networkManager,
+                             @NotNull final LoginData loginData, @NotNull final GameProfile profile) {
+    super(world, profile);
     this.networkManager = networkManager;
     this.loginData = loginData;
     this.playerConnection = new PlayerConnection(this);
@@ -180,7 +178,7 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
   private static WeakReference<Plugin> getPluginWeakReference(@Nullable final Plugin plugin) {
     return plugin == null
       ? null
-      : ShirukaPlayer.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
+      : ShirukaPlayerEntity.PLUGIN_WEAK_REFERENCES.computeIfAbsent(plugin, WeakReference::new);
   }
 
   /**
@@ -232,11 +230,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     }
     var hidingPlugins = this.hiddenPlayers.get(player.getUniqueId());
     if (hidingPlugins != null) {
-      hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+      hidingPlugins.add(ShirukaPlayerEntity.getPluginWeakReference(plugin));
       return;
     }
     hidingPlugins = new ObjectOpenHashSet<>();
-    hidingPlugins.add(ShirukaPlayer.getPluginWeakReference(plugin));
+    hidingPlugins.add(ShirukaPlayerEntity.getPluginWeakReference(plugin));
     this.hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
   }
 
@@ -259,33 +257,11 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
     if (hidingPlugins == null) {
       return;
     }
-    hidingPlugins.remove(ShirukaPlayer.getPluginWeakReference(plugin));
+    hidingPlugins.remove(ShirukaPlayerEntity.getPluginWeakReference(plugin));
     if (!hidingPlugins.isEmpty()) {
       return;
     }
     this.hiddenPlayers.remove(player.getUniqueId());
-  }
-
-  /**
-   * creates a default compound tag when the player joins the server for first time.
-   *
-   * @return default compound tag.
-   */
-  @NotNull
-  public CompoundTag createDefaultTag() {
-    final var defaultWorld = this.networkManager.getServer().getDefaultWorld();
-    final var spawn = defaultWorld.getSpawn();
-    final var tag = Tag.createCompound();
-    tag.setLong("first-played", System.currentTimeMillis() / 1000L);
-    tag.setLong("last-played", System.currentTimeMillis() / 1000L);
-    tag.setList("Pos", List.of(
-      Tag.createString(String.valueOf(spawn.getX())),
-      Tag.createString(String.valueOf(spawn.getY())),
-      Tag.createString(String.valueOf(spawn.getZ()))));
-    final var worldUniqueId = defaultWorld.getUniqueId();
-    tag.setLong("WorldUUIDMost", worldUniqueId.getMostSignificantBits());
-    tag.setLong("WorldUUIDLeast", worldUniqueId.getLeastSignificantBits());
-    return tag;
   }
 
   @Nullable
@@ -480,14 +456,6 @@ public final class ShirukaPlayer extends ShirukaHumanEntity implements Player {
 
   @Override
   public void tick() {
-  }
-
-  @Override
-  public void spawnIn(@Nullable final World world) {
-    super.spawnIn(world);
-    if (world == null) {
-      return;
-    }
   }
 
   /**

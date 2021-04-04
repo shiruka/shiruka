@@ -23,33 +23,26 @@
  *
  */
 
-package net.shiruka.shiruka.nbt;
+package net.shiruka.shiruka.jwt;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine primitive tags.
- *
- * @param <T> type of the tag's value.
+ * an enum class that contains jwt algorithms.
  */
-public interface PrimitiveTag<T> extends Tag {
-
-  @NotNull
-  @Override
-  default PrimitiveTag<T> asPrimitive() {
-    return this;
-  }
-
-  @Override
-  default boolean isPrimitive() {
-    return true;
-  }
+@RequiredArgsConstructor
+public enum JwtAlgorithm {
+  /**
+   * the es384.
+   */
+  ES384(new JwtSignatureES384());
 
   /**
-   * obtains the tag's value.
-   *
-   * @return the tag's value.
+   * the validator.
    */
   @NotNull
-  T value();
+  @Getter
+  private final JwtSignature validator;
 }

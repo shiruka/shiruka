@@ -342,6 +342,13 @@ public interface StoredTag<K> {
   }
 
   /**
+   * checks if the stored tag has not any element in it.
+   *
+   * @return {@code true} if the stored tag has not any element in it.
+   */
+  boolean isEmpty();
+
+  /**
    * removes the tag at the given key.
    *
    * @param key the key to remove.

@@ -23,33 +23,33 @@
  *
  */
 
-package net.shiruka.shiruka.nbt;
+package net.shiruka.shiruka.network.packets;
 
-import org.jetbrains.annotations.NotNull;
+import net.shiruka.shiruka.network.ShirukaPacket;
 
 /**
- * an interface to determine primitive tags.
- *
- * @param <T> type of the tag's value.
+ * sent by the server to update a variety of network settings.
+ * these settings modify the way packets are sent over the network stack.
  */
-public interface PrimitiveTag<T> extends Tag {
-
-  @NotNull
-  @Override
-  default PrimitiveTag<T> asPrimitive() {
-    return this;
-  }
-
-  @Override
-  default boolean isPrimitive() {
-    return true;
-  }
+public final class NetworkSettingsPacket extends ShirukaPacket {
 
   /**
-   * obtains the tag's value.
-   *
-   * @return the tag's value.
+   * the compression threshold.
    */
-  @NotNull
-  T value();
+  private final short compressionThreshold;
+
+  /**
+   * ctor.
+   *
+   * @param compressionThreshold the compression threshold.
+   */
+  public NetworkSettingsPacket(final short compressionThreshold) {
+    super(ShirukaPacket.ID_NETWORK_SETTINGS);
+    this.compressionThreshold = compressionThreshold;
+  }
+
+  @Override
+  public void encode() {
+    this.writeShortLE(this.compressionThreshold);
+  }
 }

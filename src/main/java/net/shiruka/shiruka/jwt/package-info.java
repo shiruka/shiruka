@@ -22,34 +22,7 @@
  * SOFTWARE.
  *
  */
-
-package net.shiruka.shiruka.nbt;
-
-import org.jetbrains.annotations.NotNull;
-
 /**
- * an interface to determine primitive tags.
- *
- * @param <T> type of the tag's value.
+ * the package that contains encryption classes.
  */
-public interface PrimitiveTag<T> extends Tag {
-
-  @NotNull
-  @Override
-  default PrimitiveTag<T> asPrimitive() {
-    return this;
-  }
-
-  @Override
-  default boolean isPrimitive() {
-    return true;
-  }
-
-  /**
-   * obtains the tag's value.
-   *
-   * @return the tag's value.
-   */
-  @NotNull
-  T value();
-}
+package net.shiruka.shiruka.jwt;

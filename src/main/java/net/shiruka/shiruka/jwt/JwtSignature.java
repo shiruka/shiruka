@@ -23,33 +23,37 @@
  *
  */
 
-package net.shiruka.shiruka.nbt;
+package net.shiruka.shiruka.jwt;
 
-import org.jetbrains.annotations.NotNull;
+import java.security.Key;
 
 /**
- * an interface to determine primitive tags.
- *
- * @param <T> type of the tag's value.
+ * an interface to determine jwt singatures.
  */
-public interface PrimitiveTag<T> extends Tag {
-
-  @NotNull
-  @Override
-  default PrimitiveTag<T> asPrimitive() {
-    return this;
-  }
-
-  @Override
-  default boolean isPrimitive() {
-    return true;
-  }
+public interface JwtSignature {
 
   /**
-   * obtains the tag's value.
+   * signs the given signature with the key.
    *
-   * @return the tag's value.
+   * @param key the key to sign.
+   * @param signature the signature to sign.
+   *
+   * @return signed signature.
+   *
+   * @throws JwtSignatureException if something goes wrong when signing.
    */
-  @NotNull
-  T value();
+  byte[] sign(Key key, byte[] signature) throws JwtSignatureException;
+
+  /**
+   * validates the given signature with the key and digest.
+   *
+   * @param key the key to validate.
+   * @param signature the signature to validate.
+   * @param digest the digest to validate.
+   *
+   * @return {@code true} if the signature is valid.
+   *
+   * @throws JwtSignatureException if something goes wrong when validating.
+   */
+  boolean validate(Key key, byte[] signature, byte[] digest) throws JwtSignatureException;
 }

@@ -287,7 +287,8 @@ public final class LoginListener implements PacketHandler {
                 }
               }
             } catch (final Exception e) {
-              LoginListener.log.fatal("Error when generating client's public key.", e);
+              // @todo #1:5m Add language support for Error when generating client's public key.
+              LoginListener.log.fatal("Error when generating client's public key", e);
             }
           });
         }

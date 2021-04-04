@@ -103,6 +103,7 @@ public final class EncryptionHandler {
       agreement.doPhase(publicKey, true);
       return agreement.generateSecret();
     } catch (final NoSuchAlgorithmException | InvalidKeyException e) {
+      // @todo #1:5m Add language support for Failed to generate Elliptic-Curve-Diffie-Hellman Shared Secret for clientside encryption.
       EncryptionHandler.log.error(
         "Failed to generate Elliptic-Curve-Diffie-Hellman Shared Secret for clientside encryption", e);
       return null;
@@ -170,6 +171,7 @@ public final class EncryptionHandler {
    */
   public boolean beginClientsideEncryption() {
     if (this.key != null && this.clientSalt != null) {
+      // @todo #1:5m Add language support for Already initialized.
       EncryptionHandler.log.debug("Already initialized");
       return true;
     }
@@ -182,6 +184,7 @@ public final class EncryptionHandler {
     try {
       this.key = EncryptionHandler.hashSHA256(this.clientSalt, secret);
     } catch (final NoSuchAlgorithmException e) {
+      // @todo #1:5m Add language support for no sha-265 found.
       EncryptionHandler.log.error("no sha-265 found", e);
       return false;
     }

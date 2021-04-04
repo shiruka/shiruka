@@ -64,6 +64,7 @@ public final class Protocol {
         }
         final var header = VarInts.readUnsignedVarInt(buffer);
         final var packetId = header & 0x3ff;
+        // @todo #1:5m Add language support for §7Incoming packet id -> {}.
         Protocol.log.debug("§7Incoming packet id -> {}", packetId);
         final var packet = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
           String.format("The packet id %s not found!", packetId)).apply(buffer);
@@ -98,6 +99,7 @@ public final class Protocol {
       final var buffer = PooledByteBufAllocator.DEFAULT.directBuffer();
       try {
         final var packetId = packet.getId();
+        // @todo #1:5m Add language support for §7Outgoing packet id -> {}.
         Protocol.log.debug("§7Outgoing packet id -> {}", packetId);
         var header = 0;
         header |= packetId & 0x3ff;

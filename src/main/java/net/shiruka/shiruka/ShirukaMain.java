@@ -68,6 +68,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.jetbrains.annotations.NotNull;
+import sun.misc.Unsafe;
 
 /**
  * a Java main class to start the Shiru ka's server.
@@ -237,6 +238,7 @@ public final class ShirukaMain {
       if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
         System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
       }
+      ShirukaMain.disableWarning();
       System.setProperty("library.jansi.version", "Shiru ka");
       System.setProperty("io.netty.tryReflectionSetAccessible", "true");
       System.setProperty("io.netty.maxDirectMemory", "0");
@@ -343,6 +345,22 @@ public final class ShirukaMain {
   private static File createsServerFile(@NotNull final OptionSet options, @NotNull final OptionSpec<File> spec)
     throws IOException {
     return ShirukaMain.createsServerFile(options, spec, false);
+  }
+
+  /**
+   * disable some of warning with a tricky way.
+   */
+  private static void disableWarning() {
+    try {
+      final var theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+      theUnsafe.setAccessible(true);
+      final var u = (Unsafe) theUnsafe.get(null);
+      final var cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+      final var logger = cls.getDeclaredField("logger");
+      u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+    } catch (final Exception e) {
+      // ignore
+    }
   }
 
   /**

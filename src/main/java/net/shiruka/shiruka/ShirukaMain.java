@@ -387,9 +387,6 @@ public final class ShirukaMain {
    */
   private static void loadSomeNativeFiles() throws ClassNotFoundException {
     Class.forName("io.gomint.crypto.Processor");
-    Class.forName("io.gomint.leveldb.DB");
-    Class.forName("io.gomint.leveldb.WriteBatch");
-    Class.forName("io.gomint.leveldb.Iterator");
     if (!LibraryLoader.load()) {
       throw new UnsupportedOperationException("unsupported operation system.");
     }

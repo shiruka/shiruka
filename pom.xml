@@ -71,6 +71,12 @@
                     <include>**</include>
                   </includes>
                 </filter>
+                <filter>
+                  <artifact>io.gomint:*</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
               </filters>
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>

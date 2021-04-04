@@ -61,7 +61,7 @@ public final class ResourcePackResponsePacket extends ShirukaPacket {
    *
    * @param original the original.
    */
-  public ResourcePackResponsePacket(final @NotNull ByteBuf original) {
+  public ResourcePackResponsePacket(@NotNull final ByteBuf original) {
     super(ShirukaPacket.ID_RESOURCE_PACK_RESPONSE, original);
   }
 

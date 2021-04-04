@@ -41,11 +41,6 @@ import org.jetbrains.annotations.NotNull;
 public final class Protocol {
 
   /**
-   * the zlib.
-   */
-  private static final Zlib ZLIB = Zlib.RAW;
-
-  /**
    * ctor.
    */
   private Protocol() {
@@ -60,7 +55,7 @@ public final class Protocol {
   public static void deserialize(@NotNull final PacketHandler handler, @NotNull final ByteBuf compressed) {
     ByteBuf decompressed = null;
     try {
-      decompressed = Protocol.ZLIB.inflate(compressed, 12 * 1024 * 1024);
+      decompressed = handler.getNetworkManager().handleBatchPacket(compressed);
       while (decompressed.isReadable()) {
         final var length = VarInts.readUnsignedVarInt(decompressed);
         final var buffer = decompressed.readSlice(length);
@@ -70,12 +65,12 @@ public final class Protocol {
         final var header = VarInts.readUnsignedVarInt(buffer);
         final var packetId = header & 0x3ff;
         Protocol.log.debug("§7Incoming packet id -> {}", packetId);
-        final var shirukaPacket = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
+        final var packet = Objects.requireNonNull(PacketRegistry.PACKETS.get(packetId),
           String.format("The packet id %s not found!", packetId)).apply(buffer);
-        shirukaPacket.setSenderId(header >>> 10 & 3);
-        shirukaPacket.setClientId(header >>> 12 & 3);
-        shirukaPacket.decode();
-        shirukaPacket.handle(handler);
+        packet.setSenderId(header >>> 10 & 3);
+        packet.setClientId(header >>> 12 & 3);
+        packet.decode();
+        packet.handle(handler);
       }
     } catch (final Exception e) {
       JiraExceptionCatcher.serverException(e);
@@ -89,12 +84,14 @@ public final class Protocol {
   /**
    * serializes the given {@code packet}.
    *
-   * @param result the result.
+   * @param networkManager the network manager.
    * @param packets the packets to serialize.
-   * @param level the level to serialize.
+   *
+   * @return serialized packet.
    */
-  public static void serialize(@NotNull final ByteBuf result, @NotNull final Collection<QueuedPacket> packets,
-                               final int level) {
+  @NotNull
+  public static ByteBuf serialize(@NotNull final NetworkManager networkManager,
+                                  @NotNull final Collection<QueuedPacket> packets) {
     final var uncompressed = Unpooled.buffer(packets.size() << 3);
     try {
       for (final var queued : packets) {
@@ -115,7 +112,7 @@ public final class Protocol {
           buffer.release();
         }
       }
-      Protocol.ZLIB.deflate(uncompressed, result, level);
+      return networkManager.getOutputProcessor().process(uncompressed);
     } finally {
       uncompressed.release();
     }

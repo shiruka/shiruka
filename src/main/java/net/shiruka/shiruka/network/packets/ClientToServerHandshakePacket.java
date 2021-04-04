@@ -23,43 +23,29 @@
  *
  */
 
-package net.shiruka.shiruka.network;
+package net.shiruka.shiruka.network.packets;
 
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
-import java.util.function.Function;
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
-import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
-import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
+import net.shiruka.shiruka.network.PacketHandler;
+import net.shiruka.shiruka.network.ShirukaPacket;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * a class that represents packet registry.
+ * the handshake packet to finish encryption.
  */
-public final class PacketRegistry {
+public final class ClientToServerHandshakePacket extends ShirukaPacket {
 
   /**
-   * the packets.
+   * ctor.
+   *
+   * @param original the original.
    */
-  public static final Int2ReferenceOpenHashMap<Function<ByteBuf, ShirukaPacket>> PACKETS;
-
-  static {
-    PACKETS = new Int2ReferenceOpenHashMap<>() {{
-      this.put(1, LoginPacket::new);
-      this.put(4, ClientToServerHandshakePacket::new);
-      this.put(8, ResourcePackResponsePacket::new);
-      this.put(84, ResourcePackChunkRequestPacket::new);
-      this.put(129, ClientCacheStatusPacket::new);
-      this.put(156, ViolationWarningPacket::new);
-    }};
-    PacketRegistry.PACKETS.trim();
+  public ClientToServerHandshakePacket(@NotNull final ByteBuf original) {
+    super(ShirukaPacket.ID_CLIENT_TO_SERVER_HANDSHAKE, original);
   }
 
-  /**
-   * the ctor.
-   */
-  private PacketRegistry() {
+  @Override
+  public void handle(@NotNull final PacketHandler handler) {
+    handler.clientToServerHandshake(this);
   }
 }

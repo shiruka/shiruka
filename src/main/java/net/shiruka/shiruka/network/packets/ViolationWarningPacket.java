@@ -75,7 +75,7 @@ public final class ViolationWarningPacket extends ShirukaPacket {
    *
    * @param original the original.
    */
-  public ViolationWarningPacket(final @NotNull ByteBuf original) {
+  public ViolationWarningPacket(@NotNull final ByteBuf original) {
     super(ShirukaPacket.ID_VIOLATION_WARNING, original);
   }
 

@@ -90,12 +90,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <url>https://repo.opencollab.dev/maven-releases/</url>
-      <id>natives</id>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>net.shiruka</groupId>
@@ -164,9 +158,9 @@
       <version>8.5.4</version>
     </dependency>
     <dependency>
-      <groupId>com.nukkitx</groupId>
-      <artifactId>natives</artifactId>
-      <version>1.0.2</version>
+      <groupId>io.gomint</groupId>
+      <artifactId>crypto</artifactId>
+      <version>1.4.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>

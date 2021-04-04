@@ -506,6 +506,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
       Class.forName("net.shiruka.shiruka.network.PacketRegistry");
       Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
       Class.forName("net.shiruka.shiruka.text.TranslatedTexts");
+      Class.forName("net.shiruka.shiruka.base.SimpleChainData");
     });
   }
 

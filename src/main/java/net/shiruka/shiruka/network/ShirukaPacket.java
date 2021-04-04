@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
+import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
 import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.network.packets.EntityRemovePacket;
 import net.shiruka.shiruka.network.packets.LoginPacket;
@@ -43,6 +44,7 @@ import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
 import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
+import net.shiruka.shiruka.network.packets.ServerToClientHandshakePacket;
 import net.shiruka.shiruka.network.packets.StartGamePacket;
 import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
 import org.jetbrains.annotations.NotNull;
@@ -57,6 +59,11 @@ public abstract class ShirukaPacket extends Packet {
    * the id of the {@link ClientCacheStatusPacket}.
    */
   protected static final int ID_CLIENT_CACHE_STATUS = 129;
+
+  /**
+   * the id of the {@link ClientToServerHandshakePacket}.
+   */
+  protected static final int ID_CLIENT_TO_SERVER_HANDSHAKE = 4;
 
   /**
    * the id of the {@link DisconnectPacket}.
@@ -107,6 +114,11 @@ public abstract class ShirukaPacket extends Packet {
    * the id of the {@link ResourcePackResponsePacket}.
    */
   protected static final int ID_RESOURCE_PACK_RESPONSE = 8;
+
+  /**
+   * the id of the {@link ServerToClientHandshakePacket}.
+   */
+  protected static final int ID_SERVER_TO_CLIENT_HANDSHAKE = 3;
 
   /**
    * the id of the {@link StartGamePacket}.

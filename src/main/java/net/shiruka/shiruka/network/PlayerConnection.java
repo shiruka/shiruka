@@ -50,6 +50,7 @@ public final class PlayerConnection implements PacketHandler {
    * the network manager.
    */
   @NotNull
+  @Getter
   private final NetworkManager networkManager;
 
   /**

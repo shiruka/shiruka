@@ -209,6 +209,7 @@ public final class ShirukaMain {
   public static void main(final String[] args) {
     JiraExceptionCatcher.run(() -> {
       ShirukaMain.START_TIME.set(System.currentTimeMillis());
+      Locale.setDefault(Locale.ENGLISH);
       final var parsed = ShirukaConsoleParser.parse(args);
       if (parsed == null || parsed.has(ShirukaConsoleParser.HELP)) {
         ShirukaConsoleParser.printHelpOn();
@@ -247,6 +248,7 @@ public final class ShirukaMain {
       System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.serverLocale = Languages.startSequence(parsed.valueOf(ShirukaConsoleParser.LOCALE));
+      Class.forName("io.gomint.crypto.Processor");
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
       thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
       thread.setPriority(Thread.NORM_PRIORITY + 2);
@@ -270,7 +272,7 @@ public final class ShirukaMain {
     final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
       ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, 0L, worldName, gameMode);
     final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayers, identifier);
-    identifier.setServerGloballyUniqueId(socket.getGloballyUniqueId());
+    identifier.setServerGloballyUniqueId(socket.getGlobalUniqueId());
     return socket;
   }
 

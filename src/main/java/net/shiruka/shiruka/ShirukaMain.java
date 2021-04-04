@@ -30,6 +30,7 @@ import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.server.RakNetServer;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
+import io.gomint.leveldb.LibraryLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -67,6 +68,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.jetbrains.annotations.NotNull;
+import sun.misc.Unsafe;
 
 /**
  * a Java main class to start the Shiru ka's server.
@@ -236,8 +238,11 @@ public final class ShirukaMain {
       if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) {
         System.setProperty("jdk.nio.maxCachedBufferSize", "262144");
       }
+      ShirukaMain.disableWarning();
       System.setProperty("library.jansi.version", "Shiru ka");
       System.setProperty("io.netty.tryReflectionSetAccessible", "true");
+      System.setProperty("io.netty.maxDirectMemory", "0");
+      System.setSecurityManager(null);
       SystemUtils.startTimerHack();
       final var global = java.util.logging.Logger.getLogger("");
       global.setUseParentHandlers(false);
@@ -249,7 +254,7 @@ public final class ShirukaMain {
       System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.serverLocale = Languages.startSequence(parsed.valueOf(ShirukaConsoleParser.LOCALE));
-      Class.forName("io.gomint.crypto.Processor");
+      ShirukaMain.loadSomeNativeFiles();
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
       thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
       thread.setPriority(Thread.NORM_PRIORITY + 2);
@@ -340,6 +345,22 @@ public final class ShirukaMain {
   }
 
   /**
+   * disable some of warning with a tricky way.
+   */
+  private static void disableWarning() {
+    try {
+      final var theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+      theUnsafe.setAccessible(true);
+      final var u = (Unsafe) theUnsafe.get(null);
+      final var cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+      final var logger = cls.getDeclaredField("logger");
+      u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+    } catch (final Exception e) {
+      // ignore
+    }
+  }
+
+  /**
    * loads all files and directories.
    *
    * @param options the options to load.
@@ -359,5 +380,15 @@ public final class ShirukaMain {
     ShirukaMain.config(ShirukaMain.ipBans, new IpBanConfig());
     ShirukaMain.config(ShirukaMain.profileBans, new ProfileBanConfig());
     ShirukaMain.config(ShirukaMain.whitelist, new WhitelistConfig());
+  }
+
+  /**
+   * loads some native files.
+   */
+  private static void loadSomeNativeFiles() throws ClassNotFoundException {
+    Class.forName("io.gomint.crypto.Processor");
+    if (!LibraryLoader.load()) {
+      throw new UnsupportedOperationException("unsupported operation system.");
+    }
   }
 }

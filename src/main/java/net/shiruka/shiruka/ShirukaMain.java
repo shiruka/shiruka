@@ -30,6 +30,7 @@ import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.server.RakNetServer;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
+import io.gomint.leveldb.LibraryLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -238,6 +239,8 @@ public final class ShirukaMain {
       }
       System.setProperty("library.jansi.version", "Shiru ka");
       System.setProperty("io.netty.tryReflectionSetAccessible", "true");
+      System.setProperty("io.netty.maxDirectMemory", "0");
+      System.setSecurityManager(null);
       SystemUtils.startTimerHack();
       final var global = java.util.logging.Logger.getLogger("");
       global.setUseParentHandlers(false);
@@ -250,6 +253,9 @@ public final class ShirukaMain {
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.serverLocale = Languages.startSequence(parsed.valueOf(ShirukaConsoleParser.LOCALE));
       Class.forName("io.gomint.crypto.Processor");
+      if (!LibraryLoader.load()) {
+        throw new UnsupportedOperationException("unsupported operation system.");
+      }
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
       thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
       thread.setPriority(Thread.NORM_PRIORITY + 2);

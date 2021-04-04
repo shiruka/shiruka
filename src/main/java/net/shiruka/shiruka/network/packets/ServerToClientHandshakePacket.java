@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.network.packets;
 
 import net.shiruka.shiruka.network.ShirukaPacket;
+import net.shiruka.shiruka.network.VarInts;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,6 +52,6 @@ public final class ServerToClientHandshakePacket extends ShirukaPacket {
 
   @Override
   public void encode() {
-    this.writeString(this.jwt);
+    VarInts.writeString(this.buffer(), this.jwt);
   }
 }

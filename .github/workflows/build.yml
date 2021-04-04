@@ -25,4 +25,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: shiruka
-          path: target/Shiruka.jar
+          path: |
+            target/Shiruka.jar
+            start.bat
+            start.sh

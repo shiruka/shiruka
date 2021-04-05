@@ -161,7 +161,7 @@ public final class NBTInputStream implements Closeable {
   public CompoundTag readCompoundTag() throws IOException {
     final var compoundTag = Tag.createCompound();
     byte id;
-    while ((id = this.input.readByte()) != Tag.END.id()) {
+    while ((id = this.input.readByte()) != Tag.END.getType().getId()) {
       final var key = this.input.readUTF();
       final var tag = this.read(id);
       compoundTag.set(key, tag);

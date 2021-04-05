@@ -27,6 +27,7 @@ package net.shiruka.shiruka.nbt.array;
 
 import java.util.Arrays;
 import net.shiruka.shiruka.nbt.ArrayTag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -63,9 +64,10 @@ public final class LongArrayTag implements ArrayTag<Long> {
     return this;
   }
 
+  @NotNull
   @Override
-  public byte id() {
-    return 12;
+  public TagTypes getType() {
+    return TagTypes.LONG_ARRAY;
   }
 
   @Override

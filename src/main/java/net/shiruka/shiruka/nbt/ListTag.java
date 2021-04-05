@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * an interface to determine list tags which contain list of {@link Tag}.
  */
-public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
+public interface ListTag extends Tag, IntStoredTag, Iterable<Tag> {
 
   /**
    * adds the given tag.
@@ -55,9 +55,10 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
     return this;
   }
 
+  @NotNull
   @Override
-  default byte id() {
-    return 9;
+  default TagTypes getType() {
+    return TagTypes.LIST;
   }
 
   @Override
@@ -65,22 +66,23 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
     return true;
   }
 
-  @Override
-  default boolean containsKey(@NotNull final Integer key) {
-    return this.size() > key;
-  }
+  /**
+   * obtains list's inside id of the tags.
+   *
+   * @return list's inside id of the tags
+   */
+  @NotNull
+  TagTypes getListType();
 
   @Override
   default boolean isEmpty() {
     return this.all().isEmpty();
   }
 
-  /**
-   * obtains list's inside id of the tags.
-   *
-   * @return list's inside id of the tags
-   */
-  byte listType();
+  @Override
+  default int size() {
+    return this.all().size();
+  }
 
   /**
    * creates a stream of the tags contained within this list.

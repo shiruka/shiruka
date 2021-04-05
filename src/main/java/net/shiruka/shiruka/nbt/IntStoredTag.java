@@ -32,11 +32,9 @@ import net.shiruka.shiruka.nbt.array.ByteArrayTag;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine stored tags.
- *
- * @param <K> type of key.
+ * an interface to determine primitive int stored tags.
  */
-public interface StoredTag<K> {
+public interface IntStoredTag {
 
   /**
    * checks if the stored tag has the given tag.
@@ -54,7 +52,9 @@ public interface StoredTag<K> {
    *
    * @return {@code true} if the stored tag has the given key.
    */
-  boolean containsKey(@NotNull K key);
+  default boolean containsKey(final int key) {
+    return this.contains(Tag.createInt(key));
+  }
 
   /**
    * gets the tag at the given key.
@@ -64,7 +64,7 @@ public interface StoredTag<K> {
    * @return the tag.
    */
   @NotNull
-  Optional<Tag> get(@NotNull K key);
+  Optional<Tag> get(int key);
 
   /**
    * gets the byte from the tag store.
@@ -74,7 +74,7 @@ public interface StoredTag<K> {
    * @return a byte instance from the tag store.
    */
   @NotNull
-  default Optional<Byte> getByte(@NotNull final K key) {
+  default Optional<Byte> getByte(final int key) {
     return this.get(key)
       .filter(Tag::isByte)
       .map(Tag::asByte)
@@ -89,7 +89,7 @@ public interface StoredTag<K> {
    * @return a byte array instance from the tag store.
    */
   @NotNull
-  default Optional<Byte[]> getByteArray(@NotNull final K key) {
+  default Optional<Byte[]> getByteArray(final int key) {
     return this.get(key)
       .filter(Tag::isByteArray)
       .map(Tag::asByteArray)
@@ -104,7 +104,7 @@ public interface StoredTag<K> {
    * @return a compound tag instance from the tag store.
    */
   @NotNull
-  default Optional<CompoundTag> getCompoundTag(@NotNull final K key) {
+  default Optional<CompoundTag> getCompoundTag(final int key) {
     return this.get(key)
       .filter(Tag::isCompound)
       .map(Tag::asCompound);
@@ -118,7 +118,7 @@ public interface StoredTag<K> {
    * @return a double instance from the tag store.
    */
   @NotNull
-  default Optional<Double> getDouble(@NotNull final K key) {
+  default Optional<Double> getDouble(final int key) {
     return this.get(key)
       .filter(Tag::isDouble)
       .map(Tag::asDouble)
@@ -133,7 +133,7 @@ public interface StoredTag<K> {
    * @return a float instance from the tag store.
    */
   @NotNull
-  default Optional<Float> getFloat(@NotNull final K key) {
+  default Optional<Float> getFloat(final int key) {
     return this.get(key)
       .filter(Tag::isFloat)
       .map(Tag::asFloat)
@@ -148,7 +148,7 @@ public interface StoredTag<K> {
    * @return a int array instance from the tag store.
    */
   @NotNull
-  default Optional<Integer[]> getIntArray(@NotNull final K key) {
+  default Optional<Integer[]> getIntArray(final int key) {
     return this.get(key)
       .filter(Tag::isIntArray)
       .map(Tag::asIntArray)
@@ -163,7 +163,7 @@ public interface StoredTag<K> {
    * @return a integer instance from the tag store.
    */
   @NotNull
-  default Optional<Integer> getInteger(@NotNull final K key) {
+  default Optional<Integer> getInteger(final int key) {
     return this.get(key)
       .filter(Tag::isInt)
       .map(Tag::asInt)
@@ -178,7 +178,7 @@ public interface StoredTag<K> {
    * @return a list instance from the tag store.
    */
   @NotNull
-  default Optional<List<Tag>> getList(@NotNull final K key) {
+  default Optional<List<Tag>> getList(final int key) {
     return this.getListTag(key)
       .map(ListTag::all);
   }
@@ -192,7 +192,7 @@ public interface StoredTag<K> {
    * @return a list instance from the tag store.
    */
   @NotNull
-  default Optional<List<Tag>> getList(@NotNull final K key, @NotNull final TagTypes listType) {
+  default Optional<List<Tag>> getList(final int key, @NotNull final TagTypes listType) {
     return this.getListTag(key, listType)
       .map(ListTag::all);
   }
@@ -205,7 +205,7 @@ public interface StoredTag<K> {
    * @return a list tag instance from the tag store.
    */
   @NotNull
-  default Optional<ListTag> getListTag(@NotNull final K key) {
+  default Optional<ListTag> getListTag(final int key) {
     return this.get(key)
       .filter(Tag::isList)
       .map(Tag::asList);
@@ -220,7 +220,7 @@ public interface StoredTag<K> {
    * @return a list tag instance from the tag store.
    */
   @NotNull
-  default Optional<ListTag> getListTag(@NotNull final K key, @NotNull final TagTypes listType) {
+  default Optional<ListTag> getListTag(final int key, @NotNull final TagTypes listType) {
     return this.get(key)
       .filter(Tag::isList)
       .map(Tag::asList)
@@ -235,7 +235,7 @@ public interface StoredTag<K> {
    * @return a long instance from the tag store.
    */
   @NotNull
-  default Optional<Long> getLong(@NotNull final K key) {
+  default Optional<Long> getLong(final int key) {
     return this.get(key)
       .filter(Tag::isLong)
       .map(Tag::asLong)
@@ -250,7 +250,7 @@ public interface StoredTag<K> {
    * @return a long array instance from the tag store.
    */
   @NotNull
-  default Optional<Long[]> getLongArray(@NotNull final K key) {
+  default Optional<Long[]> getLongArray(final int key) {
     return this.get(key)
       .filter(Tag::isLongArray)
       .map(Tag::asLongArray)
@@ -265,7 +265,7 @@ public interface StoredTag<K> {
    * @return a map instance from the tag store.
    */
   @NotNull
-  default Optional<Map<String, Tag>> getMap(@NotNull final K key) {
+  default Optional<Map<String, Tag>> getMap(final int key) {
     return this.getCompoundTag(key)
       .map(CompoundTag::all);
   }
@@ -278,7 +278,7 @@ public interface StoredTag<K> {
    * @return a primitive byte array instance from the tag store.
    */
   @NotNull
-  default Optional<byte[]> getPrimitiveByteArray(@NotNull final K key) {
+  default Optional<byte[]> getPrimitiveByteArray(final int key) {
     return this.get(key)
       .filter(Tag::isByteArray)
       .map(Tag::asByteArray)
@@ -293,7 +293,7 @@ public interface StoredTag<K> {
    * @return a short instance from the tag store.
    */
   @NotNull
-  default Optional<Short> getShort(@NotNull final K key) {
+  default Optional<Short> getShort(final int key) {
     return this.get(key)
       .filter(Tag::isShort)
       .map(Tag::asShort)
@@ -308,7 +308,7 @@ public interface StoredTag<K> {
    * @return a string instance from the tag store.
    */
   @NotNull
-  default Optional<String> getString(@NotNull final K key) {
+  default Optional<String> getString(final int key) {
     return this.get(key)
       .filter(Tag::isString)
       .map(Tag::asString)
@@ -327,7 +327,7 @@ public interface StoredTag<K> {
    *
    * @param key the key to remove.
    */
-  void remove(@NotNull K key);
+  void remove(int key);
 
   /**
    * sets the given tag into the given key.
@@ -335,7 +335,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param tag the tag to set.
    */
-  void set(@NotNull K key, @NotNull Tag tag);
+  void set(int key, @NotNull Tag tag);
 
   /**
    * sets the byte to the tag store.
@@ -343,7 +343,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setByte(@NotNull final K key, @NotNull final Byte value) {
+  default void setByte(final int key, @NotNull final Byte value) {
     this.set(key, Tag.createByte(value));
   }
 
@@ -353,7 +353,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setByteArray(@NotNull final K key, final byte... value) {
+  default void setByteArray(final int key, final byte... value) {
     this.set(key, Tag.createByteArray(value));
   }
 
@@ -363,7 +363,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setDouble(@NotNull final K key, @NotNull final Double value) {
+  default void setDouble(final int key, @NotNull final Double value) {
     this.set(key, Tag.createDouble(value));
   }
 
@@ -373,7 +373,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setFloat(@NotNull final K key, @NotNull final Float value) {
+  default void setFloat(final int key, @NotNull final Float value) {
     this.set(key, Tag.createFloat(value));
   }
 
@@ -383,7 +383,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setIntArray(@NotNull final K key, final int... value) {
+  default void setIntArray(final int key, final int... value) {
     this.set(key, Tag.createIntArray(value));
   }
 
@@ -393,7 +393,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setInteger(@NotNull final K key, @NotNull final Integer value) {
+  default void setInteger(final int key, @NotNull final Integer value) {
     this.set(key, Tag.createInt(value));
   }
 
@@ -403,7 +403,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setList(@NotNull final K key, @NotNull final List<Tag> value) {
+  default void setList(final int key, @NotNull final List<Tag> value) {
     this.set(key, Tag.createList(value));
   }
 
@@ -413,7 +413,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setLong(@NotNull final K key, @NotNull final Long value) {
+  default void setLong(final int key, @NotNull final Long value) {
     this.set(key, Tag.createLong(value));
   }
 
@@ -423,7 +423,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value set.
    */
-  default void setLongArray(@NotNull final K key, final long @NotNull [] value) {
+  default void setLongArray(final int key, final long @NotNull [] value) {
     this.set(key, Tag.createLongArray(value));
   }
 
@@ -433,7 +433,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setMap(@NotNull final K key, @NotNull final Map<String, Tag> value) {
+  default void setMap(final int key, @NotNull final Map<String, Tag> value) {
     this.set(key, Tag.createCompound(value));
   }
 
@@ -443,7 +443,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setShort(@NotNull final K key, @NotNull final Short value) {
+  default void setShort(final int key, @NotNull final Short value) {
     this.set(key, Tag.createShort(value));
   }
 
@@ -453,7 +453,7 @@ public interface StoredTag<K> {
    * @param key the key to set.
    * @param value the value to set.
    */
-  default void setString(@NotNull final K key, @NotNull final String value) {
+  default void setString(final int key, @NotNull final String value) {
     this.set(key, Tag.createString(value));
   }
 

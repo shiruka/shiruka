@@ -25,46 +25,18 @@
 
 package net.shiruka.shiruka.nbt.primitive;
 
-import java.util.Objects;
-import lombok.experimental.Delegate;
-import net.shiruka.shiruka.nbt.NumberTag;
+import net.shiruka.shiruka.nbt.Tag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an implementation for {@link NumberTag}.
+ * a tag that represents ends.
  */
-public abstract class NumberTagEnvelope implements NumberTag {
+public final class EndTag implements Tag {
 
-  /**
-   * the number.
-   */
   @NotNull
-  @Delegate
-  private final Number number;
-
-  /**
-   * ctor.
-   *
-   * @param original the original.
-   */
-  NumberTagEnvelope(@NotNull final Number original) {
-    this.number = original;
-  }
-
   @Override
-  public final int hashCode() {
-    return Objects.hash(this.number);
-  }
-
-  @Override
-  public final boolean equals(final Object obj) {
-    return this == obj || obj != null &&
-      this.getClass() == obj.getClass() &&
-      this.number.equals(((NumberTagEnvelope) obj).number);
-  }
-
-  @Override
-  public final String toString() {
-    return this.number.toString();
+  public TagTypes getType() {
+    return TagTypes.END;
   }
 }

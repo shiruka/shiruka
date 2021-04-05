@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.nbt.primitive;
 
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -47,9 +48,10 @@ public final class IntTag extends NumberTagEnvelope {
     return this;
   }
 
+  @NotNull
   @Override
-  public byte id() {
-    return 3;
+  public TagTypes getType() {
+    return TagTypes.INT;
   }
 
   @Override

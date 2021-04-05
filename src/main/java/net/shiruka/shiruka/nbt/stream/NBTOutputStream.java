@@ -89,7 +89,7 @@ public final class NBTOutputStream implements Closeable {
    */
   public void write(@NotNull final Tag value) throws IOException {
     Preconditions.checkState(!this.closed, "Trying to read from a closed reader!");
-    final var id = value.id();
+    final var id = value.getType();
     if (value.isByte()) {
       this.writeByte(value.asByte());
     } else if (value.isShort()) {
@@ -154,13 +154,13 @@ public final class NBTOutputStream implements Closeable {
     final var entries = value.all().entrySet();
     for (final var entry : entries) {
       final var tag = entry.getValue();
-      this.output.writeByte(tag.id());
-      if (tag.id() != Tag.END.id()) {
+      this.output.writeByte(tag.getType().getId());
+      if (tag.getType() != Tag.END.getType()) {
         this.output.writeUTF(entry.getKey());
         this.write(tag);
       }
     }
-    this.output.writeByte(Tag.END.id());
+    this.output.writeByte(Tag.END.getType().getId());
   }
 
   /**
@@ -218,7 +218,7 @@ public final class NBTOutputStream implements Closeable {
    * @throws IOException if something went wrong when reading the given input.
    */
   public void writeListTag(@NotNull final ListTag value) throws IOException {
-    this.output.writeByte(value.listType());
+    this.output.writeByte(value.getListType().getId());
     this.output.writeInt(value.size());
     for (final var tag : value) {
       this.write(tag);

@@ -40,6 +40,31 @@ import org.jetbrains.annotations.NotNull;
 public final class JwtSignatureES384 implements JwtSignature {
 
   /**
+   * calculates the cursor with the given parameters.
+   *
+   * @param concat the concat to calculate.
+   * @param offsetR the offsert r to calculate.
+   * @param lengthR the length r to calculate.
+   * @param padR the pad r to calculate.
+   * @param cursor the cursor to calculate.
+   * @param derSignature the der signature to calculate.
+   *
+   * @return calculated cursor.
+   */
+  private static int calculateCursor(final byte @NotNull [] concat, final int offsetR, final int lengthR,
+                                     final boolean padR, final int cursor, final byte @NotNull [] derSignature) {
+    var cur = cursor;
+    derSignature[cur++] = 0x02;
+    derSignature[cur++] = (byte) (lengthR + (padR ? 1 : 0));
+    if (padR) {
+      cur++;
+    }
+    System.arraycopy(concat, offsetR, derSignature, cur, lengthR);
+    cur += lengthR;
+    return cur;
+  }
+
+  /**
    * converts an ECDSA signature formatted as specified in RFC3278 (https://tools.ietf.org/html/rfc3278#section-8.2)
    * into DER format as required by the BouncyCastle signature verifier.
    *
@@ -71,22 +96,10 @@ public final class JwtSignatureES384 implements JwtSignature {
     final var derSignature = new byte[2 + sigLength];
     derSignature[cursor++] = 0x30;
     derSignature[cursor++] = (byte) sigLength;
-    derSignature[cursor++] = 0x02;
-    derSignature[cursor++] = (byte) (lengthR + (padR ? 1 : 0));
-    if (padR) {
-      cursor++;
-    }
-    System.arraycopy(concat, offsetR, derSignature, cursor, lengthR);
-    cursor += lengthR;
-    derSignature[cursor++] = 0x02;
-    derSignature[cursor++] = (byte) (lengthL + (padL ? 1 : 0));
-    if (padL) {
-      cursor++;
-    }
-    System.arraycopy(concat, offsetL, derSignature, cursor, lengthL);
-    cursor += lengthL;
+    cursor = JwtSignatureES384.calculateCursor(concat, offsetR, lengthR, padR, cursor, derSignature);
+    cursor = JwtSignatureES384.calculateCursor(concat, offsetL, lengthL, padL, cursor, derSignature);
     if (cursor != derSignature.length) {
-      throw new JwtSignatureException("COuld not convert ECDSA signature to DER format");
+      throw new JwtSignatureException("Could not convert ECDSA signature to DER format");
     }
     return derSignature;
   }

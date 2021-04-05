@@ -32,6 +32,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * an implementation for {@link JwtSignature}.
@@ -48,7 +49,7 @@ public final class JwtSignatureES384 implements JwtSignature {
    *
    * @throws JwtSignatureException if the given signature is not a valid ECDSA signature.
    */
-  private static byte[] convertConcatRSToDER(final byte[] concat) throws JwtSignatureException {
+  private static byte[] convertConcatRSToDER(final byte @NotNull [] concat) throws JwtSignatureException {
     if (concat.length != 96) {
       throw new JwtSignatureException("Invalid ECDSA signature (expected 96 bytes, got " + concat.length + ")");
     }
@@ -99,7 +100,7 @@ public final class JwtSignatureES384 implements JwtSignature {
    *
    * @throws JwtSignatureException in case the specified DER signature was invalid or not suitable for ECDSA-384.
    */
-  private static byte[] convertDERToConcatRS(final byte[] der) throws JwtSignatureException {
+  private static byte[] convertDERToConcatRS(final byte @NotNull [] der) throws JwtSignatureException {
     if (der.length < 8 || der[0] != 0x30 || der[1] > 128) {
       throw new JwtSignatureException("Invalid DER signature");
     }
@@ -125,7 +126,7 @@ public final class JwtSignatureES384 implements JwtSignature {
   }
 
   @Override
-  public byte[] sign(final Key key, final byte[] signature) throws JwtSignatureException {
+  public byte[] sign(@NotNull final Key key, final byte @NotNull [] signature) throws JwtSignatureException {
     final Signature sign;
     try {
       sign = Signature.getInstance("SHA384withECDSA");
@@ -148,7 +149,8 @@ public final class JwtSignatureES384 implements JwtSignature {
   }
 
   @Override
-  public boolean validate(final Key key, final byte[] signature, final byte[] digest) throws JwtSignatureException {
+  public boolean validate(@NotNull final Key key, final byte @NotNull [] signature, final byte @NotNull [] digest)
+    throws JwtSignatureException {
     final Signature sign;
     try {
       sign = Signature.getInstance("SHA384withECDSA");

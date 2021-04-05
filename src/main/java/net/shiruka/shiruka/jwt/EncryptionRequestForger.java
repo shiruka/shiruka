@@ -62,7 +62,7 @@ public final class EncryptionRequestForger {
                              final byte @NotNull [] clientSalt) {
     final var algorithm = JwtAlgorithm.ES384;
     final var header = Shiruka.JSON_MAPPER.createObjectNode();
-    header.put("alg", algorithm.name());
+    header.put("alg", JwtAlgorithm.ES384.name());
     header.put("x5u", serverPublic);
     final var claims = Shiruka.JSON_MAPPER.createObjectNode();
     claims.put("salt", Base64.getEncoder().encodeToString(clientSalt));
@@ -72,9 +72,9 @@ public final class EncryptionRequestForger {
       .append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(claims.toString())));
     final var signatureBytes = StringUtil.getUTF8Bytes(builder.toString());
     try {
-      final var signatureDigest = algorithm.getValidator().sign(serverPrivate, signatureBytes);
       builder.append('.')
-        .append(EncryptionRequestForger.ENCODER.encodeToString(signatureDigest));
+        .append(EncryptionRequestForger.ENCODER.encodeToString(
+          algorithm.getValidator().sign(serverPrivate, signatureBytes)));
       return builder.toString();
     } catch (final JwtSignatureException e) {
       e.printStackTrace();

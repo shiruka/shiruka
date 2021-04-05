@@ -149,7 +149,7 @@ public final class JwtSignatureES384 implements JwtSignature {
     try {
       sign = Signature.getInstance("SHA384withECDSA");
     } catch (final NoSuchAlgorithmException e) {
-      // @todo #1:5m Add language support for Could not create signature for ES384 algorithm.
+      // @todo #1:5m Add language support for #sign Could not create signature for ES384 algorithm.
       throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
     }
     if (!(key instanceof PrivateKey)) {
@@ -176,7 +176,7 @@ public final class JwtSignatureES384 implements JwtSignature {
     try {
       sign = Signature.getInstance("SHA384withECDSA");
     } catch (final NoSuchAlgorithmException e) {
-      // @todo #1:5m Add language support for Could not create signature for ES384 algorithm.
+      // @todo #1:5m Add language support for #validate Could not create signature for ES384 algorithm.
       throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
     }
     if (!(key instanceof PublicKey)) {

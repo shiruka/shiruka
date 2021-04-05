@@ -72,35 +72,14 @@ public final class ListTagBasic implements ListTag {
     this.hashCode = original.hashCode();
   }
 
-  /**
-   * throws an exception if the given tag's id not equals to the given id.
-   *
-   * @param tag the tag to check.
-   * @param id the id to check.
-   *
-   * @throws IllegalArgumentException if the given tag's id not equals to the given id.
-   */
-  private static void mustBeSameType(@NotNull final Tag tag, final byte id) {
-    Preconditions.checkArgument(tag.id() == id, "Trying to add tag of type %s to list of %s", tag.id(), id);
-  }
-
-  /**
-   * throws an exception if the given tag's id equals to the end id.
-   *
-   * @param tag the tag to check.
-   *
-   * @throws IllegalArgumentException if the given tag's id equals to the end id.
-   */
-  private static void noAddEnd(@NotNull final Tag tag) {
-    Preconditions.checkArgument(tag.id() != Tag.END.id(), "Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id());
-  }
-
   @Override
   public void add(@NotNull final Tag tag) {
     this.edit(tags -> {
-      ListTagBasic.noAddEnd(tag);
+      Preconditions.checkArgument(tag.id() != Tag.END.id(),
+        "Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id());
       if (this.listType() != Tag.END.id()) {
-        ListTagBasic.mustBeSameType(tag, this.listType);
+        Preconditions.checkArgument(tag.id() == this.listType,
+          "Trying to add tag of type %s to list of %s", tag.id(), this.listType);
       }
       tags.add(tag);
     }, tag.id());
@@ -130,18 +109,18 @@ public final class ListTagBasic implements ListTag {
 
   @NotNull
   @Override
-  public Optional<Tag> get(@NotNull final Integer key) {
+  public Optional<Tag> get(final int key) {
     return Optional.ofNullable(this.original.get(key));
   }
 
   @Override
-  public void remove(@NotNull final Integer index) {
-    this.edit(tags -> tags.remove(index.intValue()), (byte) -1);
+  public void remove(final int key) {
+    this.edit(tags -> tags.remove(key), (byte) -1);
   }
 
   @Override
-  public void set(@NotNull final Integer index, @NotNull final Tag tag) {
-    this.edit(tags -> tags.set(index, tag), tag.id());
+  public void set(final int key, @NotNull final Tag tag) {
+    this.edit(tags -> tags.set(key, tag), tag.id());
   }
 
   @Override

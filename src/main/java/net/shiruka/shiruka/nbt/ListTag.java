@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * an interface to determine list tags which contain list of {@link Tag}.
  */
-public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
+public interface ListTag extends Tag, IntStoredTag, Iterable<Tag> {
 
   /**
    * adds the given tag.
@@ -66,7 +66,7 @@ public interface ListTag extends Tag, StoredTag<Integer>, Iterable<Tag> {
   }
 
   @Override
-  default boolean containsKey(@NotNull final Integer key) {
+  default boolean containsKey(final int key) {
     return this.size() > key;
   }
 

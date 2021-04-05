@@ -32,70 +32,53 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * an implementation for {@link JwtSignature}.
  */
 public final class JwtSignatureES384 implements JwtSignature {
 
-  @Override
-  public byte[] sign(final Key key, final byte[] signatureBytes) throws JwtSignatureException {
-    final Signature signature;
-    try {
-      signature = Signature.getInstance("SHA384withECDSA");
-    } catch (final NoSuchAlgorithmException e) {
-      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
+  /**
+   * calculates the cursor with the given parameters.
+   *
+   * @param concat the concat to calculate.
+   * @param offsetR the offsert r to calculate.
+   * @param lengthR the length r to calculate.
+   * @param padR the pad r to calculate.
+   * @param cursor the cursor to calculate.
+   * @param derSignature the der signature to calculate.
+   *
+   * @return calculated cursor.
+   */
+  private static int calculateCursor(final byte @NotNull [] concat, final int offsetR, final int lengthR,
+                                     final boolean padR, final int cursor, final byte @NotNull [] derSignature) {
+    var cur = cursor;
+    derSignature[cur++] = 0x02;
+    derSignature[cur++] = (byte) (lengthR + (padR ? 1 : 0));
+    if (padR) {
+      cur++;
     }
-    if (!(key instanceof PrivateKey)) {
-      throw new JwtSignatureException("Signature Key must be a PrivateKey for ES384 signing");
-    }
-    final PrivateKey privateKey = (PrivateKey) key;
-    final byte[] der;
-    try {
-      signature.initSign(privateKey);
-      signature.update(signatureBytes);
-      der = signature.sign();
-    } catch (final SignatureException | InvalidKeyException e) {
-      throw new JwtSignatureException("Could not sign ES384 signature", e);
-    }
-    return this.convertDERToConcatRS(der);
-  }
-
-  @Override
-  public boolean validate(final Key key, final byte[] signatureBytes, final byte[] digestBytes) throws JwtSignatureException {
-    final Signature signature;
-    try {
-      signature = Signature.getInstance("SHA384withECDSA");
-    } catch (final NoSuchAlgorithmException e) {
-      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
-    }
-    if (!(key instanceof PublicKey)) {
-      throw new JwtSignatureException("Signature Key must be a PublicKey for ES384 validation");
-    }
-    final var publicKey = (PublicKey) key;
-    final var derSignature = this.convertConcatRSToDER(digestBytes);
-    try {
-      signature.initVerify(publicKey);
-      signature.update(signatureBytes);
-      return signature.verify(derSignature);
-    } catch (final SignatureException | InvalidKeyException e) {
-      throw new JwtSignatureException("Could not perform ES384 signature validation", e);
-    }
+    System.arraycopy(concat, offsetR, derSignature, cur, lengthR);
+    cur += lengthR;
+    return cur;
   }
 
   /**
-   * Converts an ECDSA signature formatted as specified in RFC3278 (https://tools.ietf.org/html/rfc3278#section-8.2)
+   * converts an ECDSA signature formatted as specified in RFC3278 (https://tools.ietf.org/html/rfc3278#section-8.2)
    * into DER format as required by the BouncyCastle signature verifier.
    *
-   * @param concat The ECDSA signature as a byte array
+   * @param concat the concat to convert.
    *
-   * @return The converted signature in DER format
+   * @return converted signature in DER format.
    *
-   * @throws JwtSignatureException Thrown if the given signature is not a valid ECDSA signature
+   * @throws JwtSignatureException if the given signature is not a valid ECDSA signature.
    */
-  private byte[] convertConcatRSToDER(final byte[] concat) throws JwtSignatureException {
+  private static byte[] convertConcatRSToDER(final byte @NotNull [] concat) throws JwtSignatureException {
     if (concat.length != 96) {
-      throw new JwtSignatureException("Invalid ECDSA signature (expected 96 bytes, got " + concat.length + ")");
+      // @todo #1:5m Add language support for Invalid ECDSA signature (expected 96 bytes, got %d).
+      throw new JwtSignatureException(String.format("Invalid ECDSA signature (expected 96 bytes, got %d)",
+        concat.length));
     }
     final var rawLength = concat.length >> 1;
     var offsetR = 0;
@@ -115,39 +98,27 @@ public final class JwtSignatureES384 implements JwtSignature {
     final var derSignature = new byte[2 + sigLength];
     derSignature[cursor++] = 0x30;
     derSignature[cursor++] = (byte) sigLength;
-    derSignature[cursor++] = 0x02;
-    derSignature[cursor++] = (byte) (lengthR + (padR ? 1 : 0));
-    if (padR) {
-      cursor++;
-    }
-    System.arraycopy(concat, offsetR, derSignature, cursor, lengthR);
-    cursor += lengthR;
-    derSignature[cursor++] = 0x02;
-    derSignature[cursor++] = (byte) (lengthL + (padL ? 1 : 0));
-    if (padL) {
-      cursor++;
-    }
-    System.arraycopy(concat, offsetL, derSignature, cursor, lengthL);
-    cursor += lengthL;
+    cursor = JwtSignatureES384.calculateCursor(concat, offsetR, lengthR, padR, cursor, derSignature);
+    cursor = JwtSignatureES384.calculateCursor(concat, offsetL, lengthL, padL, cursor, derSignature);
     if (cursor != derSignature.length) {
-      throw new JwtSignatureException("COuld not convert ECDSA signature to DER format");
+      // @todo #1:5m Add language support for Could not convert ECDSA signature to DER format.
+      throw new JwtSignatureException("Could not convert ECDSA signature to DER format");
     }
     return derSignature;
   }
 
   /**
-   * Converts a DER signature as produced by the BouncyCastle signature signer into the ECSDA's concatenated R+S
-   * format.
+   * converts a DER signature as produced by the BouncyCastle signature signer into the ECSDA's concatenated R+S format.
    *
-   * @param der The DER signature to convert
+   * @param der the DER signature to convert.
    *
-   * @return The converted ECDSA signature
+   * @return converted ECDSA signature.
    *
-   * @throws JwtSignatureException Thrown in case the specified DER signature was invalid or not suitable for
-   *   ECDSA-384
+   * @throws JwtSignatureException in case the specified DER signature was invalid or not suitable for ECDSA-384.
    */
-  private byte[] convertDERToConcatRS(final byte[] der) throws JwtSignatureException {
-    if (der.length < 8 || der[0] != 0x30 || der[1] > 128) {
+  private static byte[] convertDERToConcatRS(final byte @NotNull [] der) throws JwtSignatureException {
+    if (der.length < 8 || der[0] != 0x30) {
+      // @todo #1:5m Add language support for Invalid DER signature.
       throw new JwtSignatureException("Invalid DER signature");
     }
     var offsetR = 4;
@@ -163,11 +134,64 @@ public final class JwtSignatureES384 implements JwtSignature {
       lengthL--;
     }
     if (lengthR > 48 || lengthL > 48) {
+      // @todo #1:5m Add language support for Invalid DER signature for ECSDA 384 bit.
       throw new JwtSignatureException("Invalid DER signature for ECSDA 384 bit");
     }
     final var concat = new byte[96];
     System.arraycopy(der, offsetR, concat, 48 - lengthR, lengthR);
     System.arraycopy(der, offsetL, concat, 96 - lengthL, lengthL);
     return concat;
+  }
+
+  @Override
+  public byte[] sign(@NotNull final Key key, final byte @NotNull [] signature) throws JwtSignatureException {
+    final Signature sign;
+    try {
+      sign = Signature.getInstance("SHA384withECDSA");
+    } catch (final NoSuchAlgorithmException e) {
+      // @todo #1:5m Add language support for Could not create signature for ES384 algorithm.
+      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
+    }
+    if (!(key instanceof PrivateKey)) {
+      // @todo #1:5m Add language support for Signature Key must be a PrivateKey for ES384 signing.
+      throw new JwtSignatureException("Signature Key must be a PrivateKey for ES384 signing");
+    }
+    final var privateKey = (PrivateKey) key;
+    final byte[] der;
+    try {
+      sign.initSign(privateKey);
+      sign.update(signature);
+      der = sign.sign();
+    } catch (final SignatureException | InvalidKeyException e) {
+      // @todo #1:5m Add language support for Could not sign ES384 signature.
+      throw new JwtSignatureException("Could not sign ES384 signature", e);
+    }
+    return JwtSignatureES384.convertDERToConcatRS(der);
+  }
+
+  @Override
+  public boolean validate(@NotNull final Key key, final byte @NotNull [] signature, final byte @NotNull [] digest)
+    throws JwtSignatureException {
+    final Signature sign;
+    try {
+      sign = Signature.getInstance("SHA384withECDSA");
+    } catch (final NoSuchAlgorithmException e) {
+      // @todo #1:5m Add language support for Could not create signature for ES384 algorithm.
+      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
+    }
+    if (!(key instanceof PublicKey)) {
+      // @todo #1:5m Add language support for Signature Key must be a PublicKey for ES384 validation.
+      throw new JwtSignatureException("Signature Key must be a PublicKey for ES384 validation");
+    }
+    final var publicKey = (PublicKey) key;
+    final var derSignature = JwtSignatureES384.convertConcatRSToDER(digest);
+    try {
+      sign.initVerify(publicKey);
+      sign.update(signature);
+      return sign.verify(derSignature);
+    } catch (final SignatureException | InvalidKeyException e) {
+      // @todo #1:5m Add language support for Could not perform ES384 signature validation.
+      throw new JwtSignatureException("Could not perform ES384 signature validation", e);
+    }
   }
 }

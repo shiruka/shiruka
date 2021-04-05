@@ -140,28 +140,13 @@ public final class EncryptionHandler {
    * @throws NoSuchAlgorithmException if no Provider supports a MessageDigestSpi implementation for the specified
    *   algorithm.
    */
-  private static byte[] hashSHA256(final byte[]... message) throws NoSuchAlgorithmException {
+  private static byte @NotNull [] hashSHA256(final byte @NotNull []... message) throws NoSuchAlgorithmException {
     final var digest = EncryptionHandler.getSHA256();
     final var buf = PooledByteBufAllocator.DEFAULT.directBuffer();
     Arrays.stream(message).forEach(buf::writeBytes);
     digest.update(buf.nioBuffer());
     buf.release();
     return digest.digest();
-  }
-
-  /**
-   * takes bytes from the given array.
-   *
-   * @param buffer the buffer to take.
-   * @param offset the offset to take.
-   * @param length the length to take.
-   *
-   * @return took bytes.
-   */
-  private static byte[] takeBytesFromArray(final byte[] buffer, final int offset, final int length) {
-    final var result = new byte[length];
-    System.arraycopy(buffer, offset, result, 0, length);
-    return result;
   }
 
   /**
@@ -188,7 +173,9 @@ public final class EncryptionHandler {
       EncryptionHandler.log.error("no sha-265 found", e);
       return false;
     }
-    this.iv = EncryptionHandler.takeBytesFromArray(this.key, 0, 16);
+    final var result = new byte[16];
+    System.arraycopy(this.key, 0, result, 0, 16);
+    this.iv = result;
     return true;
   }
 

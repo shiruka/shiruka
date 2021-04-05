@@ -58,27 +58,27 @@ public final class EncryptionRequestForger {
    * @return a signed and ready to be sent JWT token
    */
   @Nullable
-  public static String forge(@NotNull final String serverPublic, @NotNull final Key serverPrivate, final byte[] clientSalt) {
+  public static String forge(@NotNull final String serverPublic, @NotNull final Key serverPrivate,
+                             final byte @NotNull [] clientSalt) {
     final var algorithm = JwtAlgorithm.ES384;
     final var header = Shiruka.JSON_MAPPER.createObjectNode();
-    header.put("alg", algorithm.name());
+    header.put("alg", JwtAlgorithm.ES384.name());
     header.put("x5u", serverPublic);
     final var claims = Shiruka.JSON_MAPPER.createObjectNode();
     claims.put("salt", Base64.getEncoder().encodeToString(clientSalt));
-    final var builder = new StringBuilder();
-    builder.append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(header.toString())));
-    builder.append('.');
-    builder.append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(claims.toString())));
+    final var builder = new StringBuilder()
+      .append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(header.toString())))
+      .append('.')
+      .append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(claims.toString())));
     final var signatureBytes = StringUtil.getUTF8Bytes(builder.toString());
-    final byte[] signatureDigest;
     try {
-      signatureDigest = algorithm.getValidator().sign(serverPrivate, signatureBytes);
+      builder.append('.')
+        .append(EncryptionRequestForger.ENCODER.encodeToString(
+          algorithm.getValidator().sign(serverPrivate, signatureBytes)));
+      return builder.toString();
     } catch (final JwtSignatureException e) {
       e.printStackTrace();
-      return null;
     }
-    builder.append('.');
-    builder.append(EncryptionRequestForger.ENCODER.encodeToString(signatureDigest));
-    return builder.toString();
+    return null;
   }
 }

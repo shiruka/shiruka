@@ -25,17 +25,19 @@
 
 package net.shiruka.shiruka.jwt;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * an exception thrown when something goes wrong about jwt signature verification.
  */
-public final class JwtSignatureException extends Exception {
+final class JwtSignatureException extends Exception {
 
   /**
    * ctor.
    *
    * @param message the message.
    */
-  public JwtSignatureException(final String message) {
+  JwtSignatureException(@NotNull final String message) {
     super(message);
   }
 
@@ -45,7 +47,7 @@ public final class JwtSignatureException extends Exception {
    * @param message the message.
    * @param cause the cause.
    */
-  public JwtSignatureException(final String message, final Throwable cause) {
+  JwtSignatureException(@NotNull final String message, @NotNull final Throwable cause) {
     super(message, cause);
   }
 }

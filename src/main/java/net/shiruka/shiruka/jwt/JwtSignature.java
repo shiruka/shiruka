@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.jwt;
 
 import java.security.Key;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * an interface to determine jwt singatures.
@@ -42,7 +43,7 @@ public interface JwtSignature {
    *
    * @throws JwtSignatureException if something goes wrong when signing.
    */
-  byte[] sign(Key key, byte[] signature) throws JwtSignatureException;
+  byte[] sign(@NotNull Key key, byte @NotNull [] signature) throws JwtSignatureException;
 
   /**
    * validates the given signature with the key and digest.
@@ -55,5 +56,5 @@ public interface JwtSignature {
    *
    * @throws JwtSignatureException if something goes wrong when validating.
    */
-  boolean validate(Key key, byte[] signature, byte[] digest) throws JwtSignatureException;
+  boolean validate(@NotNull Key key, byte @NotNull [] signature, byte @NotNull [] digest) throws JwtSignatureException;
 }

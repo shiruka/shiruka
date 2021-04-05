@@ -58,7 +58,8 @@ public final class EncryptionRequestForger {
    * @return a signed and ready to be sent JWT token
    */
   @Nullable
-  public static String forge(@NotNull final String serverPublic, @NotNull final Key serverPrivate, final byte[] clientSalt) {
+  public static String forge(@NotNull final String serverPublic, @NotNull final Key serverPrivate,
+                             final byte @NotNull [] clientSalt) {
     final var algorithm = JwtAlgorithm.ES384;
     final var header = Shiruka.JSON_MAPPER.createObjectNode();
     header.put("alg", algorithm.name());
@@ -70,15 +71,14 @@ public final class EncryptionRequestForger {
     builder.append('.');
     builder.append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(claims.toString())));
     final var signatureBytes = StringUtil.getUTF8Bytes(builder.toString());
-    final byte[] signatureDigest;
     try {
-      signatureDigest = algorithm.getValidator().sign(serverPrivate, signatureBytes);
+      final var signatureDigest = algorithm.getValidator().sign(serverPrivate, signatureBytes);
+      builder.append('.');
+      builder.append(EncryptionRequestForger.ENCODER.encodeToString(signatureDigest));
+      return builder.toString();
     } catch (final JwtSignatureException e) {
       e.printStackTrace();
-      return null;
     }
-    builder.append('.');
-    builder.append(EncryptionRequestForger.ENCODER.encodeToString(signatureDigest));
-    return builder.toString();
+    return null;
   }
 }

@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.nbt.primitive;
 
 import net.shiruka.shiruka.nbt.PrimitiveTag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -54,9 +55,10 @@ public final class StringTag implements PrimitiveTag<String> {
     return this;
   }
 
+  @NotNull
   @Override
-  public byte id() {
-    return 8;
+  public TagTypes getType() {
+    return TagTypes.STRING;
   }
 
   @Override

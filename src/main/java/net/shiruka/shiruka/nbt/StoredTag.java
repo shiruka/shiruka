@@ -192,20 +192,7 @@ public interface StoredTag<K> {
    * @return a list instance from the tag store.
    */
   @NotNull
-  default Optional<List<Tag>> getList(@NotNull final K key, final byte listType) {
-    return this.getList(key, (int) listType);
-  }
-
-  /**
-   * gets the list from the tag store.
-   *
-   * @param key the key to get.
-   * @param listType the list type to get.
-   *
-   * @return a list instance from the tag store.
-   */
-  @NotNull
-  default Optional<List<Tag>> getList(@NotNull final K key, final int listType) {
+  default Optional<List<Tag>> getList(@NotNull final K key, @NotNull final TagTypes listType) {
     return this.getListTag(key, listType)
       .map(ListTag::all);
   }
@@ -233,24 +220,11 @@ public interface StoredTag<K> {
    * @return a list tag instance from the tag store.
    */
   @NotNull
-  default Optional<ListTag> getListTag(@NotNull final K key, final byte listType) {
-    return this.getListTag(key, (int) listType);
-  }
-
-  /**
-   * gets the list tag from the tag store.
-   *
-   * @param key the key to get.
-   * @param listType the list type to get.
-   *
-   * @return a list tag instance from the tag store.
-   */
-  @NotNull
-  default Optional<ListTag> getListTag(@NotNull final K key, final int listType) {
+  default Optional<ListTag> getListTag(@NotNull final K key, @NotNull final TagTypes listType) {
     return this.get(key)
       .filter(Tag::isList)
       .map(Tag::asList)
-      .filter(tags -> tags.listType() == listType);
+      .filter(tags -> tags.getListType() == listType);
   }
 
   /**

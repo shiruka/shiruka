@@ -27,6 +27,7 @@ package net.shiruka.shiruka.nbt.array;
 
 import java.util.Arrays;
 import net.shiruka.shiruka.nbt.ArrayTag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -63,9 +64,10 @@ public final class IntArrayTag implements ArrayTag<Integer> {
     return this;
   }
 
+  @NotNull
   @Override
-  public byte id() {
-    return 11;
+  public TagTypes getType() {
+    return TagTypes.INT_ARRAY;
   }
 
   @Override

@@ -40,6 +40,7 @@ import net.shiruka.shiruka.entity.EntityTypes;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -194,12 +195,12 @@ public abstract class ShirukaEntity implements Entity {
       return;
     }
     try {
-      final var dataVersion = tag.hasKeyOfType("DataVersion", (byte) 1)
+      final var dataVersion = tag.hasKeyOfType("DataVersion", TagTypes.BYTE)
         ? tag.getInteger("DataVersion").orElse(0)
         : -1;
-      final var positions = tag.getListTag("Pos", (byte) 6).orElse(Tag.createList());
-      final var motion = tag.getListTag("Motion", (byte) 6).orElse(Tag.createList());
-      final var rotation = tag.getListTag("Rotation", (byte) 5).orElse(Tag.createList());
+      final var positions = tag.getListTag("Pos", TagTypes.DOUBLE).orElse(Tag.createList());
+      final var motion = tag.getListTag("Motion", TagTypes.DOUBLE).orElse(Tag.createList());
+      final var rotation = tag.getListTag("Rotation", TagTypes.FLOAT).orElse(Tag.createList());
     } catch (final Throwable t) {
       JiraExceptionCatcher.serverException(t);
     }

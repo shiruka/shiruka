@@ -49,6 +49,7 @@ import net.shiruka.shiruka.config.UserCacheConfig;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.nbt.CompoundTag;
 import net.shiruka.shiruka.nbt.Tag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.world.Dimensions;
 import org.jetbrains.annotations.Contract;
@@ -247,7 +248,7 @@ public final class PlayerList {
     final var tag = this.loadPlayerCompound(player, true);
     if (tag.containsKey("shiruka")) {
       final var shiruka = tag.getCompoundTag("shiruka").orElseThrow();
-      lastKnownName = shiruka.hasKeyOfType("lastKnownName", 8)
+      lastKnownName = shiruka.hasKeyOfType("lastKnownName", TagTypes.STRING)
         ? shiruka.getString("lastKnownName").orElseThrow()
         : lastKnownName;
     }

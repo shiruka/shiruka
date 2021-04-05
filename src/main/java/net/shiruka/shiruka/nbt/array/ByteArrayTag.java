@@ -28,6 +28,7 @@ package net.shiruka.shiruka.nbt.array;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import net.shiruka.shiruka.nbt.ArrayTag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -64,9 +65,10 @@ public final class ByteArrayTag implements ArrayTag<Byte> {
     return this;
   }
 
+  @NotNull
   @Override
-  public byte id() {
-    return 7;
+  public TagTypes getType() {
+    return TagTypes.BYTE_ARRAY;
   }
 
   @Override

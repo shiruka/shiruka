@@ -37,6 +37,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import net.shiruka.shiruka.nbt.ListTag;
 import net.shiruka.shiruka.nbt.Tag;
+import net.shiruka.shiruka.nbt.TagTypes;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -52,7 +53,8 @@ public final class ListTagBasic implements ListTag {
   /**
    * the list id.
    */
-  private byte listType;
+  @NotNull
+  private TagTypes listType;
 
   /**
    * the original.
@@ -66,7 +68,7 @@ public final class ListTagBasic implements ListTag {
    * @param original the original.
    * @param listType the list type.
    */
-  public ListTagBasic(@NotNull final List<Tag> original, final byte listType) {
+  public ListTagBasic(@NotNull final List<Tag> original, @NotNull final TagTypes listType) {
     this.original = Collections.unmodifiableList(original);
     this.listType = listType;
     this.hashCode = original.hashCode();
@@ -75,14 +77,15 @@ public final class ListTagBasic implements ListTag {
   @Override
   public void add(@NotNull final Tag tag) {
     this.edit(tags -> {
-      Preconditions.checkArgument(tag.id() != Tag.END.id(),
-        "Cannot add a %s to a %s", Tag.END.id(), Tag.LIST.id());
-      if (this.listType() != Tag.END.id()) {
-        Preconditions.checkArgument(tag.id() == this.listType,
-          "Trying to add tag of type %s to list of %s", tag.id(), this.listType);
+      final var endType = TagTypes.END;
+      Preconditions.checkArgument(tag.getType() != endType,
+        "Cannot add a %s to a %s", endType, Tag.LIST.getType());
+      if (this.getListType() != endType) {
+        Preconditions.checkArgument(tag.getType() == this.listType,
+          "Trying to add tag of type %s to list of %s", tag.getType(), this.listType);
       }
       tags.add(tag);
-    }, tag.id());
+    }, tag.getType());
   }
 
   @NotNull
@@ -91,8 +94,9 @@ public final class ListTagBasic implements ListTag {
     return Collections.unmodifiableList(this.original);
   }
 
+  @NotNull
   @Override
-  public byte listType() {
+  public TagTypes getListType() {
     return this.listType;
   }
 
@@ -115,17 +119,12 @@ public final class ListTagBasic implements ListTag {
 
   @Override
   public void remove(final int key) {
-    this.edit(tags -> tags.remove(key), (byte) -1);
+    this.edit(tags -> tags.remove(key), TagTypes.NONE);
   }
 
   @Override
   public void set(final int key, @NotNull final Tag tag) {
-    this.edit(tags -> tags.set(key, tag), tag.id());
-  }
-
-  @Override
-  public int size() {
-    return this.original.size();
+    this.edit(tags -> tags.set(key, tag), tag.getType());
   }
 
   @Override
@@ -176,10 +175,16 @@ public final class ListTagBasic implements ListTag {
     return Spliterators.spliterator(this.original, Spliterator.ORDERED | Spliterator.IMMUTABLE);
   }
 
-  private void edit(@NotNull final Consumer<List<Tag>> consumer, final byte type) {
+  /**
+   * edits with the given consumer.
+   *
+   * @param consumer the consumer to edit.
+   * @param type the type to edit.
+   */
+  private void edit(@NotNull final Consumer<List<Tag>> consumer, @NotNull final TagTypes type) {
     final var tags = new ObjectArrayList<>(this.original);
     consumer.accept(tags);
-    if (type != -1 && this.listType == Tag.END.id()) {
+    if (type != TagTypes.NONE && this.listType == TagTypes.END) {
       this.original = tags;
       this.listType = type;
     } else {

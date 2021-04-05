@@ -42,6 +42,7 @@ import net.shiruka.shiruka.nbt.compound.CompoundTagBasic;
 import net.shiruka.shiruka.nbt.list.ListTagBasic;
 import net.shiruka.shiruka.nbt.primitive.ByteTag;
 import net.shiruka.shiruka.nbt.primitive.DoubleTag;
+import net.shiruka.shiruka.nbt.primitive.EndTag;
 import net.shiruka.shiruka.nbt.primitive.FloatTag;
 import net.shiruka.shiruka.nbt.primitive.IntTag;
 import net.shiruka.shiruka.nbt.primitive.LongTag;
@@ -63,7 +64,7 @@ public interface Tag {
   /**
    * an empty {@link ByteTag} instance.
    */
-  ByteTag BYTE = Tag.createByte((byte) 0);
+  ByteTag BYTE = Tag.createByte();
 
   /**
    * an empty {@link ByteArrayTag} instance.
@@ -83,7 +84,7 @@ public interface Tag {
   /**
    * an end tag instance.
    */
-  Tag END = () -> (byte) 0;
+  Tag END = Tag.createEnd();
 
   /**
    * an empty {@link FloatTag} instance.
@@ -113,7 +114,7 @@ public interface Tag {
   /**
    * an empty {@link LongArrayTag} instance.
    */
-  LongArrayTag LONG_ARRAY = Tag.createLongArray(new long[0]);
+  LongArrayTag LONG_ARRAY = Tag.createLongArray();
 
   /**
    * an empty {@link ShortTag} instance.
@@ -124,6 +125,28 @@ public interface Tag {
    * an empty {@link StringTag} instance.
    */
   StringTag STRING = Tag.createString("");
+
+  /**
+   * creates an instance of {@link ByteTag}.
+   *
+   * @return an instance of {@link ByteTag}.
+   */
+  @NotNull
+  static ByteTag createByte() {
+    return Tag.createByte(0);
+  }
+
+  /**
+   * creates an instance of {@link ByteTag}.
+   *
+   * @param original the original byte.
+   *
+   * @return an instance of {@link ByteTag}.
+   */
+  @NotNull
+  static ByteTag createByte(final int original) {
+    return Tag.createByte((byte) original);
+  }
 
   /**
    * creates an instance of {@link ByteTag}.
@@ -174,6 +197,16 @@ public interface Tag {
   /**
    * creates an instance of {@link DoubleTag}.
    *
+   * @return an instance of {@link DoubleTag}.
+   */
+  @NotNull
+  static DoubleTag createDouble() {
+    return Tag.createDouble(0.0d);
+  }
+
+  /**
+   * creates an instance of {@link DoubleTag}.
+   *
    * @param original the original double.
    *
    * @return an instance of {@link DoubleTag}.
@@ -181,6 +214,26 @@ public interface Tag {
   @NotNull
   static DoubleTag createDouble(final double original) {
     return new DoubleTag(original);
+  }
+
+  /**
+   * creates an instance of {@link EndTag}.
+   *
+   * @return an instance of {@link EndTag}.
+   */
+  @NotNull
+  static EndTag createEnd() {
+    return new EndTag();
+  }
+
+  /**
+   * creates an instance of {@link FloatTag}.
+   *
+   * @return an instance of {@link FloatTag}.
+   */
+  @NotNull
+  static FloatTag createFloat() {
+    return Tag.createFloat(0.0f);
   }
 
   /**
@@ -221,6 +274,16 @@ public interface Tag {
   @NotNull
   static NBTOutputStream createGZIPWriter(@NotNull final OutputStream stream) throws IOException {
     return Tag.createWriter(new GZIPOutputStream(stream));
+  }
+
+  /**
+   * creates an instance of {@link IntTag}.
+   *
+   * @return an instance of {@link IntTag}.
+   */
+  @NotNull
+  static IntTag createInt() {
+    return Tag.createInt(0);
   }
 
   /**
@@ -268,7 +331,20 @@ public interface Tag {
    */
   @NotNull
   static ListTag createList(@NotNull final List<Tag> original) {
-    return new ListTagBasic(original, original.isEmpty() ? 0 : original.get(0).id());
+    return new ListTagBasic(original, original.stream()
+      .map(Tag::getType)
+      .findFirst()
+      .orElse(TagTypes.END));
+  }
+
+  /**
+   * creates an instance of {@link LongTag}.
+   *
+   * @return an instance of {@link LongTag}.
+   */
+  @NotNull
+  static LongTag createLong() {
+    return Tag.createLong(0L);
   }
 
   /**
@@ -291,7 +367,7 @@ public interface Tag {
    * @return an instance of {@link LongArrayTag}.
    */
   @NotNull
-  static LongArrayTag createLongArray(final long @NotNull [] original) {
+  static LongArrayTag createLongArray(final long... original) {
     return new LongArrayTag(original);
   }
 
@@ -369,6 +445,16 @@ public interface Tag {
   /**
    * creates an instance of {@link ShortTag}.
    *
+   * @return an instance of {@link ShortTag}.
+   */
+  @NotNull
+  static ShortTag createShort() {
+    return Tag.createShort((short) 0);
+  }
+
+  /**
+   * creates an instance of {@link ShortTag}.
+   *
    * @param original the original short.
    *
    * @return an instance of {@link ShortTag}.
@@ -388,6 +474,16 @@ public interface Tag {
   @NotNull
   static StringTag createString(@NotNull final String original) {
     return new StringTag(original);
+  }
+
+  /**
+   * creates an instance of {@link StringTag}.
+   *
+   * @return an instance of {@link StringTag}.
+   */
+  @NotNull
+  static StringTag createString() {
+    return Tag.createString("");
   }
 
   /**
@@ -610,11 +706,12 @@ public interface Tag {
   }
 
   /**
-   * obtains id of the tag.
+   * obtains type of the tag.
    *
-   * @return id of the tag.
+   * @return type of the tag.
    */
-  byte id();
+  @NotNull
+  TagTypes getType();
 
   /**
    * checks if {@code this} is a {@link ArrayTag}.

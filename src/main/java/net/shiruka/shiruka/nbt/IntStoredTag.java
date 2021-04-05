@@ -52,7 +52,9 @@ public interface IntStoredTag {
    *
    * @return {@code true} if the stored tag has the given key.
    */
-  boolean containsKey(int key);
+  default boolean containsKey(final int key) {
+    return this.contains(Tag.createInt(key));
+  }
 
   /**
    * gets the tag at the given key.
@@ -190,20 +192,7 @@ public interface IntStoredTag {
    * @return a list instance from the tag store.
    */
   @NotNull
-  default Optional<List<Tag>> getList(final int key, final byte listType) {
-    return this.getList(key, (int) listType);
-  }
-
-  /**
-   * gets the list from the tag store.
-   *
-   * @param key the key to get.
-   * @param listType the list type to get.
-   *
-   * @return a list instance from the tag store.
-   */
-  @NotNull
-  default Optional<List<Tag>> getList(final int key, final int listType) {
+  default Optional<List<Tag>> getList(final int key, @NotNull final TagTypes listType) {
     return this.getListTag(key, listType)
       .map(ListTag::all);
   }
@@ -231,24 +220,11 @@ public interface IntStoredTag {
    * @return a list tag instance from the tag store.
    */
   @NotNull
-  default Optional<ListTag> getListTag(final int key, final byte listType) {
-    return this.getListTag(key, (int) listType);
-  }
-
-  /**
-   * gets the list tag from the tag store.
-   *
-   * @param key the key to get.
-   * @param listType the list type to get.
-   *
-   * @return a list tag instance from the tag store.
-   */
-  @NotNull
-  default Optional<ListTag> getListTag(final int key, final int listType) {
+  default Optional<ListTag> getListTag(final int key, @NotNull final TagTypes listType) {
     return this.get(key)
       .filter(Tag::isList)
       .map(Tag::asList)
-      .filter(tags -> tags.listType() == listType);
+      .filter(tags -> tags.getListType() == listType);
   }
 
   /**

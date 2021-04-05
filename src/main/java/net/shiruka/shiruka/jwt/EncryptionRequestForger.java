@@ -66,15 +66,15 @@ public final class EncryptionRequestForger {
     header.put("x5u", serverPublic);
     final var claims = Shiruka.JSON_MAPPER.createObjectNode();
     claims.put("salt", Base64.getEncoder().encodeToString(clientSalt));
-    final var builder = new StringBuilder();
-    builder.append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(header.toString())));
-    builder.append('.');
-    builder.append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(claims.toString())));
+    final var builder = new StringBuilder()
+      .append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(header.toString())))
+      .append('.')
+      .append(EncryptionRequestForger.ENCODER.encodeToString(StringUtil.getUTF8Bytes(claims.toString())));
     final var signatureBytes = StringUtil.getUTF8Bytes(builder.toString());
     try {
       final var signatureDigest = algorithm.getValidator().sign(serverPrivate, signatureBytes);
-      builder.append('.');
-      builder.append(EncryptionRequestForger.ENCODER.encodeToString(signatureDigest));
+      builder.append('.')
+        .append(EncryptionRequestForger.ENCODER.encodeToString(signatureDigest));
       return builder.toString();
     } catch (final JwtSignatureException e) {
       e.printStackTrace();

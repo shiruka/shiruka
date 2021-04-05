@@ -29,7 +29,7 @@ import java.security.Key;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * an interface to determine jwt singatures.
+ * an interface to determine jwt signatures.
  */
 public interface JwtSignature {
 

@@ -101,7 +101,7 @@ public final class JwtSignatureES384 implements JwtSignature {
    * @throws JwtSignatureException in case the specified DER signature was invalid or not suitable for ECDSA-384.
    */
   private static byte[] convertDERToConcatRS(final byte @NotNull [] der) throws JwtSignatureException {
-    if (der.length < 8 || der[0] != 0x30 || der[1] > 128) {
+    if (der.length < 8 || der[0] != 0x30) {
       throw new JwtSignatureException("Invalid DER signature");
     }
     var offsetR = 4;

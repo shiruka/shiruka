@@ -38,62 +38,17 @@ import java.security.SignatureException;
  */
 public final class JwtSignatureES384 implements JwtSignature {
 
-  @Override
-  public byte[] sign(final Key key, final byte[] signatureBytes) throws JwtSignatureException {
-    final Signature signature;
-    try {
-      signature = Signature.getInstance("SHA384withECDSA");
-    } catch (final NoSuchAlgorithmException e) {
-      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
-    }
-    if (!(key instanceof PrivateKey)) {
-      throw new JwtSignatureException("Signature Key must be a PrivateKey for ES384 signing");
-    }
-    final PrivateKey privateKey = (PrivateKey) key;
-    final byte[] der;
-    try {
-      signature.initSign(privateKey);
-      signature.update(signatureBytes);
-      der = signature.sign();
-    } catch (final SignatureException | InvalidKeyException e) {
-      throw new JwtSignatureException("Could not sign ES384 signature", e);
-    }
-    return this.convertDERToConcatRS(der);
-  }
-
-  @Override
-  public boolean validate(final Key key, final byte[] signatureBytes, final byte[] digestBytes) throws JwtSignatureException {
-    final Signature signature;
-    try {
-      signature = Signature.getInstance("SHA384withECDSA");
-    } catch (final NoSuchAlgorithmException e) {
-      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
-    }
-    if (!(key instanceof PublicKey)) {
-      throw new JwtSignatureException("Signature Key must be a PublicKey for ES384 validation");
-    }
-    final var publicKey = (PublicKey) key;
-    final var derSignature = this.convertConcatRSToDER(digestBytes);
-    try {
-      signature.initVerify(publicKey);
-      signature.update(signatureBytes);
-      return signature.verify(derSignature);
-    } catch (final SignatureException | InvalidKeyException e) {
-      throw new JwtSignatureException("Could not perform ES384 signature validation", e);
-    }
-  }
-
   /**
-   * Converts an ECDSA signature formatted as specified in RFC3278 (https://tools.ietf.org/html/rfc3278#section-8.2)
+   * converts an ECDSA signature formatted as specified in RFC3278 (https://tools.ietf.org/html/rfc3278#section-8.2)
    * into DER format as required by the BouncyCastle signature verifier.
    *
-   * @param concat The ECDSA signature as a byte array
+   * @param concat the concat to convert.
    *
-   * @return The converted signature in DER format
+   * @return converted signature in DER format.
    *
-   * @throws JwtSignatureException Thrown if the given signature is not a valid ECDSA signature
+   * @throws JwtSignatureException if the given signature is not a valid ECDSA signature.
    */
-  private byte[] convertConcatRSToDER(final byte[] concat) throws JwtSignatureException {
+  private static byte[] convertConcatRSToDER(final byte[] concat) throws JwtSignatureException {
     if (concat.length != 96) {
       throw new JwtSignatureException("Invalid ECDSA signature (expected 96 bytes, got " + concat.length + ")");
     }
@@ -136,17 +91,15 @@ public final class JwtSignatureES384 implements JwtSignature {
   }
 
   /**
-   * Converts a DER signature as produced by the BouncyCastle signature signer into the ECSDA's concatenated R+S
-   * format.
+   * converts a DER signature as produced by the BouncyCastle signature signer into the ECSDA's concatenated R+S format.
    *
-   * @param der The DER signature to convert
+   * @param der the DER signature to convert.
    *
-   * @return The converted ECDSA signature
+   * @return converted ECDSA signature.
    *
-   * @throws JwtSignatureException Thrown in case the specified DER signature was invalid or not suitable for
-   *   ECDSA-384
+   * @throws JwtSignatureException in case the specified DER signature was invalid or not suitable for ECDSA-384.
    */
-  private byte[] convertDERToConcatRS(final byte[] der) throws JwtSignatureException {
+  private static byte[] convertDERToConcatRS(final byte[] der) throws JwtSignatureException {
     if (der.length < 8 || der[0] != 0x30 || der[1] > 128) {
       throw new JwtSignatureException("Invalid DER signature");
     }
@@ -169,5 +122,50 @@ public final class JwtSignatureES384 implements JwtSignature {
     System.arraycopy(der, offsetR, concat, 48 - lengthR, lengthR);
     System.arraycopy(der, offsetL, concat, 96 - lengthL, lengthL);
     return concat;
+  }
+
+  @Override
+  public byte[] sign(final Key key, final byte[] signature) throws JwtSignatureException {
+    final Signature sign;
+    try {
+      sign = Signature.getInstance("SHA384withECDSA");
+    } catch (final NoSuchAlgorithmException e) {
+      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
+    }
+    if (!(key instanceof PrivateKey)) {
+      throw new JwtSignatureException("Signature Key must be a PrivateKey for ES384 signing");
+    }
+    final PrivateKey privateKey = (PrivateKey) key;
+    final byte[] der;
+    try {
+      sign.initSign(privateKey);
+      sign.update(signature);
+      der = sign.sign();
+    } catch (final SignatureException | InvalidKeyException e) {
+      throw new JwtSignatureException("Could not sign ES384 signature", e);
+    }
+    return JwtSignatureES384.convertDERToConcatRS(der);
+  }
+
+  @Override
+  public boolean validate(final Key key, final byte[] signature, final byte[] digest) throws JwtSignatureException {
+    final Signature sign;
+    try {
+      sign = Signature.getInstance("SHA384withECDSA");
+    } catch (final NoSuchAlgorithmException e) {
+      throw new JwtSignatureException("Could not create signature for ES384 algorithm", e);
+    }
+    if (!(key instanceof PublicKey)) {
+      throw new JwtSignatureException("Signature Key must be a PublicKey for ES384 validation");
+    }
+    final var publicKey = (PublicKey) key;
+    final var derSignature = JwtSignatureES384.convertConcatRSToDER(digest);
+    try {
+      sign.initVerify(publicKey);
+      sign.update(signature);
+      return sign.verify(derSignature);
+    } catch (final SignatureException | InvalidKeyException e) {
+      throw new JwtSignatureException("Could not perform ES384 signature validation", e);
+    }
   }
 }

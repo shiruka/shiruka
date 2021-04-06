@@ -110,17 +110,17 @@
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-core</artifactId>
-      <version>5.11.0</version>
+      <version>5.11.1</version>
     </dependency>
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-yaml</artifactId>
-      <version>5.11.0</version>
+      <version>5.11.1</version>
     </dependency>
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-json</artifactId>
-      <version>5.11.0</version>
+      <version>5.11.1</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jopt-simple</groupId>

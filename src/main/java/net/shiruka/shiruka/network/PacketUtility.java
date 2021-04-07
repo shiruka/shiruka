@@ -26,8 +26,8 @@
 package net.shiruka.shiruka.network;
 
 import com.google.common.base.Preconditions;
+import com.nukkitx.protocol.bedrock.packet.DisconnectPacket;
 import net.shiruka.api.text.Text;
-import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,8 +73,11 @@ public final class PacketUtility {
    * @param reason the reason to disconnect.
    */
   public static void disconnect(@NotNull final NetworkManager connection, @Nullable final Text reason) {
-    Preconditions.checkState(connection.getClient().isConnected(), "not connected");
+    Preconditions.checkState(connection.getSession().getChannel().isOpen(), "not connected");
     final var message = reason == null ? TranslatedTexts.DISCONNECTED_NO_REASON : reason;
-    connection.sendPacket(new DisconnectPacket(message.asString(), reason == null));
+    final var packet = new DisconnectPacket();
+    packet.setKickMessage(message.toString());
+    packet.setMessageSkipped(reason == null);
+    connection.getClient().sendPacket(packet);
   }
 }

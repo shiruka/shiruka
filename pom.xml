@@ -96,15 +96,16 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <url>https://repo.nukkitx.com/maven-snapshots/</url>
+      <id>nukkitx-repo-snapshot</id>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>net.shiruka</groupId>
       <artifactId>api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>net.shiruka</groupId>
-      <artifactId>jraknet</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -136,12 +137,6 @@
       <groupId>org.jline</groupId>
       <artifactId>jline-console</artifactId>
       <version>3.19.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jline</groupId>
-          <artifactId>jline-reader</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jline</groupId>
@@ -192,20 +187,6 @@
       <groupId>net.minecrell</groupId>
       <artifactId>terminalconsoleappender</artifactId>
       <version>1.2.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jline</groupId>
-          <artifactId>jline-terminal</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jline</groupId>
-          <artifactId>jline-reader</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.lmax</groupId>
@@ -229,13 +210,13 @@
     </dependency>
     <dependency>
       <groupId>io.gomint</groupId>
-      <artifactId>crypto</artifactId>
-      <version>1.4.3-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>io.gomint</groupId>
       <artifactId>leveldb-jni</artifactId>
       <version>1.5.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.nukkitx.protocol</groupId>
+      <artifactId>bedrock-v431</artifactId>
+      <version>2.7.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

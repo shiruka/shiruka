@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.network;
 
+import com.nukkitx.protocol.bedrock.BedrockPacket;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import lombok.AllArgsConstructor;
@@ -43,7 +44,7 @@ public final class QueuedPacket {
   /**
    * the wrapped packet.
    */
-  private final ShirukaPacket packet;
+  private final BedrockPacket packet;
 
   /**
    * the listener.

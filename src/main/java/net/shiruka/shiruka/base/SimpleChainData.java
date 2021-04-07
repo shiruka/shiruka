@@ -35,8 +35,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -62,12 +60,6 @@ import org.jetbrains.annotations.Nullable;
  */
 @RequiredArgsConstructor
 public final class SimpleChainData implements ChainData {
-
-  /**
-   * the key pair.
-   */
-  @Nullable
-  private static final KeyPair KEY_PAIR;
 
   /**
    * the map type reference.
@@ -214,9 +206,6 @@ public final class SimpleChainData implements ChainData {
   static {
     try {
       MOJANG_PUBLIC_KEY = SimpleChainData.generateKey(SimpleChainData.MOJANG_PUBLIC_KEY_BASE64);
-      final var generator = KeyPairGenerator.getInstance("EC");
-      generator.initialize(384);
-      KEY_PAIR = generator.generateKeyPair();
     } catch (final InvalidKeySpecException | NoSuchAlgorithmException e) {
       throw new AssertionError(e);
     }
@@ -255,16 +244,6 @@ public final class SimpleChainData implements ChainData {
     InvalidKeySpecException {
     return KeyFactory.getInstance("EC")
       .generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(base64)));
-  }
-
-  /**
-   * obtains the key pair.
-   *
-   * @return key pair.
-   */
-  @Nullable
-  public static KeyPair getKeyPair() {
-    return SimpleChainData.KEY_PAIR;
   }
 
   /**

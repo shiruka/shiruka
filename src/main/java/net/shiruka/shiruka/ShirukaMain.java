@@ -124,6 +124,7 @@ public final class ShirukaMain {
     Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
     socket.addListener(server);
     socket.start();
+    server.startServer();
   };
 
   /**

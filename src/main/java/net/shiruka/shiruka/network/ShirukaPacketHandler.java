@@ -23,41 +23,22 @@
  *
  */
 
-package net.shiruka.shiruka.network.packets;
+package net.shiruka.shiruka.network;
 
-import net.shiruka.shiruka.network.ShirukaPacket;
+import com.nukkitx.protocol.bedrock.handler.BedrockPacketHandler;
+import net.shiruka.api.base.Tick;
+import net.shiruka.api.text.Text;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * sent by the server to remove an entity that currently exists in the world from the client-side.
+ * an interface to determine Shiru ka packet handler.
  */
-public final class EntityRemovePacket extends ShirukaPacket {
+public interface ShirukaPacketHandler extends BedrockPacketHandler, Tick {
 
   /**
-   * the entity id.
-   */
-  private final long entityId;
-
-  /**
-   * ctor.
+   * runs when the connections disconnected.
    *
-   * @param entityId the entity id.
+   * @param disconnectMessage the disconnect message.
    */
-  public EntityRemovePacket(final long entityId) {
-    super(ShirukaPacket.ID_REMOVE_ENTITY);
-    this.entityId = entityId;
-  }
-
-  @Override
-  public void encode() {
-    this.writeLong(this.entityId);
-  }
-
-  /**
-   * obtains the entity id.
-   *
-   * @return entity id.
-   */
-  public long getEntityId() {
-    return this.entityId;
-  }
+  void onDisconnect(@NotNull Text disconnectMessage);
 }

@@ -26,11 +26,9 @@
 package net.shiruka.shiruka;
 
 import com.google.common.base.Preconditions;
-import com.whirvis.jraknet.RakNetPacket;
-import com.whirvis.jraknet.identifier.MinecraftIdentifier;
-import com.whirvis.jraknet.peer.RakNetClientPeer;
-import com.whirvis.jraknet.server.RakNetServer;
-import com.whirvis.jraknet.server.RakNetServerListener;
+import com.nukkitx.network.raknet.RakNetServer;
+import com.nukkitx.protocol.bedrock.BedrockServerEventHandler;
+import com.nukkitx.protocol.bedrock.BedrockServerSession;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -68,7 +66,6 @@ import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
@@ -84,7 +81,7 @@ import org.jetbrains.annotations.Nullable;
  * an implementation for {@link Server}.
  */
 @Log4j2
-public final class ShirukaServer implements Server, RakNetServerListener {
+public final class ShirukaServer implements Server, BedrockServerEventHandler {
 
   /**
    * the internal plugin of Shiru ka.
@@ -402,36 +399,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     return this.tick;
   }
 
-  @Override
-  public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
-                            final int channel) {
-    final var address = peer.getAddress();
-    if (!this.tick.getConnectedPlayers().containsKey(address)) {
-      return;
-    }
-    final var handler = this.tick.getConnectedPlayers().get(address).getPacketHandler();
-    if (packet.getId() == 0xfe) {
-      packet.buffer().markReaderIndex();
-      Protocol.deserialize(handler, packet.buffer());
-    }
-  }
-
-  @Override
-  public void onHandlerException(final RakNetServer server, final InetSocketAddress address,
-                                 final Throwable throwable) {
-    throwable.printStackTrace();
-  }
-
-  @Override
-  public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    this.tick.getPending().enqueue(peer);
-  }
-
-  @Override
-  public void onStart(final RakNetServer server) {
-    this.startServer();
-  }
-
   /**
    * obtains the is stopped.
    *
@@ -439,6 +406,16 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   public boolean isStopped() {
     return this.isStopped;
+  }
+
+  @Override
+  public boolean onConnectionRequest(@NotNull final InetSocketAddress address) {
+    return true;
+  }
+
+  @Override
+  public void onSessionCreation(@NotNull final BedrockServerSession serverSession) {
+    this.tick.getPending().enqueue(serverSession);
   }
 
   /**

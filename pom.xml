@@ -110,7 +110,7 @@
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-core</artifactId>
-      <version>5.11.1</version>
+      <version>5.12.1</version>
     </dependency>
     <dependency>
       <groupId>io.github.portlek</groupId>

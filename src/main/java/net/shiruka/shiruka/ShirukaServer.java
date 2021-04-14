@@ -491,7 +491,6 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
     this.commandManager.register();
     this.registerInterface(CommandManager.class, this.commandManager);
     JiraExceptionCatcher.run(() -> {
-      Class.forName("net.shiruka.shiruka.network.PacketRegistry");
       Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
       Class.forName("net.shiruka.shiruka.text.TranslatedTexts");
       Class.forName("net.shiruka.shiruka.base.SimpleChainData");

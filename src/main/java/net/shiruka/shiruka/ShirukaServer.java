@@ -429,7 +429,7 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
     pong.setProtocolVersion(ShirukaMain.MINECRAFT_PROTOCOL_VERSION);
     pong.setGameType(
       ServerConfig.gameMode.substring(0, 1).toUpperCase(Locale.ROOT) + ServerConfig.gameMode.substring(1));
-    pong.setNintendoLimited(true);
+    pong.setNintendoLimited(false);
     final var port = this.socket.getRakNet().getBindAddress().getPort();
     pong.setIpv4Port(port);
     pong.setIpv6Port(port);

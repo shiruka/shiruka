@@ -197,7 +197,7 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
    * the world manager.
    */
   @Getter
-  private final SimpleWorldManager worldManager = new SimpleWorldManager();
+  private final SimpleWorldManager worldManager = new SimpleWorldManager(this);
 
   /**
    * the has fully shutdown.

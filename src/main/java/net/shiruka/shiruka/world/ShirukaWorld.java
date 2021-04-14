@@ -74,26 +74,26 @@ public final class ShirukaWorld implements World {
   @NotNull
   @Override
   public List<MetadataValue> getMetadata(@NotNull final String key) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaWorld#getMetadata.");
   }
 
   @Override
   public boolean hasMetadata(@NotNull final String key) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaWorld#hasMetadata.");
   }
 
   @Override
   public void removeAllMetadata(@NotNull final String key) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaWorld#removeAllMetadata.");
   }
 
   @Override
   public void removeMetadata(@NotNull final String key, @NotNull final Plugin plugin) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaWorld#removeMetadata.");
   }
 
   @Override
   public void setMetadata(@NotNull final String key, @NotNull final MetadataValue value) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(" @todo #1:10m Implement ShirukaWorld#setMetadata.");
   }
 }

@@ -139,7 +139,7 @@ public final class PlayerConnection implements ShirukaPacketHandler {
     final var packId = packet.getPackId();
     final var version = packet.getPackVersion();
     final var chunkSize = packet.getChunkIndex();
-    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
+    final var resourcePack = Shiruka.getPackManager().getPackByIdVersion(packId + "_" + version);
     if (resourcePack.isEmpty()) {
       this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
       return true;

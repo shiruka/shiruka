@@ -26,7 +26,6 @@
 package net.shiruka.shiruka;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.nukkitx.network.raknet.RakNetServer;
 import com.nukkitx.protocol.bedrock.BedrockServer;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;

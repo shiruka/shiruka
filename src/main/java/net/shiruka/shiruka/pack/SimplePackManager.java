@@ -26,6 +26,7 @@
 package net.shiruka.shiruka.pack;
 
 import com.google.common.base.Preconditions;
+import com.nukkitx.protocol.bedrock.data.ResourcePackType;
 import com.nukkitx.protocol.bedrock.packet.ResourcePackStackPacket;
 import com.nukkitx.protocol.bedrock.packet.ResourcePacksInfoPacket;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +51,6 @@ import net.shiruka.api.pack.PackLoader;
 import net.shiruka.api.pack.PackManager;
 import net.shiruka.api.pack.PackManifest;
 import net.shiruka.api.pack.PackType;
-import net.shiruka.api.pack.ResourcePackType;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.config.ServerConfig;
@@ -102,15 +103,15 @@ public final class SimplePackManager implements PackManager {
     new ResourcePackStackPacket());
 
   /**
-   * the packs.
-   */
-  @Getter
-  private final Map<String, Pack> packs = new Object2ObjectOpenHashMap<>();
-
-  /**
    * the packs by id.
    */
   private final Map<UUID, Pack> packsById = new Object2ObjectOpenHashMap<>();
+
+  /**
+   * the packs.
+   */
+  @Getter
+  private final Map<String, Pack> packsByIdVersion = new Object2ObjectOpenHashMap<>();
 
   /**
    * the closed.
@@ -119,7 +120,7 @@ public final class SimplePackManager implements PackManager {
 
   @Override
   public void close() throws IOException {
-    for (final var pack : this.packs.values()) {
+    for (final var pack : this.packsByIdVersion.values()) {
       pack.close();
     }
   }
@@ -138,7 +139,7 @@ public final class SimplePackManager implements PackManager {
     stackPacket.getResourcePacks().clear();
     stackPacket.setExperimentsPreviouslyToggled(true);
     stackPacket.setGameVersion(ShirukaMain.MINECRAFT_VERSION);
-    this.packs.values().stream()
+    this.packsByIdVersion.values().stream()
       .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
       .forEach(pack -> {
         final var infoEntry = new ResourcePacksInfoPacket.Entry(
@@ -182,14 +183,14 @@ public final class SimplePackManager implements PackManager {
 
   @NotNull
   @Override
-  public Optional<Pack> getPack(@NotNull final String id) {
-    return Optional.ofNullable(this.packs.get(id));
+  public Optional<Pack> getPackById(@NotNull final UUID uniqueId) {
+    return Optional.ofNullable(this.packsById.get(uniqueId));
   }
 
   @NotNull
   @Override
-  public Optional<Pack> getPackByUniqueId(@NotNull final UUID uniqueId) {
-    return Optional.ofNullable(this.packsById.get(uniqueId));
+  public Optional<Pack> getPackByIdVersion(@NotNull final String entry) {
+    return Optional.ofNullable(this.packsByIdVersion.get(entry));
   }
 
   @NotNull
@@ -202,6 +203,12 @@ public final class SimplePackManager implements PackManager {
   @Override
   public Object getPackStack() {
     return this.packStack.get();
+  }
+
+  @NotNull
+  @Override
+  public Map<String, Pack> getPacks() {
+    return Collections.unmodifiableMap(this.packsByIdVersion);
   }
 
   @Override
@@ -330,7 +337,7 @@ public final class SimplePackManager implements PackManager {
   }
 
   /**
-   * puts the given manifest into the {@link #packs} and {@link #packsById}.
+   * puts the given manifest into the {@link #packsByIdVersion} and {@link #packsById}.
    *
    * @param manifest the manifest to put.
    * @param loader the loader to put.
@@ -341,7 +348,7 @@ public final class SimplePackManager implements PackManager {
                        @NotNull final PackManifest.Module module) {
     final var uuid = manifest.getHeader().getUniqueId();
     final var pack = factory.create(loader, manifest, module);
-    this.packs.put(uuid + "_" + manifest.getHeader().getVersion(), pack);
+    this.packsByIdVersion.put(uuid + "_" + manifest.getHeader().getVersion(), pack);
     this.packsById.put(uuid, pack);
     loader.getPreparedFile();
   }

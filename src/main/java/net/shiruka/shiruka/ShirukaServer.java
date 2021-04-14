@@ -341,6 +341,7 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
     consoleThread.start();
     this.tick.setNextTick(SystemUtils.getMonotonicMillis());
     this.scheduler.mainThreadHeartbeat(0);
+    this.socket.bind().join();
     final var end = System.currentTimeMillis() - ShirukaMain.START_TIME.get();
     this.getLogger().info(TranslatedText.get(ShirukaServer.SERVER_DONE, end));
     this.tick.run();

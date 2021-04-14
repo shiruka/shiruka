@@ -121,7 +121,6 @@ public final class ShirukaMain {
     Shiruka.setServer(server);
     Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
     socket.setHandler(server);
-    socket.bind();
     server.startServer();
   };
 
@@ -267,7 +266,8 @@ public final class ShirukaMain {
    */
   @NotNull
   private static BedrockServer createSocket() {
-    final var socket = new BedrockServer(new InetSocketAddress(ServerConfig.ip, ServerConfig.port));
+    final var socket = new BedrockServer(new InetSocketAddress(ServerConfig.ip, ServerConfig.port),
+      Runtime.getRuntime().availableProcessors());
     socket.getRakNet().setMaxConnections(ServerConfig.maxPlayers);
     return socket;
   }

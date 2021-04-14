@@ -73,7 +73,8 @@ public final class NetworkManager implements Tick {
   /**
    * the packet handler.
    */
-  private final AtomicReference<ShirukaPacketHandler> packetHandler = new AtomicReference<>(this.loginListener);
+  @NotNull
+  private final AtomicReference<ShirukaPacketHandler> packetHandler;
 
   /**
    * the server.
@@ -110,6 +111,8 @@ public final class NetworkManager implements Tick {
     this.client = client;
     this.session = (RakNetSession) client.getConnection();
     this.server = server;
+    this.packetHandler = new AtomicReference<>(this.loginListener);
+    client.setPacketHandler(this.loginListener);
   }
 
   /**
@@ -141,6 +144,7 @@ public final class NetworkManager implements Tick {
    */
   public void setPacketHandler(@NotNull final ShirukaPacketHandler handler) {
     this.packetHandler.set(handler);
+    this.client.setPacketHandler(handler);
   }
 
   /**

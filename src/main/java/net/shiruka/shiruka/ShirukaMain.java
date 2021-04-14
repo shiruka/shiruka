@@ -26,7 +26,9 @@
 package net.shiruka.shiruka;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.nukkitx.protocol.bedrock.BedrockPacketCodec;
 import com.nukkitx.protocol.bedrock.BedrockServer;
+import com.nukkitx.protocol.bedrock.v431.Bedrock_v431;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import java.io.File;
@@ -95,6 +97,11 @@ public final class ShirukaMain {
    * the version of the Minecraft game.
    */
   public static final String MINECRAFT_VERSION = "1.16.220";
+
+  /**
+   * the protocol codec.
+   */
+  public static final BedrockPacketCodec PROTOCOL_CODEC = Bedrock_v431.V431_CODEC;
 
   /**
    * the start time.

@@ -252,6 +252,7 @@ public final class LoginListener implements ShirukaPacketHandler {
       client.sendPacket(playStatusPacket);
       return;
     }
+    client.setPacketCodec(ShirukaMain.PROTOCOL_CODEC);
     final var internalPlugin = ShirukaServer.INTERNAL_PLUGIN;
     Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);

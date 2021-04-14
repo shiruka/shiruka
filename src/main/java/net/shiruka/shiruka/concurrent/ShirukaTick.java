@@ -25,7 +25,8 @@
 
 package net.shiruka.shiruka.concurrent;
 
-import com.whirvis.jraknet.peer.RakNetClientPeer;
+import com.nukkitx.protocol.bedrock.BedrockServerSession;
+import com.nukkitx.protocol.bedrock.packet.DisconnectPacket;
 import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import java.math.BigDecimal;
@@ -47,7 +48,6 @@ import net.shiruka.shiruka.misc.RollingAverage;
 import net.shiruka.shiruka.misc.TickTask;
 import net.shiruka.shiruka.misc.TickTimes;
 import net.shiruka.shiruka.network.NetworkManager;
-import net.shiruka.shiruka.network.packets.DisconnectPacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import net.shiruka.shiruka.util.SystemUtils;
 import org.jetbrains.annotations.NotNull;
@@ -100,7 +100,7 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
    * the pending.
    */
   @Getter
-  private final PriorityQueue<RakNetClientPeer> pending = new ObjectArrayFIFOQueue<>();
+  private final PriorityQueue<BedrockServerSession> pending = new ObjectArrayFIFOQueue<>();
 
   /**
    * the process queue.
@@ -380,8 +380,11 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
           // @todo #1:5m Add language support for Failed to handle packet for {}.
           ShirukaTick.log.warn("Failed to handle packet for {}", manager.getSocketAddress(), e);
           final var kickMessage = TranslatedTexts.LOGIN_ERROR;
-          manager.sendPacketImmediately(new DisconnectPacket(kickMessage.asString(), false), future ->
-            manager.close(kickMessage));
+          final var packet = new DisconnectPacket();
+          packet.setKickMessage(kickMessage.asString());
+          packet.setMessageSkipped(false);
+          manager.getClient().sendPacketImmediately(packet);
+          manager.close(kickMessage);
           JiraExceptionCatcher.serverException(e);
         }
       } else {
@@ -409,7 +412,6 @@ public final class ShirukaTick extends AsyncTaskHandlerReentrant<TickTask> imple
     this.handleCommands();
     if (start - this.lastPingTime >= 5000000000L) {
       this.lastPingTime = start;
-      this.server.updatePing();
     }
     this.executeAll();
     final var endTime = System.nanoTime();

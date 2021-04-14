@@ -26,12 +26,14 @@
 package net.shiruka.shiruka;
 
 import com.google.common.base.Preconditions;
-import com.nukkitx.network.raknet.RakNetServer;
+import com.nukkitx.protocol.bedrock.BedrockPong;
+import com.nukkitx.protocol.bedrock.BedrockServer;
 import com.nukkitx.protocol.bedrock.BedrockServerEventHandler;
 import com.nukkitx.protocol.bedrock.BedrockServerSession;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -178,7 +180,7 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
    * the socket.
    */
   @NotNull
-  private final RakNetServer socket;
+  private final BedrockServer socket;
 
   /**
    * the stop lock.
@@ -229,7 +231,7 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
    * @param console the console.
    * @param socket the socket.
    */
-  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final RakNetServer socket) {
+  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final BedrockServer socket) {
     this.console = console.apply(this);
     this.socket = socket;
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
@@ -265,12 +267,12 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
 
   @Override
   public int getMaxPlayers() {
-    return this.socket.getMaxConnections();
+    return this.socket.getRakNet().getMaxConnections();
   }
 
   @Override
   public void setMaxPlayers(final int maxPlayers) {
-    this.socket.setMaxConnections(maxPlayers);
+    this.socket.getRakNet().setMaxConnections(maxPlayers);
   }
 
   @NotNull
@@ -413,6 +415,26 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
     return true;
   }
 
+  @NotNull
+  @Override
+  public BedrockPong onQuery(@NotNull final InetSocketAddress address) {
+    final var pong = new BedrockPong();
+    pong.setEdition("MCPE");
+    pong.setMotd(ServerConfig.motd);
+    pong.setSubMotd(ServerConfig.subMotd);
+    pong.setPlayerCount(this.playerList.players.size());
+    pong.setMaximumPlayerCount(this.getMaxPlayers());
+    pong.setVersion(ShirukaMain.MINECRAFT_VERSION);
+    pong.setProtocolVersion(ShirukaMain.MINECRAFT_PROTOCOL_VERSION);
+    pong.setGameType(
+      ServerConfig.gameMode.substring(0, 1).toUpperCase(Locale.ROOT) + ServerConfig.gameMode.substring(1));
+    pong.setNintendoLimited(true);
+    final var port = this.socket.getRakNet().getBindAddress().getPort();
+    pong.setIpv4Port(port);
+    pong.setIpv6Port(port);
+    return pong;
+  }
+
   @Override
   public void onSessionCreation(@NotNull final BedrockServerSession serverSession) {
     this.tick.getPending().enqueue(serverSession);
@@ -443,17 +465,6 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
         this.getLogger().error("Error while shutting down", e);
       }
     }
-  }
-
-  /**
-   * updates the server ping.
-   */
-  public void updatePing() {
-    final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
-    identifier.setServerName(ServerConfig.motd);
-    identifier.setWorldName(ServerConfig.defaultWorldName);
-    identifier.setMaxPlayerCount(this.getMaxPlayers());
-    identifier.setOnlinePlayerCount(this.getOnlinePlayers().size());
   }
 
   /**
@@ -510,7 +521,7 @@ public final class ShirukaServer implements Server, BedrockServerEventHandler {
     }
     this.getLogger().info("§eStopping the server.");
     // @todo #1:15m disable plugins here and wait for async tasks shutdown.
-    this.socket.shutdown();
+    this.socket.close();
     // @todo #1:15m save all players data here.
     this.getLogger().info("§eSaving worlds.");
     // @todo #1:15m save and close all worlds here.

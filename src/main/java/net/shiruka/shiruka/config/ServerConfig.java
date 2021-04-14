@@ -148,6 +148,13 @@ public final class ServerConfig implements ConfigHolder {
   public static Locale serverLanguage = Locale.ROOT;
 
   /**
+   * the description message shown in the server list.
+   */
+  @Comment("the description message shown in the server list.")
+  @Route("sub-motd")
+  public static String subMotd = "Shiru ka server";
+
+  /**
    * "true" to use linux natives when available.
    */
   @Comment("\"true\" to use linux natives when available.")

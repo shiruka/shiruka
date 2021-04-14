@@ -26,11 +26,10 @@
 package net.shiruka.shiruka;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.whirvis.jraknet.identifier.MinecraftIdentifier;
-import com.whirvis.jraknet.server.RakNetServer;
+import com.nukkitx.network.raknet.RakNetServer;
+import com.nukkitx.protocol.bedrock.BedrockServer;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
-import io.gomint.leveldb.LibraryLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -122,8 +121,8 @@ public final class ShirukaMain {
     AsyncCatcher.server = server;
     Shiruka.setServer(server);
     Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
-    socket.addListener(server);
-    socket.start();
+    socket.setHandler(server);
+    socket.bind();
     server.startServer();
   };
 
@@ -268,17 +267,9 @@ public final class ShirukaMain {
    * @return a newly created server socket.
    */
   @NotNull
-  private static RakNetServer createSocket() {
-    final var ip = ServerConfig.ip;
-    final var port = ServerConfig.port;
-    final var gameMode = ServerConfig.gameMode;
-    final var maxPlayers = ServerConfig.maxPlayers;
-    final var motd = ServerConfig.motd;
-    final var worldName = ServerConfig.defaultWorldName;
-    final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, 0L, worldName, gameMode);
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayers, identifier);
-    identifier.setServerGloballyUniqueId(socket.getGlobalUniqueId());
+  private static BedrockServer createSocket() {
+    final var socket = new BedrockServer(new InetSocketAddress(ServerConfig.ip, ServerConfig.port));
+    socket.getRakNet().setMaxConnections(ServerConfig.maxPlayers);
     return socket;
   }
 

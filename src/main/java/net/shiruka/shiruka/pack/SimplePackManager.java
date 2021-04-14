@@ -26,13 +26,14 @@
 package net.shiruka.shiruka.pack;
 
 import com.google.common.base.Preconditions;
+import com.nukkitx.protocol.bedrock.packet.ResourcePackStackPacket;
+import com.nukkitx.protocol.bedrock.packet.ResourcePacksInfoPacket;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
@@ -40,7 +41,6 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.Shiruka;
@@ -53,8 +53,6 @@ import net.shiruka.api.pack.ResourcePackType;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaMain;
 import net.shiruka.shiruka.config.ServerConfig;
-import net.shiruka.shiruka.network.packets.PackInfoPacket;
-import net.shiruka.shiruka.network.packets.PackStackPacket;
 import net.shiruka.shiruka.pack.loader.RplDirectory;
 import net.shiruka.shiruka.pack.loader.RplZip;
 import net.shiruka.shiruka.pack.pack.ResourcePack;
@@ -94,12 +92,14 @@ public final class SimplePackManager implements PackManager {
   /**
    * the packs info packet.
    */
-  private final AtomicReference<PackInfoPacket> packInfo = new AtomicReference<>(new PackInfoPacket());
+  private final AtomicReference<ResourcePacksInfoPacket> packInfo = new AtomicReference<>(
+    new ResourcePacksInfoPacket());
 
   /**
    * the pack stack packet.
    */
-  private final AtomicReference<PackStackPacket> packStack = new AtomicReference<>(new PackStackPacket());
+  private final AtomicReference<ResourcePackStackPacket> packStack = new AtomicReference<>(
+    new ResourcePackStackPacket());
 
   /**
    * the packs.
@@ -128,32 +128,28 @@ public final class SimplePackManager implements PackManager {
   public void closeRegistration() {
     this.checkClosed();
     final var mustAccept = ServerConfig.forceResources;
-    this.packInfo.set(new PackInfoPacket(Collections.emptyList(),
-      mustAccept,
-      new ObjectArrayList<>(this.packs.values().stream()
-        .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
-        .map(pack ->
-          new PackInfoPacket.Entry(
-            "",
-            "",
-            pack.getId().toString(), pack.getSize(),
-            pack.getVersion().toString(),
-            false,
-            false,
-            ""))
-        .collect(Collectors.toList())),
-      false));
-    this.packStack.set(new PackStackPacket(
-      Collections.emptyList(),
-      Collections.emptyList(),
-      true,
-      mustAccept,
-      "*",
-      this.packs.values().stream()
-        .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
-        .map(pack ->
-          new PackStackPacket.Entry(pack.getId().toString(), pack.getVersion().toString(), ""))
-        .collect(Collectors.toList())));
+    final var infoPacket = new ResourcePacksInfoPacket();
+    final var stackPacket = new ResourcePackStackPacket();
+    infoPacket.setForcedToAccept(mustAccept);
+    infoPacket.getBehaviorPackInfos().clear();
+    infoPacket.getResourcePackInfos().clear();
+    stackPacket.setForcedToAccept(mustAccept);
+    stackPacket.getBehaviorPacks().clear();
+    stackPacket.getResourcePacks().clear();
+    stackPacket.setExperimentsPreviouslyToggled(true);
+    stackPacket.setGameVersion(ShirukaMain.MINECRAFT_VERSION);
+    this.packs.values().stream()
+      .filter(pack -> pack.getType() != ResourcePackType.BEHAVIOR)
+      .forEach(pack -> {
+        final var infoEntry = new ResourcePacksInfoPacket.Entry(
+          pack.getId().toString(), pack.getVersion().toString(), pack.getSize(), "", "", "", false, false);
+        final var stackEntry = new ResourcePackStackPacket.Entry(
+          pack.getId().toString(), pack.getVersion().toString(), "");
+        infoPacket.getResourcePackInfos().add(infoEntry);
+        stackPacket.getResourcePacks().add(stackEntry);
+      });
+    this.packInfo.set(infoPacket);
+    this.packStack.set(stackPacket);
     this.closed = true;
   }
 

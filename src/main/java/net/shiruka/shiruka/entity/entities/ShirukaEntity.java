@@ -28,9 +28,8 @@ package net.shiruka.shiruka.entity.entities;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
-import net.shiruka.api.base.ImmutableBlockPosition;
+import net.shiruka.api.base.BlockPosition;
 import net.shiruka.api.base.Location;
-import net.shiruka.api.base.Vector3D;
 import net.shiruka.api.entity.Entity;
 import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
@@ -75,13 +74,13 @@ public abstract class ShirukaEntity implements Entity {
    * the location block.
    */
   @NotNull
-  private final ImmutableBlockPosition locationBlock = ImmutableBlockPosition.ZERO;
+  private final BlockPosition locationBlock = BlockPosition.ZERO;
 
   /**
    * the motion.
    */
   @NotNull
-  private final Vector3D motion = Vector3D.ZERO;
+  private final BlockPosition motion = BlockPosition.ZERO;
 
   /**
    * the preserve motion.

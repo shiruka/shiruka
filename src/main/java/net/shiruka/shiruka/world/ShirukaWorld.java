@@ -41,6 +41,7 @@ import net.shiruka.api.registry.Resourced;
 import net.shiruka.api.world.Chunk;
 import net.shiruka.api.world.GameRule;
 import net.shiruka.api.world.World;
+import net.shiruka.api.world.WorldHolder;
 import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,6 +58,13 @@ public final class ShirukaWorld implements World {
   @NotNull
   @Getter
   private final Resourced dimensionKey;
+
+  /**
+   * the holder.
+   */
+  @NotNull
+  @Getter
+  private final WorldHolder holder;
 
   /**
    * the name.

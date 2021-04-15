@@ -156,6 +156,12 @@ public final class PlayerConnection implements ShirukaPacketHandler {
   }
 
   @Override
+  public boolean handle(@NotNull final PacketViolationWarningPacket packet) {
+    Shiruka.getLogger().error("Something went wrong when reading a packet!");
+    return true;
+  }
+
+  @Override
   public void onDisconnect(@NotNull final Text disconnectMessage) {
     if (this.processedDisconnect) {
       return;
@@ -173,12 +179,6 @@ public final class PlayerConnection implements ShirukaPacketHandler {
     }
     if (this.player.isValid()) {
     }
-  }
-
-  @Override
-  public boolean handle(@NotNull final PacketViolationWarningPacket packet) {
-    Shiruka.getLogger().error("Something went wrong when reading a packet!");
-    return true;
   }
 
   /**

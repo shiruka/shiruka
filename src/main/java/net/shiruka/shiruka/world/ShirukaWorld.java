@@ -25,11 +25,14 @@
 
 package net.shiruka.shiruka.world;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import net.shiruka.api.base.BlockPosition;
 import net.shiruka.api.metadata.MetadataValue;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.registry.Resourced;
@@ -70,6 +73,22 @@ public final class ShirukaWorld implements World {
   @NotNull
   @Getter
   private final UUID uniqueId;
+
+  /**
+   * the spawn point.
+   */
+  @NotNull
+  @Getter
+  @Setter
+  private BlockPosition spawnPoint;
+
+  /**
+   * the time.
+   */
+  @NotNull
+  @Getter
+  @Setter
+  private Duration time;
 
   @NotNull
   @Override

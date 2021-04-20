@@ -136,11 +136,6 @@ public final class ServerConfig implements ConfigHolder {
   public static boolean saveUserCacheOnStopOnly = false;
 
   /**
-   * the section.
-   */
-  public static ConfigurationSection section;
-
-  /**
    * the server language.
    */
   @Comment("language of the Shiru ka.")
@@ -179,6 +174,11 @@ public final class ServerConfig implements ConfigHolder {
    * the loader.
    */
   private static ConfigLoader loader;
+
+  /**
+   * the section.
+   */
+  private static ConfigurationSection section;
 
   /**
    * adds the given locale into the {@link #loadedLanguages}.

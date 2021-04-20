@@ -183,6 +183,16 @@
       <groupId>net.minecrell</groupId>
       <artifactId>terminalconsoleappender</artifactId>
       <version>1.2.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jline</groupId>
+          <artifactId>jline-reader</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.lmax</groupId>

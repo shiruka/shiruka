@@ -105,7 +105,7 @@ public final class LoginData {
    * initializes the player.
    */
   public void initialize() {
-    if (this.networkManager.getClient().isDisconnected()) {
+    if (this.networkManager.getClient().isClosed()) {
       return;
     }
     final var player = new ShirukaPlayerEntity(this.networkManager.getServer().getWorldManager().getDefaultWorld(),

@@ -25,6 +25,10 @@
 
 package net.shiruka.shiruka.network;
 
+import com.nukkitx.protocol.bedrock.packet.DisconnectPacket;
+import com.nukkitx.protocol.bedrock.packet.PacketViolationWarningPacket;
+import com.nukkitx.protocol.bedrock.packet.ResourcePackChunkDataPacket;
+import com.nukkitx.protocol.bedrock.packet.ResourcePackChunkRequestPacket;
 import lombok.Getter;
 import net.shiruka.api.Shiruka;
 import net.shiruka.api.event.events.player.PlayerQuitEvent;
@@ -32,10 +36,6 @@ import net.shiruka.api.text.Text;
 import net.shiruka.api.text.TranslatedText;
 import net.shiruka.shiruka.ShirukaServer;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
-import net.shiruka.shiruka.network.packets.DisconnectPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackChunkDataPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackChunkRequestPacket;
-import net.shiruka.shiruka.network.packets.ViolationWarningPacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +43,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * a class that represents player connections.
  */
-public final class PlayerConnection implements PacketHandler {
+public final class PlayerConnection implements ShirukaPacketHandler {
 
   /**
    * the network manager.
@@ -126,9 +126,39 @@ public final class PlayerConnection implements PacketHandler {
     }
     final var kickMessage = event.getKickMessage();
     this.player.setQuitReason(PlayerQuitEvent.QuitReason.KICKED);
-    this.networkManager.sendPacketImmediately(new DisconnectPacket(kickMessage.asString(), false), future ->
-      this.networkManager.close(reasonWithFallback));
+    final var packet = new DisconnectPacket();
+    packet.setKickMessage(kickMessage.asString());
+    packet.setMessageSkipped(false);
+    this.networkManager.getClient().sendPacketImmediately(packet);
+    this.networkManager.close(reasonWithFallback);
     this.onDisconnect(reasonWithFallback);
+  }
+
+  @Override
+  public boolean handle(@NotNull final ResourcePackChunkRequestPacket packet) {
+    final var packId = packet.getPackId();
+    final var version = packet.getPackVersion();
+    final var chunkSize = packet.getChunkIndex();
+    final var resourcePack = Shiruka.getPackManager().getPackByIdVersion(packId + "_" + version);
+    if (resourcePack.isEmpty()) {
+      this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
+      return true;
+    }
+    final var pack = resourcePack.get();
+    final var send = new ResourcePackChunkDataPacket();
+    send.setPackId(packet.getPackId());
+    send.setPackVersion(packet.getPackVersion());
+    send.setChunkIndex(packet.getChunkIndex());
+    send.setData(pack.getChunk(1048576 * chunkSize, 1048576));
+    send.setProgress(1048576L * packet.getChunkIndex());
+    this.player.getNetworkManager().getClient().sendPacket(send);
+    return true;
+  }
+
+  @Override
+  public boolean handle(@NotNull final PacketViolationWarningPacket packet) {
+    Shiruka.getLogger().error("Something went wrong when reading a packet!");
+    return true;
   }
 
   @Override
@@ -138,27 +168,6 @@ public final class PlayerConnection implements PacketHandler {
     } else {
       this.processedDisconnect = true;
     }
-  }
-
-  @Override
-  public void resourcePackChunkRequest(@NotNull final ResourcePackChunkRequestPacket packet) {
-    final var packId = packet.getPackId();
-    final var version = packet.getVersion();
-    final var chunkSize = packet.getChunkSize();
-    final var resourcePack = Shiruka.getPackManager().getPack(packId + "_" + version);
-    if (resourcePack.isEmpty()) {
-      this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON.asString());
-      return;
-    }
-    final var pack = resourcePack.get();
-    final var chunk = pack.getChunk(1048576 * chunkSize, 1048576);
-    final var send = new ResourcePackChunkDataPacket(chunkSize, chunk, packId, version, 1048576L * chunkSize);
-    this.player.getNetworkManager().sendPacket(send);
-  }
-
-  @Override
-  public void violationWarning(@NotNull final ViolationWarningPacket packet) {
-    Shiruka.getLogger().error("Something went wrong when reading a packet!");
   }
 
   @Override

@@ -136,16 +136,18 @@ public final class ServerConfig implements ConfigHolder {
   public static boolean saveUserCacheOnStopOnly = false;
 
   /**
-   * the section.
-   */
-  public static ConfigurationSection section;
-
-  /**
    * the server language.
    */
   @Comment("language of the Shiru ka.")
   @Route("server-language")
   public static Locale serverLanguage = Locale.ROOT;
+
+  /**
+   * the description message shown in the server list.
+   */
+  @Comment("the description message shown in the server list.")
+  @Route("sub-motd")
+  public static String subMotd = "Shiru ka server";
 
   /**
    * "true" to use linux natives when available.
@@ -172,6 +174,11 @@ public final class ServerConfig implements ConfigHolder {
    * the loader.
    */
   private static ConfigLoader loader;
+
+  /**
+   * the section.
+   */
+  private static ConfigurationSection section;
 
   /**
    * adds the given locale into the {@link #loadedLanguages}.

@@ -26,14 +26,14 @@
 package net.shiruka.shiruka;
 
 import com.google.common.base.Preconditions;
-import com.whirvis.jraknet.RakNetPacket;
-import com.whirvis.jraknet.identifier.MinecraftIdentifier;
-import com.whirvis.jraknet.peer.RakNetClientPeer;
-import com.whirvis.jraknet.server.RakNetServer;
-import com.whirvis.jraknet.server.RakNetServerListener;
+import com.nukkitx.protocol.bedrock.BedrockPong;
+import com.nukkitx.protocol.bedrock.BedrockServer;
+import com.nukkitx.protocol.bedrock.BedrockServerEventHandler;
+import com.nukkitx.protocol.bedrock.BedrockServerSession;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,7 +68,6 @@ import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
 import net.shiruka.shiruka.event.SimpleEventManager;
 import net.shiruka.shiruka.language.SimpleLanguageManager;
 import net.shiruka.shiruka.misc.JiraExceptionCatcher;
-import net.shiruka.shiruka.network.Protocol;
 import net.shiruka.shiruka.pack.SimplePackManager;
 import net.shiruka.shiruka.permission.SimplePermissionManager;
 import net.shiruka.shiruka.plugin.InternalShirukaPlugin;
@@ -84,7 +83,7 @@ import org.jetbrains.annotations.Nullable;
  * an implementation for {@link Server}.
  */
 @Log4j2
-public final class ShirukaServer implements Server, RakNetServerListener {
+public final class ShirukaServer implements Server, BedrockServerEventHandler {
 
   /**
    * the internal plugin of Shiru ka.
@@ -181,7 +180,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the socket.
    */
   @NotNull
-  private final RakNetServer socket;
+  private final BedrockServer socket;
 
   /**
    * the stop lock.
@@ -198,7 +197,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * the world manager.
    */
   @Getter
-  private final SimpleWorldManager worldManager = new SimpleWorldManager();
+  private final SimpleWorldManager worldManager = new SimpleWorldManager(this);
 
   /**
    * the has fully shutdown.
@@ -232,7 +231,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    * @param console the console.
    * @param socket the socket.
    */
-  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final RakNetServer socket) {
+  ShirukaServer(@NotNull final Function<ShirukaServer, ShirukaConsole> console, @NotNull final BedrockServer socket) {
     this.console = console.apply(this);
     this.socket = socket;
     this.consoleCommandSender = new SimpleConsoleCommandSender(this.console);
@@ -268,12 +267,12 @@ public final class ShirukaServer implements Server, RakNetServerListener {
 
   @Override
   public int getMaxPlayers() {
-    return this.socket.getMaxConnections();
+    return this.socket.getRakNet().getMaxConnections();
   }
 
   @Override
   public void setMaxPlayers(final int maxPlayers) {
-    this.socket.setMaxConnections(maxPlayers);
+    this.socket.getRakNet().setMaxConnections(maxPlayers);
   }
 
   @NotNull
@@ -342,6 +341,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     consoleThread.start();
     this.tick.setNextTick(SystemUtils.getMonotonicMillis());
     this.scheduler.mainThreadHeartbeat(0);
+    this.socket.bind().join();
     final var end = System.currentTimeMillis() - ShirukaMain.START_TIME.get();
     this.getLogger().info(TranslatedText.get(ShirukaServer.SERVER_DONE, end));
     this.tick.run();
@@ -402,36 +402,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     return this.tick;
   }
 
-  @Override
-  public void handleMessage(final RakNetServer server, final RakNetClientPeer peer, final RakNetPacket packet,
-                            final int channel) {
-    final var address = peer.getAddress();
-    if (!this.tick.getConnectedPlayers().containsKey(address)) {
-      return;
-    }
-    final var handler = this.tick.getConnectedPlayers().get(address).getPacketHandler();
-    if (packet.getId() == 0xfe) {
-      packet.buffer().markReaderIndex();
-      Protocol.deserialize(handler, packet.buffer());
-    }
-  }
-
-  @Override
-  public void onHandlerException(final RakNetServer server, final InetSocketAddress address,
-                                 final Throwable throwable) {
-    throwable.printStackTrace();
-  }
-
-  @Override
-  public void onLogin(final RakNetServer server, final RakNetClientPeer peer) {
-    this.tick.getPending().enqueue(peer);
-  }
-
-  @Override
-  public void onStart(final RakNetServer server) {
-    this.startServer();
-  }
-
   /**
    * obtains the is stopped.
    *
@@ -439,6 +409,36 @@ public final class ShirukaServer implements Server, RakNetServerListener {
    */
   public boolean isStopped() {
     return this.isStopped;
+  }
+
+  @Override
+  public boolean onConnectionRequest(@NotNull final InetSocketAddress address) {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  public BedrockPong onQuery(@NotNull final InetSocketAddress address) {
+    final var pong = new BedrockPong();
+    pong.setEdition("MCPE");
+    pong.setMotd(ServerConfig.motd);
+    pong.setSubMotd(ServerConfig.subMotd);
+    pong.setPlayerCount(this.playerList.players.size());
+    pong.setMaximumPlayerCount(this.getMaxPlayers());
+    pong.setVersion(ShirukaMain.MINECRAFT_VERSION);
+    pong.setProtocolVersion(ShirukaMain.MINECRAFT_PROTOCOL_VERSION);
+    pong.setGameType(
+      ServerConfig.gameMode.substring(0, 1).toUpperCase(Locale.ROOT) + ServerConfig.gameMode.substring(1));
+    pong.setNintendoLimited(false);
+    final var port = this.socket.getRakNet().getBindAddress().getPort();
+    pong.setIpv4Port(port);
+    pong.setIpv6Port(port);
+    return pong;
+  }
+
+  @Override
+  public void onSessionCreation(@NotNull final BedrockServerSession serverSession) {
+    this.tick.getPending().enqueue(serverSession);
   }
 
   /**
@@ -469,17 +469,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
   }
 
   /**
-   * updates the server ping.
-   */
-  public void updatePing() {
-    final var identifier = (MinecraftIdentifier) this.socket.getIdentifier();
-    identifier.setServerName(ServerConfig.motd);
-    identifier.setWorldName(ServerConfig.defaultWorldName);
-    identifier.setMaxPlayerCount(this.getMaxPlayers());
-    identifier.setOnlinePlayerCount(this.getOnlinePlayers().size());
-  }
-
-  /**
    * checks if {@link Thread#currentThread()} is {@link #serverThread}.
    *
    * @return {@code true} if current thread is the main thread.
@@ -503,7 +492,6 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     this.commandManager.register();
     this.registerInterface(CommandManager.class, this.commandManager);
     JiraExceptionCatcher.run(() -> {
-      Class.forName("net.shiruka.shiruka.network.PacketRegistry");
       Class.forName("net.shiruka.shiruka.command.SimpleCommandManager");
       Class.forName("net.shiruka.shiruka.text.TranslatedTexts");
       Class.forName("net.shiruka.shiruka.base.SimpleChainData");
@@ -533,7 +521,7 @@ public final class ShirukaServer implements Server, RakNetServerListener {
     }
     this.getLogger().info("§eStopping the server.");
     // @todo #1:15m disable plugins here and wait for async tasks shutdown.
-    this.socket.shutdown();
+    this.socket.close();
     // @todo #1:15m save all players data here.
     this.getLogger().info("§eSaving worlds.");
     // @todo #1:15m save and close all worlds here.

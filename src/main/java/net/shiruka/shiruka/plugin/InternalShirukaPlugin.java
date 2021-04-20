@@ -28,6 +28,7 @@ package net.shiruka.shiruka.plugin;
 import io.github.portlek.configs.configuration.FileConfiguration;
 import java.io.File;
 import java.io.InputStream;
+import lombok.extern.log4j.Log4j2;
 import net.shiruka.api.plugin.InvalidDescriptionException;
 import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.plugin.PluginDescriptionFile;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that represents internal plugin for Shiru ka.
  */
+@Log4j2
 public final class InternalShirukaPlugin implements Plugin {
 
   /**
@@ -84,7 +86,7 @@ public final class InternalShirukaPlugin implements Plugin {
   @NotNull
   @Override
   public Logger getLogger() {
-    throw new UnsupportedOperationException();
+    return InternalShirukaPlugin.log;
   }
 
   @NotNull

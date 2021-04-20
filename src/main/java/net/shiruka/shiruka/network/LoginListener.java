@@ -25,7 +25,27 @@
 
 package net.shiruka.shiruka.network;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSObject;
+import com.nukkitx.protocol.bedrock.BedrockPacket;
+import com.nukkitx.protocol.bedrock.packet.ClientCacheStatusPacket;
+import com.nukkitx.protocol.bedrock.packet.ClientToServerHandshakePacket;
+import com.nukkitx.protocol.bedrock.packet.DisconnectPacket;
+import com.nukkitx.protocol.bedrock.packet.LoginPacket;
+import com.nukkitx.protocol.bedrock.packet.NetworkSettingsPacket;
+import com.nukkitx.protocol.bedrock.packet.PlayStatusPacket;
+import com.nukkitx.protocol.bedrock.packet.ResourcePackClientResponsePacket;
+import com.nukkitx.protocol.bedrock.packet.ResourcePackDataInfoPacket;
+import com.nukkitx.protocol.bedrock.packet.ServerToClientHandshakePacket;
+import com.nukkitx.protocol.bedrock.util.EncryptionUtils;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -42,18 +62,7 @@ import net.shiruka.shiruka.base.LoginData;
 import net.shiruka.shiruka.base.SimpleChainData;
 import net.shiruka.shiruka.config.ServerConfig;
 import net.shiruka.shiruka.entity.entities.ShirukaPlayerEntity;
-import net.shiruka.shiruka.jwt.EncryptionHandler;
-import net.shiruka.shiruka.jwt.EncryptionRequestForger;
 import net.shiruka.shiruka.language.Languages;
-import net.shiruka.shiruka.network.packets.ClientCacheStatusPacket;
-import net.shiruka.shiruka.network.packets.ClientToServerHandshakePacket;
-import net.shiruka.shiruka.network.packets.DisconnectPacket;
-import net.shiruka.shiruka.network.packets.LoginPacket;
-import net.shiruka.shiruka.network.packets.NetworkSettingsPacket;
-import net.shiruka.shiruka.network.packets.PlayStatusPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackDataInfoPacket;
-import net.shiruka.shiruka.network.packets.ResourcePackResponsePacket;
-import net.shiruka.shiruka.network.packets.ServerToClientHandshakePacket;
 import net.shiruka.shiruka.text.TranslatedTexts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +72,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @RequiredArgsConstructor
 @Log4j2
-public final class LoginListener implements PacketHandler {
+public final class LoginListener implements ShirukaPacketHandler {
 
   /**
    * the name pattern to check client's usernames.
@@ -92,7 +101,7 @@ public final class LoginListener implements PacketHandler {
    * the latest resource packet.
    */
   @Nullable
-  private ResourcePackResponsePacket latestResourcePacket;
+  private ResourcePackClientResponsePacket latestResourcePacket;
 
   /**
    * the login data.
@@ -119,38 +128,6 @@ public final class LoginListener implements PacketHandler {
   @Setter
   private ShirukaPlayerEntity wantsToJoin;
 
-  @Override
-  public void clientCacheStatus(@NotNull final ClientCacheStatusPacket packet) {
-    this.blobCacheSupport = packet.isBlobCacheSupport();
-  }
-
-  @Override
-  public void clientToServerHandshake(@NotNull final ClientToServerHandshakePacket packet) {
-    final var networkSettings = new NetworkSettingsPacket((short) 1);
-    this.networkManager.sendPacket(networkSettings);
-    this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
-    final var packInfo = Shiruka.getPackManager().getPackInfo();
-    if (packInfo instanceof ShirukaPacket) {
-      this.networkManager.sendPacket((ShirukaPacket) packInfo);
-    }
-  }
-
-  @Override
-  public void login(@NotNull final LoginPacket packet) {
-    this.latestLoginPacket = packet;
-  }
-
-  @Override
-  public void onDisconnect(@NotNull final Text disconnectMessage) {
-    // @todo #1:5m Add language support for {} lost connection: {}.
-    LoginListener.log.info("{} lost connection: {}", this.getNetworkName(), disconnectMessage.asString());
-  }
-
-  @Override
-  public void resourcePackResponse(@NotNull final ResourcePackResponsePacket packet) {
-    this.latestResourcePacket = packet;
-  }
-
   /**
    * disconnects the connection.
    *
@@ -160,7 +137,10 @@ public final class LoginListener implements PacketHandler {
     try {
       // @todo #1:5m Add language support for Disconnecting {}: {}.
       LoginListener.log.info("Disconnecting {}: {}", this.getNetworkName(), kickMessage.asString());
-      this.networkManager.sendPacket(new DisconnectPacket(kickMessage.asString(), false));
+      final var packet = new DisconnectPacket();
+      packet.setKickMessage(kickMessage.asString());
+      packet.setMessageSkipped(false);
+      this.networkManager.getClient().sendPacket(packet);
       this.networkManager.close(kickMessage);
     } catch (final Exception exception) {
       // @todo #1:5m Add language support for Error whilst disconnecting player.
@@ -179,6 +159,45 @@ public final class LoginListener implements PacketHandler {
       return this.networkManager.getSocketAddress().toString();
     }
     return this.profile + " (" + this.networkManager.getSocketAddress() + ")";
+  }
+
+  @Override
+  public boolean handle(@NotNull final ClientCacheStatusPacket packet) {
+    this.blobCacheSupport = packet.isSupported();
+    return true;
+  }
+
+  @Override
+  public boolean handle(@NotNull final ClientToServerHandshakePacket packet) {
+    final var networkSettings = new NetworkSettingsPacket();
+    networkSettings.setCompressionThreshold((short) 1);
+    this.networkManager.getClient().sendPacket(networkSettings);
+    final var playStatusPacket = new PlayStatusPacket();
+    playStatusPacket.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);
+    this.networkManager.getClient().sendPacket(playStatusPacket);
+    final var packInfo = Shiruka.getPackManager().getPackInfo();
+    if (packInfo instanceof BedrockPacket) {
+      this.networkManager.getClient().sendPacket((BedrockPacket) packInfo);
+    }
+    return true;
+  }
+
+  @Override
+  public boolean handle(@NotNull final LoginPacket packet) {
+    this.latestLoginPacket = packet;
+    return true;
+  }
+
+  @Override
+  public boolean handle(@NotNull final ResourcePackClientResponsePacket packet) {
+    this.latestResourcePacket = packet;
+    return true;
+  }
+
+  @Override
+  public void onDisconnect(@NotNull final Text disconnectMessage) {
+    // @todo #1:5m Add language support for {} lost connection: {}.
+    LoginListener.log.info("{} lost connection: {}", this.getNetworkName(), disconnectMessage.asString());
   }
 
   @Override
@@ -220,14 +239,20 @@ public final class LoginListener implements PacketHandler {
     final var protocolVersion = packet.getProtocolVersion();
     final var encodedChainData = packet.getChainData().toString();
     final var encodedSkinData = packet.getSkinData().toString();
+    final var client = this.networkManager.getClient();
     if (protocolVersion < ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-      this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD));
+      final var playStatusPacket = new PlayStatusPacket();
+      playStatusPacket.setStatus(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD);
+      client.sendPacket(playStatusPacket);
       return;
     }
     if (protocolVersion > ShirukaMain.MINECRAFT_PROTOCOL_VERSION) {
-      this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD));
+      final var playStatusPacket = new PlayStatusPacket();
+      playStatusPacket.setStatus(PlayStatusPacket.Status.LOGIN_FAILED_SERVER_OLD);
+      client.sendPacket(playStatusPacket);
       return;
     }
+    client.setPacketCodec(ShirukaMain.PROTOCOL_CODEC);
     final var internalPlugin = ShirukaServer.INTERNAL_PLUGIN;
     Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
       final var chainData = SimpleChainData.create(encodedChainData, encodedSkinData);
@@ -274,30 +299,31 @@ public final class LoginListener implements PacketHandler {
               }
             });
           }));
-        if (SimpleChainData.getKeyPair() == null) {
-          this.networkManager.sendPacket(new PlayStatusPacket(PlayStatusPacket.Status.LOGIN_SUCCESS));
+        if (!EncryptionUtils.canUseEncryption()) {
+          final var playStatusPacket = new PlayStatusPacket();
+          playStatusPacket.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);
+          client.sendPacket(playStatusPacket);
           final var packInfo = Shiruka.getPackManager().getPackInfo();
-          if (packInfo instanceof ShirukaPacket) {
-            this.networkManager.sendPacket((ShirukaPacket) packInfo);
+          if (packInfo instanceof BedrockPacket) {
+            client.sendPacket((BedrockPacket) packInfo);
           }
         } else {
           Shiruka.getScheduler().scheduleAsync(internalPlugin, () -> {
             try {
               final var publicKey = (ECPublicKey) SimpleChainData.generateKey(chainData.getPublicKey());
-              final var encryption = new EncryptionHandler(publicKey);
-              if (encryption.beginClientsideEncryption()) {
-                final var key = encryption.getKey();
-                final var iv = encryption.getIv();
-                this.networkManager.getInputProcessor().enableCrypto(key, iv);
-                final var jwt = EncryptionRequestForger.forge(encryption.serverPublic(),
-                  encryption.getServerPrivate(), encryption.getClientSalt());
-                if (jwt != null) {
-                  final var encryptionRequest = new ServerToClientHandshakePacket(jwt);
-                  this.networkManager.sendPacket(encryptionRequest, v ->
-                    this.networkManager.getOutputProcessor().enableCrypto(key, iv));
-                }
-              }
-            } catch (final Exception e) {
+              final var clientJwt = JWSObject.parse(encodedSkinData);
+              EncryptionUtils.verifyJwt(clientJwt, publicKey);
+              final var generator = KeyPairGenerator.getInstance("EC");
+              generator.initialize(new ECGenParameterSpec("secp384r1"));
+              final var serverKeyPair = generator.generateKeyPair();
+              final var token = EncryptionUtils.generateRandomToken();
+              final var encryptionKey = EncryptionUtils.getSecretKey(serverKeyPair.getPrivate(), publicKey, token);
+              client.enableEncryption(encryptionKey);
+              final var encryptionRequest = new ServerToClientHandshakePacket();
+              encryptionRequest.setJwt(EncryptionUtils.createHandshakeJwt(serverKeyPair, token).serialize());
+              client.sendPacketImmediately(encryptionRequest);
+            } catch (final NoSuchAlgorithmException | InvalidKeySpecException | ParseException | JOSEException |
+              InvalidAlgorithmParameterException | InvalidKeyException e) {
               // @todo #1:5m Add language support for Error when generating client's public key.
               LoginListener.log.fatal("Error when generating client's public key", e);
             }
@@ -312,9 +338,9 @@ public final class LoginListener implements PacketHandler {
    *
    * @param packet the packet to handle.
    */
-  private void resourcePackResponsePacket0(@NotNull final ResourcePackResponsePacket packet) {
+  private void resourcePackResponsePacket0(@NotNull final ResourcePackClientResponsePacket packet) {
     final var status = packet.getStatus();
-    final var packs = packet.getPacks();
+    final var packs = packet.getPackIds();
     final var packManager = Shiruka.getPackManager();
     switch (status) {
       case REFUSED:
@@ -333,20 +359,28 @@ public final class LoginListener implements PacketHandler {
         }
         break;
       case SEND_PACKS:
-        packs.forEach(pack -> {
-          final var optional = packManager.getPackByUniqueId(pack.getUniqueId());
+        packs.forEach(entry -> {
+          final var optional = packManager.getPackByIdVersion(entry);
           if (optional.isEmpty()) {
             this.disconnect(TranslatedTexts.RESOURCE_PACK_REASON);
             return;
           }
           final var loaded = optional.get();
-          this.networkManager.sendPacket(new ResourcePackDataInfoPacket(loaded));
+          final var dataInfoPacket = new ResourcePackDataInfoPacket();
+          dataInfoPacket.setPackId(loaded.getId());
+          dataInfoPacket.setPackVersion(loaded.getVersion().toString());
+          dataInfoPacket.setMaxChunkSize(1048576);
+          dataInfoPacket.setChunkCount(loaded.getSize() / dataInfoPacket.getMaxChunkSize());
+          dataInfoPacket.setCompressedPackSize(loaded.getSize());
+          dataInfoPacket.setHash(loaded.getHash());
+          dataInfoPacket.setType(loaded.getType());
+          this.networkManager.getClient().sendPacket(dataInfoPacket);
         });
         break;
       case HAVE_ALL_PACKS:
         final var packStack = packManager.getPackStack();
-        if (packStack instanceof ShirukaPacket) {
-          this.networkManager.sendPacket((ShirukaPacket) packStack);
+        if (packStack instanceof BedrockPacket) {
+          this.networkManager.getClient().sendPacket((BedrockPacket) packStack);
         }
         break;
       default:

@@ -30,15 +30,24 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import net.shiruka.api.registry.Resourced;
 import net.shiruka.api.world.World;
 import net.shiruka.api.world.WorldManager;
+import net.shiruka.shiruka.ShirukaServer;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * a simple implementation for {@link WorldManager}.
  */
+@RequiredArgsConstructor
 public final class SimpleWorldManager implements WorldManager {
+
+  /**
+   * the server.
+   */
+  @NotNull
+  private final ShirukaServer server;
 
   /**
    * the worlds by {@link String}.

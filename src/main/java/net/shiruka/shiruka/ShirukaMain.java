@@ -26,11 +26,11 @@
 package net.shiruka.shiruka;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.whirvis.jraknet.identifier.MinecraftIdentifier;
-import com.whirvis.jraknet.server.RakNetServer;
+import com.nukkitx.protocol.bedrock.BedrockPacketCodec;
+import com.nukkitx.protocol.bedrock.BedrockServer;
+import com.nukkitx.protocol.bedrock.v431.Bedrock_v431;
 import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
-import io.gomint.leveldb.LibraryLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -99,6 +99,11 @@ public final class ShirukaMain {
   public static final String MINECRAFT_VERSION = "1.16.220";
 
   /**
+   * the protocol codec.
+   */
+  public static final BedrockPacketCodec PROTOCOL_CODEC = Bedrock_v431.V431_CODEC;
+
+  /**
    * the start time.
    */
   public static final AtomicLong START_TIME = new AtomicLong();
@@ -122,8 +127,8 @@ public final class ShirukaMain {
     AsyncCatcher.server = server;
     Shiruka.setServer(server);
     Runtime.getRuntime().addShutdownHook(new ShirukaShutdownThread(server));
-    socket.addListener(server);
-    socket.start();
+    socket.setHandler(server);
+    server.startServer();
   };
 
   /**
@@ -254,7 +259,6 @@ public final class ShirukaMain {
       System.setErr(IoBuilder.forLogger(rootLogger).setLevel(Level.WARN).buildPrintStream());
       ShirukaMain.loadFilesAndDirectories(parsed);
       ShirukaMain.serverLocale = Languages.startSequence(parsed.valueOf(ShirukaConsoleParser.LOCALE));
-      ShirukaMain.loadSomeNativeFiles();
       final var thread = new Thread(ShirukaMain.SERVER_RUNNABLE, "Server thread");
       thread.setUncaughtExceptionHandler((t, e) -> JiraExceptionCatcher.serverException(e));
       thread.setPriority(Thread.NORM_PRIORITY + 2);
@@ -268,17 +272,10 @@ public final class ShirukaMain {
    * @return a newly created server socket.
    */
   @NotNull
-  private static RakNetServer createSocket() {
-    final var ip = ServerConfig.ip;
-    final var port = ServerConfig.port;
-    final var gameMode = ServerConfig.gameMode;
-    final var maxPlayers = ServerConfig.maxPlayers;
-    final var motd = ServerConfig.motd;
-    final var worldName = ServerConfig.defaultWorldName;
-    final var identifier = new MinecraftIdentifier(motd, ShirukaMain.MINECRAFT_PROTOCOL_VERSION,
-      ShirukaMain.MINECRAFT_VERSION, 0, maxPlayers, 0L, worldName, gameMode);
-    final var socket = new RakNetServer(new InetSocketAddress(ip, port), maxPlayers, identifier);
-    identifier.setServerGloballyUniqueId(socket.getGlobalUniqueId());
+  private static BedrockServer createSocket() {
+    final var socket = new BedrockServer(new InetSocketAddress(ServerConfig.ip, ServerConfig.port),
+      Runtime.getRuntime().availableProcessors());
+    socket.getRakNet().setMaxConnections(ServerConfig.maxPlayers);
     return socket;
   }
 
@@ -380,15 +377,5 @@ public final class ShirukaMain {
     ShirukaMain.config(ShirukaMain.ipBans, new IpBanConfig());
     ShirukaMain.config(ShirukaMain.profileBans, new ProfileBanConfig());
     ShirukaMain.config(ShirukaMain.whitelist, new WhitelistConfig());
-  }
-
-  /**
-   * loads some native files.
-   */
-  private static void loadSomeNativeFiles() throws ClassNotFoundException {
-    Class.forName("io.gomint.crypto.Processor");
-    if (!LibraryLoader.load()) {
-      throw new UnsupportedOperationException("unsupported operation system.");
-    }
   }
 }

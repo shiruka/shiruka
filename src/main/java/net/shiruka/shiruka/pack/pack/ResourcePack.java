@@ -25,6 +25,7 @@
 
 package net.shiruka.shiruka.pack.pack;
 
+import com.nukkitx.protocol.bedrock.data.ResourcePackType;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import lombok.Getter;
@@ -32,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 import net.shiruka.api.pack.Pack;
 import net.shiruka.api.pack.PackLoader;
 import net.shiruka.api.pack.PackManifest;
-import net.shiruka.api.pack.ResourcePackType;
 import org.jetbrains.annotations.NotNull;
 
 /**

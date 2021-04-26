@@ -122,7 +122,7 @@
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-json</artifactId>
-      <version>5.15.2</version>
+      <version>5.16.1</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jopt-simple</groupId>

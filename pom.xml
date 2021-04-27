@@ -117,7 +117,7 @@
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-yaml</artifactId>
-      <version>5.16.1</version>
+      <version>5.17.0</version>
     </dependency>
     <dependency>
       <groupId>io.github.portlek</groupId>
@@ -167,7 +167,7 @@
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.8.1</version>
+      <version>9.9</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

@@ -31,6 +31,7 @@ import io.github.portlek.configs.annotation.Comment;
 import io.github.portlek.configs.annotation.Route;
 import io.github.portlek.configs.configuration.ConfigurationSection;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Locale;
 import net.shiruka.shiruka.language.Languages;
@@ -73,11 +74,10 @@ public final class ServerConfig implements ConfigHolder {
   public static String gameMode = "survival";
 
   /**
-   * server's ip address.
+   * the server's adress.
    */
-  @Comment("server's ip address.")
-  @Route("ip")
-  public static String ip = "127.0.0.1";
+  @Comment("server's ip address with port.")
+  public static InetSocketAddress address = new InetSocketAddress("127.0.0.1", 19132);
 
   /**
    * the loaded languages.
@@ -104,7 +104,6 @@ public final class ServerConfig implements ConfigHolder {
    * the description message shown in the server list.
    */
   @Comment("the description message shown in the server list.")
-  @Route("motd")
   public static String motd = "Shiru ka server";
 
   /**
@@ -120,13 +119,6 @@ public final class ServerConfig implements ConfigHolder {
   @Comment("Ops will able to join the server which is full.")
   @Route("ops-pass-player-limit")
   public static boolean opsPassPlayerLimit = true;
-
-  /**
-   * server's ipv4 port.
-   */
-  @Comment("server's port.")
-  @Route("port")
-  public static int port = 19132;
 
   /**
    * saves the user cache on stop only.

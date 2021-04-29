@@ -564,6 +564,13 @@
           <section>
             <rule>
               <match>
+                <NAME>modules</NAME>
+              </match>
+            </rule>
+          </section>
+          <section>
+            <rule>
+              <match>
                 <NAME>build</NAME>
               </match>
             </rule>
@@ -586,6 +593,20 @@
             <rule>
               <match>
                 <NAME>dependencies</NAME>
+              </match>
+            </rule>
+          </section>
+          <section>
+            <rule>
+              <match>
+                <NAME>profiles</NAME>
+              </match>
+            </rule>
+          </section>
+          <section>
+            <rule>
+              <match>
+                <NAME>dependencyManager</NAME>
               </match>
             </rule>
           </section>

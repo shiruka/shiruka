@@ -33,7 +33,6 @@ import io.github.portlek.configs.ConfigHolder;
 import io.github.portlek.configs.ConfigLoader;
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -273,8 +272,7 @@ public final class ShirukaMain {
    */
   @NotNull
   private static BedrockServer createSocket() {
-    final var socket = new BedrockServer(new InetSocketAddress(ServerConfig.ip, ServerConfig.port),
-      Runtime.getRuntime().availableProcessors());
+    final var socket = new BedrockServer(ServerConfig.address, Runtime.getRuntime().availableProcessors());
     socket.getRakNet().setMaxConnections(ServerConfig.maxPlayers);
     return socket;
   }

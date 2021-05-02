@@ -46,7 +46,6 @@ import net.shiruka.api.plugin.Plugin;
 import net.shiruka.api.scheduler.Task;
 import net.shiruka.api.scheduler.TaskWorker;
 import net.shiruka.shiruka.ShirukaServer;
-import org.cactoos.map.MapEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -158,7 +157,7 @@ public class SimpleScheduler implements ShirukaScheduler {
     } else {
       finalPeriod = period;
     }
-    return new MapEntry<>(finalPeriod, finalDelay);
+    return Map.entry(finalPeriod, finalDelay);
   }
 
   @NotNull

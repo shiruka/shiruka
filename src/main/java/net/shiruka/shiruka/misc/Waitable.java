@@ -25,9 +25,9 @@
 
 package net.shiruka.shiruka.misc;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
-import org.cactoos.Scalar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +43,7 @@ public final class Waitable<T> implements Runnable {
    * the supplier.
    */
   @NotNull
-  private final Scalar<T> scalar;
+  private final Callable<T> scalar;
 
   /**
    * the cache.
@@ -91,7 +91,7 @@ public final class Waitable<T> implements Runnable {
       this.status = Status.RUNNING;
     }
     try {
-      this.cache = this.scalar.value();
+      this.cache = this.scalar.call();
     } catch (final Throwable t) {
       this.throwable = t;
     } finally {

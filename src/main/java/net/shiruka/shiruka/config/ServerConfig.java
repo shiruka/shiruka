@@ -44,6 +44,12 @@ import org.jetbrains.annotations.NotNull;
 public final class ServerConfig implements ConfigHolder {
 
   /**
+   * the server's adress.
+   */
+  @Comment("server's ip address with port.")
+  public static InetSocketAddress address = new InetSocketAddress("127.0.0.1", 19132);
+
+  /**
    * the amount of bytes before compressing packets.
    * <p>
    * use -1 to disable.
@@ -72,12 +78,6 @@ public final class ServerConfig implements ConfigHolder {
   @Comment("Shiru ka server's game mode.")
   @Route("game-mode")
   public static String gameMode = "survival";
-
-  /**
-   * the server's adress.
-   */
-  @Comment("server's ip address with port.")
-  public static InetSocketAddress address = new InetSocketAddress("127.0.0.1", 19132);
 
   /**
    * the loaded languages.

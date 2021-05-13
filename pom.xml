@@ -116,7 +116,7 @@
     <dependency>
       <groupId>io.github.portlek</groupId>
       <artifactId>configs-yaml</artifactId>
-      <version>5.17.0</version>
+      <version>5.17.5</version>
     </dependency>
     <dependency>
       <groupId>io.github.portlek</groupId>

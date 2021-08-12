@@ -62,6 +62,7 @@ public final class ShirukaBootstrap {
 
           @Override
           public void debug(final String message, final Object... args) {
+            ShirukaBootstrap.LOGGER.config(MessageFormat.format(message, args));
           }
         })
         .downloadDirectoryPath(libs)

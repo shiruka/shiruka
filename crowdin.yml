@@ -1,3 +1,0 @@
-files:
-  - source: /src/main/resources/lang/source.properties
-    translation: /src/main/resources/lang/shiruka/%locale_with_underscore%.%file_extension%

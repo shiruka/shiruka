@@ -155,9 +155,8 @@ public final class ShirukaFormatter extends LogEventPatternConverter {
   public void format(final LogEvent event, final StringBuilder toAppendTo) {
     final var start = toAppendTo.length();
     this.formatters.forEach(formatter -> formatter.format(event, toAppendTo));
-    if (toAppendTo.length() == start) {
-      return;
+    if (toAppendTo.length() != start) {
+      ShirukaFormatter.format(toAppendTo.substring(start), toAppendTo, start, this.ansi);
     }
-    ShirukaFormatter.format(toAppendTo.substring(start), toAppendTo, start, this.ansi);
   }
 }

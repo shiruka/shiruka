@@ -4,8 +4,6 @@ import io.github.slimjar.app.builder.ApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.logging.LogManager;
@@ -46,11 +44,7 @@ public final class ShirukaBootstrap {
    */
   @SneakyThrows
   private static void loadDependencies() {
-    final var here = Path.of(System.getProperty("user.dir"));
-    final var libs = here.resolve("libs");
-    if (Files.notExists(libs)) {
-      Files.createDirectories(libs);
-    }
+    final var libs = Paths.getLibsPath();
     ShirukaBootstrap.LOGGER.info("Loading dependencies, this might take a while...");
     try {
       ApplicationBuilder.appending("Shiru ka")

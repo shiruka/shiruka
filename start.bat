@@ -1,1 +1,1 @@
-java -jar Shiruka.jar
+java -jar Shiruka.jar --locale=en_US

@@ -1,5 +1,3 @@
-# @todo #1:60m Server is running but players can't connect or ping.
-
 FROM alpine/git
 RUN mkdir -p /opt
 WORKDIR /opt

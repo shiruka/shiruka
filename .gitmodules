@@ -1,0 +1,3 @@
+[submodule "language"]
+	path = src/main/resource/language
+	url = https://github.com/shiruka/language

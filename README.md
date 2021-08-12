@@ -8,5 +8,5 @@
 /
   <a href="https://crowdin.com/project/shiru-ka">Translation</a>
 /
-  <a href="https://nightly.link/shiruka/shiruka/workflows/build/master/shiruka.zip">Download</a>
+  <a href="https://github.com/shiruka/shiruka/releases/latest/download/Shiruka.jar">Download</a>
 </h3>

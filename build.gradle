@@ -87,5 +87,6 @@ shadowJar {
   dependsOn checkstyleMain
   archiveBaseName.set("Shiruka")
   archiveClassifier.set(null)
-  archiveVersion.set(findProperty("version"))
+  archiveVersion.convention(null);
+  archiveVersion.set(null)
 }

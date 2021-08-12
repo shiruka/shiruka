@@ -1,5 +1,6 @@
 --source=.
 --verbose
 --exclude target/**/*
+--exclude build/**/*
 --exclude .idea/**/*
 --exclude src/main/resources/lang/**/*

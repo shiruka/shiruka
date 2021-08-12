@@ -37,3 +37,10 @@ jobs:
 
       - run: |
           [[ "${{ github.event.release.tag_name }}" =~ ^[0-9]+(\.[0-9]+)*$ ]] || exit -1
+          chmod +x gradlew
+          ./gradlew build
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          files:
+            ./build/libs/Shiruka.jar

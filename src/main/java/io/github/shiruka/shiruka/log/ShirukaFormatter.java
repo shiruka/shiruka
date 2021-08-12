@@ -108,10 +108,9 @@ public final class ShirukaFormatter extends LogEventPatternConverter {
       AbstractPatternConverter.LOGGER.error("No pattern supplied on shirukaFormatting");
       return null;
     }
-    final var parser = PatternLayout.createPatternParser(config);
-    final var formatters = parser.parse(options[0]);
-    final var strip = options.length > 1 && "strip".equals(options[1]);
-    return new ShirukaFormatter(formatters, strip);
+    return new ShirukaFormatter(
+      PatternLayout.createPatternParser(config).parse(options[0]),
+      options.length > 1 && "strip".equals(options[1]));
   }
 
   /**
@@ -131,12 +130,11 @@ public final class ShirukaFormatter extends LogEventPatternConverter {
     }
     result.setLength(start + next);
     var pos = next;
-    int format;
     do {
       if (pos != next) {
         result.append(message, pos, next);
       }
-      format = ShirukaFormatter.LOOKUP.indexOf(message.charAt(next + 1));
+      final var format = ShirukaFormatter.LOOKUP.indexOf(message.charAt(next + 1));
       if (format != -1) {
         if (ansi) {
           result.append(ShirukaFormatter.ANSI_CODES[format]);

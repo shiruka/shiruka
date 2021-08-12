@@ -44,6 +44,6 @@ jobs:
 
       - run: |
           chmod +x gradlew
-          ./gradlew shadowJar
+          ./gradlew build
 
       - uses: github/codeql-action/analyze@v1

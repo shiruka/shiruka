@@ -83,6 +83,12 @@ test {
   useJUnitPlatform()
 }
 
+artifacts {
+  archives sourcesJar
+  archives javadocJar
+  archives shadowJar
+}
+
 shadowJar {
   dependsOn checkstyleMain
   archiveBaseName.set("Shiruka")

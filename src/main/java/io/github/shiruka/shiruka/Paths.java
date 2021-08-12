@@ -3,29 +3,33 @@ package io.github.shiruka.shiruka;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * an utility class that contains constant paths.
  */
-@UtilityClass
-class Paths {
+final class Paths {
 
   /**
    * the here.
    */
-  private final String HERE = System.getProperty("user.dir");
+  private static final String HERE = System.getProperty("user.dir");
 
   /**
    * the here path.
    */
-  private final Path HERE_PATH = Path.of(Paths.HERE);
+  private static final Path HERE_PATH = Path.of(Paths.HERE);
 
   /**
    * the libs path.
    */
-  private final Path LIBS_PATH = Paths.HERE_PATH.resolve("libs");
+  private static final Path LIBS_PATH = Paths.HERE_PATH.resolve("libs");
+
+  /**
+   * ctor.
+   */
+  private Paths() {
+  }
 
   /**
    * obtains the libs path.
@@ -34,7 +38,7 @@ class Paths {
    */
   @NotNull
   @SneakyThrows
-  Path getLibsPath() {
+  static Path getLibsPath() {
     if (Files.notExists(Paths.LIBS_PATH)) {
       Files.createDirectories(Paths.LIBS_PATH);
     }

@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import lombok.SneakyThrows;
 
 /**
@@ -41,7 +41,7 @@ public final class ShirukaBootstrap {
     if (Files.notExists(libs)) {
       Files.createDirectories(libs);
     }
-    final var logger = LogManager.getLogManager().getLogger("Shiru ka");
+    final var logger = Logger.getLogger("Shiru ka");
     logger.info("Loading dependencies, this might take a while...");
     try {
       ApplicationBuilder.appending("InfumiaLibrary")

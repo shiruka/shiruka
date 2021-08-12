@@ -46,6 +46,9 @@ repositories {
   maven {
     url "https://jitpack.io"
   }
+  maven {
+    url "https://repo.vshnv.tech/releases/"
+  }
   mavenLocal()
 }
 
@@ -53,7 +56,10 @@ dependencies {
   // Api
   implementation "io.github.shiruka:api:3.0.4"
 
-  // Implementation
+  // Implmenetation
+  implementation "io.github.slimjar:slimjar:1.2.5"
+
+  // Slim
   slim "it.unimi.dsi:fastutil:8.5.4"
   slim "com.lmax:disruptor:3.4.4"
   slim "com.google.inject:guice:5.0.1"

@@ -3,7 +3,6 @@ package io.github.shiruka.shiruka;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.SneakyThrows;
-import lombok.experimental.PackagePrivate;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 

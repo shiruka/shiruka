@@ -50,7 +50,7 @@ repositories {
 
 dependencies {
   // Api
-  implementation "io.github.shiruka:api:3.0.3"
+  implementation "io.github.shiruka:api:3.0.4"
 
   // Implementation
   implementation "it.unimi.dsi:fastutil:8.5.4"

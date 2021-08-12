@@ -3,12 +3,14 @@ package io.github.shiruka.shiruka;
 import io.github.shiruka.api.Provider;
 import io.github.shiruka.api.Server;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * a class that represents Shiru ka server.
  */
+@Accessors(fluent = true)
 public final class ShirukaServer implements Server {
 
   /**

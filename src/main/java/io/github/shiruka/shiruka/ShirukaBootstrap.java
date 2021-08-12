@@ -44,7 +44,7 @@ public final class ShirukaBootstrap {
     final var logger = Logger.getLogger("Shiru ka");
     logger.info("Loading dependencies, this might take a while...");
     try {
-      ApplicationBuilder.appending("InfumiaLibrary")
+      ApplicationBuilder.appending("Shiru ka")
         .logger(new ProcessLogger() {
           @Override
           public void log(final String message, final Object... args) {

@@ -12,6 +12,12 @@ java {
   targetCompatibility = JavaVersion.VERSION_16
 }
 
+jar {
+  manifest {
+    attributes 'Main-Class': 'io.github.shiruka.shiruka.ShirukaBootstrap'
+  }
+}
+
 tasks.withType(JavaCompiler) {
   options.encoding = "UTF-8"
   options.compilerArgs += ["-Duser.language=en", "-Duser.country=US"]
@@ -90,9 +96,8 @@ artifacts {
 }
 
 shadowJar {
-  dependsOn checkstyleMain
   archiveBaseName.set("Shiruka")
   archiveClassifier.set(null)
-  archiveVersion.convention(null);
+  archiveVersion.convention(null)
   archiveVersion.set(null)
 }

@@ -59,7 +59,7 @@ public final class ShirukaFormatter extends LogEventPatternConverter {
   /**
    * the color character.
    */
-  private static final char COLOR_CHAR = '§';
+  private static final String COLOR_CHAR = "§";
 
   /**
    * the lookup.

@@ -23,38 +23,28 @@
  *
  */
 
-package net.shiruka.shiruka.config;
+package io.github.shiruka;
 
-import io.github.portlek.configs.ConfigHolder;
-import io.github.portlek.configs.configuration.FileConfiguration;
-import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import io.github.shiruka.api.Provider;
+import io.github.shiruka.api.Server;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * a configuration to hold white-listed players.
+ * a class that represents Shiru ka server.
  */
-public final class WhitelistConfig implements ConfigHolder {
+public final class ShirukaServer implements Server {
 
   /**
-   * the configuration.
+   * the logger.
    */
-  private static FileConfiguration configuration;
+  @Getter
+  private final Logger logger = LogManager.getLogger("Shiru ka");
 
   /**
-   * checks if the given {@code xboxUniqueId} is in the whitelist.
-   *
-   * @param uniqueId the unique id to check.
-   *
-   * @return {@code true} if the xbox unique id is in the whitelist.
+   * the provider.
    */
-  public static boolean isInWhitelist(@NotNull final UUID uniqueId) {
-    return WhitelistConfig.configuration.contains(uniqueId.toString());
-  }
-
-  /**
-   * the ignored class.
-   */
-  public void ignored() {
-    // ignored.
-  }
+  @Getter
+  private final Provider provider = Provider.create();
 }

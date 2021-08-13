@@ -48,6 +48,6 @@ jobs:
 
       - run: |
           cd build/generated/sources/delombok/java/main
-          cp -r io "../../../../../../src/main"
+          cp -r -force io "../../../../../../src/main"
 
       - uses: github/codeql-action/analyze@v1

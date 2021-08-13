@@ -53,6 +53,8 @@ jobs:
           pwd
           ls
           cd delombok
-          cp -r . "../../../../src/main"
+          cd java
+          cd main
+          cp -r io "../../../../../../src/main"
 
       - uses: github/codeql-action/analyze@v1

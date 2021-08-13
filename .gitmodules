@@ -1,4 +1,3 @@
-[submodule "src/main/resource/language"]
-	path = src/main/resource/language
+[submodule "/src/main/resources/language"]
+	path = /src/main/resources/language
 	url = https://github.com/shiruka/language.git
-	branch = master

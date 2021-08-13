@@ -35,6 +35,7 @@ jobs:
           cd generated
           cd sources
           pwd
+          ls
           cd delombok
           cp -r . "../../../../src/main"
 

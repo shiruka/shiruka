@@ -1,6 +1,7 @@
 plugins {
   id "java"
   id "checkstyle"
+  id "io.freefair.lombok" version "6.1.0"
   id "com.github.johnrengelman.shadow" version "7.0.0"
   id "io.github.slimjar" version "1.2.2"
   id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
@@ -63,7 +64,6 @@ dependencies {
   slim "it.unimi.dsi:fastutil:8.5.4"
   slim "com.lmax:disruptor:3.4.4"
   slim "com.google.inject:guice:5.0.1"
-  slim "org.projectlombok:lombok:1.18.20"
   slim "org.jetbrains:annotations:22.0.0"
   slim "com.google.guava:guava:30.1.1-jre"
   slim "org.apache.logging.log4j:log4j-core:2.14.1"
@@ -85,7 +85,6 @@ dependencies {
   slim "org.apache.logging.log4j:log4j-iostreams:2.14.1"
 
   // Processor
-  annotationProcessor "org.projectlombok:lombok:1.18.20"
   annotationProcessor "org.jetbrains:annotations:21.0.1"
 
   // Test

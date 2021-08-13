@@ -30,4 +30,11 @@ jobs:
 
       - uses: github/codeql-action/autobuild@v1
 
+      - run: |
+          cd build
+          cd generated
+          cd sources
+          cd delombok
+          cp -r . "../../../../src/main"
+
       - uses: github/codeql-action/analyze@v1

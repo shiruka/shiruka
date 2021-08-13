@@ -47,14 +47,7 @@ jobs:
           ./gradlew clean build
 
       - run: |
-          cd build
-          cd generated
-          cd sources
-          pwd
-          ls
-          cd delombok
-          cd java
-          cd main
+          cd build/generated/sources/delombok/java/main
           cp -r io "../../../../../../src/main"
 
       - uses: github/codeql-action/analyze@v1

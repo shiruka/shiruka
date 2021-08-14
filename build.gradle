@@ -55,7 +55,7 @@ repositories {
 
 dependencies {
   // Api
-  implementation "io.github.shiruka:api:3.0.5"
+  implementation "io.github.shiruka:api:3.0.6"
 
   // Implmenetation
   implementation "io.github.slimjar:slimjar:1.2.5"

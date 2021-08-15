@@ -7,18 +7,14 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import lombok.SneakyThrows;
+import lombok.extern.java.Log;
 
 /**
  * a class that represents bootstrap for running the Shiru ka.
  */
+@Log(topic = "Shiru ka")
 public final class ShirukaBootstrap {
-
-  /**
-   * the java logger.
-   */
-  private static final Logger LOGGER = Logger.getLogger("Shiru ka");
 
   /**
    * ctor.
@@ -45,26 +41,26 @@ public final class ShirukaBootstrap {
   @SneakyThrows
   private static void loadDependencies() {
     final var libs = Paths.getLibsPath();
-    ShirukaBootstrap.LOGGER.info("Loading dependencies, this might take a while...");
+    ShirukaBootstrap.log.info("Loading dependencies, this might take a while...");
     try {
       ApplicationBuilder.appending("Shiru ka")
         .logger(new ProcessLogger() {
           @Override
           public void log(final String message, final Object... args) {
-            ShirukaBootstrap.LOGGER.info(MessageFormat.format(message, args));
+            ShirukaBootstrap.log.info(MessageFormat.format(message, args));
           }
 
           @Override
           public void debug(final String message, final Object... args) {
-            ShirukaBootstrap.LOGGER.config(MessageFormat.format(message, args));
+            ShirukaBootstrap.log.config(MessageFormat.format(message, args));
           }
         })
         .downloadDirectoryPath(libs)
         .build();
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();
-      ShirukaBootstrap.LOGGER.warning("Shiru ka failed to load its dependencies correctly!");
-      ShirukaBootstrap.LOGGER.warning("This error should be reported at https://github.com/shiruka/shiruka/issues");
+      ShirukaBootstrap.log.warning("Shiru ka failed to load its dependencies correctly!");
+      ShirukaBootstrap.log.warning("This error should be reported at https://github.com/shiruka/shiruka/issues");
     }
   }
 }

@@ -6,9 +6,17 @@ import tr.com.infumia.infumialib.transformer.TransformedObject;
 import tr.com.infumia.infumialib.transformer.TransformerPool;
 import tr.com.infumia.infumialib.transformer.resolvers.Snakeyaml;
 
+/**
+ * a class that represents Shiru ka's config file.
+ */
 final class Config extends TransformedObject {
 
-  public static void loadConfig(@NotNull Path folder) {
+  /**
+   * loads the config.
+   *
+   * @param folder the folder to load.
+   */
+  public static void loadConfig(@NotNull final Path folder) {
     TransformerPool.create(new Config())
       .withFile(folder.resolve("shiruka.yml"))
       .withResolver(new Snakeyaml())

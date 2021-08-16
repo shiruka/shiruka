@@ -2,6 +2,7 @@ package io.github.shiruka.shiruka;
 
 import io.github.shiruka.api.Provider;
 import io.github.shiruka.api.Server;
+import io.github.shiruka.shiruka.event.ShirukaEventManager;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.logging.log4j.LogManager;
@@ -24,4 +25,17 @@ public final class ShirukaServer implements Server {
    */
   @Getter
   private final Provider provider = Provider.create();
+
+  /**
+   * starts the server.
+   */
+  void startServer() {
+  }
+
+  /**
+   * registers default providers.
+   */
+  private void registerDefaultProviders() {
+    this.provider.register(new ShirukaEventManager());
+  }
 }

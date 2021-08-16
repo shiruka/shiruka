@@ -33,6 +33,8 @@ public final class ShirukaBootstrap {
     LogManager.getLogManager().readConfiguration(
       ShirukaBootstrap.class.getResourceAsStream("/java.logger.properties"));
     ShirukaBootstrap.loadDependencies();
+    final var server = new ShirukaServer();
+    server.startServer();
   }
 
   /**

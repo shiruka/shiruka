@@ -67,7 +67,7 @@ dependencies {
   slim "org.jetbrains:annotations:22.0.0"
   slim "com.google.guava:guava:30.1.1-jre"
   slim "org.apache.logging.log4j:log4j-core:2.14.1"
-  slim "com.github.Infumia.InfumiaLib:InfumiaCommon:2.3.8"
+  slim "com.github.Infumia.InfumiaLib:InfumiaCommon:2.3.9"
   slim "com.fasterxml.jackson.core:jackson-databind:2.12.4"
   slim "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4"
   slim "net.sf.jopt-simple:jopt-simple:5.0.4"

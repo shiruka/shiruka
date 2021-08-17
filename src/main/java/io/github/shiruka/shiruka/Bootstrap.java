@@ -3,15 +3,12 @@ package io.github.shiruka.shiruka;
 import io.github.slimjar.app.builder.ApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.Locale;
 import java.util.logging.LogManager;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
-import picocli.CommandLine;
 
 /**
  * a class that represents bootstrap for running the Shiru ka.
@@ -35,13 +32,9 @@ public final class Bootstrap {
   public static void main(final String[] args) throws IOException {
     Constants.printArt();
     LogManager.getLogManager().readConfiguration(
-      Bootstrap.class.getResourceAsStream("java.logger.properties"));
+      Bootstrap.class.getResourceAsStream("/java.logger.properties"));
     Bootstrap.loadDependencies();
-    final var exitCode = new CommandLine(Console.class)
-      .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
-      .registerConverter(Locale.class, new Console.LocaleConverter())
-      .execute(args);
-    System.exit(exitCode);
+    Console.init(args);
   }
 
   /**

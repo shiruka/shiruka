@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 
@@ -36,6 +37,19 @@ final class Console implements Runnable {
   @Nullable
   @CommandLine.Option(names = {"-l", "--lang"}, description = "Shiru ka language.", defaultValue = "en_US")
   private Locale lang;
+
+  /**
+   * initiate the console commands.
+   *
+   * @param args the args to initiate.
+   */
+  static void init(@NotNull final String[] args) {
+    final var exitCode = new picocli.CommandLine(Console.class)
+      .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
+      .registerConverter(Locale.class, new Console.LocaleConverter())
+      .execute(args);
+    System.exit(exitCode);
+  }
 
   @Override
   public void run() {

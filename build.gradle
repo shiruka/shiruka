@@ -82,8 +82,6 @@ dependencies {
   slim 'io.netty:netty-all:4.1.67.Final'
   slim "org.jetbrains:annotations:22.0.0"
   slim "com.google.guava:guava:30.1.1-jre"
-  slim "com.google.guava:guava:30.1.1-jre"
-  slim 'com.nimbusds:nimbus-jose-jwt:9.12.1'
   slim "net.sf.jopt-simple:jopt-simple:5.0.4"
   slim "org.jline:jline-terminal-jansi:3.20.0"
   slim "org.apache.logging.log4j:log4j-core:2.14.1"

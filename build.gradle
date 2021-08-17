@@ -5,6 +5,7 @@ plugins {
   id "com.github.johnrengelman.shadow" version "7.0.0"
   id "io.github.slimjar" version "1.2.2"
   id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
+  id "net.kyori.blossom" version "1.2.0"
 }
 
 group "io.github.shiruka"
@@ -16,7 +17,7 @@ java {
 
 jar {
   manifest {
-    attributes 'Main-Class': 'io.github.shiruka.shiruka.ShirukaBootstrap'
+    attributes 'Main-Class': 'io.github.shiruka.shiruka.Bootstrap'
   }
 }
 
@@ -42,6 +43,11 @@ checkstyle {
   checkstyleTest.enabled = false
 }
 
+blossom {
+  def constants = "src/main/java/io/github/shiruka/shiruka/Constants.java"
+  replaceToken("@version@", project.version, constants)
+}
+
 repositories {
   mavenCentral()
   maven {
@@ -61,18 +67,19 @@ dependencies {
   implementation "io.github.slimjar:slimjar:1.2.5"
 
   // Slim
-  slim "com.lmax:disruptor:3.4.4"
   slim "org.jline:jline:3.20.0"
   slim "com.lmax:disruptor:3.4.4"
+  slim "com.lmax:disruptor:3.4.4"
+  slim "info.picocli:picocli:4.6.1"
   slim "it.unimi.dsi:fastutil:8.5.4"
   slim "com.google.inject:guice:5.0.1"
   slim "org.jline:jline-reader:3.20.0"
   slim "org.jline:jline-console:3.20.0"
-  slim "io.netty:netty-all:4.1.66.Final"
+  slim 'io.netty:netty-all:4.1.67.Final'
   slim "org.jetbrains:annotations:22.0.0"
   slim "com.google.guava:guava:30.1.1-jre"
-  slim "com.nimbusds:nimbus-jose-jwt:9.12"
   slim "com.google.guava:guava:30.1.1-jre"
+  slim 'com.nimbusds:nimbus-jose-jwt:9.12.1'
   slim "net.sf.jopt-simple:jopt-simple:5.0.4"
   slim "org.jline:jline-terminal-jansi:3.20.0"
   slim "org.apache.logging.log4j:log4j-core:2.14.1"
@@ -85,7 +92,7 @@ dependencies {
   slim "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4"
 
   // Processor
-  annotationProcessor "org.jetbrains:annotations:21.0.1"
+  annotationProcessor 'org.jetbrains:annotations:22.0.0'
 
   // Test
   testImplementation "org.junit.jupiter:junit-jupiter:5.7.2"

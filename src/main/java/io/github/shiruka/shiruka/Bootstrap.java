@@ -3,23 +3,26 @@ package io.github.shiruka.shiruka;
 import io.github.slimjar.app.builder.ApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.logging.LogManager;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
+import picocli.CommandLine;
 
 /**
  * a class that represents bootstrap for running the Shiru ka.
  */
 @Log(topic = "Shiru ka")
-public final class ShirukaBootstrap {
+public final class Bootstrap {
 
   /**
    * ctor.
    */
-  private ShirukaBootstrap() {
+  private Bootstrap() {
   }
 
   /**
@@ -30,11 +33,15 @@ public final class ShirukaBootstrap {
    * @throws IOException if something goes wrong when reading property files.
    */
   public static void main(final String[] args) throws IOException {
+    Constants.printArt();
     LogManager.getLogManager().readConfiguration(
-      ShirukaBootstrap.class.getResourceAsStream("/java.logger.properties"));
-    ShirukaBootstrap.loadDependencies();
-    final var server = new ShirukaServer();
-    server.startServer();
+      Bootstrap.class.getResourceAsStream("java.logger.properties"));
+    Bootstrap.loadDependencies();
+    final var exitCode = new CommandLine(Console.class)
+      .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
+      .registerConverter(Locale.class, new Console.LocaleConverter())
+      .execute(args);
+    System.exit(exitCode);
   }
 
   /**
@@ -42,27 +49,27 @@ public final class ShirukaBootstrap {
    */
   @SneakyThrows
   private static void loadDependencies() {
-    final var libs = Paths.getLibsPath();
-    ShirukaBootstrap.log.info("Loading dependencies, this might take a while...");
+    final var libs = Constants.getLibsPath();
+    Bootstrap.log.info("Loading dependencies, this might take a while...");
     try {
       ApplicationBuilder.appending("Shiru ka")
         .logger(new ProcessLogger() {
           @Override
           public void log(final String message, final Object... args) {
-            ShirukaBootstrap.log.info(MessageFormat.format(message, args));
+            Bootstrap.log.info(MessageFormat.format(message, args));
           }
 
           @Override
           public void debug(final String message, final Object... args) {
-            ShirukaBootstrap.log.config(MessageFormat.format(message, args));
+            Bootstrap.log.config(MessageFormat.format(message, args));
           }
         })
         .downloadDirectoryPath(libs)
         .build();
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();
-      ShirukaBootstrap.log.warning("Shiru ka failed to load its dependencies correctly!");
-      ShirukaBootstrap.log.warning("This error should be reported at https://github.com/shiruka/shiruka/issues");
+      Bootstrap.log.warning("Shiru ka failed to load its dependencies correctly!");
+      Bootstrap.log.warning("This error should be reported at https://github.com/shiruka/shiruka/issues");
     }
   }
 }

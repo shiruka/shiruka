@@ -68,7 +68,7 @@ dependencies {
   implementation "io.github.shiruka:api:3.0.6"
 
   // Implmenetation
-  implementation "io.github.slimjar:slimjar:1.2.5"
+  implementation "io.github.slimjar:slimjar:1.2.6"
 
   // Slim
   slim "org.jline:jline:3.20.0"

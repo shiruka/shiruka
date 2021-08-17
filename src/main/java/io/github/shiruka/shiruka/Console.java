@@ -29,7 +29,7 @@ final class Console implements Runnable {
    * the debug mode.
    */
   @Nullable
-  @CommandLine.Option(names = {"-c", "--config"}, description = "Config path.", defaultValue = "config.yml")
+  @CommandLine.Option(names = {"-c", "--config"}, description = "Config path.", defaultValue = "shiruka.yml")
   private Path configPath;
 
   /**
@@ -70,7 +70,7 @@ final class Console implements Runnable {
       context.updateLoggers();
     }
     if (this.configPath == null) {
-      Config.loadConfig(Constants.getHerePath().resolve("config.yml"));
+      Config.loadConfig(Constants.getHerePath().resolve("shiruka.yml"));
     } else {
       Config.loadConfig(Constants.getHerePath().resolve(this.configPath));
     }
@@ -78,7 +78,6 @@ final class Console implements Runnable {
       Config.setLanguage(this.lang);
     }
     Languages.init(Config.getShirukaLanguageBundle());
-    Console.log.info(Languages.getLanguageValue("language-set", Config.lang));
   }
 
   /**

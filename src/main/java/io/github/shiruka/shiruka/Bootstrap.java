@@ -58,6 +58,7 @@ public final class Bootstrap {
         })
         .downloadDirectoryPath(libs)
         .build();
+      System.out.println('\n');
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();
       System.out.println('\n');

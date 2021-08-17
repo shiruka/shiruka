@@ -7,12 +7,10 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.LogManager;
 import lombok.SneakyThrows;
-import lombok.extern.java.Log;
 
 /**
  * a class that represents bootstrap for running the Shiru ka.
  */
-@Log(topic = "Shiru ka")
 public final class Bootstrap {
 
   /**
@@ -42,7 +40,7 @@ public final class Bootstrap {
   @SneakyThrows
   private static void loadDependencies() {
     final var libs = Constants.getLibsPath();
-    Bootstrap.log.info("Loading dependencies, this might take a while...");
+    System.out.print("Loading dependencies, this might take a while.");
     try {
       ApplicationBuilder.appending("Shiru ka")
         .logger(new ProcessLogger() {
@@ -53,7 +51,6 @@ public final class Bootstrap {
 
           @Override
           public void debug(final String message, final Object... args) {
-            System.out.print('.');
           }
         })
         .downloadDirectoryPath(libs)
@@ -62,8 +59,8 @@ public final class Bootstrap {
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();
       System.out.println('\n');
-      Bootstrap.log.warning("Shiru ka failed to load its dependencies correctly!");
-      Bootstrap.log.warning("This error should be reported at https://github.com/shiruka/shiruka/issues");
+      System.out.println("Shiru ka failed to load its dependencies correctly!");
+      System.out.println("This error should be reported at https://github.com/shiruka/shiruka/issues");
     }
   }
 }

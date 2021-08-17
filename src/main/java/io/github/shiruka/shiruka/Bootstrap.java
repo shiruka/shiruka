@@ -16,11 +16,6 @@ import lombok.SneakyThrows;
 public final class Bootstrap {
 
   /**
-   * the spinner.
-   */
-  private static final String[] SPINNER = new String[]{"\u0008/", "\u0008-", "\u0008\\", "\u0008|"};
-
-  /**
    * ctor.
    */
   private Bootstrap() {
@@ -57,13 +52,14 @@ public final class Bootstrap {
     final var console = System.console();
     console.printf("|");
     final var thread = new Thread(() -> {
+      final var spinner = Constants.getSpinner();
       while (loading.get()) {
-        if (index.get() > Bootstrap.SPINNER.length) {
+        if (index.get() > spinner.length) {
           index.set(0);
         }
         try {
           Thread.sleep(100L);
-          console.printf(Bootstrap.SPINNER[index.getAndIncrement() % Bootstrap.SPINNER.length]);
+          console.printf(spinner[index.getAndIncrement() % spinner.length]);
         } catch (final InterruptedException ignored) {
         }
       }
@@ -84,8 +80,11 @@ public final class Bootstrap {
         .build();
       thread.interrupt();
       loading.set(false);
-      new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-      Runtime.getRuntime().exec("clear");
+      if (System.getProperty("os.name").startsWith("Windows")) {
+        new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+      } else {
+        Runtime.getRuntime().exec("clear");
+      }
       return true;
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();

@@ -37,6 +37,11 @@ final class Constants {
   private static final Path LIBS_PATH = Constants.HERE_PATH.resolve("libs");
 
   /**
+   * the spinner.
+   */
+  private static final String[] SPINNER = new String[]{"\u0008/", "\u0008-", "\u0008\\", "\u0008|"};
+
+  /**
    * the versions.
    */
   private static final String VERSION = "@version@";
@@ -69,6 +74,16 @@ final class Constants {
       Files.createDirectories(Constants.LIBS_PATH);
     }
     return Constants.LIBS_PATH;
+  }
+
+  /**
+   * obtains the spinner.
+   *
+   * @return spinner.
+   */
+  @NotNull
+  static String[] getSpinner() {
+    return Constants.SPINNER.clone();
   }
 
   /**

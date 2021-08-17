@@ -5,7 +5,6 @@ import io.github.slimjar.logging.ProcessLogger;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
 import java.util.logging.LogManager;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
@@ -49,18 +48,19 @@ public final class Bootstrap {
         .logger(new ProcessLogger() {
           @Override
           public void log(final String message, final Object... args) {
-            Bootstrap.log.info(MessageFormat.format(message, args));
+            System.out.print('.');
           }
 
           @Override
           public void debug(final String message, final Object... args) {
-            Bootstrap.log.config(MessageFormat.format(message, args));
+            System.out.print('.');
           }
         })
         .downloadDirectoryPath(libs)
         .build();
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();
+      System.out.println('\n');
       Bootstrap.log.warning("Shiru ka failed to load its dependencies correctly!");
       Bootstrap.log.warning("This error should be reported at https://github.com/shiruka/shiruka/issues");
     }

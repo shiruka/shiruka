@@ -18,7 +18,7 @@ final class Constants {
     ██      ██   ██ ██ ██   ██ ██    ██     ██  ██  ██   ██\s
     ███████ ███████ ██ ██████  ██    ██     █████   ███████\s
          ██ ██   ██ ██ ██   ██ ██    ██     ██  ██  ██   ██\s
-    ███████ ██   ██ ██ ██   ██  ██████      ██   ██ ██   ██\s
+    ███████ ██   ██ ██ ██   ██  ██████      ██   ██ ██   ██
     """;
 
   /**
@@ -45,6 +45,16 @@ final class Constants {
    * ctor.
    */
   private Constants() {
+  }
+
+  /**
+   * obtains the here path.
+   *
+   * @return here path.
+   */
+  @NotNull
+  static Path getHerePath() {
+    return Constants.HERE_PATH;
   }
 
   /**

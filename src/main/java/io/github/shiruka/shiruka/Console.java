@@ -1,6 +1,7 @@
 package io.github.shiruka.shiruka;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.Locale;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
@@ -28,6 +29,13 @@ final class Console implements Runnable {
    * the debug mode.
    */
   @Nullable
+  @CommandLine.Option(names = {"-c", "--config"}, description = "Config path.", defaultValue = "config.yml")
+  private Path configPath;
+
+  /**
+   * the debug mode.
+   */
+  @Nullable
   @CommandLine.Option(names = {"-d", "--debug"}, description = "Debug mode.", defaultValue = "false")
   private Boolean debug;
 
@@ -47,6 +55,7 @@ final class Console implements Runnable {
     final var exitCode = new picocli.CommandLine(Console.class)
       .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
       .registerConverter(Locale.class, new Console.LocaleConverter())
+      .registerConverter(Path.class, Path::of)
       .execute(args);
     System.exit(exitCode);
   }
@@ -59,6 +68,11 @@ final class Console implements Runnable {
         .getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
         .setLevel(Level.DEBUG);
       context.updateLoggers();
+    }
+    if (this.configPath == null) {
+      Config.loadConfig(Constants.getHerePath().resolve("config.yml"));
+    } else {
+      Config.loadConfig(Constants.getHerePath().resolve(this.configPath));
     }
     if (this.lang != null) {
       Config.setLanguage(this.lang);

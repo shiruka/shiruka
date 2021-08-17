@@ -36,6 +36,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
+  javadoc.options.encoding = "UTF-8"
   javadoc.options.tags = ["todo"]
   javadoc.options.addBooleanOption("html5", true)
   classifier "javadoc"

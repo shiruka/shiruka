@@ -1,11 +1,13 @@
 package io.github.shiruka.shiruka;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.Locale;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 
@@ -27,6 +29,13 @@ final class Console implements Runnable {
    * the debug mode.
    */
   @Nullable
+  @CommandLine.Option(names = {"-c", "--config"}, description = "Config path.", defaultValue = "shiruka.yml")
+  private Path configPath;
+
+  /**
+   * the debug mode.
+   */
+  @Nullable
   @CommandLine.Option(names = {"-d", "--debug"}, description = "Debug mode.", defaultValue = "false")
   private Boolean debug;
 
@@ -37,6 +46,20 @@ final class Console implements Runnable {
   @CommandLine.Option(names = {"-l", "--lang"}, description = "Shiru ka language.", defaultValue = "en_US")
   private Locale lang;
 
+  /**
+   * initiate the console commands.
+   *
+   * @param args the args to initiate.
+   */
+  static void init(@NotNull final String[] args) {
+    final var exitCode = new picocli.CommandLine(Console.class)
+      .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
+      .registerConverter(Locale.class, new Console.LocaleConverter())
+      .registerConverter(Path.class, Path::of)
+      .execute(args);
+    System.exit(exitCode);
+  }
+
   @Override
   public void run() {
     if (this.debug != null && this.debug) {
@@ -46,11 +69,15 @@ final class Console implements Runnable {
         .setLevel(Level.DEBUG);
       context.updateLoggers();
     }
+    if (this.configPath == null) {
+      Config.loadConfig(Constants.getHerePath().resolve("shiruka.yml"));
+    } else {
+      Config.loadConfig(Constants.getHerePath().resolve(this.configPath));
+    }
     if (this.lang != null) {
       Config.setLanguage(this.lang);
     }
     Languages.init(Config.getShirukaLanguageBundle());
-    Console.log.info(Languages.getLanguageValue("language-set", Config.lang));
   }
 
   /**

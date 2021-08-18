@@ -62,11 +62,11 @@ final class Config extends TransformedObject {
   /**
    * loads the config.
    *
-   * @param folder the folder to load.
+   * @param file the file to load.
    */
-  static void loadConfig(@NotNull final Path folder) {
+  static void loadConfig(@NotNull final Path file) {
     Config.instance = TransformerPool.create(new Config())
-      .withFile(folder.resolve("shiruka.yml"))
+      .withFile(file)
       .withResolver(new Snakeyaml());
     Config.instance.initiate();
   }

@@ -1,5 +1,6 @@
 package io.github.shiruka.shiruka;
 
+import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.text.MessageFormat;
 import java.util.Map;
@@ -60,9 +61,8 @@ public final class Languages {
    * @param bundle the bundle to initiate.
    */
   static void init(@NotNull final ResourceBundle bundle) {
-    if (Languages.instance != null) {
-      throw new IllegalStateException(Languages.getLanguageValue("cannot-initiate-twice"));
-    }
+    Preconditions.checkState(Languages.instance == null,
+      Languages.getLanguageValue("cannot-initiate-twice"));
     Languages.instance = new Languages(bundle);
   }
 

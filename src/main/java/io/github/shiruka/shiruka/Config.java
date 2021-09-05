@@ -31,32 +31,23 @@ final class Config extends TransformedObject {
   private static TransformedObject instance;
 
   /**
-   * obtains the config instance.
+   * obtains Shiru ka's language bundle.
    *
-   * @return config instance.
+   * @return Shiru ka's language bundle.
    */
   @NotNull
-  public static TransformedObject getInstance() {
-    return Objects.requireNonNull(Config.instance, "Use #loadConfig(Path) first!");
-  }
-
-  /**
-   * obtains the language bundle.
-   *
-   * @return language bundle.
-   */
-  @NotNull
-  public static ResourceBundle getShirukaLanguageBundle() {
+  static ResourceBundle getShirukaLanguageBundle() {
     return ResourceBundle.getBundle("language.shiruka.Shiruka", Config.lang);
   }
 
   /**
-   * sets the server's language.
+   * obtains Vanilla's language bundle.
    *
-   * @param lang the lang to set.
+   * @return Vanilla's language bundle.
    */
-  public static void setLanguage(@NotNull final Locale lang) {
-    Config.getInstance().set("lang", lang);
+  @NotNull
+  static ResourceBundle getVanillaLanguageBundle() {
+    return ResourceBundle.getBundle("language.vanilla.Vanilla", Config.lang);
   }
 
   /**
@@ -69,5 +60,24 @@ final class Config extends TransformedObject {
       .withFile(file)
       .withResolver(new Snakeyaml());
     Config.instance.initiate();
+  }
+
+  /**
+   * sets the server's language.
+   *
+   * @param lang the lang to set.
+   */
+  static void setLanguage(@NotNull final Locale lang) {
+    Config.getInstance().set("lang", lang);
+  }
+
+  /**
+   * obtains the config instance.
+   *
+   * @return config instance.
+   */
+  @NotNull
+  private static TransformedObject getInstance() {
+    return Objects.requireNonNull(Config.instance, "Use #loadConfig(Path) first!");
   }
 }

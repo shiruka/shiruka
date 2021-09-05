@@ -1,6 +1,5 @@
 package io.github.shiruka.shiruka;
 
-import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.text.MessageFormat;
 import java.util.Map;

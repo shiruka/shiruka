@@ -92,7 +92,7 @@ dependencies {
   slim "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5"
 
   // Processor
-  annotationProcessor 'org.jetbrains:annotations:22.0.0'
+  annotationProcessor "org.jetbrains:annotations:22.0.0"
 
   // Lombok
   compileOnly "org.projectlombok:lombok:1.18.20"

@@ -29,8 +29,6 @@ public final class Bootstrap {
    * @throws IOException if something goes wrong when reading property files.
    */
   public static void main(final String[] args) throws IOException {
-    LogManager.getLogManager().readConfiguration(
-      Bootstrap.class.getResourceAsStream("/java.logger.properties"));
     if (!Bootstrap.loadDependencies()) {
       return;
     }

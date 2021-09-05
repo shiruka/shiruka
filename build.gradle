@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
+
 plugins {
   id "java"
   id "checkstyle"
@@ -16,7 +18,9 @@ java {
 
 jar {
   manifest {
-    attributes 'Main-Class': 'io.github.shiruka.shiruka.Bootstrap'
+    attributes "Implementation-Title": "Shiru ka",
+      "Implementation-Version": project.version,
+      "Main-Class": "io.github.shiruka.shiruka.Bootstrap"
   }
 }
 
@@ -64,13 +68,10 @@ repositories {
 }
 
 dependencies {
-  // Api
   implementation "io.github.shiruka:api:3.0.7"
 
-  // Implmenetation
   implementation "io.github.slimjar:slimjar:1.2.6"
 
-  // Slim
   slim "org.jline:jline:3.20.0"
   slim "com.lmax:disruptor:3.4.4"
   slim "info.picocli:picocli:4.6.1"
@@ -91,14 +92,11 @@ dependencies {
   slim "com.fasterxml.jackson.core:jackson-databind:2.12.5"
   slim "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5"
 
-  // Processor
   annotationProcessor "org.jetbrains:annotations:22.0.0"
 
-  // Lombok
   compileOnly "org.projectlombok:lombok:1.18.20"
   annotationProcessor "org.projectlombok:lombok:1.18.20"
 
-  // Test
   testImplementation "org.junit.jupiter:junit-jupiter:5.7.2"
 }
 
@@ -113,6 +111,7 @@ artifacts {
 }
 
 shadowJar {
+  transform(Log4j2PluginsCacheFileTransformer)
   archiveBaseName.set("Shiruka")
   archiveClassifier.set(null)
   archiveVersion.convention(null)

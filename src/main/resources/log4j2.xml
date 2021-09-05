@@ -16,7 +16,7 @@
     <logger name="io.netty" level="ERROR"/>
     <Root level="INFO">
       <AppenderRef ref="File"/>
-      <AppenderRef ref="Console"/>
+      <AppenderRef ref="TerminalConsole"/>
     </Root>
   </Loggers>
 </Configuration>

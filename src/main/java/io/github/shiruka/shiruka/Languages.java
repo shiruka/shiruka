@@ -61,8 +61,9 @@ public final class Languages {
    * @param bundle the bundle to initiate.
    */
   static void init(@NotNull final ResourceBundle bundle) {
-    Preconditions.checkState(Languages.instance == null,
-      Languages.getLanguageValue("cannot-initiate-twice"));
+    if (Languages.instance != null) {
+      throw new IllegalStateException(Languages.getLanguageValue("cannot-initiate-twice"));
+    }
     Languages.instance = new Languages(bundle);
   }
 

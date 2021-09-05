@@ -50,7 +50,9 @@ public final class Bootstrap {
     final var loading = new AtomicBoolean(true);
     final var index = new AtomicInteger(0);
     final var console = System.console();
-    console.printf("|");
+    if (console != null) {
+      console.printf("|");
+    }
     final var thread = new Thread(() -> {
       final var spinner = Constants.getSpinner();
       while (loading.get()) {
@@ -59,7 +61,9 @@ public final class Bootstrap {
         }
         try {
           Thread.sleep(100L);
-          console.printf(spinner[index.getAndIncrement() % spinner.length]);
+          if (console != null) {
+            console.printf(spinner[index.getAndIncrement() % spinner.length]);
+          }
         } catch (final InterruptedException ignored) {
         }
       }

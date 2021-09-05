@@ -58,8 +58,8 @@ final class Config extends TransformedObject {
   static void loadConfig(@NotNull final Path file) {
     Config.instance = TransformerPool.create(new Config())
       .withFile(file)
-      .withResolver(new Snakeyaml());
-    Config.instance.initiate();
+      .withResolver(new Snakeyaml())
+      .initiate();
   }
 
   /**

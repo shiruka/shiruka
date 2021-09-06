@@ -69,15 +69,15 @@ final class Console implements Runnable {
         .setLevel(Level.DEBUG);
       context.updateLoggers();
     }
-    if (this.configPath == null) {
-      Config.loadConfig(Constants.getHerePath().resolve("shiruka.yml"));
-    } else {
-      Config.loadConfig(Constants.getHerePath().resolve(this.configPath));
-    }
-    if (this.lang != null) {
-      Config.setLanguage(this.lang);
-    }
-    Languages.init(Config.getShirukaLanguageBundle());
+    Config.loadConfig(this.configPath == null
+      ? Constants.herePath().resolve("shiruka.yml")
+      : Constants.herePath().resolve(this.configPath));
+    Config.language(this.lang == null
+      ? Locale.ENGLISH
+      : this.lang);
+    Languages.init(
+      Config.shirukaLanguageBundle(),
+      Config.vanillaLanguageBundle());
   }
 
   /**
@@ -124,7 +124,7 @@ final class Console implements Runnable {
     @Override
     public String[] getVersion() throws Exception {
       return new String[]{
-        Constants.getVersion()
+        Constants.version()
       };
     }
   }

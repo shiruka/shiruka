@@ -1,4 +1,4 @@
-package io.github.shiruka.shiruka;
+package io.github.shiruka.shiruka.server;
 
 import io.github.shiruka.api.Provider;
 import io.github.shiruka.api.Server;
@@ -25,12 +25,6 @@ public final class ShirukaServer implements Server {
    */
   @Getter
   private final Provider provider = Provider.create();
-
-  /**
-   * starts the server.
-   */
-  void startServer() {
-  }
 
   /**
    * registers default providers.

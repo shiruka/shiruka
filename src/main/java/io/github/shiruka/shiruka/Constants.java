@@ -11,17 +11,6 @@ import org.jetbrains.annotations.NotNull;
 final class Constants {
 
   /**
-   * the art.
-   */
-  private static final String ART = """
-    ███████ ██   ██ ██ ██████  ██    ██     ██   ██  █████ \s
-    ██      ██   ██ ██ ██   ██ ██    ██     ██  ██  ██   ██\s
-    ███████ ███████ ██ ██████  ██    ██     █████   ███████\s
-         ██ ██   ██ ██ ██   ██ ██    ██     ██  ██  ██   ██\s
-    ███████ ██   ██ ██ ██   ██  ██████      ██   ██ ██   ██
-    """;
-
-  /**
    * the here.
    */
   private static final String HERE = System.getProperty("user.dir");
@@ -58,7 +47,7 @@ final class Constants {
    * @return here path.
    */
   @NotNull
-  static Path getHerePath() {
+  static Path herePath() {
     return Constants.HERE_PATH;
   }
 
@@ -69,7 +58,7 @@ final class Constants {
    */
   @NotNull
   @SneakyThrows
-  static Path getLibsPath() {
+  static Path libsPath() {
     if (Files.notExists(Constants.LIBS_PATH)) {
       Files.createDirectories(Constants.LIBS_PATH);
     }
@@ -82,7 +71,7 @@ final class Constants {
    * @return spinner.
    */
   @NotNull
-  static String[] getSpinner() {
+  static String[] spinner() {
     return Constants.SPINNER.clone();
   }
 
@@ -92,14 +81,7 @@ final class Constants {
    * @return version.
    */
   @NotNull
-  static String getVersion() {
+  static String version() {
     return Constants.VERSION;
-  }
-
-  /**
-   * prints the art.
-   */
-  static void printArt() {
-    System.out.println(Constants.ART);
   }
 }

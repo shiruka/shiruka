@@ -18,7 +18,7 @@ import tr.com.infumia.infumialib.transformer.resolvers.Snakeyaml;
 final class Config extends TransformedObject {
 
   /**
-   * the Shiru ka's language.
+   * the Server's language.
    */
   @Comment("Defines the server'a language.")
   public static Locale lang = Locale.US;
@@ -31,32 +31,12 @@ final class Config extends TransformedObject {
   private static TransformedObject instance;
 
   /**
-   * obtains the config instance.
-   *
-   * @return config instance.
-   */
-  @NotNull
-  public static TransformedObject getInstance() {
-    return Objects.requireNonNull(Config.instance, "Use #loadConfig(Path) first!");
-  }
-
-  /**
-   * obtains the language bundle.
-   *
-   * @return language bundle.
-   */
-  @NotNull
-  public static ResourceBundle getShirukaLanguageBundle() {
-    return ResourceBundle.getBundle("language.shiruka.Shiruka", Config.lang);
-  }
-
-  /**
    * sets the server's language.
    *
    * @param lang the lang to set.
    */
-  public static void setLanguage(@NotNull final Locale lang) {
-    Config.getInstance().set("lang", lang);
+  static void language(@NotNull final Locale lang) {
+    Config.instance().set("lang", lang);
   }
 
   /**
@@ -67,7 +47,37 @@ final class Config extends TransformedObject {
   static void loadConfig(@NotNull final Path file) {
     Config.instance = TransformerPool.create(new Config())
       .withFile(file)
-      .withResolver(new Snakeyaml());
-    Config.instance.initiate();
+      .withResolver(new Snakeyaml())
+      .initiate();
+  }
+
+  /**
+   * obtains Shiru ka's language bundle.
+   *
+   * @return Shiru ka's language bundle.
+   */
+  @NotNull
+  static ResourceBundle shirukaLanguageBundle() {
+    return ResourceBundle.getBundle("language.shiruka.Shiruka", Config.lang);
+  }
+
+  /**
+   * obtains Vanilla's language bundle.
+   *
+   * @return Vanilla's language bundle.
+   */
+  @NotNull
+  static ResourceBundle vanillaLanguageBundle() {
+    return ResourceBundle.getBundle("language.vanilla.Vanilla", Config.lang);
+  }
+
+  /**
+   * obtains the config instance.
+   *
+   * @return config instance.
+   */
+  @NotNull
+  private static TransformedObject instance() {
+    return Objects.requireNonNull(Config.instance, "Use #loadConfig(Path) first!");
   }
 }

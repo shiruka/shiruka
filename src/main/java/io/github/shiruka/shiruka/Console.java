@@ -103,12 +103,12 @@ final class Console implements Runnable {
    */
   public static final class LocaleConverter implements CommandLine.ITypeConverter<Locale> {
 
-    @Nullable
     @Override
     public Locale convert(final String value) {
       final var split = value.trim().replace("-", "_").toLowerCase(Locale.ROOT).split("_");
       if (split.length != 2) {
-        return null;
+        throw new CommandLine.TypeConversionException("Invalid format: must be '(language)_(country)' but was '%s'"
+          .formatted(value));
       }
       return new Locale(split[0], split[1]);
     }

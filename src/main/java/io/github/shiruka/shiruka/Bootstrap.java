@@ -22,7 +22,6 @@ public final class Bootstrap {
    */
   public static void main(final String[] args) throws IOException {
     if (Dependencies.load()) {
-      Constants.printArt();
       Console.init(args);
     }
   }

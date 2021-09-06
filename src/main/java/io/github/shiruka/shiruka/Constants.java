@@ -11,17 +11,6 @@ import org.jetbrains.annotations.NotNull;
 final class Constants {
 
   /**
-   * the art.
-   */
-  private static final String ART = """
-    ███████ ██   ██ ██ ██████  ██    ██     ██   ██  █████ \s
-    ██      ██   ██ ██ ██   ██ ██    ██     ██  ██  ██   ██\s
-    ███████ ███████ ██ ██████  ██    ██     █████   ███████\s
-         ██ ██   ██ ██ ██   ██ ██    ██     ██  ██  ██   ██\s
-    ███████ ██   ██ ██ ██   ██  ██████      ██   ██ ██   ██
-    """;
-
-  /**
    * the here.
    */
   private static final String HERE = System.getProperty("user.dir");
@@ -74,13 +63,6 @@ final class Constants {
       Files.createDirectories(Constants.LIBS_PATH);
     }
     return Constants.LIBS_PATH;
-  }
-
-  /**
-   * prints the art.
-   */
-  static void printArt() {
-    System.out.println(Constants.ART);
   }
 
   /**

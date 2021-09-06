@@ -3,6 +3,7 @@ package io.github.shiruka.shiruka;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -52,17 +53,15 @@ final class Console implements Runnable {
    * @param args the args to initiate.
    */
   static void init(@NotNull final String[] args) {
+    final Function<Throwable, Integer> exceptionHandler = throwable -> {
+      Console.log.fatal("An exception occurred:", throwable);
+      return -1;
+    };
     final var exitCode = new CommandLine(Console.class)
-      .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
-        Console.log.fatal(ex);
-        return -1;
-      })
-      .setParameterExceptionHandler((ex, args1) -> {
-        Console.log.fatal(ex);
-        return -1;
-      })
-      .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
-      .registerConverter(Locale.class, new Console.LocaleConverter())
+      .setExecutionExceptionHandler((ex, commandLine, parseResult) -> exceptionHandler.apply(ex))
+      .setParameterExceptionHandler((ex, args1) -> exceptionHandler.apply(ex))
+      .registerConverter(InetSocketAddress.class, new InetSocketAddressConverter())
+      .registerConverter(Locale.class, new LocaleConverter())
       .registerConverter(Path.class, Path::of)
       .execute(args);
     System.exit(exitCode);

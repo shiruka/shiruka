@@ -80,15 +80,12 @@ final class Console implements Runnable {
         .setLevel(Level.DEBUG);
       context.updateLoggers();
     }
-    Config.loadConfig(this.configPath == null
+    final var config = Config.loadConfig(this.configPath == null
       ? Constants.herePath().resolve("shiruka.yml")
       : Constants.herePath().resolve(this.configPath));
-    Config.language(this.lang == null
+    config.language(this.lang == null
       ? Locale.ENGLISH
       : this.lang);
-    Languages.init(
-      Config.shirukaLanguageBundle(),
-      Config.vanillaLanguageBundle());
   }
 
   /**

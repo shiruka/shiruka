@@ -2,16 +2,13 @@ package io.github.shiruka.shiruka;
 
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import tr.com.infumia.infumialib.transformer.TransformedObject;
 import tr.com.infumia.infumialib.transformer.TransformerPool;
 import tr.com.infumia.infumialib.transformer.annotations.Comment;
-import tr.com.infumia.infumialib.transformer.annotations.Exclude;
 import tr.com.infumia.infumialib.transformer.annotations.Names;
 import tr.com.infumia.infumialib.transformer.annotations.Version;
 import tr.com.infumia.infumialib.transformer.resolvers.Snakeyaml;
@@ -31,31 +28,18 @@ final class Config extends TransformedObject {
   public static Locale lang = Locale.US;
 
   /**
-   * the instance.
-   */
-  @Nullable
-  @Exclude
-  private static TransformedObject instance;
-
-  /**
-   * sets the server's language.
-   *
-   * @param lang the lang to set.
-   */
-  static void language(@NotNull final Locale lang) {
-    Config.instance().set("lang", lang);
-  }
-
-  /**
    * loads the config.
    *
    * @param file the file to load.
+   *
+   * @return config.
    */
-  static void loadConfig(@NotNull final Path file) {
-    Config.instance = TransformerPool.create(new Config())
+  @NotNull
+  static Config loadConfig(@NotNull final Path file) {
+    return TransformerPool.create(new Config(), config -> config
       .withFile(file)
       .withResolver(new Snakeyaml())
-      .initiate();
+      .initiate());
   }
 
   /**
@@ -64,7 +48,7 @@ final class Config extends TransformedObject {
    * @return Shiru ka's language bundle.
    */
   @NotNull
-  static ResourceBundle shirukaLanguageBundle() {
+  private static ResourceBundle shirukaLanguageBundle() {
     return ResourceBundle.getBundle("language.shiruka.Shiruka", Config.lang);
   }
 
@@ -74,17 +58,17 @@ final class Config extends TransformedObject {
    * @return Vanilla's language bundle.
    */
   @NotNull
-  static ResourceBundle vanillaLanguageBundle() {
+  private static ResourceBundle vanillaLanguageBundle() {
     return ResourceBundle.getBundle("language.vanilla.Vanilla", Config.lang);
   }
 
   /**
-   * obtains the config instance.
+   * sets the server's language.
    *
-   * @return config instance.
+   * @param lang the lang to set.
    */
-  @NotNull
-  private static TransformedObject instance() {
-    return Objects.requireNonNull(Config.instance, "Use #loadConfig(Path) first!");
+  void language(@NotNull final Locale lang) {
+    this.set("lang", lang);
+    Languages.init(Config.shirukaLanguageBundle(), Config.vanillaLanguageBundle());
   }
 }

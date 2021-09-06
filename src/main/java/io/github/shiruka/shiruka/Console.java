@@ -72,12 +72,12 @@ final class Console implements Runnable {
     Config.loadConfig(this.configPath == null
       ? Constants.getHerePath().resolve("shiruka.yml")
       : Constants.getHerePath().resolve(this.configPath));
-    Config.setLanguage(this.lang == null
+    Config.language(this.lang == null
       ? Locale.ENGLISH
       : this.lang);
     Languages.init(
-      Config.getShirukaLanguageBundle(),
-      Config.getVanillaLanguageBundle());
+      Config.shirukaLanguageBundle(),
+      Config.vanillaLanguageBundle());
   }
 
   /**

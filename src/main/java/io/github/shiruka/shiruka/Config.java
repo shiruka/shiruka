@@ -18,7 +18,7 @@ import tr.com.infumia.infumialib.transformer.resolvers.Snakeyaml;
 final class Config extends TransformedObject {
 
   /**
-   * the Shiru ka's language.
+   * the Server's language.
    */
   @Comment("Defines the server'a language.")
   public static Locale lang = Locale.US;
@@ -31,23 +31,12 @@ final class Config extends TransformedObject {
   private static TransformedObject instance;
 
   /**
-   * obtains Shiru ka's language bundle.
+   * sets the server's language.
    *
-   * @return Shiru ka's language bundle.
+   * @param lang the lang to set.
    */
-  @NotNull
-  static ResourceBundle getShirukaLanguageBundle() {
-    return ResourceBundle.getBundle("language.shiruka.Shiruka", Config.lang);
-  }
-
-  /**
-   * obtains Vanilla's language bundle.
-   *
-   * @return Vanilla's language bundle.
-   */
-  @NotNull
-  static ResourceBundle getVanillaLanguageBundle() {
-    return ResourceBundle.getBundle("language.vanilla.Vanilla", Config.lang);
+  static void language(@NotNull final Locale lang) {
+    Config.getInstance().set("lang", lang);
   }
 
   /**
@@ -63,12 +52,23 @@ final class Config extends TransformedObject {
   }
 
   /**
-   * sets the server's language.
+   * obtains Shiru ka's language bundle.
    *
-   * @param lang the lang to set.
+   * @return Shiru ka's language bundle.
    */
-  static void setLanguage(@NotNull final Locale lang) {
-    Config.getInstance().set("lang", lang);
+  @NotNull
+  static ResourceBundle shirukaLanguageBundle() {
+    return ResourceBundle.getBundle("language.shiruka.Shiruka", Config.lang);
+  }
+
+  /**
+   * obtains Vanilla's language bundle.
+   *
+   * @return Vanilla's language bundle.
+   */
+  @NotNull
+  static ResourceBundle vanillaLanguageBundle() {
+    return ResourceBundle.getBundle("language.vanilla.Vanilla", Config.lang);
   }
 
   /**

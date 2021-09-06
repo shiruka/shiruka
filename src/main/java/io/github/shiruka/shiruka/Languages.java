@@ -5,49 +5,46 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents languages.
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Languages {
-
-  /**
-   * lazy-init the instance.
-   */
-  @Nullable
-  private static Languages instance;
 
   /**
    * the Shiru ka's language cache.
    */
   @Getter
-  private final Map<String, String> shirukaCache = new Object2ObjectOpenHashMap<>();
-
-  /**
-   * Shiru ka's resource bundle.
-   */
-  @NotNull
-  @Getter
-  private final ResourceBundle shirukaResource;
+  private static final Map<String, String> SHIRUKA_CACHE = new Object2ObjectOpenHashMap<>();
 
   /**
    * the Vanilla's language cache.
    */
   @Getter
-  private final Map<String, String> vanillaCache = new Object2ObjectOpenHashMap<>();
+  private static final Map<String, String> VANILLA_CACHE = new Object2ObjectOpenHashMap<>();
+
+  /**
+   * Shiru ka's resource bundle.
+   */
+  @Nullable
+  @Getter
+  private static ResourceBundle shiruka;
 
   /**
    * Vanilla's resource bundle.
    */
-  @NotNull
+  @Nullable
   @Getter
-  private final ResourceBundle vanillaResource;
+  private static ResourceBundle vanilla;
+
+  /**
+   * ctor.
+   */
+  private Languages() {
+  }
 
   /**
    * obtains the language value.
@@ -59,8 +56,7 @@ public final class Languages {
    */
   @NotNull
   public static String shiruka(@NotNull final String key, @NotNull final Object... params) {
-    final var languages = Languages.getInstance();
-    final var value = languages.shirukaCache.computeIfAbsent(key, languages.shirukaResource::getString);
+    final var value = Languages.SHIRUKA_CACHE.computeIfAbsent(key, Languages.shiruka()::getString);
     if (params.length == 0) {
       return value;
     }
@@ -77,8 +73,7 @@ public final class Languages {
    */
   @NotNull
   public static String vanilla(@NotNull final String key, @NotNull final Object... params) {
-    final var languages = Languages.getInstance();
-    final var value = languages.vanillaCache.computeIfAbsent(key, languages.vanillaResource::getString);
+    final var value = Languages.VANILLA_CACHE.computeIfAbsent(key, Languages.vanilla()::getString);
     if (params.length == 0) {
       return value;
     }
@@ -92,19 +87,27 @@ public final class Languages {
    * @param vanilla the vanilla to initiate.
    */
   static void init(@NotNull final ResourceBundle shiruka, @NotNull final ResourceBundle vanilla) {
-    if (Languages.instance != null) {
-      throw new IllegalStateException(Languages.shiruka("cannot-initiate-twice"));
-    }
-    Languages.instance = new Languages(shiruka, vanilla);
+    Languages.shiruka = shiruka;
+    Languages.vanilla = vanilla;
   }
 
   /**
-   * obtains the instance.
+   * obtains the Shiru ka bundle.
    *
-   * @return instance.
+   * @return Shiru ka bundle.
    */
   @NotNull
-  private static Languages getInstance() {
-    return Objects.requireNonNull(Languages.instance, "not initiated");
+  private static ResourceBundle shiruka() {
+    return Objects.requireNonNull(Languages.shiruka, "shiruka");
+  }
+
+  /**
+   * obtains the Vanilla bundle.
+   *
+   * @return Vanilla bundle.
+   */
+  @NotNull
+  private static ResourceBundle vanilla() {
+    return Objects.requireNonNull(Languages.vanilla, "vanilla");
   }
 }

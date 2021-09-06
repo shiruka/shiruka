@@ -87,7 +87,7 @@ final class Console implements Runnable {
 
     @Override
     public InetSocketAddress convert(final String value) {
-      final var position = value.lastIndexOf(':');
+      final var position = value.trim().lastIndexOf(':');
       if (position < 0) {
         throw new CommandLine.TypeConversionException("Invalid format: must be 'host:port' but was '%s'"
           .formatted(value));

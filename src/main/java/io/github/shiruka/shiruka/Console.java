@@ -83,7 +83,7 @@ final class Console implements Runnable {
   /**
    * a class that converts user's inputs into inet socket address.
    */
-  public static final class InetSocketAddressConverter implements CommandLine.ITypeConverter<InetSocketAddress> {
+  private static final class InetSocketAddressConverter implements CommandLine.ITypeConverter<InetSocketAddress> {
 
     @Override
     public InetSocketAddress convert(final String value) {
@@ -101,7 +101,7 @@ final class Console implements Runnable {
   /**
    * a class that converts user's inputs into locale.
    */
-  public static final class LocaleConverter implements CommandLine.ITypeConverter<Locale> {
+  private static final class LocaleConverter implements CommandLine.ITypeConverter<Locale> {
 
     @Override
     public Locale convert(final String value) {
@@ -117,7 +117,7 @@ final class Console implements Runnable {
   /**
    * a class that provides the Shiru ka's version.
    */
-  public static final class VersionProvider implements CommandLine.IVersionProvider {
+  private static final class VersionProvider implements CommandLine.IVersionProvider {
 
     @Override
     public String[] getVersion() throws Exception {

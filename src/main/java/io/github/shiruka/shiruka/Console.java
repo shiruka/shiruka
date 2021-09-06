@@ -52,7 +52,7 @@ final class Console implements Runnable {
    * @param args the args to initiate.
    */
   static void init(@NotNull final String[] args) {
-    final var exitCode = new picocli.CommandLine(Console.class)
+    final var exitCode = new CommandLine(Console.class)
       .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
       .registerConverter(Locale.class, new Console.LocaleConverter())
       .registerConverter(Path.class, Path::of)

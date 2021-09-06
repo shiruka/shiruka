@@ -1,7 +1,6 @@
 package io.github.shiruka.shiruka;
 
 import io.github.slimjar.app.builder.ApplicationBuilder;
-import io.github.slimjar.logging.ProcessLogger;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;

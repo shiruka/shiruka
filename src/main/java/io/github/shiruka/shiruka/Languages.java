@@ -5,16 +5,13 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents languages.
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Languages {
 
   /**
@@ -42,6 +39,12 @@ public final class Languages {
   @Nullable
   @Getter
   private static ResourceBundle vanilla;
+
+  /**
+   * ctor.
+   */
+  private Languages() {
+  }
 
   /**
    * obtains the language value.

@@ -27,6 +27,14 @@ import picocli.CommandLine;
 final class Console implements Runnable {
 
   /**
+   * the exception handler for console commands.
+   */
+  private static final Function<Throwable, Integer> EXCEPTION_HANDLER = throwable -> {
+    Console.log.fatal("An exception occurred:", throwable);
+    return -1;
+  };
+
+  /**
    * the debug mode.
    */
   @Nullable
@@ -53,13 +61,9 @@ final class Console implements Runnable {
    * @param args the args to initiate.
    */
   static void init(@NotNull final String[] args) {
-    final Function<Throwable, Integer> exceptionHandler = throwable -> {
-      Console.log.fatal("An exception occurred:", throwable);
-      return -1;
-    };
     final var exitCode = new CommandLine(Console.class)
-      .setExecutionExceptionHandler((ex, commandLine, parseResult) -> exceptionHandler.apply(ex))
-      .setParameterExceptionHandler((ex, args1) -> exceptionHandler.apply(ex))
+      .setExecutionExceptionHandler((ex, commandLine, parseResult) -> Console.EXCEPTION_HANDLER.apply(ex))
+      .setParameterExceptionHandler((ex, args1) -> Console.EXCEPTION_HANDLER.apply(ex))
       .registerConverter(InetSocketAddress.class, new InetSocketAddressConverter())
       .registerConverter(Locale.class, new LocaleConverter())
       .registerConverter(Path.class, Path::of)

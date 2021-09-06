@@ -53,6 +53,14 @@ final class Console implements Runnable {
    */
   static void init(@NotNull final String[] args) {
     final var exitCode = new CommandLine(Console.class)
+      .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
+        Console.log.fatal(ex);
+        return -1;
+      })
+      .setParameterExceptionHandler((ex, args1) -> {
+        Console.log.fatal(ex);
+        return -1;
+      })
       .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
       .registerConverter(Locale.class, new Console.LocaleConverter())
       .registerConverter(Path.class, Path::of)

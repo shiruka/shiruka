@@ -53,15 +53,6 @@ final class Dependencies {
     thread.start();
     try {
       ApplicationBuilder.appending("Shiru ka")
-        .logger(new ProcessLogger() {
-          @Override
-          public void log(final String message, final Object... args) {
-          }
-
-          @Override
-          public void debug(final String message, final Object... args) {
-          }
-        })
         .downloadDirectoryPath(libs)
         .build();
       thread.interrupt();

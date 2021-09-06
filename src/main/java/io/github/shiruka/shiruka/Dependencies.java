@@ -27,7 +27,7 @@ final class Dependencies {
    */
   @SneakyThrows
   static boolean load() {
-    final var libs = Constants.getLibsPath();
+    final var libs = Constants.libsPath();
     System.out.print("Loading dependencies, this might take a while ");
     final var loading = new AtomicBoolean(true);
     final var index = new AtomicInteger(0);
@@ -36,7 +36,7 @@ final class Dependencies {
       console.printf("|");
     }
     final var thread = new Thread(() -> {
-      final var spinner = Constants.getSpinner();
+      final var spinner = Constants.spinner();
       while (loading.get()) {
         if (index.get() > spinner.length) {
           index.set(0);

@@ -36,7 +36,7 @@ final class Config extends TransformedObject {
    * @param lang the lang to set.
    */
   static void language(@NotNull final Locale lang) {
-    Config.getInstance().set("lang", lang);
+    Config.instance().set("lang", lang);
   }
 
   /**
@@ -77,7 +77,7 @@ final class Config extends TransformedObject {
    * @return config instance.
    */
   @NotNull
-  private static TransformedObject getInstance() {
+  private static TransformedObject instance() {
     return Objects.requireNonNull(Config.instance, "Use #loadConfig(Path) first!");
   }
 }

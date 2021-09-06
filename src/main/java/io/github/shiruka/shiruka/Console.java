@@ -70,8 +70,8 @@ final class Console implements Runnable {
       context.updateLoggers();
     }
     Config.loadConfig(this.configPath == null
-      ? Constants.getHerePath().resolve("shiruka.yml")
-      : Constants.getHerePath().resolve(this.configPath));
+      ? Constants.herePath().resolve("shiruka.yml")
+      : Constants.herePath().resolve(this.configPath));
     Config.language(this.lang == null
       ? Locale.ENGLISH
       : this.lang);
@@ -124,7 +124,7 @@ final class Console implements Runnable {
     @Override
     public String[] getVersion() throws Exception {
       return new String[]{
-        Constants.getVersion()
+        Constants.version()
       };
     }
   }

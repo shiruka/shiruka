@@ -58,7 +58,7 @@ public final class Languages {
    * @return language value.
    */
   @NotNull
-  public static String getShiruka(@NotNull final String key, @NotNull final Object... params) {
+  public static String shiruka(@NotNull final String key, @NotNull final Object... params) {
     final var languages = Languages.getInstance();
     final var value = languages.shirukaCache.computeIfAbsent(key, languages.shirukaResource::getString);
     if (params.length == 0) {
@@ -76,7 +76,7 @@ public final class Languages {
    * @return language value.
    */
   @NotNull
-  public static String getVanilla(@NotNull final String key, @NotNull final Object... params) {
+  public static String vanilla(@NotNull final String key, @NotNull final Object... params) {
     final var languages = Languages.getInstance();
     final var value = languages.vanillaCache.computeIfAbsent(key, languages.vanillaResource::getString);
     if (params.length == 0) {
@@ -93,7 +93,7 @@ public final class Languages {
    */
   static void init(@NotNull final ResourceBundle shiruka, @NotNull final ResourceBundle vanilla) {
     if (Languages.instance != null) {
-      throw new IllegalStateException(Languages.getShiruka("cannot-initiate-twice"));
+      throw new IllegalStateException(Languages.shiruka("cannot-initiate-twice"));
     }
     Languages.instance = new Languages(shiruka, vanilla);
   }

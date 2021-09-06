@@ -71,6 +71,7 @@ final class Dependencies {
       } else {
         Runtime.getRuntime().exec("clear");
       }
+      System.out.println();
       return true;
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();

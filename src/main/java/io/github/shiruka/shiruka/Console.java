@@ -106,13 +106,11 @@ final class Console implements Runnable {
     @Nullable
     @Override
     public Locale convert(final String value) {
-      final var split = value.trim().replace("-", "_").split("_");
+      final var split = value.trim().replace("-", "_").toLowerCase(Locale.ROOT).split("_");
       if (split.length != 2) {
         return null;
       }
-      return new Locale(
-        split[0].toLowerCase(Locale.ROOT),
-        split[1].toUpperCase(Locale.ROOT));
+      return new Locale(split[0], split[1]);
     }
   }
 

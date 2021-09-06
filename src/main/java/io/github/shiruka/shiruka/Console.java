@@ -75,7 +75,9 @@ final class Console implements Runnable {
     Config.setLanguage(this.lang == null
       ? Locale.ENGLISH
       : this.lang);
-    Languages.init(Config.getShirukaLanguageBundle());
+    Languages.init(
+      Config.getShirukaLanguageBundle(),
+      Config.getVanillaLanguageBundle());
   }
 
   /**

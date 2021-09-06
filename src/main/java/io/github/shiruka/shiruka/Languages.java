@@ -18,23 +18,36 @@ import org.jetbrains.annotations.Nullable;
 public final class Languages {
 
   /**
-   * the instance.
+   * lazy-init the instance.
    */
   @Nullable
   private static Languages instance;
 
   /**
-   * the language cache.
+   * the Shiru ka's language cache.
    */
   @Getter
-  private final Map<String, String> cache = new Object2ObjectOpenHashMap<>();
+  private final Map<String, String> shirukaCache = new Object2ObjectOpenHashMap<>();
 
   /**
-   * lazy-init resource bundle.
+   * Shiru ka's resource bundle.
    */
   @NotNull
   @Getter
-  private final ResourceBundle resource;
+  private final ResourceBundle shirukaResource;
+
+  /**
+   * the Vanilla's language cache.
+   */
+  @Getter
+  private final Map<String, String> vanillaCache = new Object2ObjectOpenHashMap<>();
+
+  /**
+   * Vanilla's resource bundle.
+   */
+  @NotNull
+  @Getter
+  private final ResourceBundle vanillaResource;
 
   /**
    * obtains the language value.
@@ -45,9 +58,9 @@ public final class Languages {
    * @return language value.
    */
   @NotNull
-  public static String getLanguageValue(@NotNull final String key, @NotNull final Object... params) {
+  public static String getShiruka(@NotNull final String key, @NotNull final Object... params) {
     final var languages = Languages.getInstance();
-    final var value = languages.cache.computeIfAbsent(key, languages.resource::getString);
+    final var value = languages.shirukaCache.computeIfAbsent(key, languages.shirukaResource::getString);
     if (params.length == 0) {
       return value;
     }
@@ -55,15 +68,34 @@ public final class Languages {
   }
 
   /**
+   * obtains the language value.
+   *
+   * @param key the key to get.
+   * @param params the params to get.
+   *
+   * @return language value.
+   */
+  @NotNull
+  public static String getVanilla(@NotNull final String key, @NotNull final Object... params) {
+    final var languages = Languages.getInstance();
+    final var value = languages.vanillaCache.computeIfAbsent(key, languages.vanillaResource::getString);
+    if (params.length == 0) {
+      return value;
+    }
+    return String.format(value, params);
+  }
+
+  /**
    * initiates the languages.
    *
-   * @param bundle the bundle to initiate.
+   * @param shiruka the shiruka to initiate.
+   * @param vanilla the vanilla to initiate.
    */
-  static void init(@NotNull final ResourceBundle bundle) {
+  static void init(@NotNull final ResourceBundle shiruka, @NotNull final ResourceBundle vanilla) {
     if (Languages.instance != null) {
-      throw new IllegalStateException(Languages.getLanguageValue("cannot-initiate-twice"));
+      throw new IllegalStateException(Languages.getShiruka("cannot-initiate-twice"));
     }
-    Languages.instance = new Languages(bundle);
+    Languages.instance = new Languages(shiruka, vanilla);
   }
 
   /**

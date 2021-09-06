@@ -117,7 +117,7 @@ final class Console implements Runnable {
   /**
    * a class that provides the Shiru ka's version.
    */
-  private static final class VersionProvider implements CommandLine.IVersionProvider {
+  static final class VersionProvider implements CommandLine.IVersionProvider {
 
     @Override
     public String[] getVersion() throws Exception {

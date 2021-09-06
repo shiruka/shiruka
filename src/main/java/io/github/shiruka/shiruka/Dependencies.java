@@ -66,12 +66,6 @@ final class Dependencies {
         .build();
       thread.interrupt();
       loading.set(false);
-      if (System.getProperty("os.name").startsWith("Windows")) {
-        new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-      } else {
-        Runtime.getRuntime().exec("clear");
-      }
-      System.out.println();
       return true;
     } catch (final IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
       e.printStackTrace();

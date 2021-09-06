@@ -4,17 +4,24 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tr.com.infumia.infumialib.transformer.TransformedObject;
 import tr.com.infumia.infumialib.transformer.TransformerPool;
 import tr.com.infumia.infumialib.transformer.annotations.Comment;
 import tr.com.infumia.infumialib.transformer.annotations.Exclude;
+import tr.com.infumia.infumialib.transformer.annotations.Names;
+import tr.com.infumia.infumialib.transformer.annotations.Version;
 import tr.com.infumia.infumialib.transformer.resolvers.Snakeyaml;
 
 /**
  * a class that represents Shiru ka's config file.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Version
+@Names(modifier = Names.Modifier.TO_LOWER_CASE, strategy = Names.Strategy.HYPHEN_CASE)
 final class Config extends TransformedObject {
 
   /**

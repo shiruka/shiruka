@@ -3,6 +3,7 @@ package io.github.shiruka.shiruka;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +25,14 @@ import picocli.CommandLine;
 )
 @Log4j2
 final class Console implements Runnable {
+
+  /**
+   * the exception handler for console commands.
+   */
+  private static final Function<Throwable, Integer> EXCEPTION_HANDLER = throwable -> {
+    Console.log.fatal("An exception occurred:", throwable);
+    return -1;
+  };
 
   /**
    * the debug mode.
@@ -52,9 +61,11 @@ final class Console implements Runnable {
    * @param args the args to initiate.
    */
   static void init(@NotNull final String[] args) {
-    final var exitCode = new picocli.CommandLine(Console.class)
-      .registerConverter(InetSocketAddress.class, new Console.InetSocketAddressConverter())
-      .registerConverter(Locale.class, new Console.LocaleConverter())
+    final var exitCode = new CommandLine(Console.class)
+      .setExecutionExceptionHandler((ex, commandLine, parseResult) -> Console.EXCEPTION_HANDLER.apply(ex))
+      .setParameterExceptionHandler((ex, args1) -> Console.EXCEPTION_HANDLER.apply(ex))
+      .registerConverter(InetSocketAddress.class, new InetSocketAddressConverter())
+      .registerConverter(Locale.class, new LocaleConverter())
       .registerConverter(Path.class, Path::of)
       .execute(args);
     System.exit(exitCode);
@@ -83,11 +94,11 @@ final class Console implements Runnable {
   /**
    * a class that converts user's inputs into inet socket address.
    */
-  public static final class InetSocketAddressConverter implements CommandLine.ITypeConverter<InetSocketAddress> {
+  private static final class InetSocketAddressConverter implements CommandLine.ITypeConverter<InetSocketAddress> {
 
     @Override
     public InetSocketAddress convert(final String value) {
-      final var position = value.lastIndexOf(':');
+      final var position = value.trim().lastIndexOf(':');
       if (position < 0) {
         throw new CommandLine.TypeConversionException("Invalid format: must be 'host:port' but was '%s'"
           .formatted(value));
@@ -101,25 +112,23 @@ final class Console implements Runnable {
   /**
    * a class that converts user's inputs into locale.
    */
-  public static final class LocaleConverter implements CommandLine.ITypeConverter<Locale> {
+  private static final class LocaleConverter implements CommandLine.ITypeConverter<Locale> {
 
-    @Nullable
     @Override
     public Locale convert(final String value) {
-      final var split = value.trim().replace("-", "_").split("_");
+      final var split = value.trim().replace("-", "_").toLowerCase(Locale.ROOT).split("_");
       if (split.length != 2) {
-        return null;
+        throw new CommandLine.TypeConversionException("Invalid format: must be '(language)_(country)' but was '%s'"
+          .formatted(value));
       }
-      return new Locale(
-        split[0].toLowerCase(Locale.ROOT),
-        split[1].toUpperCase(Locale.ROOT));
+      return new Locale(split[0], split[1]);
     }
   }
 
   /**
    * a class that provides the Shiru ka's version.
    */
-  public static final class VersionProvider implements CommandLine.IVersionProvider {
+  static final class VersionProvider implements CommandLine.IVersionProvider {
 
     @Override
     public String[] getVersion() throws Exception {

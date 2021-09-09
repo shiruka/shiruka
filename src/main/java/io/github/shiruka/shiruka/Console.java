@@ -1,5 +1,6 @@
 package io.github.shiruka.shiruka;
 
+import io.github.shiruka.shiruka.server.ShirukaServer;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -35,7 +36,7 @@ final class Console implements Runnable {
   };
 
   /**
-   * the debug mode.
+   * the config path.
    */
   @Nullable
   @CommandLine.Option(names = {"-c", "--config"}, description = "Config path.", defaultValue = "shiruka.yml")
@@ -54,6 +55,13 @@ final class Console implements Runnable {
   @Nullable
   @CommandLine.Option(names = {"-l", "--lang"}, description = "Shiru ka language.", defaultValue = "en_US")
   private Locale lang;
+
+  /**
+   * the plugins path.
+   */
+  @Nullable
+  @CommandLine.Option(names = {"-p", "--plugins"}, description = "Plugins path.", defaultValue = "plugins")
+  private Path pluginsPath;
 
   /**
    * initiate the console commands.
@@ -83,9 +91,13 @@ final class Console implements Runnable {
     final var config = Config.loadConfig(this.configPath == null
       ? Constants.herePath().resolve("shiruka.yml")
       : Constants.herePath().resolve(this.configPath));
+    final var pluginsPath = this.pluginsPath == null
+      ? Constants.herePath().resolve("plugins")
+      : Constants.herePath().resolve(this.pluginsPath);
     config.language(this.lang == null
       ? Locale.ENGLISH
       : this.lang);
+    final var server = new ShirukaServer(pluginsPath);
   }
 
   /**

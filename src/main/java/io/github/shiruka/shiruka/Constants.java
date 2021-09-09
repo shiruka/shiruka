@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * an utility class that contains constant values.
  */
-final class Constants {
+public final class Constants {
 
   /**
    * the here.
@@ -24,6 +24,11 @@ final class Constants {
    * the libs path.
    */
   private static final Path LIBS_PATH = Constants.HERE_PATH.resolve("libs");
+
+  /**
+   * the Shiru ka.
+   */
+  private static final String SHIRU_KA = "Shiru ka";
 
   /**
    * the spinner.
@@ -42,12 +47,22 @@ final class Constants {
   }
 
   /**
+   * obtains the Shiru ka.
+   *
+   * @return Shiru ka.
+   */
+  @NotNull
+  public static String shiruKa() {
+    return Constants.SHIRU_KA;
+  }
+
+  /**
    * obtains the here path.
    *
    * @return here path.
    */
   @NotNull
-  static Path herePath() {
+  public static Path herePath() {
     return Constants.HERE_PATH;
   }
 

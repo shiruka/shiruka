@@ -18,9 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.IntUnaryOperator;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
@@ -94,6 +92,45 @@ public class SyncScheduler implements Scheduler.Async {
 
   @Override
   public void cancelTasks(@NotNull final Plugin.Container plugin) {
+    final var task = new SyncTask(Task.syncBuilder()
+      .withPlugin(ShirukaServer.INTERNAL_PLUGIN)
+      .withJob(new Consumer<>() {
+        @Override
+        public void accept(final ScheduledTask scheduledTask) {
+          this.check(SyncScheduler.this.pending);
+          this.check(SyncScheduler.this.temp);
+        }
+
+        private void check(@NotNull final Iterable<SyncTask> collection) {
+          final var tasks = collection.iterator();
+          while (tasks.hasNext()) {
+            final var task = tasks.next();
+            if (task.task().plugin().equals(plugin)) {
+              task.cancel0();
+              tasks.remove();
+              if (task.task().isSync()) {
+                SyncScheduler.this.runners.remove(task.id());
+              }
+            }
+          }
+        }
+      })
+      .withName("Head")
+      .build());
+    this.handle(task, 0L);
+    for (var taskPending = this.head.next(); taskPending != null; taskPending = taskPending.next()) {
+      if (taskPending == task) {
+        break;
+      }
+      if (taskPending.id() != -1 && taskPending.task().plugin().equals(plugin)) {
+        taskPending.cancel0();
+      }
+    }
+    for (final var runner : this.runners.values()) {
+      if (runner.task().plugin().equals(plugin)) {
+        runner.cancel0();
+      }
+    }
   }
 
   @Override
@@ -276,7 +313,6 @@ public class SyncScheduler implements Scheduler.Async {
    * a class that represents sync scheduled tasks.
    */
   @Accessors(fluent = true)
-  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   public static class SyncTask implements ScheduledTask, Runnable {
 
     /**
@@ -306,17 +342,17 @@ public class SyncScheduler implements Scheduler.Async {
     private final long createdAt = System.nanoTime();
 
     /**
+     * the id.
+     */
+    @Getter
+    private final int id;
+
+    /**
      * the task.
      */
     @Getter
     @NotNull
     private final Task task;
-
-    /**
-     * the id.
-     */
-    @Getter
-    private int id;
 
     /**
      * the next.
@@ -336,7 +372,30 @@ public class SyncScheduler implements Scheduler.Async {
      * the period.
      */
     @Getter
-    private long period = this.task.interval();
+    private long period;
+
+    /**
+     * ctor.
+     *
+     * @param task the task.
+     */
+    private SyncTask(@NotNull final Task task) {
+      this.task = task;
+      this.period = this.task.interval();
+      this.id = SyncTask.NO_REPEATING;
+    }
+
+    /**
+     * ctor.
+     *
+     * @param task the task.
+     * @param id the id.
+     */
+    private SyncTask(@NotNull final Task task, final int id) {
+      this.task = task;
+      this.period = this.task.interval();
+      this.id = id;
+    }
 
     @Override
     public void cancel() {

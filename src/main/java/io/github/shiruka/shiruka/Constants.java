@@ -47,16 +47,6 @@ public final class Constants {
   }
 
   /**
-   * obtains the Shiru ka.
-   *
-   * @return Shiru ka.
-   */
-  @NotNull
-  public static String shiruKa() {
-    return Constants.SHIRU_KA;
-  }
-
-  /**
    * obtains the here path.
    *
    * @return here path.
@@ -64,6 +54,16 @@ public final class Constants {
   @NotNull
   public static Path herePath() {
     return Constants.HERE_PATH;
+  }
+
+  /**
+   * obtains the Shiru ka.
+   *
+   * @return Shiru ka.
+   */
+  @NotNull
+  public static String shiruKa() {
+    return Constants.SHIRU_KA;
   }
 
   /**

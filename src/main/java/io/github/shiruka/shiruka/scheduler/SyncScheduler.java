@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * a class that represents sync schedulers.
  */
-public final class SyncScheduler implements Scheduler.Async {
+public class SyncScheduler implements Scheduler.Async {
 
   /**
    * the start id.
@@ -277,7 +277,7 @@ public final class SyncScheduler implements Scheduler.Async {
    */
   @Accessors(fluent = true)
   @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-  private static final class SyncTask implements ScheduledTask, Runnable {
+  public static class SyncTask implements ScheduledTask, Runnable {
 
     /**
      * the cancel.

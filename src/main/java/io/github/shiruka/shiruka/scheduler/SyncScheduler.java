@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents sync schedulers.
@@ -44,21 +45,21 @@ public class SyncScheduler implements Scheduler.Async {
   };
 
   /**
-   * the ids.
-   */
-  private final AtomicInteger ids = new AtomicInteger(SyncScheduler.START_ID);
-
-  /**
    * the pending tasks.
    */
-  private final PriorityQueue<SyncTask> pending = new PriorityQueue<>(10, Comparator
+  protected final PriorityQueue<SyncTask> pending = new PriorityQueue<>(10, Comparator
     .<SyncTask>comparingLong(SyncTask::nextRun)
     .thenComparingLong(SyncTask::createdAt));
 
   /**
    * the running tasks.
    */
-  private final ConcurrentHashMap<Integer, SyncTask> runners = new ConcurrentHashMap<>();
+  protected final ConcurrentHashMap<Integer, SyncTask> runners = new ConcurrentHashMap<>();
+
+  /**
+   * the ids.
+   */
+  private final AtomicInteger ids = new AtomicInteger(SyncScheduler.START_ID);
 
   /**
    * the temporary task list.
@@ -66,18 +67,20 @@ public class SyncScheduler implements Scheduler.Async {
   private final List<SyncTask> temp = new ArrayList<>();
 
   /**
-   * the currently running task.
-   */
-  private volatile SyncTask currentTask = null;
-
-  /**
    * the current tick.
    */
-  private volatile int currentTick = -1;
+  protected volatile int currentTick = -1;
+
+  /**
+   * the currently running task.
+   */
+  @Nullable
+  private volatile SyncTask currentTask = null;
 
   /**
    * the head task.
    */
+  @NotNull
   private SyncTask head = new SyncTask(Task.syncBuilder()
     .withPlugin(ShirukaServer.INTERNAL_PLUGIN)
     .withJob(scheduledTask -> {
@@ -91,50 +94,7 @@ public class SyncScheduler implements Scheduler.Async {
   private final AtomicReference<SyncTask> tail = new AtomicReference<>(this.head);
 
   @Override
-  public void cancelTasks(@NotNull final Plugin.Container plugin) {
-    final var task = new SyncTask(Task.syncBuilder()
-      .withPlugin(ShirukaServer.INTERNAL_PLUGIN)
-      .withJob(new Consumer<>() {
-        @Override
-        public void accept(final ScheduledTask scheduledTask) {
-          this.check(SyncScheduler.this.pending);
-          this.check(SyncScheduler.this.temp);
-        }
-
-        private void check(@NotNull final Iterable<SyncTask> collection) {
-          final var tasks = collection.iterator();
-          while (tasks.hasNext()) {
-            final var task = tasks.next();
-            if (task.task().plugin().equals(plugin)) {
-              task.cancel0();
-              tasks.remove();
-              if (task.task().isSync()) {
-                SyncScheduler.this.runners.remove(task.id());
-              }
-            }
-          }
-        }
-      })
-      .withName("Head")
-      .build());
-    this.handle(task, 0L);
-    for (var taskPending = this.head.next(); taskPending != null; taskPending = taskPending.next()) {
-      if (taskPending == task) {
-        break;
-      }
-      if (taskPending.id() != -1 && taskPending.task().plugin().equals(plugin)) {
-        taskPending.cancel0();
-      }
-    }
-    for (final var runner : this.runners.values()) {
-      if (runner.task().plugin().equals(plugin)) {
-        runner.cancel0();
-      }
-    }
-  }
-
-  @Override
-  public void cancelTasks(final int taskId) {
+  public void cancelTask(final int taskId) {
     if (taskId <= 0) {
       return;
     }
@@ -181,10 +141,63 @@ public class SyncScheduler implements Scheduler.Async {
     }
   }
 
+  @Override
+  public void cancelTasks(@NotNull final Plugin.Container plugin) {
+    final var task = new SyncTask(Task.syncBuilder()
+      .withPlugin(ShirukaServer.INTERNAL_PLUGIN)
+      .withJob(new Consumer<>() {
+        @Override
+        public void accept(final ScheduledTask scheduledTask) {
+          this.check(SyncScheduler.this.pending);
+          this.check(SyncScheduler.this.temp);
+        }
+
+        private void check(@NotNull final Iterable<SyncTask> collection) {
+          final var tasks = collection.iterator();
+          while (tasks.hasNext()) {
+            final var task = tasks.next();
+            if (task.task().plugin().equals(plugin)) {
+              task.cancel0();
+              tasks.remove();
+              if (task.task().isSync()) {
+                SyncScheduler.this.runners.remove(task.id());
+              }
+            }
+          }
+        }
+      })
+      .withName("Head")
+      .build());
+    this.handle(task, 0L);
+    for (var taskPending = this.head.next(); taskPending != null; taskPending = taskPending.next()) {
+      if (taskPending == task) {
+        break;
+      }
+      if (taskPending.id() != -1 && taskPending.task().plugin().equals(plugin)) {
+        taskPending.cancel0();
+      }
+    }
+    for (final var runner : this.runners.values()) {
+      if (runner.task().plugin().equals(plugin)) {
+        runner.cancel0();
+      }
+    }
+  }
+
   @NotNull
   @Override
-  public ScheduledTask execute(@NotNull final Task task) {
-    return new SyncTask(task);
+  public final ScheduledTask execute(@NotNull final Task task) {
+    Preconditions.checkState(task.plugin().enabled(), "Plugin attempted to register task while disabled!");
+    final var interval = task.interval();
+    final long period;
+    if (interval == SyncTask.ERROR) {
+      period = interval;
+    } else if (interval < SyncTask.NO_REPEATING) {
+      period = SyncTask.NO_REPEATING;
+    } else {
+      period = interval;
+    }
+    return this.handle(new SyncTask(task, this.nextId(), period), task.delay());
   }
 
   @Override
@@ -237,7 +250,7 @@ public class SyncScheduler implements Scheduler.Async {
    *
    * @param task the task to add.
    */
-  protected void addTask(@NotNull final SyncTask task) {
+  protected final void addTask(@NotNull final SyncTask task) {
     var tailTask = this.tail.get();
     while (!this.tail.compareAndSet(tailTask, task)) {
       tailTask = this.tail.get();
@@ -254,10 +267,32 @@ public class SyncScheduler implements Scheduler.Async {
    * @return handled task.
    */
   @NotNull
-  protected SyncTask handle(@NotNull final SyncTask task, final long delay) {
-    task.nextRun(this.currentTick + delay);
+  protected final SyncTask handle(@NotNull final SyncTask task, final long delay) {
+    task.nextRun(this.currentTick + Math.max(delay, 0L));
     this.addTask(task);
     return task;
+  }
+
+  /**
+   * parses the pending tasks.
+   */
+  protected final void parsePending() {
+    var head = this.head;
+    var task = head.next();
+    var lastTask = head;
+    for (; task != null; task = (lastTask = task).next()) {
+      if (task.id() == -1) {
+        task.run();
+      } else if (task.period() >= SyncTask.NO_REPEATING) {
+        this.pending.add(task);
+        this.runners.put(task.id(), task);
+      }
+    }
+    for (task = head; task != lastTask; task = head) {
+      head = task.next();
+      task.next(null);
+    }
+    this.head = lastTask;
   }
 
   /**
@@ -288,28 +323,6 @@ public class SyncScheduler implements Scheduler.Async {
   }
 
   /**
-   * parses the pending tasks.
-   */
-  private void parsePending() {
-    var head = this.head;
-    var task = head.next();
-    var lastTask = head;
-    for (; task != null; task = (lastTask = task).next()) {
-      if (task.id() == -1) {
-        task.run();
-      } else if (task.period() >= SyncTask.NO_REPEATING) {
-        this.pending.add(task);
-        this.runners.put(task.id(), task);
-      }
-    }
-    for (task = head; task != lastTask; task = head) {
-      head = task.next();
-      task.next(null);
-    }
-    this.head = lastTask;
-  }
-
-  /**
    * a class that represents sync scheduled tasks.
    */
   @Accessors(fluent = true)
@@ -324,6 +337,11 @@ public class SyncScheduler implements Scheduler.Async {
      * the done for future.
      */
     public static final int DONE_FOR_FUTURE = -4;
+
+    /**
+     * the error.
+     */
+    public static final int ERROR = 0;
 
     /**
      * the no repeating.
@@ -378,11 +396,13 @@ public class SyncScheduler implements Scheduler.Async {
      * ctor.
      *
      * @param task the task.
+     * @param id the id.
+     * @param period the period.
      */
-    private SyncTask(@NotNull final Task task) {
+    protected SyncTask(@NotNull final Task task, final int id, final long period) {
       this.task = task;
-      this.period = this.task.interval();
-      this.id = SyncTask.NO_REPEATING;
+      this.period = period;
+      this.id = id;
     }
 
     /**
@@ -391,14 +411,22 @@ public class SyncScheduler implements Scheduler.Async {
      * @param task the task.
      * @param id the id.
      */
-    private SyncTask(@NotNull final Task task, final int id) {
-      this.task = task;
-      this.period = this.task.interval();
-      this.id = id;
+    protected SyncTask(@NotNull final Task task, final int id) {
+      this(task, id, task.interval());
+    }
+
+    /**
+     * ctor.
+     *
+     * @param task the task.
+     */
+    private SyncTask(@NotNull final Task task) {
+      this(task, SyncTask.NO_REPEATING);
     }
 
     @Override
-    public void cancel() {
+    public final void cancel() {
+      Shiruka.syncScheduler().cancelTask(this.id);
     }
 
     @Override
@@ -409,7 +437,7 @@ public class SyncScheduler implements Scheduler.Async {
     /**
      * cancels the task.
      */
-    private void cancel0() {
+    protected void cancel0() {
       this.period = SyncTask.CANCEL;
     }
   }

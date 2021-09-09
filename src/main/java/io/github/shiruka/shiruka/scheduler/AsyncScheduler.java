@@ -57,7 +57,8 @@ public final class AsyncScheduler extends SyncScheduler {
   @Override
   public void cancelTasks(@NotNull final Plugin.Container plugin) {
     this.parsePending();
-    for (final var iterator = this.pending.iterator(); iterator.hasNext(); ) {
+    final var iterator = this.pending.iterator();
+    while (iterator.hasNext()) {
       final var task = iterator.next();
       if (task.id() != -1 && task.task().plugin().equals(plugin)) {
         task.cancel0();
@@ -157,6 +158,7 @@ public final class AsyncScheduler extends SyncScheduler {
      *
      * @param task the tas.
      * @param id the id.
+     * @param runners the runners.
      */
     public AsyncTask(@NotNull final Task task, final int id,
                      @NotNull final Map<Integer, SyncScheduler.SyncTask> runners) {

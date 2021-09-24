@@ -69,6 +69,8 @@ repositories {
 
 dependencies {
   implementation "io.github.shiruka:api:3.0.10"
+  implementation "io.github.shiruka:network:3.0.2"
+  implementation "io.github.shiruka:protocol:1.0.0"
 
   implementation "io.github.slimjar:slimjar:1.2.6"
 

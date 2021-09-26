@@ -97,7 +97,7 @@ final class Console implements Runnable {
     config.language(this.lang == null
       ? Locale.ENGLISH
       : this.lang);
-    final var server = new ShirukaServer(pluginsPath);
+    new ShirukaServer(pluginsPath);
   }
 
   /**

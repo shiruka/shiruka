@@ -59,6 +59,9 @@ blossom {
 repositories {
   mavenCentral()
   maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+  maven {
     url "https://jitpack.io"
   }
   maven {
@@ -68,7 +71,7 @@ repositories {
 }
 
 dependencies {
-  implementation "io.github.shiruka:api:3.0.10"
+  implementation "io.github.shiruka:api:3.0.11-SNAPSHOT"
   implementation "io.github.shiruka:network:3.0.2"
   implementation "io.github.shiruka:protocol:1.0.0"
 

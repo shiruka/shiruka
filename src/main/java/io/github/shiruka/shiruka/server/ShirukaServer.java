@@ -3,7 +3,6 @@ package io.github.shiruka.shiruka.server;
 import io.github.shiruka.api.Provider;
 import io.github.shiruka.api.Server;
 import io.github.shiruka.api.Shiruka;
-import io.github.shiruka.api.event.EventManager;
 import io.github.shiruka.api.plugin.InvalidDescriptionException;
 import io.github.shiruka.api.plugin.Plugin;
 import io.github.shiruka.api.plugin.PluginManager;
@@ -14,11 +13,13 @@ import io.github.shiruka.shiruka.scheduler.AsyncScheduler;
 import io.github.shiruka.shiruka.scheduler.SyncScheduler;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * a class that represents Shiru ka server.
@@ -29,29 +30,14 @@ public final class ShirukaServer implements Server {
   /**
    * the internal plugin.
    */
-  public static final Plugin.Container INTERNAL_PLUGIN;
-
-  /**
-   * the async scheduler.
-   */
-  private final AsyncScheduler asyncScheduler = new AsyncScheduler();
-
-  /**
-   * the event manager.
-   */
-  private final EventManager eventManager = new ShirukaEventManager();
+  @Nullable
+  private static Plugin.Container INTERNAL_PLUGIN;
 
   /**
    * the logger.
    */
   @Getter
   private final Logger logger = LogManager.getLogger("Shiru ka");
-
-  /**
-   * the plugin manager.
-   */
-  @NotNull
-  private final Plugin.Manager pluginManager;
 
   /**
    * the plugin path.
@@ -66,13 +52,36 @@ public final class ShirukaServer implements Server {
   private final Provider provider = Provider.create();
 
   /**
-   * the sync scheduler.
+   * ctor.
+   *
+   * @param pluginsPath the plugins path.
    */
-  private final SyncScheduler syncScheduler = new SyncScheduler();
+  public ShirukaServer(@NotNull final Path pluginsPath) {
+    Shiruka.server(this);
+    ShirukaServer.prepareInternalPlugin();
+    this.pluginsPath = pluginsPath;
+    this.provider.register(new PluginManager(this.pluginsPath));
+    this.provider.register(new ShirukaEventManager());
+    this.provider.register(new SyncScheduler());
+    this.provider.register(new AsyncScheduler());
+  }
 
-  static {
+  /**
+   * obtains the internal plugin.
+   *
+   * @return internal plugin.
+   */
+  @NotNull
+  public static Plugin.Container getInternalPlugin() {
+    return Objects.requireNonNull(ShirukaServer.INTERNAL_PLUGIN, "internal plugin");
+  }
+
+  /**
+   * prepares the internal plugin to use.
+   */
+  private static void prepareInternalPlugin() {
     try {
-      INTERNAL_PLUGIN = new Plugin.Container(
+      ShirukaServer.INTERNAL_PLUGIN = new Plugin.Container(
         ShirukaServer.class.getClassLoader(),
         Constants.herePath(),
         Plugin.Description.of(
@@ -85,30 +94,10 @@ public final class ShirukaServer implements Server {
         Shiruka.logger(),
         new Plugin() {
         },
-        Constants.herePath().toFile());
+        Constants.herePath().toFile()
+      );
     } catch (final InvalidDescriptionException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  /**
-   * ctor.
-   *
-   * @param pluginsPath the plugins path.
-   */
-  public ShirukaServer(@NotNull final Path pluginsPath) {
-    this.pluginsPath = pluginsPath;
-    this.pluginManager = new PluginManager(this.pluginsPath);
-  }
-
-  /**
-   * registers default providers.
-   */
-  private void registerDefaultProviders() {
-    this.provider
-      .register(this.eventManager)
-      .register(this.asyncScheduler)
-      .register(this.syncScheduler)
-      .register(this.pluginManager);
   }
 }

@@ -33,6 +33,8 @@ final class Dependencies {
     final var console = System.console();
     if (console != null) {
       console.printf("|");
+    } else {
+      System.out.println();
     }
     final var thread = new Thread(() -> {
       final var spinner = Constants.spinner();

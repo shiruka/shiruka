@@ -40,12 +40,6 @@ public final class ShirukaServer implements Server {
   private final Logger logger = LogManager.getLogger("Shiru ka");
 
   /**
-   * the plugin path.
-   */
-  @NotNull
-  private final Path pluginsPath;
-
-  /**
    * the provider.
    */
   @Getter
@@ -59,8 +53,7 @@ public final class ShirukaServer implements Server {
   public ShirukaServer(@NotNull final Path pluginsPath) {
     Shiruka.server(this);
     ShirukaServer.prepareInternalPlugin();
-    this.pluginsPath = pluginsPath;
-    this.provider.register(new PluginManager(this.pluginsPath));
+    this.provider.register(new PluginManager(pluginsPath));
     this.provider.register(new ShirukaEventManager());
     this.provider.register(new SyncScheduler());
     this.provider.register(new AsyncScheduler());

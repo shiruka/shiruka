@@ -31,7 +31,7 @@ public final class ShirukaServer implements Server {
    * the internal plugin.
    */
   @Nullable
-  private static Plugin.Container INTERNAL_PLUGIN;
+  private static Plugin.Container internalPlugin;
 
   /**
    * the logger.
@@ -66,7 +66,7 @@ public final class ShirukaServer implements Server {
    */
   @NotNull
   public static Plugin.Container getInternalPlugin() {
-    return Objects.requireNonNull(ShirukaServer.INTERNAL_PLUGIN, "internal plugin");
+    return Objects.requireNonNull(ShirukaServer.internalPlugin, "internal plugin");
   }
 
   /**
@@ -74,7 +74,7 @@ public final class ShirukaServer implements Server {
    */
   private static void prepareInternalPlugin() {
     try {
-      ShirukaServer.INTERNAL_PLUGIN = new Plugin.Container(
+      ShirukaServer.internalPlugin = new Plugin.Container(
         ShirukaServer.class.getClassLoader(),
         Constants.herePath(),
         Plugin.Description.of(

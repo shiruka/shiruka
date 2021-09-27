@@ -81,8 +81,8 @@ public class SyncScheduler implements Scheduler.Async {
    * the head task.
    */
   @NotNull
-  private SyncTask head = new SyncTask(Task.syncBuilder()
-    .withPlugin(ShirukaServer.INTERNAL_PLUGIN)
+  private SyncTask head = new SyncTask(this.newBuilder()
+    .withPlugin(ShirukaServer.getInternalPlugin())
     .withJob(scheduledTask -> {
     })
     .withName("Head")
@@ -103,7 +103,7 @@ public class SyncScheduler implements Scheduler.Async {
       task.cancel0();
     }
     task = new SyncTask(Task.syncBuilder()
-      .withPlugin(ShirukaServer.INTERNAL_PLUGIN)
+      .withPlugin(ShirukaServer.getInternalPlugin())
       .withJob(new Consumer<>() {
         @Override
         public void accept(final ScheduledTask scheduledTask) {
@@ -144,7 +144,7 @@ public class SyncScheduler implements Scheduler.Async {
   @Override
   public void cancelTasks(@NotNull final Plugin.Container plugin) {
     final var task = new SyncTask(Task.syncBuilder()
-      .withPlugin(ShirukaServer.INTERNAL_PLUGIN)
+      .withPlugin(ShirukaServer.getInternalPlugin())
       .withJob(new Consumer<>() {
         @Override
         public void accept(final ScheduledTask scheduledTask) {

@@ -72,7 +72,7 @@ repositories {
 
 dependencies {
   implementation "io.github.shiruka:api:3.0.12-SNAPSHOT"
-  implementation "io.github.shiruka:network:3.0.3-SNAPSHOT"
+  implementation "io.github.shiruka:network:3.0.3"
   implementation "io.github.shiruka:protocol:1.0.1"
 
   implementation "io.github.slimjar:slimjar:1.2.6"

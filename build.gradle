@@ -100,7 +100,7 @@ dependencies {
 
   annotationProcessor "org.jetbrains:annotations:22.0.0"
 
-  compileOnly "org.projectlombok:lombok:1.18.20"
+  compileOnly "org.projectlombok:lombok:1.18.22"
   annotationProcessor "org.projectlombok:lombok:1.18.20"
 
   testImplementation "org.junit.jupiter:junit-jupiter:5.8.1"

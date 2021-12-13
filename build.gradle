@@ -90,7 +90,7 @@ dependencies {
   slim "com.google.guava:guava:31.0.1-jre"
   slim "net.sf.jopt-simple:jopt-simple:5.0.4"
   slim "org.jline:jline-terminal-jansi:3.21.0"
-  slim "org.apache.logging.log4j:log4j-core:2.14.1"
+  slim "org.apache.logging.log4j:log4j-core:2.16.0"
   slim "net.minecrell:terminalconsoleappender:1.3.0"
   slim "org.apache.logging.log4j:log4j-iostreams:2.14.1"
   slim "org.apache.logging.log4j:log4j-slf4j-impl:2.14.1"

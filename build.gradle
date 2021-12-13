@@ -92,7 +92,7 @@ dependencies {
   slim "org.jline:jline-terminal-jansi:3.21.0"
   slim "org.apache.logging.log4j:log4j-core:2.14.1"
   slim "net.minecrell:terminalconsoleappender:1.3.0"
-  slim "org.apache.logging.log4j:log4j-iostreams:2.14.1"
+  slim "org.apache.logging.log4j:log4j-iostreams:2.16.0"
   slim "org.apache.logging.log4j:log4j-slf4j-impl:2.14.1"
   slim "com.github.Infumia.InfumiaLib:InfumiaCommon:2.4.5"
   slim "com.fasterxml.jackson.core:jackson-databind:2.13.0"

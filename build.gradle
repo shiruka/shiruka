@@ -81,7 +81,7 @@ dependencies {
   slim "com.lmax:disruptor:3.4.4"
   slim "info.picocli:picocli:4.6.1"
   slim "it.unimi.dsi:fastutil:8.5.6"
-  slim "com.google.inject:guice:5.0.1"
+  slim "com.google.inject:guice:5.1.0"
   slim "org.jline:jline-reader:3.21.0"
   slim "org.jline:jline-console:3.21.0"
   slim "io.netty:netty-all:4.1.68.Final"

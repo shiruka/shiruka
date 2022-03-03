@@ -71,7 +71,7 @@ repositories {
 }
 
 dependencies {
-  implementation "io.github.shiruka:api:3.0.13-SNAPSHOT"
+  implementation "io.github.shiruka:api:3.0.15-SNAPSHOT"
   implementation "io.github.shiruka:network:3.0.4"
   implementation "io.github.shiruka:protocol:1.0.1"
 

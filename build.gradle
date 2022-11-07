@@ -95,7 +95,7 @@ dependencies {
   slim "org.apache.logging.log4j:log4j-iostreams:2.14.1"
   slim "org.apache.logging.log4j:log4j-slf4j-impl:2.14.1"
   slim "com.github.Infumia.InfumiaLib:InfumiaCommon:2.4.5"
-  slim "com.fasterxml.jackson.core:jackson-databind:2.13.0"
+  slim "com.fasterxml.jackson.core:jackson-databind:2.14.0"
   slim "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0"
 
   annotationProcessor "org.jetbrains:annotations:22.0.0"

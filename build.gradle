@@ -86,7 +86,7 @@ dependencies {
   slim "org.jline:jline-console:3.21.0"
   slim "io.netty:netty-all:4.1.68.Final"
   slim "it.unimi.dsi:fastutil-core:8.5.6"
-  slim "org.jetbrains:annotations:22.0.0"
+  slim "org.jetbrains:annotations:24.0.0"
   slim "com.google.guava:guava:31.0.1-jre"
   slim "net.sf.jopt-simple:jopt-simple:5.0.4"
   slim "org.jline:jline-terminal-jansi:3.21.0"

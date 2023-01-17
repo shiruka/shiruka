@@ -77,7 +77,7 @@ dependencies {
 
   implementation "io.github.slimjar:slimjar:1.2.6"
 
-  slim "org.jline:jline:3.21.0"
+  slim "org.jline:jline:3.22.0"
   slim "com.lmax:disruptor:3.4.4"
   slim "info.picocli:picocli:4.6.1"
   slim "it.unimi.dsi:fastutil:8.5.6"
